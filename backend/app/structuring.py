@@ -35,9 +35,18 @@ Return:
   "age_band": "e.g. 50s, 90+, pediatric (<18), or null",
   "sex": "female|male|other|null",
   "chief_complaint": "short phrase",
+    "symptoms": [{"name": "...", "duration": "... or null", "frequency": "... or null",
+                                "onset": "gradual|sudden|... or null", "aggravating_factors": ["..."]}],
   "key_findings": ["symptoms, exam findings, labs, imaging"],
   "suspected_conditions": ["diagnoses the author is considering or asking about"],
   "treatments_tried": ["drugs or interventions already tried, with response if stated"],
+    "past_medical_history": ["..."],
+    "family_medical_history": ["..."],
+    "current_medications": ["..."],
+    "social_history": ["..."],
+    "lab_results": ["..."],
+    "pregnancy_status": "... or null",
+    "immune_status": "... or null",
   "clinical_question": "what the author wants help with, one sentence",
   "specialty_hints": ["1-3 of: Dermatology, Rheumatology, Gastroenterology, Oncology, Endocrinology, Pulmonology, Neurology, Internal Medicine"],
   "search_terms": ["2-4 short medical search terms for literature and trial lookup"]
@@ -91,6 +100,9 @@ def fallback_structure(text: str, age_band: str | None) -> dict:
     considering = [s for s in sents if re.search(r"\b(concern(ed)? for|consider|ruled out|r/o|differential|suspect)\b", s, re.I)]
     findings = [s for s in sents if s not in tried and s != question and s not in considering][:6]
 
+    symptoms = [{"name": s[:240], "duration": None, "frequency": None,
+                 "onset": None, "aggravating_factors": []} for s in findings[:6]]
+
     words = re.findall(r"[a-z][a-z-]{4,}", low)
     medical = [w for w in words if any(w.startswith(k.strip()[:6]) for ks in SPECIALTY_KEYWORDS.values() for k in ks)]
     search_terms = list(dict.fromkeys(medical))[:4]
@@ -99,9 +111,17 @@ def fallback_structure(text: str, age_band: str | None) -> dict:
         "age_band": age_band,
         "sex": sex,
         "chief_complaint": next((s for s in sents if s != question), "")[:140],
+        "symptoms": symptoms,
         "key_findings": findings,
         "suspected_conditions": considering[:3],
         "treatments_tried": tried[:4],
+        "past_medical_history": [],
+        "family_medical_history": [],
+        "current_medications": [],
+        "social_history": [],
+        "lab_results": [],
+        "pregnancy_status": None,
+        "immune_status": None,
         "clinical_question": question,
         "specialty_hints": hints or ["Internal Medicine"],
         "search_terms": search_terms,

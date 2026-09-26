@@ -199,9 +199,22 @@ async def find_similar(patient_id: str, req: FindSimilarRequest | None = None):
         raise HTTPException(404, "Patient not found")
     d = deid.deidentify(_patient_to_text(p, req.question), known_identifiers=[p["display_name"]])
     structured = structure_case(d["redacted_text"], d["age_band"])
+    if req.structured_profile:
+        profile = req.structured_profile.model_dump(exclude_none=True)
+        # Structured free-text fields still need the same identifier check as narrative input.
+        _, leaked, _ = deid.regex_pass(str(profile))
+        if leaked:
+            raise HTTPException(422, "Structured profile contains possible identifiers; remove them first.")
+        for key, value in profile.items():
+            if value not in (None, "", []):
+                structured[key] = value
+    structured["age_band"] = structured.get("age_band") or d["age_band"]
+    structured["sex"] = structured.get("sex") or p.get("sex")
+    structured["current_medications"] = (structured.get("current_medications")
+                                           or p.get("medications") or [])
+    d["structured_preview"] = structured
     match = await _full_match(structured, p["hcp_id"], req.include_evidence)
-    return {"patient_id": patient_id, "deidentified": {**d, "structured_preview": structured},
-            "match": match}
+    return {"patient_id": patient_id, "deidentified": d, "match": match}
 
 
 # ---------- HCPs ----------

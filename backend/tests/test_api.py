@@ -182,6 +182,38 @@ def test_find_similar_returns_diagnosis_treatment_and_outcome(client):
     assert all(pe["hcp_id"] != "hcp_demo" for pe in m["peers"])
 
 
+def test_find_similar_accepts_detailed_profile_and_returns_case_cards(client):
+    p = _demo_patient(client, "Maria Lopez")
+    profile = {
+        "age_band": "50s",
+        "sex": "female",
+        "symptoms": [
+            {"name": "heel pain", "duration": "2 months", "frequency": "daily",
+             "onset": "gradual", "aggravating_factors": ["walking"]},
+            {"name": "morning knee stiffness", "duration": "3 weeks"},
+        ],
+        "past_medical_history": ["atopic dermatitis"],
+        "family_medical_history": ["no relevant history reported"],
+        "current_medications": ["dupilumab"],
+        "social_history": ["does not smoke"],
+        "lab_results": ["RF and CCP negative"],
+        "pregnancy_status": "not pregnant",
+        "immune_status": "not immunocompromised",
+    }
+    response = client.post(
+        f"/patients/{p['id']}/find-similar",
+        json={"include_evidence": False, "structured_profile": profile},
+    )
+    assert response.status_code == 200
+    payload = response.json()
+    result = payload["match"]["similar_cases"][0]
+    assert result["summary"]["age_band"]
+    assert len(result["summary"]["symptoms"]) <= 3
+    assert payload["deidentified"]["structured_preview"]["lab_results"] == ["RF and CCP negative"]
+    assert "lab_results" in result["details"]
+    assert result["score_type"] == "vector_similarity_not_diagnostic_probability"
+
+
 def test_novel_patient_gets_no_false_diagnosis(client):
     # Earlier in this run test_full_loop resolved an angioedema case, so the network may
     # legitimately know this pattern now. Either way it must never show an unrelated diagnosis.

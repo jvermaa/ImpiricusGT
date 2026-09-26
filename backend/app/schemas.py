@@ -1,6 +1,14 @@
 from pydantic import BaseModel, Field
 
 
+class SymptomDetail(BaseModel):
+    name: str = Field(..., min_length=1, max_length=240)
+    duration: str | None = Field(None, max_length=120)
+    frequency: str | None = Field(None, max_length=120)
+    onset: str | None = Field(None, max_length=120)
+    aggravating_factors: list[str] = Field(default_factory=list)
+
+
 class DeidentifyRequest(BaseModel):
     raw_text: str = Field(..., min_length=10, max_length=8000,
                           description="Doctor's free-text case. Never stored.")
@@ -10,12 +18,20 @@ class StructuredCase(BaseModel):
     age_band: str | None = None
     sex: str | None = None
     chief_complaint: str = ""
-    key_findings: list[str] = []
-    suspected_conditions: list[str] = []
-    treatments_tried: list[str] = []
+    symptoms: list[SymptomDetail] = Field(default_factory=list)
+    key_findings: list[str] = Field(default_factory=list)
+    suspected_conditions: list[str] = Field(default_factory=list)
+    treatments_tried: list[str] = Field(default_factory=list)
+    past_medical_history: list[str] = Field(default_factory=list)
+    family_medical_history: list[str] = Field(default_factory=list)
+    current_medications: list[str] = Field(default_factory=list)
+    social_history: list[str] = Field(default_factory=list)
+    lab_results: list[str] = Field(default_factory=list)
+    pregnancy_status: str | None = None
+    immune_status: str | None = None
     clinical_question: str = ""
-    specialty_hints: list[str] = []
-    search_terms: list[str] = []
+    specialty_hints: list[str] = Field(default_factory=list)
+    search_terms: list[str] = Field(default_factory=list)
     structured_by: str | None = None
 
 
@@ -50,3 +66,5 @@ class FindSimilarRequest(BaseModel):
     question: str | None = Field(None, max_length=1000,
                                  description="Optional: what the doctor wants to know about this patient")
     include_evidence: bool = True
+    structured_profile: StructuredCase | None = Field(
+        None, description="Optional clinical profile reviewed by the doctor before matching")

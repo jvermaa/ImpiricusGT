@@ -42,11 +42,28 @@ def case_document(structured: dict) -> str:
     """The text we embed for a case. Built from the structured summary, not raw text."""
     # Clinical content only. Age and sex are deliberately left out: they are shared by
     # huge numbers of unrelated cases and just inflate every similarity score.
+    symptoms = []
+    for symptom in structured.get("symptoms") or []:
+        if isinstance(symptom, dict):
+            symptom_parts = [symptom.get("name") or "", symptom.get("duration") or "",
+                             symptom.get("frequency") or "", symptom.get("onset") or "",
+                             "; ".join(symptom.get("aggravating_factors") or [])]
+            symptoms.append(" ".join(part for part in symptom_parts if part))
+        elif isinstance(symptom, str):
+            symptoms.append(symptom)
     parts = [
         structured.get("chief_complaint") or "",
+        "; ".join(symptoms),
         "; ".join(structured.get("key_findings") or []),
         "; ".join(structured.get("suspected_conditions") or []),
         "; ".join(structured.get("treatments_tried") or []),
+        "; ".join(structured.get("past_medical_history") or []),
+        "; ".join(structured.get("family_medical_history") or []),
+        "; ".join(structured.get("current_medications") or []),
+        "; ".join(structured.get("social_history") or []),
+        "; ".join(structured.get("lab_results") or []),
+        structured.get("pregnancy_status") or "",
+        structured.get("immune_status") or "",
         structured.get("clinical_question") or "",
     ]
     return " | ".join(dict.fromkeys(p for p in parts if p.strip()))

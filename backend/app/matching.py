@@ -41,6 +41,12 @@ def _ensure_cross_specialty(peers: list[dict], hints: list[str], n: int) -> list
     return top[:-1] + [alt] + [p for p in peers[n:] if p is not alt] + [top[-1]]
 
 
+def _symptom_names(structured: dict) -> list[str]:
+    symptoms = structured.get("symptoms") or []
+    names = [s.get("name", "") if isinstance(s, dict) else str(s) for s in symptoms]
+    return [name for name in names if name]
+
+
 def match_case(structured: dict, author_hcp_id: str | None, top_peers: int = 5,
                top_cases: int = 5) -> dict:
     embedder = get_embedder()
@@ -57,15 +63,28 @@ def match_case(structured: dict, author_hcp_id: str | None, top_peers: int = 5,
     evidence: dict[str, dict] = {}   # hcp_id -> {"score": float, "resolved": [...], "answered": [...]}
     for h in hits:
         row = case_rows.get(h["id"])
-        if not row:
+        if (not row or row.get("status") != "resolved" or not row.get("consent_to_index")):
             continue
         sim = h["similarity"]
         dx = row.get("final_diagnosis")
+        case_structured = row.get("structured") or {}
+        detail_fields = (
+            "age_band", "sex", "chief_complaint", "symptoms", "key_findings",
+            "suspected_conditions", "treatments_tried", "past_medical_history",
+            "family_medical_history", "current_medications", "social_history",
+            "lab_results", "pregnancy_status", "immune_status", "clinical_question",
+        )
         similar.append({
             "case_id": row["id"],
             "similarity": sim,
-            "summary": {k: row["structured"].get(k) for k in
-                        ("age_band", "sex", "chief_complaint", "key_findings", "treatments_tried")},
+            "similarity_score": sim,
+            "score_type": "vector_similarity_not_diagnostic_probability",
+            "summary": {
+                "age_band": case_structured.get("age_band"),
+                "sex": case_structured.get("sex"),
+                "symptoms": _symptom_names(case_structured)[:3],
+            },
+            "details": {k: case_structured.get(k) for k in detail_fields},
             "final_diagnosis": dx,
             "treatment_used": row.get("treatment_used"),
             "outcome": row.get("outcome"),
@@ -173,6 +192,7 @@ def match_case(structured: dict, author_hcp_id: str | None, top_peers: int = 5,
         "peers": peers[:top_peers],
         "network_note": note,
         "disclaimer": ("Diagnoses and treatments shown are what happened in other de-identified cases, "
-                       "not a diagnosis or treatment recommendation for this patient. Clinical "
+                       "not a diagnosis or treatment recommendation for this patient. Similarity scores "
+                       "are not diagnostic probabilities. Clinical "
                        "decisions remain with the treating clinician."),
     }
