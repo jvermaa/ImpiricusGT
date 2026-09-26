@@ -1,38 +1,55 @@
-"""All distance logic goes through a ProximityProvider. Nothing else reads
-distance_miles directly, so the real implementation (Part 2) can replace the
-hardcoded one without changing any API response."""
+"""Distance lookup used by the referral directory."""
+import math
+import os
+from collections.abc import Mapping
 from functools import lru_cache
 from typing import Protocol
-
-from .. import config
 
 
 class ProximityProvider(Protocol):
     name: str
 
-    def distance_miles(self, origin_hcp_id: str | None, provider: dict) -> float | None:
+    def distance_miles(
+        self, origin_hcp_id: str | None, provider: object
+    ) -> float | None:
         """Miles from the requesting HCP to this provider. None = unknown."""
 
 
 class HardcodedProximity:
-    """DEMO ONLY. Returns the fixture's distance_miles regardless of origin.
-    Valid only because every demo request comes from hcp_demo."""
+    """Demo-only: returns the distance stored on the provider record."""
+
     name = "hardcoded"
 
-    def distance_miles(self, origin_hcp_id, provider):
-        return provider.get("distance_miles")
+    def distance_miles(
+        self, origin_hcp_id: str | None, provider: object
+    ) -> float | None:
+        if isinstance(provider, Mapping):
+            distance = provider.get("distance_miles")
+        else:
+            distance = getattr(provider, "distance_miles", None)
+
+        if distance is None or isinstance(distance, bool):
+            return None
+        if not isinstance(distance, (int, float)):
+            return None
+
+        distance = float(distance)
+        return distance if math.isfinite(distance) and distance >= 0 else None
 
 
 @lru_cache(maxsize=1)
 def get_proximity() -> ProximityProvider:
-    if config.PROXIMITY == "hardcoded":
+    mode = os.getenv("PCX_PROXIMITY", "hardcoded")
+    if mode == "hardcoded":
         return HardcodedProximity()
-    # Part 2: HaversineProximity(locate=...) goes here.
-    raise RuntimeError(f"Unknown PCX_PROXIMITY={config.PROXIMITY!r}; only 'hardcoded' is implemented")
+
+    raise RuntimeError(
+        f"Unknown PCX_PROXIMITY={mode!r}; only 'hardcoded' is implemented"
+    )
 
 
 def distance_band(miles: float | None) -> str:
-    if miles is None:
+    if miles is None or not math.isfinite(miles) or miles < 0:
         return "unknown"
     if miles < 5:
         return "nearby"
@@ -41,3 +58,5 @@ def distance_band(miles: float | None) -> str:
     if miles <= 50:
         return "regional"
     return "far"
+
+
