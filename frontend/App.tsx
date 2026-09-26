@@ -5,10 +5,10 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { BottomNavBar, TabKey } from './src/components/BottomNavBar';
 import { DottedGradientBackground } from './src/components/DottedGradientBackground';
 import { ChatScreen } from './src/screens/ChatScreen';
+import { PatientScreen } from './src/screens/PatientScreen';
 import { PlaceholderScreen } from './src/screens/PlaceholderScreen';
 
-const TITLES: Record<Exclude<TabKey, 'chat'>, string> = {
-  patient: 'Patient',
+const TITLES: Record<Exclude<TabKey, 'chat' | 'patient'>, string> = {
   notification: 'Notification',
   profile: 'Profile',
 };
@@ -26,6 +26,8 @@ function AppShell() {
           <View style={styles.content}>
             {activeTab === 'chat' ? (
               <ChatScreen />
+            ) : activeTab === 'patient' ? (
+              <PatientScreen />
             ) : (
               <PlaceholderScreen title={TITLES[activeTab]} />
             )}
