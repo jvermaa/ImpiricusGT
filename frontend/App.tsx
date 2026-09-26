@@ -8,9 +8,8 @@ import { ChatScreen } from './src/screens/ChatScreen';
 import { PlaceholderScreen } from './src/screens/PlaceholderScreen';
 
 const TITLES: Record<Exclude<TabKey, 'chat'>, string> = {
-  prescriber: 'Prescriber',
-  translator: 'Translator',
-  concierge: 'Concierge',
+  patient: 'Patient',
+  notification: 'Notification',
   profile: 'Profile',
 };
 
