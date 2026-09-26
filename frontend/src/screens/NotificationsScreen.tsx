@@ -12,28 +12,28 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Avatar } from '../components/Avatar';
-import { ChevronLeftIcon, CloseIcon, SendIcon } from '../components/NavIcons';
+import { ChevronLeftIcon, SendIcon } from '../components/NavIcons';
 import {
   NOTIFICATION_TYPE_META,
   NOTIFICATIONS,
-  SUITABLE_PATIENTS,
   type AppNotification,
   type NotificationAction,
   type NotificationMessage,
-  type SuitablePatient,
 } from '../data/notificationsMock';
 import { colors } from '../theme/colors';
 
 type Props = {
   onOpenPatient?: () => void;
+  onFindSuitablePatients?: (notification: AppNotification) => void;
 };
 
-export function NotificationsScreen({ onOpenPatient }: Props) {
+export function NotificationsScreen({
+  onOpenPatient,
+  onFindSuitablePatients,
+}: Props) {
   const insets = useSafeAreaInsets();
   const [items, setItems] = useState(NOTIFICATIONS);
   const [activeId, setActiveId] = useState<string | null>(null);
-  const [patientsOpen, setPatientsOpen] = useState(false);
-  const [patientDone, setPatientDone] = useState<Record<string, boolean>>({});
 
   const active = useMemo(
     () => items.find((n) => n.id === activeId) ?? null,
@@ -167,7 +167,7 @@ export function NotificationsScreen({ onOpenPatient }: Props) {
                       accessibilityLabel="Find suitable patients"
                       onPress={() => {
                         markRead(n.id);
-                        setPatientsOpen(true);
+                        onFindSuitablePatients?.(n);
                       }}
                       style={styles.findOnCardBtn}
                     >
@@ -182,22 +182,6 @@ export function NotificationsScreen({ onOpenPatient }: Props) {
           );
         })}
       </ScrollView>
-
-      {patientsOpen ? (
-        <SuitablePatientsPopup
-          done={patientDone}
-          onClose={() => setPatientsOpen(false)}
-          onBulk={() => {
-            setPatientDone(
-              Object.fromEntries(SUITABLE_PATIENTS.map((p) => [p.id, true])),
-            );
-            setPatientsOpen(false);
-          }}
-          onPatient={(p) => {
-            setPatientDone((prev) => ({ ...prev, [p.id]: true }));
-          }}
-        />
-      ) : null}
     </View>
   );
 }
@@ -478,93 +462,6 @@ function NotificationDetail({
         </Pressable>
       </View>
     </KeyboardAvoidingView>
-  );
-}
-
-function SuitablePatientsPopup({
-  done,
-  onClose,
-  onBulk,
-  onPatient,
-}: {
-  done: Record<string, boolean>;
-  onClose: () => void;
-  onBulk: () => void;
-  onPatient: (p: SuitablePatient) => void;
-}) {
-  return (
-    <View style={styles.popupRoot}>
-      <Pressable style={styles.popupOverlay} onPress={onClose} />
-      <View style={styles.popupCard}>
-        <View style={styles.popupHeader}>
-          <View style={styles.popupHeaderLeft}>
-            <Text style={styles.popupTitle}>Suitable patients</Text>
-            <Text style={styles.popupSub}>Cardivex 10mg · panel match</Text>
-          </View>
-          <View style={styles.popupHeaderRight}>
-            <Pressable
-              accessibilityRole="button"
-              onPress={onBulk}
-              style={styles.inviteAllBtn}
-            >
-              <Text style={styles.inviteAllText}>Invite/notify all</Text>
-            </Pressable>
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel="Close"
-              onPress={onClose}
-              style={styles.popupClose}
-            >
-              <CloseIcon color={colors.textMuted} size={16} />
-            </Pressable>
-          </View>
-        </View>
-
-        <ScrollView
-          style={styles.popupList}
-          contentContainerStyle={styles.popupListContent}
-          showsVerticalScrollIndicator={false}
-        >
-          {SUITABLE_PATIENTS.map((p) => {
-            const used = !!done[p.id];
-            const label = p.cta === 'invite' ? 'Invite' : 'Notify';
-            return (
-              <View key={p.id} style={styles.popupRow}>
-                <Avatar
-                  initials={p.initials}
-                  color={p.avatarColor}
-                  size={40}
-                />
-                <View style={styles.popupRowMeta}>
-                  <Text style={styles.popupRowName}>{p.name}</Text>
-                  <Text style={styles.popupRowCond}>{p.condition}</Text>
-                </View>
-                <Pressable
-                  accessibilityRole="button"
-                  disabled={used}
-                  onPress={() => onPatient(p)}
-                  style={[
-                    styles.rowCta,
-                    p.cta === 'notify' && styles.rowCtaNotify,
-                    used && styles.rowCtaDone,
-                  ]}
-                >
-                  <Text
-                    style={[
-                      styles.rowCtaText,
-                      p.cta === 'notify' && styles.rowCtaTextNotify,
-                      used && styles.rowCtaTextDone,
-                    ]}
-                  >
-                    {used ? 'Sent' : label}
-                  </Text>
-                </Pressable>
-              </View>
-            );
-          })}
-        </ScrollView>
-      </View>
-    </View>
   );
 }
 
@@ -930,122 +827,5 @@ const styles = StyleSheet.create({
   },
   sendDisabled: {
     opacity: 0.45,
-  },
-  popupRoot: {
-    ...StyleSheet.absoluteFill,
-    justifyContent: 'center',
-    paddingHorizontal: 18,
-    zIndex: 80,
-  },
-  popupOverlay: {
-    ...StyleSheet.absoluteFill,
-    backgroundColor: colors.overlay,
-  },
-  popupCard: {
-    backgroundColor: colors.cardBg,
-    borderRadius: 18,
-    maxHeight: '72%',
-    paddingTop: 14,
-    paddingHorizontal: 14,
-    paddingBottom: 12,
-    zIndex: 81,
-  },
-  popupHeader: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    justifyContent: 'space-between',
-    gap: 8,
-    marginBottom: 12,
-  },
-  popupHeaderLeft: {
-    flex: 1,
-  },
-  popupHeaderRight: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  popupTitle: {
-    fontSize: 17,
-    fontWeight: '700',
-    color: colors.textPrimary,
-  },
-  popupSub: {
-    fontSize: 12,
-    color: colors.textMuted,
-    marginTop: 2,
-  },
-  inviteAllBtn: {
-    backgroundColor: colors.accentPurple,
-    borderRadius: 14,
-    paddingVertical: 8,
-    paddingHorizontal: 10,
-  },
-  inviteAllText: {
-    color: colors.white,
-    fontSize: 11,
-    fontWeight: '700',
-  },
-  popupClose: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: 'rgba(138, 144, 160, 0.15)',
-  },
-  popupList: {
-    flexGrow: 0,
-  },
-  popupListContent: {
-    gap: 8,
-    paddingBottom: 4,
-  },
-  popupRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-    paddingVertical: 8,
-    paddingHorizontal: 4,
-  },
-  popupRowMeta: {
-    flex: 1,
-    minWidth: 0,
-  },
-  popupRowName: {
-    fontSize: 15,
-    fontWeight: '700',
-    color: colors.textPrimary,
-  },
-  popupRowCond: {
-    fontSize: 12,
-    color: colors.textMuted,
-    marginTop: 2,
-  },
-  rowCta: {
-    borderRadius: 14,
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    backgroundColor: colors.accentPurple,
-  },
-  rowCtaNotify: {
-    backgroundColor: 'rgba(255,255,255,0.95)',
-    borderWidth: 1.5,
-    borderColor: colors.accentPurple,
-  },
-  rowCtaDone: {
-    backgroundColor: '#E8EAF0',
-    borderWidth: 0,
-  },
-  rowCtaText: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: colors.white,
-  },
-  rowCtaTextNotify: {
-    color: colors.accentPurple,
-  },
-  rowCtaTextDone: {
-    color: colors.textMuted,
   },
 });

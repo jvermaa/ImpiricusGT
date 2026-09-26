@@ -44,6 +44,9 @@ export type PatientProfile = {
   pastVisits: PastVisit[];
 };
 
+/** Hardcoded high-relevance matches for suitable-patient / cohort analyzer mode. */
+export const HIGH_MATCH_PATIENT_IDS = ['pat-1', 'pat-3'] as const;
+
 export const PATIENTS: PatientProfile[] = [
   {
     id: 'pat-1',
@@ -84,11 +87,11 @@ export const PATIENTS: PatientProfile[] = [
       },
       {
         id: 's-arthur-3',
-        name: 'Orthopnea',
+        name: 'Arrhythmia',
         duration: '4 weeks',
-        frequency: 'Nightly',
-        trigger: 'Lying down',
-        onset: 'Gradual',
+        frequency: 'Intermittent',
+        trigger: 'Exertion',
+        onset: 'Sudden',
       },
     ],
     pastVisits: [
@@ -267,11 +270,11 @@ export const PATIENTS: PatientProfile[] = [
       },
       {
         id: 's-james-3',
-        name: 'Palpitations',
-        duration: '2 weeks',
-        frequency: 'Intermittent',
-        trigger: 'Stress',
-        onset: 'Sudden',
+        name: 'Hypertension',
+        duration: '1 year',
+        frequency: 'Persistent',
+        trigger: 'Salt intake',
+        onset: 'Gradual',
       },
     ],
     pastVisits: [
