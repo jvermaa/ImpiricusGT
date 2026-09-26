@@ -142,32 +142,30 @@ export function NotificationsScreen({ onOpenPatient }: Props) {
           const isMatchCard = !!n.findSuitablePatients;
 
           return (
-            <Pressable
-              key={n.id}
-              accessibilityRole="button"
-              accessibilityLabel={`${n.title}. ${n.preview}`}
-              onPress={() => handleCardPress(n)}
-              style={styles.card}
-            >
+            <View key={n.id} style={styles.card}>
               <View style={[styles.accent, { backgroundColor: meta.accent }]} />
               <View style={styles.cardBody}>
-                <View style={styles.cardTop}>
-                  <Text style={styles.cardTitle} numberOfLines={1}>
-                    {n.title}
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel={`${n.title}. ${n.preview}`}
+                  onPress={() => handleCardPress(n)}
+                >
+                  <View style={styles.cardTop}>
+                    <Text style={styles.cardTitle} numberOfLines={1}>
+                      {n.title}
+                    </Text>
+                    <Text style={styles.timeAgo}>{n.timeAgo}</Text>
+                  </View>
+                  <Text style={styles.preview} numberOfLines={2}>
+                    {n.preview}
                   </Text>
-                  <Text style={styles.timeAgo}>{n.timeAgo}</Text>
-                </View>
-                <Text style={styles.preview} numberOfLines={2}>
-                  {n.preview}
-                </Text>
+                </Pressable>
                 {isMatchCard ? (
                   <View style={styles.cardActionRow}>
                     <Pressable
                       accessibilityRole="button"
                       accessibilityLabel="Find suitable patients"
-                      onPress={(e) => {
-                        // Don't also fire the card link redirect
-                        e?.stopPropagation?.();
+                      onPress={() => {
                         markRead(n.id);
                         setPatientsOpen(true);
                       }}
@@ -180,7 +178,7 @@ export function NotificationsScreen({ onOpenPatient }: Props) {
                   </View>
                 ) : null}
               </View>
-            </Pressable>
+            </View>
           );
         })}
       </ScrollView>
