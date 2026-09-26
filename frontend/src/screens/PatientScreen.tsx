@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   Platform,
   Pressable,
@@ -9,9 +9,9 @@ import {
   View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { loadMyPatients } from '../api/clinic';
 import { ChevronLeftIcon, CloseIcon, SearchIcon } from '../components/NavIcons';
 import {
-  PATIENTS,
   type PastVisit,
   type PatientProfile,
   type SymptomEntry,
@@ -82,7 +82,7 @@ function makeVisitForm(patient: PatientProfile): VisitForm {
 
 export function PatientScreen() {
   const insets = useSafeAreaInsets();
-  const [patients, setPatients] = useState<PatientProfile[]>(PATIENTS);
+  const [patients, setPatients] = useState<PatientProfile[]>([]);
   const [route, setRoute] = useState<RouteState>({ name: 'list' });
   const [query, setQuery] = useState('');
   const [selectedPatientId, setSelectedPatientId] = useState<string | null>(null);
@@ -91,6 +91,22 @@ export function PatientScreen() {
   const [visitForm, setVisitForm] = useState<VisitForm | null>(null);
   const [addSymptomOpen, setAddSymptomOpen] = useState(false);
   const [symptomDraft, setSymptomDraft] = useState<SymptomDraft>(EMPTY_SYMPTOM);
+
+  useEffect(() => {
+    let cancelled = false;
+    loadMyPatients()
+      .then((rows) => {
+        if (!cancelled) setPatients(rows);
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setInfoMessage('Could not load this doctor’s patient panel from the API.');
+        }
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const routedPatientId =
     route.name === 'list' ? null : route.patientId;
@@ -140,7 +156,7 @@ export function PatientScreen() {
 
   const headerSubtitle =
     route.name === 'list'
-      ? 'Peer cohort records'
+      ? `${patients.length} patients`
       : route.name === 'edit'
         ? 'Patient details and visit history'
         : route.name === 'visitDetails'
