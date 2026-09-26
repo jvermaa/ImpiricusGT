@@ -1,0 +1,4778 @@
+[
+  {
+    "patient_key": "P001",
+    "age_group": "10-19",
+    "state": "AL",
+    "sex_for_clinical_context": "female",
+    "preferred_language": "English",
+    "primary_doctor_key": "D001",
+    "diagnoses": [
+      {
+        "label": "Hypertension",
+        "code_system": "ICD-10-CM",
+        "code": "I10",
+        "status": "active",
+        "first_recorded_year": 2023
+      }
+    ],
+    "allergies": [],
+    "allergy_status": "none reported",
+    "symptoms": [
+      "Symptoms associated with hypertension"
+    ],
+    "background": {
+      "tobacco_use": "never",
+      "surgery_history": "not recorded",
+      "family_history": "not recorded",
+      "pregnancy_status": "not recorded"
+    },
+    "portal_access": false,
+    "email_contact_available": false,
+    "messaging_preference": "unavailable",
+    "patient_education_language": "English",
+    "sharing_preference_for_peer_cases": "not documented",
+    "clinical_trial_outreach_preference": "not documented",
+    "source": "fully synthetic fixture"
+  },
+  {
+    "patient_key": "P002",
+    "age_group": "30-39",
+    "state": "GA",
+    "sex_for_clinical_context": "male",
+    "preferred_language": "Spanish",
+    "primary_doctor_key": "D002",
+    "diagnoses": [
+      {
+        "label": "Heart failure",
+        "code_system": "ICD-10-CM",
+        "code": "I50.9",
+        "status": "active",
+        "first_recorded_year": 2024
+      }
+    ],
+    "allergies": [
+      {
+        "substance": "penicillin",
+        "reaction": "unspecified",
+        "status": "reported"
+      }
+    ],
+    "allergy_status": "reported",
+    "symptoms": [
+      "Symptoms associated with heart failure"
+    ],
+    "background": {
+      "tobacco_use": "former",
+      "surgery_history": "not recorded",
+      "family_history": "not recorded",
+      "pregnancy_status": "not recorded"
+    },
+    "portal_access": true,
+    "email_contact_available": false,
+    "messaging_preference": "portal",
+    "patient_education_language": "Spanish",
+    "sharing_preference_for_peer_cases": "de-identified case only",
+    "clinical_trial_outreach_preference": "not documented",
+    "source": "fully synthetic fixture"
+  },
+  {
+    "patient_key": "P003",
+    "age_group": "40-49",
+    "state": "NY",
+    "sex_for_clinical_context": "not recorded",
+    "preferred_language": "Nepali",
+    "primary_doctor_key": "D003",
+    "diagnoses": [
+      {
+        "label": "Hypertension",
+        "code_system": "ICD-10-CM",
+        "code": "I10",
+        "status": "active",
+        "first_recorded_year": 2025
+      }
+    ],
+    "allergies": [
+      {
+        "substance": "latex",
+        "reaction": "unspecified",
+        "status": "reported"
+      }
+    ],
+    "allergy_status": "reported",
+    "symptoms": [
+      "Symptoms associated with hypertension"
+    ],
+    "background": {
+      "tobacco_use": "unknown",
+      "surgery_history": "not recorded",
+      "family_history": "not recorded",
+      "pregnancy_status": "not recorded"
+    },
+    "portal_access": true,
+    "email_contact_available": false,
+    "messaging_preference": "portal",
+    "patient_education_language": "Nepali",
+    "sharing_preference_for_peer_cases": "de-identified case only",
+    "clinical_trial_outreach_preference": "not documented",
+    "source": "fully synthetic fixture"
+  },
+  {
+    "patient_key": "P004",
+    "age_group": "50-59",
+    "state": "TX",
+    "sex_for_clinical_context": "female",
+    "preferred_language": "English",
+    "primary_doctor_key": "D004",
+    "diagnoses": [
+      {
+        "label": "Heart failure",
+        "code_system": "ICD-10-CM",
+        "code": "I50.9",
+        "status": "active",
+        "first_recorded_year": 2026
+      }
+    ],
+    "allergies": [
+      {
+        "substance": "peanuts",
+        "reaction": "unspecified",
+        "status": "reported"
+      }
+    ],
+    "allergy_status": "reported",
+    "symptoms": [
+      "Symptoms associated with heart failure"
+    ],
+    "background": {
+      "tobacco_use": "never",
+      "surgery_history": "not recorded",
+      "family_history": "not recorded",
+      "pregnancy_status": "not recorded"
+    },
+    "portal_access": true,
+    "email_contact_available": false,
+    "messaging_preference": "portal",
+    "patient_education_language": "English",
+    "sharing_preference_for_peer_cases": "de-identified case only",
+    "clinical_trial_outreach_preference": "not documented",
+    "source": "fully synthetic fixture"
+  },
+  {
+    "patient_key": "P005",
+    "age_group": "60-69",
+    "state": "FL",
+    "sex_for_clinical_context": "male",
+    "preferred_language": "Spanish",
+    "primary_doctor_key": "D005",
+    "diagnoses": [
+      {
+        "label": "Hypertension",
+        "code_system": "ICD-10-CM",
+        "code": "I10",
+        "status": "active",
+        "first_recorded_year": 2023
+      }
+    ],
+    "allergies": [
+      {
+        "substance": "peanuts",
+        "reaction": "unspecified",
+        "status": "reported"
+      }
+    ],
+    "allergy_status": "reported",
+    "symptoms": [
+      "Symptoms associated with hypertension"
+    ],
+    "background": {
+      "tobacco_use": "former",
+      "surgery_history": "not recorded",
+      "family_history": "not recorded",
+      "pregnancy_status": "not recorded"
+    },
+    "portal_access": true,
+    "email_contact_available": false,
+    "messaging_preference": "portal",
+    "patient_education_language": "Spanish",
+    "sharing_preference_for_peer_cases": "not documented",
+    "clinical_trial_outreach_preference": "not documented",
+    "source": "fully synthetic fixture"
+  },
+  {
+    "patient_key": "P006",
+    "age_group": "70-79",
+    "state": "MA",
+    "sex_for_clinical_context": "not recorded",
+    "preferred_language": "Nepali",
+    "primary_doctor_key": "D006",
+    "diagnoses": [
+      {
+        "label": "Hypothyroidism",
+        "code_system": "ICD-10-CM",
+        "code": "E03.9",
+        "status": "active",
+        "first_recorded_year": 2024
+      }
+    ],
+    "allergies": [],
+    "allergy_status": "none reported",
+    "symptoms": [
+      "Symptoms associated with hypothyroidism"
+    ],
+    "background": {
+      "tobacco_use": "unknown",
+      "surgery_history": "not recorded",
+      "family_history": "not recorded",
+      "pregnancy_status": "not recorded"
+    },
+    "portal_access": true,
+    "email_contact_available": false,
+    "messaging_preference": "portal",
+    "patient_education_language": "Nepali",
+    "sharing_preference_for_peer_cases": "de-identified case only",
+    "clinical_trial_outreach_preference": "not documented",
+    "source": "fully synthetic fixture"
+  },
+  {
+    "patient_key": "P007",
+    "age_group": "80-89",
+    "state": "PA",
+    "sex_for_clinical_context": "female",
+    "preferred_language": "English",
+    "primary_doctor_key": "D007",
+    "diagnoses": [
+      {
+        "label": "Type 2 diabetes",
+        "code_system": "ICD-10-CM",
+        "code": "E11.9",
+        "status": "active",
+        "first_recorded_year": 2025
+      }
+    ],
+    "allergies": [
+      {
+        "substance": "penicillin",
+        "reaction": "unspecified",
+        "status": "reported"
+      }
+    ],
+    "allergy_status": "reported",
+    "symptoms": [
+      "Symptoms associated with type 2 diabetes"
+    ],
+    "background": {
+      "tobacco_use": "never",
+      "surgery_history": "not recorded",
+      "family_history": "not recorded",
+      "pregnancy_status": "not recorded"
+    },
+    "portal_access": true,
+    "email_contact_available": false,
+    "messaging_preference": "portal",
+    "patient_education_language": "English",
+    "sharing_preference_for_peer_cases": "de-identified case only",
+    "clinical_trial_outreach_preference": "not documented",
+    "source": "fully synthetic fixture"
+  },
+  {
+    "patient_key": "P008",
+    "age_group": "10-19",
+    "state": "CA",
+    "sex_for_clinical_context": "male",
+    "preferred_language": "Spanish",
+    "primary_doctor_key": "D008",
+    "diagnoses": [
+      {
+        "label": "Hypothyroidism",
+        "code_system": "ICD-10-CM",
+        "code": "E03.9",
+        "status": "active",
+        "first_recorded_year": 2026
+      }
+    ],
+    "allergies": [
+      {
+        "substance": "latex",
+        "reaction": "unspecified",
+        "status": "reported"
+      }
+    ],
+    "allergy_status": "reported",
+    "symptoms": [
+      "Symptoms associated with hypothyroidism"
+    ],
+    "background": {
+      "tobacco_use": "former",
+      "surgery_history": "not recorded",
+      "family_history": "not recorded",
+      "pregnancy_status": "not recorded"
+    },
+    "portal_access": false,
+    "email_contact_available": false,
+    "messaging_preference": "unavailable",
+    "patient_education_language": "Spanish",
+    "sharing_preference_for_peer_cases": "de-identified case only",
+    "clinical_trial_outreach_preference": "not documented",
+    "source": "fully synthetic fixture"
+  },
+  {
+    "patient_key": "P009",
+    "age_group": "30-39",
+    "state": "IL",
+    "sex_for_clinical_context": "not recorded",
+    "preferred_language": "Nepali",
+    "primary_doctor_key": "D009",
+    "diagnoses": [
+      {
+        "label": "Type 2 diabetes",
+        "code_system": "ICD-10-CM",
+        "code": "E11.9",
+        "status": "active",
+        "first_recorded_year": 2023
+      }
+    ],
+    "allergies": [
+      {
+        "substance": "sulfonamides",
+        "reaction": "unspecified",
+        "status": "reported"
+      }
+    ],
+    "allergy_status": "reported",
+    "symptoms": [
+      "Symptoms associated with type 2 diabetes"
+    ],
+    "background": {
+      "tobacco_use": "unknown",
+      "surgery_history": "not recorded",
+      "family_history": "not recorded",
+      "pregnancy_status": "not recorded"
+    },
+    "portal_access": true,
+    "email_contact_available": false,
+    "messaging_preference": "portal",
+    "patient_education_language": "Nepali",
+    "sharing_preference_for_peer_cases": "not documented",
+    "clinical_trial_outreach_preference": "not documented",
+    "source": "fully synthetic fixture"
+  },
+  {
+    "patient_key": "P010",
+    "age_group": "40-49",
+    "state": "NC",
+    "sex_for_clinical_context": "female",
+    "preferred_language": "English",
+    "primary_doctor_key": "D010",
+    "diagnoses": [
+      {
+        "label": "Hypothyroidism",
+        "code_system": "ICD-10-CM",
+        "code": "E03.9",
+        "status": "active",
+        "first_recorded_year": 2024
+      }
+    ],
+    "allergies": [
+      {
+        "substance": "peanuts",
+        "reaction": "unspecified",
+        "status": "reported"
+      }
+    ],
+    "allergy_status": "reported",
+    "symptoms": [
+      "Symptoms associated with hypothyroidism"
+    ],
+    "background": {
+      "tobacco_use": "never",
+      "surgery_history": "not recorded",
+      "family_history": "not recorded",
+      "pregnancy_status": "not recorded"
+    },
+    "portal_access": true,
+    "email_contact_available": false,
+    "messaging_preference": "portal",
+    "patient_education_language": "English",
+    "sharing_preference_for_peer_cases": "de-identified case only",
+    "clinical_trial_outreach_preference": "not documented",
+    "source": "fully synthetic fixture"
+  },
+  {
+    "patient_key": "P011",
+    "age_group": "50-59",
+    "state": "AL",
+    "sex_for_clinical_context": "male",
+    "preferred_language": "Spanish",
+    "primary_doctor_key": "D011",
+    "diagnoses": [
+      {
+        "label": "Asthma",
+        "code_system": "ICD-10-CM",
+        "code": "J45.909",
+        "status": "active",
+        "first_recorded_year": 2025
+      }
+    ],
+    "allergies": [],
+    "allergy_status": "none reported",
+    "symptoms": [
+      "Symptoms associated with asthma"
+    ],
+    "background": {
+      "tobacco_use": "former",
+      "surgery_history": "not recorded",
+      "family_history": "not recorded",
+      "pregnancy_status": "not recorded"
+    },
+    "portal_access": true,
+    "email_contact_available": false,
+    "messaging_preference": "portal",
+    "patient_education_language": "Spanish",
+    "sharing_preference_for_peer_cases": "de-identified case only",
+    "clinical_trial_outreach_preference": "not documented",
+    "source": "fully synthetic fixture"
+  },
+  {
+    "patient_key": "P012",
+    "age_group": "60-69",
+    "state": "GA",
+    "sex_for_clinical_context": "not recorded",
+    "preferred_language": "Nepali",
+    "primary_doctor_key": "D012",
+    "diagnoses": [
+      {
+        "label": "COPD",
+        "code_system": "ICD-10-CM",
+        "code": "J44.9",
+        "status": "active",
+        "first_recorded_year": 2026
+      }
+    ],
+    "allergies": [
+      {
+        "substance": "penicillin",
+        "reaction": "unspecified",
+        "status": "reported"
+      }
+    ],
+    "allergy_status": "reported",
+    "symptoms": [
+      "Symptoms associated with copd"
+    ],
+    "background": {
+      "tobacco_use": "unknown",
+      "surgery_history": "not recorded",
+      "family_history": "not recorded",
+      "pregnancy_status": "not recorded"
+    },
+    "portal_access": true,
+    "email_contact_available": false,
+    "messaging_preference": "portal",
+    "patient_education_language": "Nepali",
+    "sharing_preference_for_peer_cases": "de-identified case only",
+    "clinical_trial_outreach_preference": "not documented",
+    "source": "fully synthetic fixture"
+  },
+  {
+    "patient_key": "P013",
+    "age_group": "70-79",
+    "state": "NY",
+    "sex_for_clinical_context": "female",
+    "preferred_language": "English",
+    "primary_doctor_key": "D013",
+    "diagnoses": [
+      {
+        "label": "Asthma",
+        "code_system": "ICD-10-CM",
+        "code": "J45.909",
+        "status": "active",
+        "first_recorded_year": 2023
+      }
+    ],
+    "allergies": [
+      {
+        "substance": "latex",
+        "reaction": "unspecified",
+        "status": "reported"
+      }
+    ],
+    "allergy_status": "reported",
+    "symptoms": [
+      "Symptoms associated with asthma"
+    ],
+    "background": {
+      "tobacco_use": "never",
+      "surgery_history": "not recorded",
+      "family_history": "not recorded",
+      "pregnancy_status": "not recorded"
+    },
+    "portal_access": true,
+    "email_contact_available": false,
+    "messaging_preference": "portal",
+    "patient_education_language": "English",
+    "sharing_preference_for_peer_cases": "not documented",
+    "clinical_trial_outreach_preference": "not documented",
+    "source": "fully synthetic fixture"
+  },
+  {
+    "patient_key": "P014",
+    "age_group": "80-89",
+    "state": "TX",
+    "sex_for_clinical_context": "male",
+    "preferred_language": "Spanish",
+    "primary_doctor_key": "D014",
+    "diagnoses": [
+      {
+        "label": "COPD",
+        "code_system": "ICD-10-CM",
+        "code": "J44.9",
+        "status": "active",
+        "first_recorded_year": 2024
+      }
+    ],
+    "allergies": [
+      {
+        "substance": "sulfonamides",
+        "reaction": "unspecified",
+        "status": "reported"
+      }
+    ],
+    "allergy_status": "reported",
+    "symptoms": [
+      "Symptoms associated with copd"
+    ],
+    "background": {
+      "tobacco_use": "former",
+      "surgery_history": "not recorded",
+      "family_history": "not recorded",
+      "pregnancy_status": "not recorded"
+    },
+    "portal_access": true,
+    "email_contact_available": false,
+    "messaging_preference": "portal",
+    "patient_education_language": "Spanish",
+    "sharing_preference_for_peer_cases": "de-identified case only",
+    "clinical_trial_outreach_preference": "not documented",
+    "source": "fully synthetic fixture"
+  },
+  {
+    "patient_key": "P015",
+    "age_group": "10-19",
+    "state": "FL",
+    "sex_for_clinical_context": "not recorded",
+    "preferred_language": "Nepali",
+    "primary_doctor_key": "D015",
+    "diagnoses": [
+      {
+        "label": "Asthma",
+        "code_system": "ICD-10-CM",
+        "code": "J45.909",
+        "status": "active",
+        "first_recorded_year": 2025
+      }
+    ],
+    "allergies": [
+      {
+        "substance": "peanuts",
+        "reaction": "unspecified",
+        "status": "reported"
+      }
+    ],
+    "allergy_status": "reported",
+    "symptoms": [
+      "Symptoms associated with asthma"
+    ],
+    "background": {
+      "tobacco_use": "unknown",
+      "surgery_history": "not recorded",
+      "family_history": "not recorded",
+      "pregnancy_status": "not recorded"
+    },
+    "portal_access": false,
+    "email_contact_available": false,
+    "messaging_preference": "unavailable",
+    "patient_education_language": "Nepali",
+    "sharing_preference_for_peer_cases": "de-identified case only",
+    "clinical_trial_outreach_preference": "not documented",
+    "source": "fully synthetic fixture"
+  },
+  {
+    "patient_key": "P016",
+    "age_group": "30-39",
+    "state": "MA",
+    "sex_for_clinical_context": "female",
+    "preferred_language": "English",
+    "primary_doctor_key": "D016",
+    "diagnoses": [
+      {
+        "label": "Psoriasis",
+        "code_system": "ICD-10-CM",
+        "code": "L40.9",
+        "status": "active",
+        "first_recorded_year": 2026
+      }
+    ],
+    "allergies": [],
+    "allergy_status": "none reported",
+    "symptoms": [
+      "Symptoms associated with psoriasis"
+    ],
+    "background": {
+      "tobacco_use": "never",
+      "surgery_history": "not recorded",
+      "family_history": "not recorded",
+      "pregnancy_status": "not recorded"
+    },
+    "portal_access": true,
+    "email_contact_available": false,
+    "messaging_preference": "portal",
+    "patient_education_language": "English",
+    "sharing_preference_for_peer_cases": "de-identified case only",
+    "clinical_trial_outreach_preference": "not documented",
+    "source": "fully synthetic fixture"
+  },
+  {
+    "patient_key": "P017",
+    "age_group": "40-49",
+    "state": "PA",
+    "sex_for_clinical_context": "male",
+    "preferred_language": "Spanish",
+    "primary_doctor_key": "D017",
+    "diagnoses": [
+      {
+        "label": "Atopic dermatitis",
+        "code_system": "ICD-10-CM",
+        "code": "L20.9",
+        "status": "active",
+        "first_recorded_year": 2023
+      }
+    ],
+    "allergies": [
+      {
+        "substance": "penicillin",
+        "reaction": "unspecified",
+        "status": "reported"
+      }
+    ],
+    "allergy_status": "reported",
+    "symptoms": [
+      "Symptoms associated with atopic dermatitis"
+    ],
+    "background": {
+      "tobacco_use": "former",
+      "surgery_history": "not recorded",
+      "family_history": "not recorded",
+      "pregnancy_status": "not recorded"
+    },
+    "portal_access": true,
+    "email_contact_available": false,
+    "messaging_preference": "portal",
+    "patient_education_language": "Spanish",
+    "sharing_preference_for_peer_cases": "not documented",
+    "clinical_trial_outreach_preference": "not documented",
+    "source": "fully synthetic fixture"
+  },
+  {
+    "patient_key": "P018",
+    "age_group": "50-59",
+    "state": "CA",
+    "sex_for_clinical_context": "not recorded",
+    "preferred_language": "Nepali",
+    "primary_doctor_key": "D018",
+    "diagnoses": [
+      {
+        "label": "Psoriasis",
+        "code_system": "ICD-10-CM",
+        "code": "L40.9",
+        "status": "active",
+        "first_recorded_year": 2024
+      }
+    ],
+    "allergies": [
+      {
+        "substance": "latex",
+        "reaction": "unspecified",
+        "status": "reported"
+      }
+    ],
+    "allergy_status": "reported",
+    "symptoms": [
+      "Symptoms associated with psoriasis"
+    ],
+    "background": {
+      "tobacco_use": "unknown",
+      "surgery_history": "not recorded",
+      "family_history": "not recorded",
+      "pregnancy_status": "not recorded"
+    },
+    "portal_access": true,
+    "email_contact_available": false,
+    "messaging_preference": "portal",
+    "patient_education_language": "Nepali",
+    "sharing_preference_for_peer_cases": "de-identified case only",
+    "clinical_trial_outreach_preference": "not documented",
+    "source": "fully synthetic fixture"
+  },
+  {
+    "patient_key": "P019",
+    "age_group": "60-69",
+    "state": "IL",
+    "sex_for_clinical_context": "female",
+    "preferred_language": "English",
+    "primary_doctor_key": "D019",
+    "diagnoses": [
+      {
+        "label": "Atopic dermatitis",
+        "code_system": "ICD-10-CM",
+        "code": "L20.9",
+        "status": "active",
+        "first_recorded_year": 2025
+      }
+    ],
+    "allergies": [
+      {
+        "substance": "sulfonamides",
+        "reaction": "unspecified",
+        "status": "reported"
+      }
+    ],
+    "allergy_status": "reported",
+    "symptoms": [
+      "Symptoms associated with atopic dermatitis"
+    ],
+    "background": {
+      "tobacco_use": "never",
+      "surgery_history": "not recorded",
+      "family_history": "not recorded",
+      "pregnancy_status": "not recorded"
+    },
+    "portal_access": true,
+    "email_contact_available": false,
+    "messaging_preference": "portal",
+    "patient_education_language": "English",
+    "sharing_preference_for_peer_cases": "de-identified case only",
+    "clinical_trial_outreach_preference": "not documented",
+    "source": "fully synthetic fixture"
+  },
+  {
+    "patient_key": "P020",
+    "age_group": "70-79",
+    "state": "NC",
+    "sex_for_clinical_context": "male",
+    "preferred_language": "Spanish",
+    "primary_doctor_key": "D020",
+    "diagnoses": [
+      {
+        "label": "Psoriasis",
+        "code_system": "ICD-10-CM",
+        "code": "L40.9",
+        "status": "active",
+        "first_recorded_year": 2026
+      }
+    ],
+    "allergies": [
+      {
+        "substance": "peanuts",
+        "reaction": "unspecified",
+        "status": "reported"
+      }
+    ],
+    "allergy_status": "reported",
+    "symptoms": [
+      "Symptoms associated with psoriasis"
+    ],
+    "background": {
+      "tobacco_use": "former",
+      "surgery_history": "not recorded",
+      "family_history": "not recorded",
+      "pregnancy_status": "not recorded"
+    },
+    "portal_access": true,
+    "email_contact_available": false,
+    "messaging_preference": "portal",
+    "patient_education_language": "Spanish",
+    "sharing_preference_for_peer_cases": "de-identified case only",
+    "clinical_trial_outreach_preference": "not documented",
+    "source": "fully synthetic fixture"
+  },
+  {
+    "patient_key": "P021",
+    "age_group": "80-89",
+    "state": "AL",
+    "sex_for_clinical_context": "not recorded",
+    "preferred_language": "Nepali",
+    "primary_doctor_key": "D021",
+    "diagnoses": [
+      {
+        "label": "Rheumatoid arthritis",
+        "code_system": "ICD-10-CM",
+        "code": "M06.9",
+        "status": "active",
+        "first_recorded_year": 2023
+      }
+    ],
+    "allergies": [],
+    "allergy_status": "none reported",
+    "symptoms": [
+      "Symptoms associated with rheumatoid arthritis"
+    ],
+    "background": {
+      "tobacco_use": "unknown",
+      "surgery_history": "not recorded",
+      "family_history": "not recorded",
+      "pregnancy_status": "not recorded"
+    },
+    "portal_access": true,
+    "email_contact_available": false,
+    "messaging_preference": "portal",
+    "patient_education_language": "Nepali",
+    "sharing_preference_for_peer_cases": "not documented",
+    "clinical_trial_outreach_preference": "not documented",
+    "source": "fully synthetic fixture"
+  },
+  {
+    "patient_key": "P022",
+    "age_group": "10-19",
+    "state": "GA",
+    "sex_for_clinical_context": "female",
+    "preferred_language": "English",
+    "primary_doctor_key": "D022",
+    "diagnoses": [
+      {
+        "label": "Gout",
+        "code_system": "ICD-10-CM",
+        "code": "M10.9",
+        "status": "active",
+        "first_recorded_year": 2024
+      }
+    ],
+    "allergies": [
+      {
+        "substance": "penicillin",
+        "reaction": "unspecified",
+        "status": "reported"
+      }
+    ],
+    "allergy_status": "reported",
+    "symptoms": [
+      "Symptoms associated with gout"
+    ],
+    "background": {
+      "tobacco_use": "never",
+      "surgery_history": "not recorded",
+      "family_history": "not recorded",
+      "pregnancy_status": "not recorded"
+    },
+    "portal_access": false,
+    "email_contact_available": false,
+    "messaging_preference": "unavailable",
+    "patient_education_language": "English",
+    "sharing_preference_for_peer_cases": "de-identified case only",
+    "clinical_trial_outreach_preference": "not documented",
+    "source": "fully synthetic fixture"
+  },
+  {
+    "patient_key": "P023",
+    "age_group": "30-39",
+    "state": "NY",
+    "sex_for_clinical_context": "male",
+    "preferred_language": "Spanish",
+    "primary_doctor_key": "D023",
+    "diagnoses": [
+      {
+        "label": "Rheumatoid arthritis",
+        "code_system": "ICD-10-CM",
+        "code": "M06.9",
+        "status": "active",
+        "first_recorded_year": 2025
+      }
+    ],
+    "allergies": [
+      {
+        "substance": "latex",
+        "reaction": "unspecified",
+        "status": "reported"
+      }
+    ],
+    "allergy_status": "reported",
+    "symptoms": [
+      "Symptoms associated with rheumatoid arthritis"
+    ],
+    "background": {
+      "tobacco_use": "former",
+      "surgery_history": "not recorded",
+      "family_history": "not recorded",
+      "pregnancy_status": "not recorded"
+    },
+    "portal_access": true,
+    "email_contact_available": false,
+    "messaging_preference": "portal",
+    "patient_education_language": "Spanish",
+    "sharing_preference_for_peer_cases": "de-identified case only",
+    "clinical_trial_outreach_preference": "not documented",
+    "source": "fully synthetic fixture"
+  },
+  {
+    "patient_key": "P024",
+    "age_group": "40-49",
+    "state": "TX",
+    "sex_for_clinical_context": "not recorded",
+    "preferred_language": "Nepali",
+    "primary_doctor_key": "D024",
+    "diagnoses": [
+      {
+        "label": "Gout",
+        "code_system": "ICD-10-CM",
+        "code": "M10.9",
+        "status": "active",
+        "first_recorded_year": 2026
+      }
+    ],
+    "allergies": [
+      {
+        "substance": "sulfonamides",
+        "reaction": "unspecified",
+        "status": "reported"
+      }
+    ],
+    "allergy_status": "reported",
+    "symptoms": [
+      "Symptoms associated with gout"
+    ],
+    "background": {
+      "tobacco_use": "unknown",
+      "surgery_history": "not recorded",
+      "family_history": "not recorded",
+      "pregnancy_status": "not recorded"
+    },
+    "portal_access": true,
+    "email_contact_available": false,
+    "messaging_preference": "portal",
+    "patient_education_language": "Nepali",
+    "sharing_preference_for_peer_cases": "de-identified case only",
+    "clinical_trial_outreach_preference": "not documented",
+    "source": "fully synthetic fixture"
+  },
+  {
+    "patient_key": "P025",
+    "age_group": "50-59",
+    "state": "FL",
+    "sex_for_clinical_context": "female",
+    "preferred_language": "English",
+    "primary_doctor_key": "D025",
+    "diagnoses": [
+      {
+        "label": "Rheumatoid arthritis",
+        "code_system": "ICD-10-CM",
+        "code": "M06.9",
+        "status": "active",
+        "first_recorded_year": 2023
+      }
+    ],
+    "allergies": [
+      {
+        "substance": "peanuts",
+        "reaction": "unspecified",
+        "status": "reported"
+      }
+    ],
+    "allergy_status": "reported",
+    "symptoms": [
+      "Symptoms associated with rheumatoid arthritis"
+    ],
+    "background": {
+      "tobacco_use": "never",
+      "surgery_history": "not recorded",
+      "family_history": "not recorded",
+      "pregnancy_status": "not recorded"
+    },
+    "portal_access": true,
+    "email_contact_available": false,
+    "messaging_preference": "portal",
+    "patient_education_language": "English",
+    "sharing_preference_for_peer_cases": "not documented",
+    "clinical_trial_outreach_preference": "not documented",
+    "source": "fully synthetic fixture"
+  },
+  {
+    "patient_key": "P026",
+    "age_group": "60-69",
+    "state": "MA",
+    "sex_for_clinical_context": "male",
+    "preferred_language": "Spanish",
+    "primary_doctor_key": "D026",
+    "diagnoses": [
+      {
+        "label": "Inflammatory bowel disease",
+        "code_system": "ICD-10-CM",
+        "code": "K52.9",
+        "status": "active",
+        "first_recorded_year": 2024
+      }
+    ],
+    "allergies": [],
+    "allergy_status": "none reported",
+    "symptoms": [
+      "Symptoms associated with inflammatory bowel disease"
+    ],
+    "background": {
+      "tobacco_use": "former",
+      "surgery_history": "not recorded",
+      "family_history": "not recorded",
+      "pregnancy_status": "not recorded"
+    },
+    "portal_access": true,
+    "email_contact_available": false,
+    "messaging_preference": "portal",
+    "patient_education_language": "Spanish",
+    "sharing_preference_for_peer_cases": "de-identified case only",
+    "clinical_trial_outreach_preference": "not documented",
+    "source": "fully synthetic fixture"
+  },
+  {
+    "patient_key": "P027",
+    "age_group": "70-79",
+    "state": "PA",
+    "sex_for_clinical_context": "not recorded",
+    "preferred_language": "Nepali",
+    "primary_doctor_key": "D027",
+    "diagnoses": [
+      {
+        "label": "GERD",
+        "code_system": "ICD-10-CM",
+        "code": "K21.9",
+        "status": "active",
+        "first_recorded_year": 2025
+      }
+    ],
+    "allergies": [
+      {
+        "substance": "penicillin",
+        "reaction": "unspecified",
+        "status": "reported"
+      }
+    ],
+    "allergy_status": "reported",
+    "symptoms": [
+      "Symptoms associated with gerd"
+    ],
+    "background": {
+      "tobacco_use": "unknown",
+      "surgery_history": "not recorded",
+      "family_history": "not recorded",
+      "pregnancy_status": "not recorded"
+    },
+    "portal_access": true,
+    "email_contact_available": false,
+    "messaging_preference": "portal",
+    "patient_education_language": "Nepali",
+    "sharing_preference_for_peer_cases": "de-identified case only",
+    "clinical_trial_outreach_preference": "not documented",
+    "source": "fully synthetic fixture"
+  },
+  {
+    "patient_key": "P028",
+    "age_group": "80-89",
+    "state": "CA",
+    "sex_for_clinical_context": "female",
+    "preferred_language": "English",
+    "primary_doctor_key": "D028",
+    "diagnoses": [
+      {
+        "label": "Inflammatory bowel disease",
+        "code_system": "ICD-10-CM",
+        "code": "K52.9",
+        "status": "active",
+        "first_recorded_year": 2026
+      }
+    ],
+    "allergies": [
+      {
+        "substance": "latex",
+        "reaction": "unspecified",
+        "status": "reported"
+      }
+    ],
+    "allergy_status": "reported",
+    "symptoms": [
+      "Symptoms associated with inflammatory bowel disease"
+    ],
+    "background": {
+      "tobacco_use": "never",
+      "surgery_history": "not recorded",
+      "family_history": "not recorded",
+      "pregnancy_status": "not recorded"
+    },
+    "portal_access": true,
+    "email_contact_available": false,
+    "messaging_preference": "portal",
+    "patient_education_language": "English",
+    "sharing_preference_for_peer_cases": "de-identified case only",
+    "clinical_trial_outreach_preference": "not documented",
+    "source": "fully synthetic fixture"
+  },
+  {
+    "patient_key": "P029",
+    "age_group": "10-19",
+    "state": "IL",
+    "sex_for_clinical_context": "male",
+    "preferred_language": "Spanish",
+    "primary_doctor_key": "D029",
+    "diagnoses": [
+      {
+        "label": "GERD",
+        "code_system": "ICD-10-CM",
+        "code": "K21.9",
+        "status": "active",
+        "first_recorded_year": 2023
+      }
+    ],
+    "allergies": [
+      {
+        "substance": "sulfonamides",
+        "reaction": "unspecified",
+        "status": "reported"
+      }
+    ],
+    "allergy_status": "reported",
+    "symptoms": [
+      "Symptoms associated with gerd"
+    ],
+    "background": {
+      "tobacco_use": "former",
+      "surgery_history": "not recorded",
+      "family_history": "not recorded",
+      "pregnancy_status": "not recorded"
+    },
+    "portal_access": false,
+    "email_contact_available": false,
+    "messaging_preference": "unavailable",
+    "patient_education_language": "Spanish",
+    "sharing_preference_for_peer_cases": "not documented",
+    "clinical_trial_outreach_preference": "not documented",
+    "source": "fully synthetic fixture"
+  },
+  {
+    "patient_key": "P030",
+    "age_group": "30-39",
+    "state": "NC",
+    "sex_for_clinical_context": "not recorded",
+    "preferred_language": "Nepali",
+    "primary_doctor_key": "D030",
+    "diagnoses": [
+      {
+        "label": "Inflammatory bowel disease",
+        "code_system": "ICD-10-CM",
+        "code": "K52.9",
+        "status": "active",
+        "first_recorded_year": 2024
+      }
+    ],
+    "allergies": [
+      {
+        "substance": "peanuts",
+        "reaction": "unspecified",
+        "status": "reported"
+      }
+    ],
+    "allergy_status": "reported",
+    "symptoms": [
+      "Symptoms associated with inflammatory bowel disease"
+    ],
+    "background": {
+      "tobacco_use": "unknown",
+      "surgery_history": "not recorded",
+      "family_history": "not recorded",
+      "pregnancy_status": "not recorded"
+    },
+    "portal_access": true,
+    "email_contact_available": false,
+    "messaging_preference": "portal",
+    "patient_education_language": "Nepali",
+    "sharing_preference_for_peer_cases": "de-identified case only",
+    "clinical_trial_outreach_preference": "not documented",
+    "source": "fully synthetic fixture"
+  },
+  {
+    "patient_key": "P031",
+    "age_group": "40-49",
+    "state": "AL",
+    "sex_for_clinical_context": "female",
+    "preferred_language": "English",
+    "primary_doctor_key": "D031",
+    "diagnoses": [
+      {
+        "label": "Migraine",
+        "code_system": "ICD-10-CM",
+        "code": "G43.909",
+        "status": "active",
+        "first_recorded_year": 2025
+      }
+    ],
+    "allergies": [],
+    "allergy_status": "none reported",
+    "symptoms": [
+      "Symptoms associated with migraine"
+    ],
+    "background": {
+      "tobacco_use": "never",
+      "surgery_history": "not recorded",
+      "family_history": "not recorded",
+      "pregnancy_status": "not recorded"
+    },
+    "portal_access": true,
+    "email_contact_available": false,
+    "messaging_preference": "portal",
+    "patient_education_language": "English",
+    "sharing_preference_for_peer_cases": "de-identified case only",
+    "clinical_trial_outreach_preference": "not documented",
+    "source": "fully synthetic fixture"
+  },
+  {
+    "patient_key": "P032",
+    "age_group": "50-59",
+    "state": "GA",
+    "sex_for_clinical_context": "male",
+    "preferred_language": "Spanish",
+    "primary_doctor_key": "D032",
+    "diagnoses": [
+      {
+        "label": "Epilepsy",
+        "code_system": "ICD-10-CM",
+        "code": "G40.909",
+        "status": "active",
+        "first_recorded_year": 2026
+      }
+    ],
+    "allergies": [
+      {
+        "substance": "penicillin",
+        "reaction": "unspecified",
+        "status": "reported"
+      }
+    ],
+    "allergy_status": "reported",
+    "symptoms": [
+      "Symptoms associated with epilepsy"
+    ],
+    "background": {
+      "tobacco_use": "former",
+      "surgery_history": "not recorded",
+      "family_history": "not recorded",
+      "pregnancy_status": "not recorded"
+    },
+    "portal_access": true,
+    "email_contact_available": false,
+    "messaging_preference": "portal",
+    "patient_education_language": "Spanish",
+    "sharing_preference_for_peer_cases": "de-identified case only",
+    "clinical_trial_outreach_preference": "not documented",
+    "source": "fully synthetic fixture"
+  },
+  {
+    "patient_key": "P033",
+    "age_group": "60-69",
+    "state": "NY",
+    "sex_for_clinical_context": "not recorded",
+    "preferred_language": "Nepali",
+    "primary_doctor_key": "D033",
+    "diagnoses": [
+      {
+        "label": "Migraine",
+        "code_system": "ICD-10-CM",
+        "code": "G43.909",
+        "status": "active",
+        "first_recorded_year": 2023
+      }
+    ],
+    "allergies": [
+      {
+        "substance": "latex",
+        "reaction": "unspecified",
+        "status": "reported"
+      }
+    ],
+    "allergy_status": "reported",
+    "symptoms": [
+      "Symptoms associated with migraine"
+    ],
+    "background": {
+      "tobacco_use": "unknown",
+      "surgery_history": "not recorded",
+      "family_history": "not recorded",
+      "pregnancy_status": "not recorded"
+    },
+    "portal_access": true,
+    "email_contact_available": false,
+    "messaging_preference": "portal",
+    "patient_education_language": "Nepali",
+    "sharing_preference_for_peer_cases": "not documented",
+    "clinical_trial_outreach_preference": "not documented",
+    "source": "fully synthetic fixture"
+  },
+  {
+    "patient_key": "P034",
+    "age_group": "70-79",
+    "state": "TX",
+    "sex_for_clinical_context": "female",
+    "preferred_language": "English",
+    "primary_doctor_key": "D034",
+    "diagnoses": [
+      {
+        "label": "Epilepsy",
+        "code_system": "ICD-10-CM",
+        "code": "G40.909",
+        "status": "active",
+        "first_recorded_year": 2024
+      }
+    ],
+    "allergies": [
+      {
+        "substance": "sulfonamides",
+        "reaction": "unspecified",
+        "status": "reported"
+      }
+    ],
+    "allergy_status": "reported",
+    "symptoms": [
+      "Symptoms associated with epilepsy"
+    ],
+    "background": {
+      "tobacco_use": "never",
+      "surgery_history": "not recorded",
+      "family_history": "not recorded",
+      "pregnancy_status": "not recorded"
+    },
+    "portal_access": true,
+    "email_contact_available": false,
+    "messaging_preference": "portal",
+    "patient_education_language": "English",
+    "sharing_preference_for_peer_cases": "de-identified case only",
+    "clinical_trial_outreach_preference": "not documented",
+    "source": "fully synthetic fixture"
+  },
+  {
+    "patient_key": "P035",
+    "age_group": "80-89",
+    "state": "FL",
+    "sex_for_clinical_context": "male",
+    "preferred_language": "Spanish",
+    "primary_doctor_key": "D035",
+    "diagnoses": [
+      {
+        "label": "Migraine",
+        "code_system": "ICD-10-CM",
+        "code": "G43.909",
+        "status": "active",
+        "first_recorded_year": 2025
+      }
+    ],
+    "allergies": [
+      {
+        "substance": "peanuts",
+        "reaction": "unspecified",
+        "status": "reported"
+      }
+    ],
+    "allergy_status": "reported",
+    "symptoms": [
+      "Symptoms associated with migraine"
+    ],
+    "background": {
+      "tobacco_use": "former",
+      "surgery_history": "not recorded",
+      "family_history": "not recorded",
+      "pregnancy_status": "not recorded"
+    },
+    "portal_access": true,
+    "email_contact_available": false,
+    "messaging_preference": "portal",
+    "patient_education_language": "Spanish",
+    "sharing_preference_for_peer_cases": "de-identified case only",
+    "clinical_trial_outreach_preference": "not documented",
+    "source": "fully synthetic fixture"
+  },
+  {
+    "patient_key": "P036",
+    "age_group": "10-19",
+    "state": "MA",
+    "sex_for_clinical_context": "not recorded",
+    "preferred_language": "Nepali",
+    "primary_doctor_key": "D036",
+    "diagnoses": [
+      {
+        "label": "Iron deficiency anemia",
+        "code_system": "ICD-10-CM",
+        "code": "D50.9",
+        "status": "active",
+        "first_recorded_year": 2026
+      }
+    ],
+    "allergies": [],
+    "allergy_status": "none reported",
+    "symptoms": [
+      "Symptoms associated with iron deficiency anemia"
+    ],
+    "background": {
+      "tobacco_use": "unknown",
+      "surgery_history": "not recorded",
+      "family_history": "not recorded",
+      "pregnancy_status": "not recorded"
+    },
+    "portal_access": false,
+    "email_contact_available": false,
+    "messaging_preference": "unavailable",
+    "patient_education_language": "Nepali",
+    "sharing_preference_for_peer_cases": "de-identified case only",
+    "clinical_trial_outreach_preference": "not documented",
+    "source": "fully synthetic fixture"
+  },
+  {
+    "patient_key": "P037",
+    "age_group": "30-39",
+    "state": "PA",
+    "sex_for_clinical_context": "female",
+    "preferred_language": "English",
+    "primary_doctor_key": "D037",
+    "diagnoses": [
+      {
+        "label": "Hyperlipidemia",
+        "code_system": "ICD-10-CM",
+        "code": "E78.5",
+        "status": "active",
+        "first_recorded_year": 2023
+      }
+    ],
+    "allergies": [
+      {
+        "substance": "penicillin",
+        "reaction": "unspecified",
+        "status": "reported"
+      }
+    ],
+    "allergy_status": "reported",
+    "symptoms": [
+      "Symptoms associated with hyperlipidemia"
+    ],
+    "background": {
+      "tobacco_use": "never",
+      "surgery_history": "not recorded",
+      "family_history": "not recorded",
+      "pregnancy_status": "not recorded"
+    },
+    "portal_access": true,
+    "email_contact_available": false,
+    "messaging_preference": "portal",
+    "patient_education_language": "English",
+    "sharing_preference_for_peer_cases": "not documented",
+    "clinical_trial_outreach_preference": "not documented",
+    "source": "fully synthetic fixture"
+  },
+  {
+    "patient_key": "P038",
+    "age_group": "40-49",
+    "state": "CA",
+    "sex_for_clinical_context": "male",
+    "preferred_language": "Spanish",
+    "primary_doctor_key": "D038",
+    "diagnoses": [
+      {
+        "label": "Iron deficiency anemia",
+        "code_system": "ICD-10-CM",
+        "code": "D50.9",
+        "status": "active",
+        "first_recorded_year": 2024
+      }
+    ],
+    "allergies": [
+      {
+        "substance": "latex",
+        "reaction": "unspecified",
+        "status": "reported"
+      }
+    ],
+    "allergy_status": "reported",
+    "symptoms": [
+      "Symptoms associated with iron deficiency anemia"
+    ],
+    "background": {
+      "tobacco_use": "former",
+      "surgery_history": "not recorded",
+      "family_history": "not recorded",
+      "pregnancy_status": "not recorded"
+    },
+    "portal_access": true,
+    "email_contact_available": false,
+    "messaging_preference": "portal",
+    "patient_education_language": "Spanish",
+    "sharing_preference_for_peer_cases": "de-identified case only",
+    "clinical_trial_outreach_preference": "not documented",
+    "source": "fully synthetic fixture"
+  },
+  {
+    "patient_key": "P039",
+    "age_group": "50-59",
+    "state": "IL",
+    "sex_for_clinical_context": "not recorded",
+    "preferred_language": "Nepali",
+    "primary_doctor_key": "D039",
+    "diagnoses": [
+      {
+        "label": "Hyperlipidemia",
+        "code_system": "ICD-10-CM",
+        "code": "E78.5",
+        "status": "active",
+        "first_recorded_year": 2025
+      }
+    ],
+    "allergies": [
+      {
+        "substance": "sulfonamides",
+        "reaction": "unspecified",
+        "status": "reported"
+      }
+    ],
+    "allergy_status": "reported",
+    "symptoms": [
+      "Symptoms associated with hyperlipidemia"
+    ],
+    "background": {
+      "tobacco_use": "unknown",
+      "surgery_history": "not recorded",
+      "family_history": "not recorded",
+      "pregnancy_status": "not recorded"
+    },
+    "portal_access": true,
+    "email_contact_available": false,
+    "messaging_preference": "portal",
+    "patient_education_language": "Nepali",
+    "sharing_preference_for_peer_cases": "de-identified case only",
+    "clinical_trial_outreach_preference": "not documented",
+    "source": "fully synthetic fixture"
+  },
+  {
+    "patient_key": "P040",
+    "age_group": "60-69",
+    "state": "NC",
+    "sex_for_clinical_context": "female",
+    "preferred_language": "English",
+    "primary_doctor_key": "D040",
+    "diagnoses": [
+      {
+        "label": "Iron deficiency anemia",
+        "code_system": "ICD-10-CM",
+        "code": "D50.9",
+        "status": "active",
+        "first_recorded_year": 2026
+      }
+    ],
+    "allergies": [
+      {
+        "substance": "peanuts",
+        "reaction": "unspecified",
+        "status": "reported"
+      }
+    ],
+    "allergy_status": "reported",
+    "symptoms": [
+      "Symptoms associated with iron deficiency anemia"
+    ],
+    "background": {
+      "tobacco_use": "never",
+      "surgery_history": "not recorded",
+      "family_history": "not recorded",
+      "pregnancy_status": "not recorded"
+    },
+    "portal_access": true,
+    "email_contact_available": false,
+    "messaging_preference": "portal",
+    "patient_education_language": "English",
+    "sharing_preference_for_peer_cases": "de-identified case only",
+    "clinical_trial_outreach_preference": "not documented",
+    "source": "fully synthetic fixture"
+  },
+  {
+    "patient_key": "P041",
+    "age_group": "70-79",
+    "state": "AL",
+    "sex_for_clinical_context": "male",
+    "preferred_language": "Spanish",
+    "primary_doctor_key": "D001",
+    "diagnoses": [
+      {
+        "label": "Heart failure",
+        "code_system": "ICD-10-CM",
+        "code": "I50.9",
+        "status": "active",
+        "first_recorded_year": 2023
+      }
+    ],
+    "allergies": [],
+    "allergy_status": "none reported",
+    "symptoms": [
+      "Symptoms associated with heart failure"
+    ],
+    "background": {
+      "tobacco_use": "former",
+      "surgery_history": "not recorded",
+      "family_history": "not recorded",
+      "pregnancy_status": "not recorded"
+    },
+    "portal_access": true,
+    "email_contact_available": false,
+    "messaging_preference": "portal",
+    "patient_education_language": "Spanish",
+    "sharing_preference_for_peer_cases": "not documented",
+    "clinical_trial_outreach_preference": "not documented",
+    "source": "fully synthetic fixture"
+  },
+  {
+    "patient_key": "P042",
+    "age_group": "80-89",
+    "state": "GA",
+    "sex_for_clinical_context": "not recorded",
+    "preferred_language": "Nepali",
+    "primary_doctor_key": "D002",
+    "diagnoses": [
+      {
+        "label": "Hypertension",
+        "code_system": "ICD-10-CM",
+        "code": "I10",
+        "status": "active",
+        "first_recorded_year": 2024
+      }
+    ],
+    "allergies": [
+      {
+        "substance": "penicillin",
+        "reaction": "unspecified",
+        "status": "reported"
+      }
+    ],
+    "allergy_status": "reported",
+    "symptoms": [
+      "Symptoms associated with hypertension"
+    ],
+    "background": {
+      "tobacco_use": "unknown",
+      "surgery_history": "not recorded",
+      "family_history": "not recorded",
+      "pregnancy_status": "not recorded"
+    },
+    "portal_access": true,
+    "email_contact_available": false,
+    "messaging_preference": "portal",
+    "patient_education_language": "Nepali",
+    "sharing_preference_for_peer_cases": "de-identified case only",
+    "clinical_trial_outreach_preference": "not documented",
+    "source": "fully synthetic fixture"
+  },
+  {
+    "patient_key": "P043",
+    "age_group": "10-19",
+    "state": "NY",
+    "sex_for_clinical_context": "female",
+    "preferred_language": "English",
+    "primary_doctor_key": "D003",
+    "diagnoses": [
+      {
+        "label": "Heart failure",
+        "code_system": "ICD-10-CM",
+        "code": "I50.9",
+        "status": "active",
+        "first_recorded_year": 2025
+      }
+    ],
+    "allergies": [
+      {
+        "substance": "latex",
+        "reaction": "unspecified",
+        "status": "reported"
+      }
+    ],
+    "allergy_status": "reported",
+    "symptoms": [
+      "Symptoms associated with heart failure"
+    ],
+    "background": {
+      "tobacco_use": "never",
+      "surgery_history": "not recorded",
+      "family_history": "not recorded",
+      "pregnancy_status": "not recorded"
+    },
+    "portal_access": false,
+    "email_contact_available": false,
+    "messaging_preference": "unavailable",
+    "patient_education_language": "English",
+    "sharing_preference_for_peer_cases": "de-identified case only",
+    "clinical_trial_outreach_preference": "not documented",
+    "source": "fully synthetic fixture"
+  },
+  {
+    "patient_key": "P044",
+    "age_group": "30-39",
+    "state": "TX",
+    "sex_for_clinical_context": "male",
+    "preferred_language": "Spanish",
+    "primary_doctor_key": "D004",
+    "diagnoses": [
+      {
+        "label": "Hypertension",
+        "code_system": "ICD-10-CM",
+        "code": "I10",
+        "status": "active",
+        "first_recorded_year": 2026
+      }
+    ],
+    "allergies": [
+      {
+        "substance": "sulfonamides",
+        "reaction": "unspecified",
+        "status": "reported"
+      }
+    ],
+    "allergy_status": "reported",
+    "symptoms": [
+      "Symptoms associated with hypertension"
+    ],
+    "background": {
+      "tobacco_use": "former",
+      "surgery_history": "not recorded",
+      "family_history": "not recorded",
+      "pregnancy_status": "not recorded"
+    },
+    "portal_access": true,
+    "email_contact_available": false,
+    "messaging_preference": "portal",
+    "patient_education_language": "Spanish",
+    "sharing_preference_for_peer_cases": "de-identified case only",
+    "clinical_trial_outreach_preference": "not documented",
+    "source": "fully synthetic fixture"
+  },
+  {
+    "patient_key": "P045",
+    "age_group": "40-49",
+    "state": "FL",
+    "sex_for_clinical_context": "not recorded",
+    "preferred_language": "Nepali",
+    "primary_doctor_key": "D005",
+    "diagnoses": [
+      {
+        "label": "Heart failure",
+        "code_system": "ICD-10-CM",
+        "code": "I50.9",
+        "status": "active",
+        "first_recorded_year": 2023
+      }
+    ],
+    "allergies": [
+      {
+        "substance": "peanuts",
+        "reaction": "unspecified",
+        "status": "reported"
+      }
+    ],
+    "allergy_status": "reported",
+    "symptoms": [
+      "Symptoms associated with heart failure"
+    ],
+    "background": {
+      "tobacco_use": "unknown",
+      "surgery_history": "not recorded",
+      "family_history": "not recorded",
+      "pregnancy_status": "not recorded"
+    },
+    "portal_access": true,
+    "email_contact_available": false,
+    "messaging_preference": "portal",
+    "patient_education_language": "Nepali",
+    "sharing_preference_for_peer_cases": "not documented",
+    "clinical_trial_outreach_preference": "not documented",
+    "source": "fully synthetic fixture"
+  },
+  {
+    "patient_key": "P046",
+    "age_group": "50-59",
+    "state": "MA",
+    "sex_for_clinical_context": "female",
+    "preferred_language": "English",
+    "primary_doctor_key": "D006",
+    "diagnoses": [
+      {
+        "label": "Type 2 diabetes",
+        "code_system": "ICD-10-CM",
+        "code": "E11.9",
+        "status": "active",
+        "first_recorded_year": 2024
+      }
+    ],
+    "allergies": [],
+    "allergy_status": "none reported",
+    "symptoms": [
+      "Symptoms associated with type 2 diabetes"
+    ],
+    "background": {
+      "tobacco_use": "never",
+      "surgery_history": "not recorded",
+      "family_history": "not recorded",
+      "pregnancy_status": "not recorded"
+    },
+    "portal_access": true,
+    "email_contact_available": false,
+    "messaging_preference": "portal",
+    "patient_education_language": "English",
+    "sharing_preference_for_peer_cases": "de-identified case only",
+    "clinical_trial_outreach_preference": "not documented",
+    "source": "fully synthetic fixture"
+  },
+  {
+    "patient_key": "P047",
+    "age_group": "60-69",
+    "state": "PA",
+    "sex_for_clinical_context": "male",
+    "preferred_language": "Spanish",
+    "primary_doctor_key": "D007",
+    "diagnoses": [
+      {
+        "label": "Hypothyroidism",
+        "code_system": "ICD-10-CM",
+        "code": "E03.9",
+        "status": "active",
+        "first_recorded_year": 2025
+      }
+    ],
+    "allergies": [
+      {
+        "substance": "penicillin",
+        "reaction": "unspecified",
+        "status": "reported"
+      }
+    ],
+    "allergy_status": "reported",
+    "symptoms": [
+      "Symptoms associated with hypothyroidism"
+    ],
+    "background": {
+      "tobacco_use": "former",
+      "surgery_history": "not recorded",
+      "family_history": "not recorded",
+      "pregnancy_status": "not recorded"
+    },
+    "portal_access": true,
+    "email_contact_available": false,
+    "messaging_preference": "portal",
+    "patient_education_language": "Spanish",
+    "sharing_preference_for_peer_cases": "de-identified case only",
+    "clinical_trial_outreach_preference": "not documented",
+    "source": "fully synthetic fixture"
+  },
+  {
+    "patient_key": "P048",
+    "age_group": "70-79",
+    "state": "CA",
+    "sex_for_clinical_context": "not recorded",
+    "preferred_language": "Nepali",
+    "primary_doctor_key": "D008",
+    "diagnoses": [
+      {
+        "label": "Type 2 diabetes",
+        "code_system": "ICD-10-CM",
+        "code": "E11.9",
+        "status": "active",
+        "first_recorded_year": 2026
+      }
+    ],
+    "allergies": [
+      {
+        "substance": "latex",
+        "reaction": "unspecified",
+        "status": "reported"
+      }
+    ],
+    "allergy_status": "reported",
+    "symptoms": [
+      "Symptoms associated with type 2 diabetes"
+    ],
+    "background": {
+      "tobacco_use": "unknown",
+      "surgery_history": "not recorded",
+      "family_history": "not recorded",
+      "pregnancy_status": "not recorded"
+    },
+    "portal_access": true,
+    "email_contact_available": false,
+    "messaging_preference": "portal",
+    "patient_education_language": "Nepali",
+    "sharing_preference_for_peer_cases": "de-identified case only",
+    "clinical_trial_outreach_preference": "not documented",
+    "source": "fully synthetic fixture"
+  },
+  {
+    "patient_key": "P049",
+    "age_group": "80-89",
+    "state": "IL",
+    "sex_for_clinical_context": "female",
+    "preferred_language": "English",
+    "primary_doctor_key": "D009",
+    "diagnoses": [
+      {
+        "label": "Hypothyroidism",
+        "code_system": "ICD-10-CM",
+        "code": "E03.9",
+        "status": "active",
+        "first_recorded_year": 2023
+      }
+    ],
+    "allergies": [
+      {
+        "substance": "sulfonamides",
+        "reaction": "unspecified",
+        "status": "reported"
+      }
+    ],
+    "allergy_status": "reported",
+    "symptoms": [
+      "Symptoms associated with hypothyroidism"
+    ],
+    "background": {
+      "tobacco_use": "never",
+      "surgery_history": "not recorded",
+      "family_history": "not recorded",
+      "pregnancy_status": "not recorded"
+    },
+    "portal_access": true,
+    "email_contact_available": false,
+    "messaging_preference": "portal",
+    "patient_education_language": "English",
+    "sharing_preference_for_peer_cases": "not documented",
+    "clinical_trial_outreach_preference": "not documented",
+    "source": "fully synthetic fixture"
+  },
+  {
+    "patient_key": "P050",
+    "age_group": "10-19",
+    "state": "NC",
+    "sex_for_clinical_context": "male",
+    "preferred_language": "Spanish",
+    "primary_doctor_key": "D010",
+    "diagnoses": [
+      {
+        "label": "Type 2 diabetes",
+        "code_system": "ICD-10-CM",
+        "code": "E11.9",
+        "status": "active",
+        "first_recorded_year": 2024
+      }
+    ],
+    "allergies": [
+      {
+        "substance": "peanuts",
+        "reaction": "unspecified",
+        "status": "reported"
+      }
+    ],
+    "allergy_status": "reported",
+    "symptoms": [
+      "Symptoms associated with type 2 diabetes"
+    ],
+    "background": {
+      "tobacco_use": "former",
+      "surgery_history": "not recorded",
+      "family_history": "not recorded",
+      "pregnancy_status": "not recorded"
+    },
+    "portal_access": false,
+    "email_contact_available": false,
+    "messaging_preference": "unavailable",
+    "patient_education_language": "Spanish",
+    "sharing_preference_for_peer_cases": "de-identified case only",
+    "clinical_trial_outreach_preference": "not documented",
+    "source": "fully synthetic fixture"
+  },
+  {
+    "patient_key": "P051",
+    "age_group": "30-39",
+    "state": "AL",
+    "sex_for_clinical_context": "not recorded",
+    "preferred_language": "Nepali",
+    "primary_doctor_key": "D011",
+    "diagnoses": [
+      {
+        "label": "COPD",
+        "code_system": "ICD-10-CM",
+        "code": "J44.9",
+        "status": "active",
+        "first_recorded_year": 2025
+      }
+    ],
+    "allergies": [],
+    "allergy_status": "none reported",
+    "symptoms": [
+      "Symptoms associated with copd"
+    ],
+    "background": {
+      "tobacco_use": "unknown",
+      "surgery_history": "not recorded",
+      "family_history": "not recorded",
+      "pregnancy_status": "not recorded"
+    },
+    "portal_access": true,
+    "email_contact_available": false,
+    "messaging_preference": "portal",
+    "patient_education_language": "Nepali",
+    "sharing_preference_for_peer_cases": "de-identified case only",
+    "clinical_trial_outreach_preference": "not documented",
+    "source": "fully synthetic fixture"
+  },
+  {
+    "patient_key": "P052",
+    "age_group": "40-49",
+    "state": "GA",
+    "sex_for_clinical_context": "female",
+    "preferred_language": "English",
+    "primary_doctor_key": "D012",
+    "diagnoses": [
+      {
+        "label": "Asthma",
+        "code_system": "ICD-10-CM",
+        "code": "J45.909",
+        "status": "active",
+        "first_recorded_year": 2026
+      }
+    ],
+    "allergies": [
+      {
+        "substance": "penicillin",
+        "reaction": "unspecified",
+        "status": "reported"
+      }
+    ],
+    "allergy_status": "reported",
+    "symptoms": [
+      "Symptoms associated with asthma"
+    ],
+    "background": {
+      "tobacco_use": "never",
+      "surgery_history": "not recorded",
+      "family_history": "not recorded",
+      "pregnancy_status": "not recorded"
+    },
+    "portal_access": true,
+    "email_contact_available": false,
+    "messaging_preference": "portal",
+    "patient_education_language": "English",
+    "sharing_preference_for_peer_cases": "de-identified case only",
+    "clinical_trial_outreach_preference": "not documented",
+    "source": "fully synthetic fixture"
+  },
+  {
+    "patient_key": "P053",
+    "age_group": "50-59",
+    "state": "NY",
+    "sex_for_clinical_context": "male",
+    "preferred_language": "Spanish",
+    "primary_doctor_key": "D013",
+    "diagnoses": [
+      {
+        "label": "COPD",
+        "code_system": "ICD-10-CM",
+        "code": "J44.9",
+        "status": "active",
+        "first_recorded_year": 2023
+      }
+    ],
+    "allergies": [
+      {
+        "substance": "latex",
+        "reaction": "unspecified",
+        "status": "reported"
+      }
+    ],
+    "allergy_status": "reported",
+    "symptoms": [
+      "Symptoms associated with copd"
+    ],
+    "background": {
+      "tobacco_use": "former",
+      "surgery_history": "not recorded",
+      "family_history": "not recorded",
+      "pregnancy_status": "not recorded"
+    },
+    "portal_access": true,
+    "email_contact_available": false,
+    "messaging_preference": "portal",
+    "patient_education_language": "Spanish",
+    "sharing_preference_for_peer_cases": "not documented",
+    "clinical_trial_outreach_preference": "not documented",
+    "source": "fully synthetic fixture"
+  },
+  {
+    "patient_key": "P054",
+    "age_group": "60-69",
+    "state": "TX",
+    "sex_for_clinical_context": "not recorded",
+    "preferred_language": "Nepali",
+    "primary_doctor_key": "D014",
+    "diagnoses": [
+      {
+        "label": "Asthma",
+        "code_system": "ICD-10-CM",
+        "code": "J45.909",
+        "status": "active",
+        "first_recorded_year": 2024
+      }
+    ],
+    "allergies": [
+      {
+        "substance": "sulfonamides",
+        "reaction": "unspecified",
+        "status": "reported"
+      }
+    ],
+    "allergy_status": "reported",
+    "symptoms": [
+      "Symptoms associated with asthma"
+    ],
+    "background": {
+      "tobacco_use": "unknown",
+      "surgery_history": "not recorded",
+      "family_history": "not recorded",
+      "pregnancy_status": "not recorded"
+    },
+    "portal_access": true,
+    "email_contact_available": false,
+    "messaging_preference": "portal",
+    "patient_education_language": "Nepali",
+    "sharing_preference_for_peer_cases": "de-identified case only",
+    "clinical_trial_outreach_preference": "not documented",
+    "source": "fully synthetic fixture"
+  },
+  {
+    "patient_key": "P055",
+    "age_group": "70-79",
+    "state": "FL",
+    "sex_for_clinical_context": "female",
+    "preferred_language": "English",
+    "primary_doctor_key": "D015",
+    "diagnoses": [
+      {
+        "label": "COPD",
+        "code_system": "ICD-10-CM",
+        "code": "J44.9",
+        "status": "active",
+        "first_recorded_year": 2025
+      }
+    ],
+    "allergies": [
+      {
+        "substance": "peanuts",
+        "reaction": "unspecified",
+        "status": "reported"
+      }
+    ],
+    "allergy_status": "reported",
+    "symptoms": [
+      "Symptoms associated with copd"
+    ],
+    "background": {
+      "tobacco_use": "never",
+      "surgery_history": "not recorded",
+      "family_history": "not recorded",
+      "pregnancy_status": "not recorded"
+    },
+    "portal_access": true,
+    "email_contact_available": false,
+    "messaging_preference": "portal",
+    "patient_education_language": "English",
+    "sharing_preference_for_peer_cases": "de-identified case only",
+    "clinical_trial_outreach_preference": "not documented",
+    "source": "fully synthetic fixture"
+  },
+  {
+    "patient_key": "P056",
+    "age_group": "80-89",
+    "state": "MA",
+    "sex_for_clinical_context": "male",
+    "preferred_language": "Spanish",
+    "primary_doctor_key": "D016",
+    "diagnoses": [
+      {
+        "label": "Atopic dermatitis",
+        "code_system": "ICD-10-CM",
+        "code": "L20.9",
+        "status": "active",
+        "first_recorded_year": 2026
+      }
+    ],
+    "allergies": [],
+    "allergy_status": "none reported",
+    "symptoms": [
+      "Symptoms associated with atopic dermatitis"
+    ],
+    "background": {
+      "tobacco_use": "former",
+      "surgery_history": "not recorded",
+      "family_history": "not recorded",
+      "pregnancy_status": "not recorded"
+    },
+    "portal_access": true,
+    "email_contact_available": false,
+    "messaging_preference": "portal",
+    "patient_education_language": "Spanish",
+    "sharing_preference_for_peer_cases": "de-identified case only",
+    "clinical_trial_outreach_preference": "not documented",
+    "source": "fully synthetic fixture"
+  },
+  {
+    "patient_key": "P057",
+    "age_group": "10-19",
+    "state": "PA",
+    "sex_for_clinical_context": "not recorded",
+    "preferred_language": "Nepali",
+    "primary_doctor_key": "D017",
+    "diagnoses": [
+      {
+        "label": "Psoriasis",
+        "code_system": "ICD-10-CM",
+        "code": "L40.9",
+        "status": "active",
+        "first_recorded_year": 2023
+      }
+    ],
+    "allergies": [
+      {
+        "substance": "penicillin",
+        "reaction": "unspecified",
+        "status": "reported"
+      }
+    ],
+    "allergy_status": "reported",
+    "symptoms": [
+      "Symptoms associated with psoriasis"
+    ],
+    "background": {
+      "tobacco_use": "unknown",
+      "surgery_history": "not recorded",
+      "family_history": "not recorded",
+      "pregnancy_status": "not recorded"
+    },
+    "portal_access": false,
+    "email_contact_available": false,
+    "messaging_preference": "unavailable",
+    "patient_education_language": "Nepali",
+    "sharing_preference_for_peer_cases": "not documented",
+    "clinical_trial_outreach_preference": "not documented",
+    "source": "fully synthetic fixture"
+  },
+  {
+    "patient_key": "P058",
+    "age_group": "30-39",
+    "state": "CA",
+    "sex_for_clinical_context": "female",
+    "preferred_language": "English",
+    "primary_doctor_key": "D018",
+    "diagnoses": [
+      {
+        "label": "Atopic dermatitis",
+        "code_system": "ICD-10-CM",
+        "code": "L20.9",
+        "status": "active",
+        "first_recorded_year": 2024
+      }
+    ],
+    "allergies": [
+      {
+        "substance": "latex",
+        "reaction": "unspecified",
+        "status": "reported"
+      }
+    ],
+    "allergy_status": "reported",
+    "symptoms": [
+      "Symptoms associated with atopic dermatitis"
+    ],
+    "background": {
+      "tobacco_use": "never",
+      "surgery_history": "not recorded",
+      "family_history": "not recorded",
+      "pregnancy_status": "not recorded"
+    },
+    "portal_access": true,
+    "email_contact_available": false,
+    "messaging_preference": "portal",
+    "patient_education_language": "English",
+    "sharing_preference_for_peer_cases": "de-identified case only",
+    "clinical_trial_outreach_preference": "not documented",
+    "source": "fully synthetic fixture"
+  },
+  {
+    "patient_key": "P059",
+    "age_group": "40-49",
+    "state": "IL",
+    "sex_for_clinical_context": "male",
+    "preferred_language": "Spanish",
+    "primary_doctor_key": "D019",
+    "diagnoses": [
+      {
+        "label": "Psoriasis",
+        "code_system": "ICD-10-CM",
+        "code": "L40.9",
+        "status": "active",
+        "first_recorded_year": 2025
+      }
+    ],
+    "allergies": [
+      {
+        "substance": "sulfonamides",
+        "reaction": "unspecified",
+        "status": "reported"
+      }
+    ],
+    "allergy_status": "reported",
+    "symptoms": [
+      "Symptoms associated with psoriasis"
+    ],
+    "background": {
+      "tobacco_use": "former",
+      "surgery_history": "not recorded",
+      "family_history": "not recorded",
+      "pregnancy_status": "not recorded"
+    },
+    "portal_access": true,
+    "email_contact_available": false,
+    "messaging_preference": "portal",
+    "patient_education_language": "Spanish",
+    "sharing_preference_for_peer_cases": "de-identified case only",
+    "clinical_trial_outreach_preference": "not documented",
+    "source": "fully synthetic fixture"
+  },
+  {
+    "patient_key": "P060",
+    "age_group": "50-59",
+    "state": "NC",
+    "sex_for_clinical_context": "not recorded",
+    "preferred_language": "Nepali",
+    "primary_doctor_key": "D020",
+    "diagnoses": [
+      {
+        "label": "Atopic dermatitis",
+        "code_system": "ICD-10-CM",
+        "code": "L20.9",
+        "status": "active",
+        "first_recorded_year": 2026
+      }
+    ],
+    "allergies": [
+      {
+        "substance": "peanuts",
+        "reaction": "unspecified",
+        "status": "reported"
+      }
+    ],
+    "allergy_status": "reported",
+    "symptoms": [
+      "Symptoms associated with atopic dermatitis"
+    ],
+    "background": {
+      "tobacco_use": "unknown",
+      "surgery_history": "not recorded",
+      "family_history": "not recorded",
+      "pregnancy_status": "not recorded"
+    },
+    "portal_access": true,
+    "email_contact_available": false,
+    "messaging_preference": "portal",
+    "patient_education_language": "Nepali",
+    "sharing_preference_for_peer_cases": "de-identified case only",
+    "clinical_trial_outreach_preference": "not documented",
+    "source": "fully synthetic fixture"
+  },
+  {
+    "patient_key": "P061",
+    "age_group": "60-69",
+    "state": "AL",
+    "sex_for_clinical_context": "female",
+    "preferred_language": "English",
+    "primary_doctor_key": "D021",
+    "diagnoses": [
+      {
+        "label": "Gout",
+        "code_system": "ICD-10-CM",
+        "code": "M10.9",
+        "status": "active",
+        "first_recorded_year": 2023
+      }
+    ],
+    "allergies": [],
+    "allergy_status": "none reported",
+    "symptoms": [
+      "Symptoms associated with gout"
+    ],
+    "background": {
+      "tobacco_use": "never",
+      "surgery_history": "not recorded",
+      "family_history": "not recorded",
+      "pregnancy_status": "not recorded"
+    },
+    "portal_access": true,
+    "email_contact_available": false,
+    "messaging_preference": "portal",
+    "patient_education_language": "English",
+    "sharing_preference_for_peer_cases": "not documented",
+    "clinical_trial_outreach_preference": "not documented",
+    "source": "fully synthetic fixture"
+  },
+  {
+    "patient_key": "P062",
+    "age_group": "70-79",
+    "state": "GA",
+    "sex_for_clinical_context": "male",
+    "preferred_language": "Spanish",
+    "primary_doctor_key": "D022",
+    "diagnoses": [
+      {
+        "label": "Rheumatoid arthritis",
+        "code_system": "ICD-10-CM",
+        "code": "M06.9",
+        "status": "active",
+        "first_recorded_year": 2024
+      }
+    ],
+    "allergies": [
+      {
+        "substance": "penicillin",
+        "reaction": "unspecified",
+        "status": "reported"
+      }
+    ],
+    "allergy_status": "reported",
+    "symptoms": [
+      "Symptoms associated with rheumatoid arthritis"
+    ],
+    "background": {
+      "tobacco_use": "former",
+      "surgery_history": "not recorded",
+      "family_history": "not recorded",
+      "pregnancy_status": "not recorded"
+    },
+    "portal_access": true,
+    "email_contact_available": false,
+    "messaging_preference": "portal",
+    "patient_education_language": "Spanish",
+    "sharing_preference_for_peer_cases": "de-identified case only",
+    "clinical_trial_outreach_preference": "not documented",
+    "source": "fully synthetic fixture"
+  },
+  {
+    "patient_key": "P063",
+    "age_group": "80-89",
+    "state": "NY",
+    "sex_for_clinical_context": "not recorded",
+    "preferred_language": "Nepali",
+    "primary_doctor_key": "D023",
+    "diagnoses": [
+      {
+        "label": "Gout",
+        "code_system": "ICD-10-CM",
+        "code": "M10.9",
+        "status": "active",
+        "first_recorded_year": 2025
+      }
+    ],
+    "allergies": [
+      {
+        "substance": "latex",
+        "reaction": "unspecified",
+        "status": "reported"
+      }
+    ],
+    "allergy_status": "reported",
+    "symptoms": [
+      "Symptoms associated with gout"
+    ],
+    "background": {
+      "tobacco_use": "unknown",
+      "surgery_history": "not recorded",
+      "family_history": "not recorded",
+      "pregnancy_status": "not recorded"
+    },
+    "portal_access": true,
+    "email_contact_available": false,
+    "messaging_preference": "portal",
+    "patient_education_language": "Nepali",
+    "sharing_preference_for_peer_cases": "de-identified case only",
+    "clinical_trial_outreach_preference": "not documented",
+    "source": "fully synthetic fixture"
+  },
+  {
+    "patient_key": "P064",
+    "age_group": "10-19",
+    "state": "TX",
+    "sex_for_clinical_context": "female",
+    "preferred_language": "English",
+    "primary_doctor_key": "D024",
+    "diagnoses": [
+      {
+        "label": "Rheumatoid arthritis",
+        "code_system": "ICD-10-CM",
+        "code": "M06.9",
+        "status": "active",
+        "first_recorded_year": 2026
+      }
+    ],
+    "allergies": [
+      {
+        "substance": "sulfonamides",
+        "reaction": "unspecified",
+        "status": "reported"
+      }
+    ],
+    "allergy_status": "reported",
+    "symptoms": [
+      "Symptoms associated with rheumatoid arthritis"
+    ],
+    "background": {
+      "tobacco_use": "never",
+      "surgery_history": "not recorded",
+      "family_history": "not recorded",
+      "pregnancy_status": "not recorded"
+    },
+    "portal_access": false,
+    "email_contact_available": false,
+    "messaging_preference": "unavailable",
+    "patient_education_language": "English",
+    "sharing_preference_for_peer_cases": "de-identified case only",
+    "clinical_trial_outreach_preference": "not documented",
+    "source": "fully synthetic fixture"
+  },
+  {
+    "patient_key": "P065",
+    "age_group": "30-39",
+    "state": "FL",
+    "sex_for_clinical_context": "male",
+    "preferred_language": "Spanish",
+    "primary_doctor_key": "D025",
+    "diagnoses": [
+      {
+        "label": "Gout",
+        "code_system": "ICD-10-CM",
+        "code": "M10.9",
+        "status": "active",
+        "first_recorded_year": 2023
+      }
+    ],
+    "allergies": [
+      {
+        "substance": "peanuts",
+        "reaction": "unspecified",
+        "status": "reported"
+      }
+    ],
+    "allergy_status": "reported",
+    "symptoms": [
+      "Symptoms associated with gout"
+    ],
+    "background": {
+      "tobacco_use": "former",
+      "surgery_history": "not recorded",
+      "family_history": "not recorded",
+      "pregnancy_status": "not recorded"
+    },
+    "portal_access": true,
+    "email_contact_available": false,
+    "messaging_preference": "portal",
+    "patient_education_language": "Spanish",
+    "sharing_preference_for_peer_cases": "not documented",
+    "clinical_trial_outreach_preference": "not documented",
+    "source": "fully synthetic fixture"
+  },
+  {
+    "patient_key": "P066",
+    "age_group": "40-49",
+    "state": "MA",
+    "sex_for_clinical_context": "not recorded",
+    "preferred_language": "Nepali",
+    "primary_doctor_key": "D026",
+    "diagnoses": [
+      {
+        "label": "GERD",
+        "code_system": "ICD-10-CM",
+        "code": "K21.9",
+        "status": "active",
+        "first_recorded_year": 2024
+      }
+    ],
+    "allergies": [],
+    "allergy_status": "none reported",
+    "symptoms": [
+      "Symptoms associated with gerd"
+    ],
+    "background": {
+      "tobacco_use": "unknown",
+      "surgery_history": "not recorded",
+      "family_history": "not recorded",
+      "pregnancy_status": "not recorded"
+    },
+    "portal_access": true,
+    "email_contact_available": false,
+    "messaging_preference": "portal",
+    "patient_education_language": "Nepali",
+    "sharing_preference_for_peer_cases": "de-identified case only",
+    "clinical_trial_outreach_preference": "not documented",
+    "source": "fully synthetic fixture"
+  },
+  {
+    "patient_key": "P067",
+    "age_group": "50-59",
+    "state": "PA",
+    "sex_for_clinical_context": "female",
+    "preferred_language": "English",
+    "primary_doctor_key": "D027",
+    "diagnoses": [
+      {
+        "label": "Inflammatory bowel disease",
+        "code_system": "ICD-10-CM",
+        "code": "K52.9",
+        "status": "active",
+        "first_recorded_year": 2025
+      }
+    ],
+    "allergies": [
+      {
+        "substance": "penicillin",
+        "reaction": "unspecified",
+        "status": "reported"
+      }
+    ],
+    "allergy_status": "reported",
+    "symptoms": [
+      "Symptoms associated with inflammatory bowel disease"
+    ],
+    "background": {
+      "tobacco_use": "never",
+      "surgery_history": "not recorded",
+      "family_history": "not recorded",
+      "pregnancy_status": "not recorded"
+    },
+    "portal_access": true,
+    "email_contact_available": false,
+    "messaging_preference": "portal",
+    "patient_education_language": "English",
+    "sharing_preference_for_peer_cases": "de-identified case only",
+    "clinical_trial_outreach_preference": "not documented",
+    "source": "fully synthetic fixture"
+  },
+  {
+    "patient_key": "P068",
+    "age_group": "60-69",
+    "state": "CA",
+    "sex_for_clinical_context": "male",
+    "preferred_language": "Spanish",
+    "primary_doctor_key": "D028",
+    "diagnoses": [
+      {
+        "label": "GERD",
+        "code_system": "ICD-10-CM",
+        "code": "K21.9",
+        "status": "active",
+        "first_recorded_year": 2026
+      }
+    ],
+    "allergies": [
+      {
+        "substance": "latex",
+        "reaction": "unspecified",
+        "status": "reported"
+      }
+    ],
+    "allergy_status": "reported",
+    "symptoms": [
+      "Symptoms associated with gerd"
+    ],
+    "background": {
+      "tobacco_use": "former",
+      "surgery_history": "not recorded",
+      "family_history": "not recorded",
+      "pregnancy_status": "not recorded"
+    },
+    "portal_access": true,
+    "email_contact_available": false,
+    "messaging_preference": "portal",
+    "patient_education_language": "Spanish",
+    "sharing_preference_for_peer_cases": "de-identified case only",
+    "clinical_trial_outreach_preference": "not documented",
+    "source": "fully synthetic fixture"
+  },
+  {
+    "patient_key": "P069",
+    "age_group": "70-79",
+    "state": "IL",
+    "sex_for_clinical_context": "not recorded",
+    "preferred_language": "Nepali",
+    "primary_doctor_key": "D029",
+    "diagnoses": [
+      {
+        "label": "Inflammatory bowel disease",
+        "code_system": "ICD-10-CM",
+        "code": "K52.9",
+        "status": "active",
+        "first_recorded_year": 2023
+      }
+    ],
+    "allergies": [
+      {
+        "substance": "sulfonamides",
+        "reaction": "unspecified",
+        "status": "reported"
+      }
+    ],
+    "allergy_status": "reported",
+    "symptoms": [
+      "Symptoms associated with inflammatory bowel disease"
+    ],
+    "background": {
+      "tobacco_use": "unknown",
+      "surgery_history": "not recorded",
+      "family_history": "not recorded",
+      "pregnancy_status": "not recorded"
+    },
+    "portal_access": true,
+    "email_contact_available": false,
+    "messaging_preference": "portal",
+    "patient_education_language": "Nepali",
+    "sharing_preference_for_peer_cases": "not documented",
+    "clinical_trial_outreach_preference": "not documented",
+    "source": "fully synthetic fixture"
+  },
+  {
+    "patient_key": "P070",
+    "age_group": "80-89",
+    "state": "NC",
+    "sex_for_clinical_context": "female",
+    "preferred_language": "English",
+    "primary_doctor_key": "D030",
+    "diagnoses": [
+      {
+        "label": "GERD",
+        "code_system": "ICD-10-CM",
+        "code": "K21.9",
+        "status": "active",
+        "first_recorded_year": 2024
+      }
+    ],
+    "allergies": [
+      {
+        "substance": "peanuts",
+        "reaction": "unspecified",
+        "status": "reported"
+      }
+    ],
+    "allergy_status": "reported",
+    "symptoms": [
+      "Symptoms associated with gerd"
+    ],
+    "background": {
+      "tobacco_use": "never",
+      "surgery_history": "not recorded",
+      "family_history": "not recorded",
+      "pregnancy_status": "not recorded"
+    },
+    "portal_access": true,
+    "email_contact_available": false,
+    "messaging_preference": "portal",
+    "patient_education_language": "English",
+    "sharing_preference_for_peer_cases": "de-identified case only",
+    "clinical_trial_outreach_preference": "not documented",
+    "source": "fully synthetic fixture"
+  },
+  {
+    "patient_key": "P071",
+    "age_group": "10-19",
+    "state": "AL",
+    "sex_for_clinical_context": "male",
+    "preferred_language": "Spanish",
+    "primary_doctor_key": "D031",
+    "diagnoses": [
+      {
+        "label": "Epilepsy",
+        "code_system": "ICD-10-CM",
+        "code": "G40.909",
+        "status": "active",
+        "first_recorded_year": 2025
+      }
+    ],
+    "allergies": [],
+    "allergy_status": "none reported",
+    "symptoms": [
+      "Symptoms associated with epilepsy"
+    ],
+    "background": {
+      "tobacco_use": "former",
+      "surgery_history": "not recorded",
+      "family_history": "not recorded",
+      "pregnancy_status": "not recorded"
+    },
+    "portal_access": false,
+    "email_contact_available": false,
+    "messaging_preference": "unavailable",
+    "patient_education_language": "Spanish",
+    "sharing_preference_for_peer_cases": "de-identified case only",
+    "clinical_trial_outreach_preference": "not documented",
+    "source": "fully synthetic fixture"
+  },
+  {
+    "patient_key": "P072",
+    "age_group": "30-39",
+    "state": "GA",
+    "sex_for_clinical_context": "not recorded",
+    "preferred_language": "Nepali",
+    "primary_doctor_key": "D032",
+    "diagnoses": [
+      {
+        "label": "Migraine",
+        "code_system": "ICD-10-CM",
+        "code": "G43.909",
+        "status": "active",
+        "first_recorded_year": 2026
+      }
+    ],
+    "allergies": [
+      {
+        "substance": "penicillin",
+        "reaction": "unspecified",
+        "status": "reported"
+      }
+    ],
+    "allergy_status": "reported",
+    "symptoms": [
+      "Symptoms associated with migraine"
+    ],
+    "background": {
+      "tobacco_use": "unknown",
+      "surgery_history": "not recorded",
+      "family_history": "not recorded",
+      "pregnancy_status": "not recorded"
+    },
+    "portal_access": true,
+    "email_contact_available": false,
+    "messaging_preference": "portal",
+    "patient_education_language": "Nepali",
+    "sharing_preference_for_peer_cases": "de-identified case only",
+    "clinical_trial_outreach_preference": "not documented",
+    "source": "fully synthetic fixture"
+  },
+  {
+    "patient_key": "P073",
+    "age_group": "40-49",
+    "state": "NY",
+    "sex_for_clinical_context": "female",
+    "preferred_language": "English",
+    "primary_doctor_key": "D033",
+    "diagnoses": [
+      {
+        "label": "Epilepsy",
+        "code_system": "ICD-10-CM",
+        "code": "G40.909",
+        "status": "active",
+        "first_recorded_year": 2023
+      }
+    ],
+    "allergies": [
+      {
+        "substance": "latex",
+        "reaction": "unspecified",
+        "status": "reported"
+      }
+    ],
+    "allergy_status": "reported",
+    "symptoms": [
+      "Symptoms associated with epilepsy"
+    ],
+    "background": {
+      "tobacco_use": "never",
+      "surgery_history": "not recorded",
+      "family_history": "not recorded",
+      "pregnancy_status": "not recorded"
+    },
+    "portal_access": true,
+    "email_contact_available": false,
+    "messaging_preference": "portal",
+    "patient_education_language": "English",
+    "sharing_preference_for_peer_cases": "not documented",
+    "clinical_trial_outreach_preference": "not documented",
+    "source": "fully synthetic fixture"
+  },
+  {
+    "patient_key": "P074",
+    "age_group": "50-59",
+    "state": "TX",
+    "sex_for_clinical_context": "male",
+    "preferred_language": "Spanish",
+    "primary_doctor_key": "D034",
+    "diagnoses": [
+      {
+        "label": "Migraine",
+        "code_system": "ICD-10-CM",
+        "code": "G43.909",
+        "status": "active",
+        "first_recorded_year": 2024
+      }
+    ],
+    "allergies": [
+      {
+        "substance": "sulfonamides",
+        "reaction": "unspecified",
+        "status": "reported"
+      }
+    ],
+    "allergy_status": "reported",
+    "symptoms": [
+      "Symptoms associated with migraine"
+    ],
+    "background": {
+      "tobacco_use": "former",
+      "surgery_history": "not recorded",
+      "family_history": "not recorded",
+      "pregnancy_status": "not recorded"
+    },
+    "portal_access": true,
+    "email_contact_available": false,
+    "messaging_preference": "portal",
+    "patient_education_language": "Spanish",
+    "sharing_preference_for_peer_cases": "de-identified case only",
+    "clinical_trial_outreach_preference": "not documented",
+    "source": "fully synthetic fixture"
+  },
+  {
+    "patient_key": "P075",
+    "age_group": "60-69",
+    "state": "FL",
+    "sex_for_clinical_context": "not recorded",
+    "preferred_language": "Nepali",
+    "primary_doctor_key": "D035",
+    "diagnoses": [
+      {
+        "label": "Epilepsy",
+        "code_system": "ICD-10-CM",
+        "code": "G40.909",
+        "status": "active",
+        "first_recorded_year": 2025
+      }
+    ],
+    "allergies": [
+      {
+        "substance": "peanuts",
+        "reaction": "unspecified",
+        "status": "reported"
+      }
+    ],
+    "allergy_status": "reported",
+    "symptoms": [
+      "Symptoms associated with epilepsy"
+    ],
+    "background": {
+      "tobacco_use": "unknown",
+      "surgery_history": "not recorded",
+      "family_history": "not recorded",
+      "pregnancy_status": "not recorded"
+    },
+    "portal_access": true,
+    "email_contact_available": false,
+    "messaging_preference": "portal",
+    "patient_education_language": "Nepali",
+    "sharing_preference_for_peer_cases": "de-identified case only",
+    "clinical_trial_outreach_preference": "not documented",
+    "source": "fully synthetic fixture"
+  },
+  {
+    "patient_key": "P076",
+    "age_group": "70-79",
+    "state": "MA",
+    "sex_for_clinical_context": "female",
+    "preferred_language": "English",
+    "primary_doctor_key": "D036",
+    "diagnoses": [
+      {
+        "label": "Hyperlipidemia",
+        "code_system": "ICD-10-CM",
+        "code": "E78.5",
+        "status": "active",
+        "first_recorded_year": 2026
+      }
+    ],
+    "allergies": [],
+    "allergy_status": "none reported",
+    "symptoms": [
+      "Symptoms associated with hyperlipidemia"
+    ],
+    "background": {
+      "tobacco_use": "never",
+      "surgery_history": "not recorded",
+      "family_history": "not recorded",
+      "pregnancy_status": "not recorded"
+    },
+    "portal_access": true,
+    "email_contact_available": false,
+    "messaging_preference": "portal",
+    "patient_education_language": "English",
+    "sharing_preference_for_peer_cases": "de-identified case only",
+    "clinical_trial_outreach_preference": "not documented",
+    "source": "fully synthetic fixture"
+  },
+  {
+    "patient_key": "P077",
+    "age_group": "80-89",
+    "state": "PA",
+    "sex_for_clinical_context": "male",
+    "preferred_language": "Spanish",
+    "primary_doctor_key": "D037",
+    "diagnoses": [
+      {
+        "label": "Iron deficiency anemia",
+        "code_system": "ICD-10-CM",
+        "code": "D50.9",
+        "status": "active",
+        "first_recorded_year": 2023
+      }
+    ],
+    "allergies": [
+      {
+        "substance": "penicillin",
+        "reaction": "unspecified",
+        "status": "reported"
+      }
+    ],
+    "allergy_status": "reported",
+    "symptoms": [
+      "Symptoms associated with iron deficiency anemia"
+    ],
+    "background": {
+      "tobacco_use": "former",
+      "surgery_history": "not recorded",
+      "family_history": "not recorded",
+      "pregnancy_status": "not recorded"
+    },
+    "portal_access": true,
+    "email_contact_available": false,
+    "messaging_preference": "portal",
+    "patient_education_language": "Spanish",
+    "sharing_preference_for_peer_cases": "not documented",
+    "clinical_trial_outreach_preference": "not documented",
+    "source": "fully synthetic fixture"
+  },
+  {
+    "patient_key": "P078",
+    "age_group": "10-19",
+    "state": "CA",
+    "sex_for_clinical_context": "not recorded",
+    "preferred_language": "Nepali",
+    "primary_doctor_key": "D038",
+    "diagnoses": [
+      {
+        "label": "Hyperlipidemia",
+        "code_system": "ICD-10-CM",
+        "code": "E78.5",
+        "status": "active",
+        "first_recorded_year": 2024
+      }
+    ],
+    "allergies": [
+      {
+        "substance": "latex",
+        "reaction": "unspecified",
+        "status": "reported"
+      }
+    ],
+    "allergy_status": "reported",
+    "symptoms": [
+      "Symptoms associated with hyperlipidemia"
+    ],
+    "background": {
+      "tobacco_use": "unknown",
+      "surgery_history": "not recorded",
+      "family_history": "not recorded",
+      "pregnancy_status": "not recorded"
+    },
+    "portal_access": false,
+    "email_contact_available": false,
+    "messaging_preference": "unavailable",
+    "patient_education_language": "Nepali",
+    "sharing_preference_for_peer_cases": "de-identified case only",
+    "clinical_trial_outreach_preference": "not documented",
+    "source": "fully synthetic fixture"
+  },
+  {
+    "patient_key": "P079",
+    "age_group": "30-39",
+    "state": "IL",
+    "sex_for_clinical_context": "female",
+    "preferred_language": "English",
+    "primary_doctor_key": "D039",
+    "diagnoses": [
+      {
+        "label": "Iron deficiency anemia",
+        "code_system": "ICD-10-CM",
+        "code": "D50.9",
+        "status": "active",
+        "first_recorded_year": 2025
+      }
+    ],
+    "allergies": [
+      {
+        "substance": "sulfonamides",
+        "reaction": "unspecified",
+        "status": "reported"
+      }
+    ],
+    "allergy_status": "reported",
+    "symptoms": [
+      "Symptoms associated with iron deficiency anemia"
+    ],
+    "background": {
+      "tobacco_use": "never",
+      "surgery_history": "not recorded",
+      "family_history": "not recorded",
+      "pregnancy_status": "not recorded"
+    },
+    "portal_access": true,
+    "email_contact_available": false,
+    "messaging_preference": "portal",
+    "patient_education_language": "English",
+    "sharing_preference_for_peer_cases": "de-identified case only",
+    "clinical_trial_outreach_preference": "not documented",
+    "source": "fully synthetic fixture"
+  },
+  {
+    "patient_key": "P080",
+    "age_group": "40-49",
+    "state": "NC",
+    "sex_for_clinical_context": "male",
+    "preferred_language": "Spanish",
+    "primary_doctor_key": "D040",
+    "diagnoses": [
+      {
+        "label": "Hyperlipidemia",
+        "code_system": "ICD-10-CM",
+        "code": "E78.5",
+        "status": "active",
+        "first_recorded_year": 2026
+      }
+    ],
+    "allergies": [
+      {
+        "substance": "peanuts",
+        "reaction": "unspecified",
+        "status": "reported"
+      }
+    ],
+    "allergy_status": "reported",
+    "symptoms": [
+      "Symptoms associated with hyperlipidemia"
+    ],
+    "background": {
+      "tobacco_use": "former",
+      "surgery_history": "not recorded",
+      "family_history": "not recorded",
+      "pregnancy_status": "not recorded"
+    },
+    "portal_access": true,
+    "email_contact_available": false,
+    "messaging_preference": "portal",
+    "patient_education_language": "Spanish",
+    "sharing_preference_for_peer_cases": "de-identified case only",
+    "clinical_trial_outreach_preference": "not documented",
+    "source": "fully synthetic fixture"
+  },
+  {
+    "patient_key": "P081",
+    "age_group": "50-59",
+    "state": "AL",
+    "sex_for_clinical_context": "not recorded",
+    "preferred_language": "Nepali",
+    "primary_doctor_key": "D001",
+    "diagnoses": [
+      {
+        "label": "Hypertension",
+        "code_system": "ICD-10-CM",
+        "code": "I10",
+        "status": "active",
+        "first_recorded_year": 2023
+      }
+    ],
+    "allergies": [],
+    "allergy_status": "none reported",
+    "symptoms": [
+      "Symptoms associated with hypertension"
+    ],
+    "background": {
+      "tobacco_use": "unknown",
+      "surgery_history": "not recorded",
+      "family_history": "not recorded",
+      "pregnancy_status": "not recorded"
+    },
+    "portal_access": true,
+    "email_contact_available": false,
+    "messaging_preference": "portal",
+    "patient_education_language": "Nepali",
+    "sharing_preference_for_peer_cases": "not documented",
+    "clinical_trial_outreach_preference": "not documented",
+    "source": "fully synthetic fixture"
+  },
+  {
+    "patient_key": "P082",
+    "age_group": "60-69",
+    "state": "GA",
+    "sex_for_clinical_context": "female",
+    "preferred_language": "English",
+    "primary_doctor_key": "D002",
+    "diagnoses": [
+      {
+        "label": "Heart failure",
+        "code_system": "ICD-10-CM",
+        "code": "I50.9",
+        "status": "active",
+        "first_recorded_year": 2024
+      }
+    ],
+    "allergies": [
+      {
+        "substance": "penicillin",
+        "reaction": "unspecified",
+        "status": "reported"
+      }
+    ],
+    "allergy_status": "reported",
+    "symptoms": [
+      "Symptoms associated with heart failure"
+    ],
+    "background": {
+      "tobacco_use": "never",
+      "surgery_history": "not recorded",
+      "family_history": "not recorded",
+      "pregnancy_status": "not recorded"
+    },
+    "portal_access": true,
+    "email_contact_available": false,
+    "messaging_preference": "portal",
+    "patient_education_language": "English",
+    "sharing_preference_for_peer_cases": "de-identified case only",
+    "clinical_trial_outreach_preference": "not documented",
+    "source": "fully synthetic fixture"
+  },
+  {
+    "patient_key": "P083",
+    "age_group": "70-79",
+    "state": "NY",
+    "sex_for_clinical_context": "male",
+    "preferred_language": "Spanish",
+    "primary_doctor_key": "D003",
+    "diagnoses": [
+      {
+        "label": "Hypertension",
+        "code_system": "ICD-10-CM",
+        "code": "I10",
+        "status": "active",
+        "first_recorded_year": 2025
+      }
+    ],
+    "allergies": [
+      {
+        "substance": "latex",
+        "reaction": "unspecified",
+        "status": "reported"
+      }
+    ],
+    "allergy_status": "reported",
+    "symptoms": [
+      "Symptoms associated with hypertension"
+    ],
+    "background": {
+      "tobacco_use": "former",
+      "surgery_history": "not recorded",
+      "family_history": "not recorded",
+      "pregnancy_status": "not recorded"
+    },
+    "portal_access": true,
+    "email_contact_available": false,
+    "messaging_preference": "portal",
+    "patient_education_language": "Spanish",
+    "sharing_preference_for_peer_cases": "de-identified case only",
+    "clinical_trial_outreach_preference": "not documented",
+    "source": "fully synthetic fixture"
+  },
+  {
+    "patient_key": "P084",
+    "age_group": "80-89",
+    "state": "TX",
+    "sex_for_clinical_context": "not recorded",
+    "preferred_language": "Nepali",
+    "primary_doctor_key": "D004",
+    "diagnoses": [
+      {
+        "label": "Heart failure",
+        "code_system": "ICD-10-CM",
+        "code": "I50.9",
+        "status": "active",
+        "first_recorded_year": 2026
+      }
+    ],
+    "allergies": [
+      {
+        "substance": "peanuts",
+        "reaction": "unspecified",
+        "status": "reported"
+      }
+    ],
+    "allergy_status": "reported",
+    "symptoms": [
+      "Symptoms associated with heart failure"
+    ],
+    "background": {
+      "tobacco_use": "unknown",
+      "surgery_history": "not recorded",
+      "family_history": "not recorded",
+      "pregnancy_status": "not recorded"
+    },
+    "portal_access": true,
+    "email_contact_available": false,
+    "messaging_preference": "portal",
+    "patient_education_language": "Nepali",
+    "sharing_preference_for_peer_cases": "de-identified case only",
+    "clinical_trial_outreach_preference": "not documented",
+    "source": "fully synthetic fixture"
+  },
+  {
+    "patient_key": "P085",
+    "age_group": "10-19",
+    "state": "FL",
+    "sex_for_clinical_context": "female",
+    "preferred_language": "English",
+    "primary_doctor_key": "D005",
+    "diagnoses": [
+      {
+        "label": "Hypertension",
+        "code_system": "ICD-10-CM",
+        "code": "I10",
+        "status": "active",
+        "first_recorded_year": 2023
+      }
+    ],
+    "allergies": [
+      {
+        "substance": "peanuts",
+        "reaction": "unspecified",
+        "status": "reported"
+      }
+    ],
+    "allergy_status": "reported",
+    "symptoms": [
+      "Symptoms associated with hypertension"
+    ],
+    "background": {
+      "tobacco_use": "never",
+      "surgery_history": "not recorded",
+      "family_history": "not recorded",
+      "pregnancy_status": "not recorded"
+    },
+    "portal_access": false,
+    "email_contact_available": false,
+    "messaging_preference": "unavailable",
+    "patient_education_language": "English",
+    "sharing_preference_for_peer_cases": "not documented",
+    "clinical_trial_outreach_preference": "not documented",
+    "source": "fully synthetic fixture"
+  },
+  {
+    "patient_key": "P086",
+    "age_group": "30-39",
+    "state": "MA",
+    "sex_for_clinical_context": "male",
+    "preferred_language": "Spanish",
+    "primary_doctor_key": "D006",
+    "diagnoses": [
+      {
+        "label": "Hypothyroidism",
+        "code_system": "ICD-10-CM",
+        "code": "E03.9",
+        "status": "active",
+        "first_recorded_year": 2024
+      }
+    ],
+    "allergies": [],
+    "allergy_status": "none reported",
+    "symptoms": [
+      "Symptoms associated with hypothyroidism"
+    ],
+    "background": {
+      "tobacco_use": "former",
+      "surgery_history": "not recorded",
+      "family_history": "not recorded",
+      "pregnancy_status": "not recorded"
+    },
+    "portal_access": true,
+    "email_contact_available": false,
+    "messaging_preference": "portal",
+    "patient_education_language": "Spanish",
+    "sharing_preference_for_peer_cases": "de-identified case only",
+    "clinical_trial_outreach_preference": "not documented",
+    "source": "fully synthetic fixture"
+  },
+  {
+    "patient_key": "P087",
+    "age_group": "40-49",
+    "state": "PA",
+    "sex_for_clinical_context": "not recorded",
+    "preferred_language": "Nepali",
+    "primary_doctor_key": "D007",
+    "diagnoses": [
+      {
+        "label": "Type 2 diabetes",
+        "code_system": "ICD-10-CM",
+        "code": "E11.9",
+        "status": "active",
+        "first_recorded_year": 2025
+      }
+    ],
+    "allergies": [
+      {
+        "substance": "penicillin",
+        "reaction": "unspecified",
+        "status": "reported"
+      }
+    ],
+    "allergy_status": "reported",
+    "symptoms": [
+      "Symptoms associated with type 2 diabetes"
+    ],
+    "background": {
+      "tobacco_use": "unknown",
+      "surgery_history": "not recorded",
+      "family_history": "not recorded",
+      "pregnancy_status": "not recorded"
+    },
+    "portal_access": true,
+    "email_contact_available": false,
+    "messaging_preference": "portal",
+    "patient_education_language": "Nepali",
+    "sharing_preference_for_peer_cases": "de-identified case only",
+    "clinical_trial_outreach_preference": "not documented",
+    "source": "fully synthetic fixture"
+  },
+  {
+    "patient_key": "P088",
+    "age_group": "50-59",
+    "state": "CA",
+    "sex_for_clinical_context": "female",
+    "preferred_language": "English",
+    "primary_doctor_key": "D008",
+    "diagnoses": [
+      {
+        "label": "Hypothyroidism",
+        "code_system": "ICD-10-CM",
+        "code": "E03.9",
+        "status": "active",
+        "first_recorded_year": 2026
+      }
+    ],
+    "allergies": [
+      {
+        "substance": "latex",
+        "reaction": "unspecified",
+        "status": "reported"
+      }
+    ],
+    "allergy_status": "reported",
+    "symptoms": [
+      "Symptoms associated with hypothyroidism"
+    ],
+    "background": {
+      "tobacco_use": "never",
+      "surgery_history": "not recorded",
+      "family_history": "not recorded",
+      "pregnancy_status": "not recorded"
+    },
+    "portal_access": true,
+    "email_contact_available": false,
+    "messaging_preference": "portal",
+    "patient_education_language": "English",
+    "sharing_preference_for_peer_cases": "de-identified case only",
+    "clinical_trial_outreach_preference": "not documented",
+    "source": "fully synthetic fixture"
+  },
+  {
+    "patient_key": "P089",
+    "age_group": "60-69",
+    "state": "IL",
+    "sex_for_clinical_context": "male",
+    "preferred_language": "Spanish",
+    "primary_doctor_key": "D009",
+    "diagnoses": [
+      {
+        "label": "Type 2 diabetes",
+        "code_system": "ICD-10-CM",
+        "code": "E11.9",
+        "status": "active",
+        "first_recorded_year": 2023
+      }
+    ],
+    "allergies": [
+      {
+        "substance": "sulfonamides",
+        "reaction": "unspecified",
+        "status": "reported"
+      }
+    ],
+    "allergy_status": "reported",
+    "symptoms": [
+      "Symptoms associated with type 2 diabetes"
+    ],
+    "background": {
+      "tobacco_use": "former",
+      "surgery_history": "not recorded",
+      "family_history": "not recorded",
+      "pregnancy_status": "not recorded"
+    },
+    "portal_access": true,
+    "email_contact_available": false,
+    "messaging_preference": "portal",
+    "patient_education_language": "Spanish",
+    "sharing_preference_for_peer_cases": "not documented",
+    "clinical_trial_outreach_preference": "not documented",
+    "source": "fully synthetic fixture"
+  },
+  {
+    "patient_key": "P090",
+    "age_group": "70-79",
+    "state": "NC",
+    "sex_for_clinical_context": "not recorded",
+    "preferred_language": "Nepali",
+    "primary_doctor_key": "D010",
+    "diagnoses": [
+      {
+        "label": "Hypothyroidism",
+        "code_system": "ICD-10-CM",
+        "code": "E03.9",
+        "status": "active",
+        "first_recorded_year": 2024
+      }
+    ],
+    "allergies": [
+      {
+        "substance": "peanuts",
+        "reaction": "unspecified",
+        "status": "reported"
+      }
+    ],
+    "allergy_status": "reported",
+    "symptoms": [
+      "Symptoms associated with hypothyroidism"
+    ],
+    "background": {
+      "tobacco_use": "unknown",
+      "surgery_history": "not recorded",
+      "family_history": "not recorded",
+      "pregnancy_status": "not recorded"
+    },
+    "portal_access": true,
+    "email_contact_available": false,
+    "messaging_preference": "portal",
+    "patient_education_language": "Nepali",
+    "sharing_preference_for_peer_cases": "de-identified case only",
+    "clinical_trial_outreach_preference": "not documented",
+    "source": "fully synthetic fixture"
+  },
+  {
+    "patient_key": "P091",
+    "age_group": "80-89",
+    "state": "AL",
+    "sex_for_clinical_context": "female",
+    "preferred_language": "English",
+    "primary_doctor_key": "D011",
+    "diagnoses": [
+      {
+        "label": "Asthma",
+        "code_system": "ICD-10-CM",
+        "code": "J45.909",
+        "status": "active",
+        "first_recorded_year": 2025
+      }
+    ],
+    "allergies": [],
+    "allergy_status": "none reported",
+    "symptoms": [
+      "Symptoms associated with asthma"
+    ],
+    "background": {
+      "tobacco_use": "never",
+      "surgery_history": "not recorded",
+      "family_history": "not recorded",
+      "pregnancy_status": "not recorded"
+    },
+    "portal_access": true,
+    "email_contact_available": false,
+    "messaging_preference": "portal",
+    "patient_education_language": "English",
+    "sharing_preference_for_peer_cases": "de-identified case only",
+    "clinical_trial_outreach_preference": "not documented",
+    "source": "fully synthetic fixture"
+  },
+  {
+    "patient_key": "P092",
+    "age_group": "10-19",
+    "state": "GA",
+    "sex_for_clinical_context": "male",
+    "preferred_language": "Spanish",
+    "primary_doctor_key": "D012",
+    "diagnoses": [
+      {
+        "label": "COPD",
+        "code_system": "ICD-10-CM",
+        "code": "J44.9",
+        "status": "active",
+        "first_recorded_year": 2026
+      }
+    ],
+    "allergies": [
+      {
+        "substance": "penicillin",
+        "reaction": "unspecified",
+        "status": "reported"
+      }
+    ],
+    "allergy_status": "reported",
+    "symptoms": [
+      "Symptoms associated with copd"
+    ],
+    "background": {
+      "tobacco_use": "former",
+      "surgery_history": "not recorded",
+      "family_history": "not recorded",
+      "pregnancy_status": "not recorded"
+    },
+    "portal_access": false,
+    "email_contact_available": false,
+    "messaging_preference": "unavailable",
+    "patient_education_language": "Spanish",
+    "sharing_preference_for_peer_cases": "de-identified case only",
+    "clinical_trial_outreach_preference": "not documented",
+    "source": "fully synthetic fixture"
+  },
+  {
+    "patient_key": "P093",
+    "age_group": "30-39",
+    "state": "NY",
+    "sex_for_clinical_context": "not recorded",
+    "preferred_language": "Nepali",
+    "primary_doctor_key": "D013",
+    "diagnoses": [
+      {
+        "label": "Asthma",
+        "code_system": "ICD-10-CM",
+        "code": "J45.909",
+        "status": "active",
+        "first_recorded_year": 2023
+      }
+    ],
+    "allergies": [
+      {
+        "substance": "latex",
+        "reaction": "unspecified",
+        "status": "reported"
+      }
+    ],
+    "allergy_status": "reported",
+    "symptoms": [
+      "Symptoms associated with asthma"
+    ],
+    "background": {
+      "tobacco_use": "unknown",
+      "surgery_history": "not recorded",
+      "family_history": "not recorded",
+      "pregnancy_status": "not recorded"
+    },
+    "portal_access": true,
+    "email_contact_available": false,
+    "messaging_preference": "portal",
+    "patient_education_language": "Nepali",
+    "sharing_preference_for_peer_cases": "not documented",
+    "clinical_trial_outreach_preference": "not documented",
+    "source": "fully synthetic fixture"
+  },
+  {
+    "patient_key": "P094",
+    "age_group": "40-49",
+    "state": "TX",
+    "sex_for_clinical_context": "female",
+    "preferred_language": "English",
+    "primary_doctor_key": "D014",
+    "diagnoses": [
+      {
+        "label": "COPD",
+        "code_system": "ICD-10-CM",
+        "code": "J44.9",
+        "status": "active",
+        "first_recorded_year": 2024
+      }
+    ],
+    "allergies": [
+      {
+        "substance": "sulfonamides",
+        "reaction": "unspecified",
+        "status": "reported"
+      }
+    ],
+    "allergy_status": "reported",
+    "symptoms": [
+      "Symptoms associated with copd"
+    ],
+    "background": {
+      "tobacco_use": "never",
+      "surgery_history": "not recorded",
+      "family_history": "not recorded",
+      "pregnancy_status": "not recorded"
+    },
+    "portal_access": true,
+    "email_contact_available": false,
+    "messaging_preference": "portal",
+    "patient_education_language": "English",
+    "sharing_preference_for_peer_cases": "de-identified case only",
+    "clinical_trial_outreach_preference": "not documented",
+    "source": "fully synthetic fixture"
+  },
+  {
+    "patient_key": "P095",
+    "age_group": "50-59",
+    "state": "FL",
+    "sex_for_clinical_context": "male",
+    "preferred_language": "Spanish",
+    "primary_doctor_key": "D015",
+    "diagnoses": [
+      {
+        "label": "Asthma",
+        "code_system": "ICD-10-CM",
+        "code": "J45.909",
+        "status": "active",
+        "first_recorded_year": 2025
+      }
+    ],
+    "allergies": [
+      {
+        "substance": "peanuts",
+        "reaction": "unspecified",
+        "status": "reported"
+      }
+    ],
+    "allergy_status": "reported",
+    "symptoms": [
+      "Symptoms associated with asthma"
+    ],
+    "background": {
+      "tobacco_use": "former",
+      "surgery_history": "not recorded",
+      "family_history": "not recorded",
+      "pregnancy_status": "not recorded"
+    },
+    "portal_access": true,
+    "email_contact_available": false,
+    "messaging_preference": "portal",
+    "patient_education_language": "Spanish",
+    "sharing_preference_for_peer_cases": "de-identified case only",
+    "clinical_trial_outreach_preference": "not documented",
+    "source": "fully synthetic fixture"
+  },
+  {
+    "patient_key": "P096",
+    "age_group": "60-69",
+    "state": "MA",
+    "sex_for_clinical_context": "not recorded",
+    "preferred_language": "Nepali",
+    "primary_doctor_key": "D016",
+    "diagnoses": [
+      {
+        "label": "Psoriasis",
+        "code_system": "ICD-10-CM",
+        "code": "L40.9",
+        "status": "active",
+        "first_recorded_year": 2026
+      }
+    ],
+    "allergies": [],
+    "allergy_status": "none reported",
+    "symptoms": [
+      "Symptoms associated with psoriasis"
+    ],
+    "background": {
+      "tobacco_use": "unknown",
+      "surgery_history": "not recorded",
+      "family_history": "not recorded",
+      "pregnancy_status": "not recorded"
+    },
+    "portal_access": true,
+    "email_contact_available": false,
+    "messaging_preference": "portal",
+    "patient_education_language": "Nepali",
+    "sharing_preference_for_peer_cases": "de-identified case only",
+    "clinical_trial_outreach_preference": "not documented",
+    "source": "fully synthetic fixture"
+  },
+  {
+    "patient_key": "P097",
+    "age_group": "70-79",
+    "state": "PA",
+    "sex_for_clinical_context": "female",
+    "preferred_language": "English",
+    "primary_doctor_key": "D017",
+    "diagnoses": [
+      {
+        "label": "Atopic dermatitis",
+        "code_system": "ICD-10-CM",
+        "code": "L20.9",
+        "status": "active",
+        "first_recorded_year": 2023
+      }
+    ],
+    "allergies": [
+      {
+        "substance": "penicillin",
+        "reaction": "unspecified",
+        "status": "reported"
+      }
+    ],
+    "allergy_status": "reported",
+    "symptoms": [
+      "Symptoms associated with atopic dermatitis"
+    ],
+    "background": {
+      "tobacco_use": "never",
+      "surgery_history": "not recorded",
+      "family_history": "not recorded",
+      "pregnancy_status": "not recorded"
+    },
+    "portal_access": true,
+    "email_contact_available": false,
+    "messaging_preference": "portal",
+    "patient_education_language": "English",
+    "sharing_preference_for_peer_cases": "not documented",
+    "clinical_trial_outreach_preference": "not documented",
+    "source": "fully synthetic fixture"
+  },
+  {
+    "patient_key": "P098",
+    "age_group": "80-89",
+    "state": "CA",
+    "sex_for_clinical_context": "male",
+    "preferred_language": "Spanish",
+    "primary_doctor_key": "D018",
+    "diagnoses": [
+      {
+        "label": "Psoriasis",
+        "code_system": "ICD-10-CM",
+        "code": "L40.9",
+        "status": "active",
+        "first_recorded_year": 2024
+      }
+    ],
+    "allergies": [
+      {
+        "substance": "latex",
+        "reaction": "unspecified",
+        "status": "reported"
+      }
+    ],
+    "allergy_status": "reported",
+    "symptoms": [
+      "Symptoms associated with psoriasis"
+    ],
+    "background": {
+      "tobacco_use": "former",
+      "surgery_history": "not recorded",
+      "family_history": "not recorded",
+      "pregnancy_status": "not recorded"
+    },
+    "portal_access": true,
+    "email_contact_available": false,
+    "messaging_preference": "portal",
+    "patient_education_language": "Spanish",
+    "sharing_preference_for_peer_cases": "de-identified case only",
+    "clinical_trial_outreach_preference": "not documented",
+    "source": "fully synthetic fixture"
+  },
+  {
+    "patient_key": "P099",
+    "age_group": "10-19",
+    "state": "IL",
+    "sex_for_clinical_context": "not recorded",
+    "preferred_language": "Nepali",
+    "primary_doctor_key": "D019",
+    "diagnoses": [
+      {
+        "label": "Atopic dermatitis",
+        "code_system": "ICD-10-CM",
+        "code": "L20.9",
+        "status": "active",
+        "first_recorded_year": 2025
+      }
+    ],
+    "allergies": [
+      {
+        "substance": "sulfonamides",
+        "reaction": "unspecified",
+        "status": "reported"
+      }
+    ],
+    "allergy_status": "reported",
+    "symptoms": [
+      "Symptoms associated with atopic dermatitis"
+    ],
+    "background": {
+      "tobacco_use": "unknown",
+      "surgery_history": "not recorded",
+      "family_history": "not recorded",
+      "pregnancy_status": "not recorded"
+    },
+    "portal_access": false,
+    "email_contact_available": false,
+    "messaging_preference": "unavailable",
+    "patient_education_language": "Nepali",
+    "sharing_preference_for_peer_cases": "de-identified case only",
+    "clinical_trial_outreach_preference": "not documented",
+    "source": "fully synthetic fixture"
+  },
+  {
+    "patient_key": "P100",
+    "age_group": "30-39",
+    "state": "NC",
+    "sex_for_clinical_context": "female",
+    "preferred_language": "English",
+    "primary_doctor_key": "D020",
+    "diagnoses": [
+      {
+        "label": "Psoriasis",
+        "code_system": "ICD-10-CM",
+        "code": "L40.9",
+        "status": "active",
+        "first_recorded_year": 2026
+      }
+    ],
+    "allergies": [
+      {
+        "substance": "peanuts",
+        "reaction": "unspecified",
+        "status": "reported"
+      }
+    ],
+    "allergy_status": "reported",
+    "symptoms": [
+      "Symptoms associated with psoriasis"
+    ],
+    "background": {
+      "tobacco_use": "never",
+      "surgery_history": "not recorded",
+      "family_history": "not recorded",
+      "pregnancy_status": "not recorded"
+    },
+    "portal_access": true,
+    "email_contact_available": false,
+    "messaging_preference": "portal",
+    "patient_education_language": "English",
+    "sharing_preference_for_peer_cases": "de-identified case only",
+    "clinical_trial_outreach_preference": "not documented",
+    "source": "fully synthetic fixture"
+  },
+  {
+    "patient_key": "P101",
+    "age_group": "40-49",
+    "state": "AL",
+    "sex_for_clinical_context": "male",
+    "preferred_language": "Spanish",
+    "primary_doctor_key": "D021",
+    "diagnoses": [
+      {
+        "label": "Rheumatoid arthritis",
+        "code_system": "ICD-10-CM",
+        "code": "M06.9",
+        "status": "active",
+        "first_recorded_year": 2023
+      }
+    ],
+    "allergies": [],
+    "allergy_status": "none reported",
+    "symptoms": [
+      "Symptoms associated with rheumatoid arthritis"
+    ],
+    "background": {
+      "tobacco_use": "former",
+      "surgery_history": "not recorded",
+      "family_history": "not recorded",
+      "pregnancy_status": "not recorded"
+    },
+    "portal_access": true,
+    "email_contact_available": false,
+    "messaging_preference": "portal",
+    "patient_education_language": "Spanish",
+    "sharing_preference_for_peer_cases": "not documented",
+    "clinical_trial_outreach_preference": "not documented",
+    "source": "fully synthetic fixture"
+  },
+  {
+    "patient_key": "P102",
+    "age_group": "50-59",
+    "state": "GA",
+    "sex_for_clinical_context": "not recorded",
+    "preferred_language": "Nepali",
+    "primary_doctor_key": "D022",
+    "diagnoses": [
+      {
+        "label": "Gout",
+        "code_system": "ICD-10-CM",
+        "code": "M10.9",
+        "status": "active",
+        "first_recorded_year": 2024
+      }
+    ],
+    "allergies": [
+      {
+        "substance": "penicillin",
+        "reaction": "unspecified",
+        "status": "reported"
+      }
+    ],
+    "allergy_status": "reported",
+    "symptoms": [
+      "Symptoms associated with gout"
+    ],
+    "background": {
+      "tobacco_use": "unknown",
+      "surgery_history": "not recorded",
+      "family_history": "not recorded",
+      "pregnancy_status": "not recorded"
+    },
+    "portal_access": true,
+    "email_contact_available": false,
+    "messaging_preference": "portal",
+    "patient_education_language": "Nepali",
+    "sharing_preference_for_peer_cases": "de-identified case only",
+    "clinical_trial_outreach_preference": "not documented",
+    "source": "fully synthetic fixture"
+  },
+  {
+    "patient_key": "P103",
+    "age_group": "60-69",
+    "state": "NY",
+    "sex_for_clinical_context": "female",
+    "preferred_language": "English",
+    "primary_doctor_key": "D023",
+    "diagnoses": [
+      {
+        "label": "Rheumatoid arthritis",
+        "code_system": "ICD-10-CM",
+        "code": "M06.9",
+        "status": "active",
+        "first_recorded_year": 2025
+      }
+    ],
+    "allergies": [
+      {
+        "substance": "latex",
+        "reaction": "unspecified",
+        "status": "reported"
+      }
+    ],
+    "allergy_status": "reported",
+    "symptoms": [
+      "Symptoms associated with rheumatoid arthritis"
+    ],
+    "background": {
+      "tobacco_use": "never",
+      "surgery_history": "not recorded",
+      "family_history": "not recorded",
+      "pregnancy_status": "not recorded"
+    },
+    "portal_access": true,
+    "email_contact_available": false,
+    "messaging_preference": "portal",
+    "patient_education_language": "English",
+    "sharing_preference_for_peer_cases": "de-identified case only",
+    "clinical_trial_outreach_preference": "not documented",
+    "source": "fully synthetic fixture"
+  },
+  {
+    "patient_key": "P104",
+    "age_group": "70-79",
+    "state": "TX",
+    "sex_for_clinical_context": "male",
+    "preferred_language": "Spanish",
+    "primary_doctor_key": "D024",
+    "diagnoses": [
+      {
+        "label": "Gout",
+        "code_system": "ICD-10-CM",
+        "code": "M10.9",
+        "status": "active",
+        "first_recorded_year": 2026
+      }
+    ],
+    "allergies": [
+      {
+        "substance": "sulfonamides",
+        "reaction": "unspecified",
+        "status": "reported"
+      }
+    ],
+    "allergy_status": "reported",
+    "symptoms": [
+      "Symptoms associated with gout"
+    ],
+    "background": {
+      "tobacco_use": "former",
+      "surgery_history": "not recorded",
+      "family_history": "not recorded",
+      "pregnancy_status": "not recorded"
+    },
+    "portal_access": true,
+    "email_contact_available": false,
+    "messaging_preference": "portal",
+    "patient_education_language": "Spanish",
+    "sharing_preference_for_peer_cases": "de-identified case only",
+    "clinical_trial_outreach_preference": "not documented",
+    "source": "fully synthetic fixture"
+  },
+  {
+    "patient_key": "P105",
+    "age_group": "80-89",
+    "state": "FL",
+    "sex_for_clinical_context": "not recorded",
+    "preferred_language": "Nepali",
+    "primary_doctor_key": "D025",
+    "diagnoses": [
+      {
+        "label": "Rheumatoid arthritis",
+        "code_system": "ICD-10-CM",
+        "code": "M06.9",
+        "status": "active",
+        "first_recorded_year": 2023
+      }
+    ],
+    "allergies": [
+      {
+        "substance": "peanuts",
+        "reaction": "unspecified",
+        "status": "reported"
+      }
+    ],
+    "allergy_status": "reported",
+    "symptoms": [
+      "Symptoms associated with rheumatoid arthritis"
+    ],
+    "background": {
+      "tobacco_use": "unknown",
+      "surgery_history": "not recorded",
+      "family_history": "not recorded",
+      "pregnancy_status": "not recorded"
+    },
+    "portal_access": true,
+    "email_contact_available": false,
+    "messaging_preference": "portal",
+    "patient_education_language": "Nepali",
+    "sharing_preference_for_peer_cases": "not documented",
+    "clinical_trial_outreach_preference": "not documented",
+    "source": "fully synthetic fixture"
+  },
+  {
+    "patient_key": "P106",
+    "age_group": "10-19",
+    "state": "MA",
+    "sex_for_clinical_context": "female",
+    "preferred_language": "English",
+    "primary_doctor_key": "D026",
+    "diagnoses": [
+      {
+        "label": "Inflammatory bowel disease",
+        "code_system": "ICD-10-CM",
+        "code": "K52.9",
+        "status": "active",
+        "first_recorded_year": 2024
+      }
+    ],
+    "allergies": [],
+    "allergy_status": "none reported",
+    "symptoms": [
+      "Symptoms associated with inflammatory bowel disease"
+    ],
+    "background": {
+      "tobacco_use": "never",
+      "surgery_history": "not recorded",
+      "family_history": "not recorded",
+      "pregnancy_status": "not recorded"
+    },
+    "portal_access": false,
+    "email_contact_available": false,
+    "messaging_preference": "unavailable",
+    "patient_education_language": "English",
+    "sharing_preference_for_peer_cases": "de-identified case only",
+    "clinical_trial_outreach_preference": "not documented",
+    "source": "fully synthetic fixture"
+  },
+  {
+    "patient_key": "P107",
+    "age_group": "30-39",
+    "state": "PA",
+    "sex_for_clinical_context": "male",
+    "preferred_language": "Spanish",
+    "primary_doctor_key": "D027",
+    "diagnoses": [
+      {
+        "label": "GERD",
+        "code_system": "ICD-10-CM",
+        "code": "K21.9",
+        "status": "active",
+        "first_recorded_year": 2025
+      }
+    ],
+    "allergies": [
+      {
+        "substance": "penicillin",
+        "reaction": "unspecified",
+        "status": "reported"
+      }
+    ],
+    "allergy_status": "reported",
+    "symptoms": [
+      "Symptoms associated with gerd"
+    ],
+    "background": {
+      "tobacco_use": "former",
+      "surgery_history": "not recorded",
+      "family_history": "not recorded",
+      "pregnancy_status": "not recorded"
+    },
+    "portal_access": true,
+    "email_contact_available": false,
+    "messaging_preference": "portal",
+    "patient_education_language": "Spanish",
+    "sharing_preference_for_peer_cases": "de-identified case only",
+    "clinical_trial_outreach_preference": "not documented",
+    "source": "fully synthetic fixture"
+  },
+  {
+    "patient_key": "P108",
+    "age_group": "40-49",
+    "state": "CA",
+    "sex_for_clinical_context": "not recorded",
+    "preferred_language": "Nepali",
+    "primary_doctor_key": "D028",
+    "diagnoses": [
+      {
+        "label": "Inflammatory bowel disease",
+        "code_system": "ICD-10-CM",
+        "code": "K52.9",
+        "status": "active",
+        "first_recorded_year": 2026
+      }
+    ],
+    "allergies": [
+      {
+        "substance": "latex",
+        "reaction": "unspecified",
+        "status": "reported"
+      }
+    ],
+    "allergy_status": "reported",
+    "symptoms": [
+      "Symptoms associated with inflammatory bowel disease"
+    ],
+    "background": {
+      "tobacco_use": "unknown",
+      "surgery_history": "not recorded",
+      "family_history": "not recorded",
+      "pregnancy_status": "not recorded"
+    },
+    "portal_access": true,
+    "email_contact_available": false,
+    "messaging_preference": "portal",
+    "patient_education_language": "Nepali",
+    "sharing_preference_for_peer_cases": "de-identified case only",
+    "clinical_trial_outreach_preference": "not documented",
+    "source": "fully synthetic fixture"
+  },
+  {
+    "patient_key": "P109",
+    "age_group": "50-59",
+    "state": "IL",
+    "sex_for_clinical_context": "female",
+    "preferred_language": "English",
+    "primary_doctor_key": "D029",
+    "diagnoses": [
+      {
+        "label": "GERD",
+        "code_system": "ICD-10-CM",
+        "code": "K21.9",
+        "status": "active",
+        "first_recorded_year": 2023
+      }
+    ],
+    "allergies": [
+      {
+        "substance": "sulfonamides",
+        "reaction": "unspecified",
+        "status": "reported"
+      }
+    ],
+    "allergy_status": "reported",
+    "symptoms": [
+      "Symptoms associated with gerd"
+    ],
+    "background": {
+      "tobacco_use": "never",
+      "surgery_history": "not recorded",
+      "family_history": "not recorded",
+      "pregnancy_status": "not recorded"
+    },
+    "portal_access": true,
+    "email_contact_available": false,
+    "messaging_preference": "portal",
+    "patient_education_language": "English",
+    "sharing_preference_for_peer_cases": "not documented",
+    "clinical_trial_outreach_preference": "not documented",
+    "source": "fully synthetic fixture"
+  },
+  {
+    "patient_key": "P110",
+    "age_group": "60-69",
+    "state": "NC",
+    "sex_for_clinical_context": "male",
+    "preferred_language": "Spanish",
+    "primary_doctor_key": "D030",
+    "diagnoses": [
+      {
+        "label": "Inflammatory bowel disease",
+        "code_system": "ICD-10-CM",
+        "code": "K52.9",
+        "status": "active",
+        "first_recorded_year": 2024
+      }
+    ],
+    "allergies": [
+      {
+        "substance": "peanuts",
+        "reaction": "unspecified",
+        "status": "reported"
+      }
+    ],
+    "allergy_status": "reported",
+    "symptoms": [
+      "Symptoms associated with inflammatory bowel disease"
+    ],
+    "background": {
+      "tobacco_use": "former",
+      "surgery_history": "not recorded",
+      "family_history": "not recorded",
+      "pregnancy_status": "not recorded"
+    },
+    "portal_access": true,
+    "email_contact_available": false,
+    "messaging_preference": "portal",
+    "patient_education_language": "Spanish",
+    "sharing_preference_for_peer_cases": "de-identified case only",
+    "clinical_trial_outreach_preference": "not documented",
+    "source": "fully synthetic fixture"
+  },
+  {
+    "patient_key": "P111",
+    "age_group": "70-79",
+    "state": "AL",
+    "sex_for_clinical_context": "not recorded",
+    "preferred_language": "Nepali",
+    "primary_doctor_key": "D031",
+    "diagnoses": [
+      {
+        "label": "Migraine",
+        "code_system": "ICD-10-CM",
+        "code": "G43.909",
+        "status": "active",
+        "first_recorded_year": 2025
+      }
+    ],
+    "allergies": [],
+    "allergy_status": "none reported",
+    "symptoms": [
+      "Symptoms associated with migraine"
+    ],
+    "background": {
+      "tobacco_use": "unknown",
+      "surgery_history": "not recorded",
+      "family_history": "not recorded",
+      "pregnancy_status": "not recorded"
+    },
+    "portal_access": true,
+    "email_contact_available": false,
+    "messaging_preference": "portal",
+    "patient_education_language": "Nepali",
+    "sharing_preference_for_peer_cases": "de-identified case only",
+    "clinical_trial_outreach_preference": "not documented",
+    "source": "fully synthetic fixture"
+  },
+  {
+    "patient_key": "P112",
+    "age_group": "80-89",
+    "state": "GA",
+    "sex_for_clinical_context": "female",
+    "preferred_language": "English",
+    "primary_doctor_key": "D032",
+    "diagnoses": [
+      {
+        "label": "Epilepsy",
+        "code_system": "ICD-10-CM",
+        "code": "G40.909",
+        "status": "active",
+        "first_recorded_year": 2026
+      }
+    ],
+    "allergies": [
+      {
+        "substance": "penicillin",
+        "reaction": "unspecified",
+        "status": "reported"
+      }
+    ],
+    "allergy_status": "reported",
+    "symptoms": [
+      "Symptoms associated with epilepsy"
+    ],
+    "background": {
+      "tobacco_use": "never",
+      "surgery_history": "not recorded",
+      "family_history": "not recorded",
+      "pregnancy_status": "not recorded"
+    },
+    "portal_access": true,
+    "email_contact_available": false,
+    "messaging_preference": "portal",
+    "patient_education_language": "English",
+    "sharing_preference_for_peer_cases": "de-identified case only",
+    "clinical_trial_outreach_preference": "not documented",
+    "source": "fully synthetic fixture"
+  },
+  {
+    "patient_key": "P113",
+    "age_group": "10-19",
+    "state": "NY",
+    "sex_for_clinical_context": "male",
+    "preferred_language": "Spanish",
+    "primary_doctor_key": "D033",
+    "diagnoses": [
+      {
+        "label": "Migraine",
+        "code_system": "ICD-10-CM",
+        "code": "G43.909",
+        "status": "active",
+        "first_recorded_year": 2023
+      }
+    ],
+    "allergies": [
+      {
+        "substance": "latex",
+        "reaction": "unspecified",
+        "status": "reported"
+      }
+    ],
+    "allergy_status": "reported",
+    "symptoms": [
+      "Symptoms associated with migraine"
+    ],
+    "background": {
+      "tobacco_use": "former",
+      "surgery_history": "not recorded",
+      "family_history": "not recorded",
+      "pregnancy_status": "not recorded"
+    },
+    "portal_access": false,
+    "email_contact_available": false,
+    "messaging_preference": "unavailable",
+    "patient_education_language": "Spanish",
+    "sharing_preference_for_peer_cases": "not documented",
+    "clinical_trial_outreach_preference": "not documented",
+    "source": "fully synthetic fixture"
+  },
+  {
+    "patient_key": "P114",
+    "age_group": "30-39",
+    "state": "TX",
+    "sex_for_clinical_context": "not recorded",
+    "preferred_language": "Nepali",
+    "primary_doctor_key": "D034",
+    "diagnoses": [
+      {
+        "label": "Epilepsy",
+        "code_system": "ICD-10-CM",
+        "code": "G40.909",
+        "status": "active",
+        "first_recorded_year": 2024
+      }
+    ],
+    "allergies": [
+      {
+        "substance": "sulfonamides",
+        "reaction": "unspecified",
+        "status": "reported"
+      }
+    ],
+    "allergy_status": "reported",
+    "symptoms": [
+      "Symptoms associated with epilepsy"
+    ],
+    "background": {
+      "tobacco_use": "unknown",
+      "surgery_history": "not recorded",
+      "family_history": "not recorded",
+      "pregnancy_status": "not recorded"
+    },
+    "portal_access": true,
+    "email_contact_available": false,
+    "messaging_preference": "portal",
+    "patient_education_language": "Nepali",
+    "sharing_preference_for_peer_cases": "de-identified case only",
+    "clinical_trial_outreach_preference": "not documented",
+    "source": "fully synthetic fixture"
+  },
+  {
+    "patient_key": "P115",
+    "age_group": "40-49",
+    "state": "FL",
+    "sex_for_clinical_context": "female",
+    "preferred_language": "English",
+    "primary_doctor_key": "D035",
+    "diagnoses": [
+      {
+        "label": "Migraine",
+        "code_system": "ICD-10-CM",
+        "code": "G43.909",
+        "status": "active",
+        "first_recorded_year": 2025
+      }
+    ],
+    "allergies": [
+      {
+        "substance": "peanuts",
+        "reaction": "unspecified",
+        "status": "reported"
+      }
+    ],
+    "allergy_status": "reported",
+    "symptoms": [
+      "Symptoms associated with migraine"
+    ],
+    "background": {
+      "tobacco_use": "never",
+      "surgery_history": "not recorded",
+      "family_history": "not recorded",
+      "pregnancy_status": "not recorded"
+    },
+    "portal_access": true,
+    "email_contact_available": false,
+    "messaging_preference": "portal",
+    "patient_education_language": "English",
+    "sharing_preference_for_peer_cases": "de-identified case only",
+    "clinical_trial_outreach_preference": "not documented",
+    "source": "fully synthetic fixture"
+  },
+  {
+    "patient_key": "P116",
+    "age_group": "50-59",
+    "state": "MA",
+    "sex_for_clinical_context": "male",
+    "preferred_language": "Spanish",
+    "primary_doctor_key": "D036",
+    "diagnoses": [
+      {
+        "label": "Iron deficiency anemia",
+        "code_system": "ICD-10-CM",
+        "code": "D50.9",
+        "status": "active",
+        "first_recorded_year": 2026
+      }
+    ],
+    "allergies": [],
+    "allergy_status": "none reported",
+    "symptoms": [
+      "Symptoms associated with iron deficiency anemia"
+    ],
+    "background": {
+      "tobacco_use": "former",
+      "surgery_history": "not recorded",
+      "family_history": "not recorded",
+      "pregnancy_status": "not recorded"
+    },
+    "portal_access": true,
+    "email_contact_available": false,
+    "messaging_preference": "portal",
+    "patient_education_language": "Spanish",
+    "sharing_preference_for_peer_cases": "de-identified case only",
+    "clinical_trial_outreach_preference": "not documented",
+    "source": "fully synthetic fixture"
+  },
+  {
+    "patient_key": "P117",
+    "age_group": "60-69",
+    "state": "PA",
+    "sex_for_clinical_context": "not recorded",
+    "preferred_language": "Nepali",
+    "primary_doctor_key": "D037",
+    "diagnoses": [
+      {
+        "label": "Hyperlipidemia",
+        "code_system": "ICD-10-CM",
+        "code": "E78.5",
+        "status": "active",
+        "first_recorded_year": 2023
+      }
+    ],
+    "allergies": [
+      {
+        "substance": "penicillin",
+        "reaction": "unspecified",
+        "status": "reported"
+      }
+    ],
+    "allergy_status": "reported",
+    "symptoms": [
+      "Symptoms associated with hyperlipidemia"
+    ],
+    "background": {
+      "tobacco_use": "unknown",
+      "surgery_history": "not recorded",
+      "family_history": "not recorded",
+      "pregnancy_status": "not recorded"
+    },
+    "portal_access": true,
+    "email_contact_available": false,
+    "messaging_preference": "portal",
+    "patient_education_language": "Nepali",
+    "sharing_preference_for_peer_cases": "not documented",
+    "clinical_trial_outreach_preference": "not documented",
+    "source": "fully synthetic fixture"
+  },
+  {
+    "patient_key": "P118",
+    "age_group": "70-79",
+    "state": "CA",
+    "sex_for_clinical_context": "female",
+    "preferred_language": "English",
+    "primary_doctor_key": "D038",
+    "diagnoses": [
+      {
+        "label": "Iron deficiency anemia",
+        "code_system": "ICD-10-CM",
+        "code": "D50.9",
+        "status": "active",
+        "first_recorded_year": 2024
+      }
+    ],
+    "allergies": [
+      {
+        "substance": "latex",
+        "reaction": "unspecified",
+        "status": "reported"
+      }
+    ],
+    "allergy_status": "reported",
+    "symptoms": [
+      "Symptoms associated with iron deficiency anemia"
+    ],
+    "background": {
+      "tobacco_use": "never",
+      "surgery_history": "not recorded",
+      "family_history": "not recorded",
+      "pregnancy_status": "not recorded"
+    },
+    "portal_access": true,
+    "email_contact_available": false,
+    "messaging_preference": "portal",
+    "patient_education_language": "English",
+    "sharing_preference_for_peer_cases": "de-identified case only",
+    "clinical_trial_outreach_preference": "not documented",
+    "source": "fully synthetic fixture"
+  },
+  {
+    "patient_key": "P119",
+    "age_group": "80-89",
+    "state": "IL",
+    "sex_for_clinical_context": "male",
+    "preferred_language": "Spanish",
+    "primary_doctor_key": "D039",
+    "diagnoses": [
+      {
+        "label": "Hyperlipidemia",
+        "code_system": "ICD-10-CM",
+        "code": "E78.5",
+        "status": "active",
+        "first_recorded_year": 2025
+      }
+    ],
+    "allergies": [
+      {
+        "substance": "sulfonamides",
+        "reaction": "unspecified",
+        "status": "reported"
+      }
+    ],
+    "allergy_status": "reported",
+    "symptoms": [
+      "Symptoms associated with hyperlipidemia"
+    ],
+    "background": {
+      "tobacco_use": "former",
+      "surgery_history": "not recorded",
+      "family_history": "not recorded",
+      "pregnancy_status": "not recorded"
+    },
+    "portal_access": true,
+    "email_contact_available": false,
+    "messaging_preference": "portal",
+    "patient_education_language": "Spanish",
+    "sharing_preference_for_peer_cases": "de-identified case only",
+    "clinical_trial_outreach_preference": "not documented",
+    "source": "fully synthetic fixture"
+  },
+  {
+    "patient_key": "P120",
+    "age_group": "10-19",
+    "state": "NC",
+    "sex_for_clinical_context": "not recorded",
+    "preferred_language": "Nepali",
+    "primary_doctor_key": "D040",
+    "diagnoses": [
+      {
+        "label": "Iron deficiency anemia",
+        "code_system": "ICD-10-CM",
+        "code": "D50.9",
+        "status": "active",
+        "first_recorded_year": 2026
+      }
+    ],
+    "allergies": [
+      {
+        "substance": "peanuts",
+        "reaction": "unspecified",
+        "status": "reported"
+      }
+    ],
+    "allergy_status": "reported",
+    "symptoms": [
+      "Symptoms associated with iron deficiency anemia"
+    ],
+    "background": {
+      "tobacco_use": "unknown",
+      "surgery_history": "not recorded",
+      "family_history": "not recorded",
+      "pregnancy_status": "not recorded"
+    },
+    "portal_access": false,
+    "email_contact_available": false,
+    "messaging_preference": "unavailable",
+    "patient_education_language": "Nepali",
+    "sharing_preference_for_peer_cases": "de-identified case only",
+    "clinical_trial_outreach_preference": "not documented",
+    "source": "fully synthetic fixture"
+  }
+]
