@@ -3,13 +3,19 @@ import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors } from '../theme/colors';
 import {
+  ChatIcon,
   ConciergeIcon,
   PrescriberIcon,
   ProfileIcon,
   TranslatorIcon,
 } from './NavIcons';
 
-export type TabKey = 'prescriber' | 'translator' | 'concierge' | 'profile';
+export type TabKey =
+  | 'prescriber'
+  | 'translator'
+  | 'concierge'
+  | 'chat'
+  | 'profile';
 
 type TabDef = {
   key: TabKey;
@@ -21,6 +27,7 @@ const TABS: TabDef[] = [
   { key: 'prescriber', label: 'Prescriber', Icon: PrescriberIcon },
   { key: 'translator', label: 'Translator', Icon: TranslatorIcon },
   { key: 'concierge', label: 'Concierge', Icon: ConciergeIcon },
+  { key: 'chat', label: 'Chat', Icon: ChatIcon },
   { key: 'profile', label: 'Profile', Icon: ProfileIcon },
 ];
 
@@ -58,9 +65,11 @@ export function BottomNavBar({ activeTab, onTabPress }: Props) {
               ) : (
                 <View style={styles.dotSpacer} />
               )}
-              <Icon color={color} size={24} />
+              <Icon color={color} size={22} />
             </View>
-            <Text style={[styles.label, { color }]}>{label}</Text>
+            <Text style={[styles.label, { color }]} numberOfLines={1}>
+              {label}
+            </Text>
           </Pressable>
         );
       })}
@@ -79,7 +88,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-around',
     backgroundColor: colors.navy,
     paddingTop: 8,
-    paddingHorizontal: 8,
+    paddingHorizontal: 4,
     borderTopWidth: StyleSheet.hairlineWidth,
     borderTopColor: 'rgba(255,255,255,0.06)',
   },
@@ -88,10 +97,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     paddingVertical: 4,
-    gap: 4,
+    gap: 3,
   },
   iconSlot: {
-    height: 36,
+    height: 34,
     alignItems: 'center',
     justifyContent: 'flex-end',
   },
@@ -100,7 +109,7 @@ const styles = StyleSheet.create({
     height: 7,
     borderRadius: 3.5,
     backgroundColor: colors.accentPurple,
-    marginBottom: 5,
+    marginBottom: 4,
     ...Platform.select({
       ios: {
         shadowColor: colors.accentPurple,
@@ -121,11 +130,11 @@ const styles = StyleSheet.create({
   dotSpacer: {
     width: 7,
     height: 7,
-    marginBottom: 5,
+    marginBottom: 4,
   },
   label: {
-    fontSize: 11,
+    fontSize: 10,
     fontWeight: '500',
-    letterSpacing: 0.1,
+    letterSpacing: 0.05,
   },
 });

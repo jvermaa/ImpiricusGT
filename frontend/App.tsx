@@ -4,9 +4,10 @@ import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { BottomNavBar, TabKey } from './src/components/BottomNavBar';
 import { DottedGradientBackground } from './src/components/DottedGradientBackground';
+import { ChatScreen } from './src/screens/ChatScreen';
 import { PlaceholderScreen } from './src/screens/PlaceholderScreen';
 
-const TITLES: Record<TabKey, string> = {
+const TITLES: Record<Exclude<TabKey, 'chat'>, string> = {
   prescriber: 'Prescriber',
   translator: 'Translator',
   concierge: 'Concierge',
@@ -14,7 +15,7 @@ const TITLES: Record<TabKey, string> = {
 };
 
 function AppShell() {
-  const [activeTab, setActiveTab] = useState<TabKey>('prescriber');
+  const [activeTab, setActiveTab] = useState<TabKey>('chat');
   const { width } = useWindowDimensions();
   const isWide = width > 768;
 
@@ -24,7 +25,11 @@ function AppShell() {
       <View style={[styles.shell, isWide && styles.shellCentered]}>
         <View style={[styles.phoneFrame, isWide && styles.phoneFrameWide]}>
           <View style={styles.content}>
-            <PlaceholderScreen title={TITLES[activeTab]} />
+            {activeTab === 'chat' ? (
+              <ChatScreen />
+            ) : (
+              <PlaceholderScreen title={TITLES[activeTab]} />
+            )}
           </View>
           <BottomNavBar activeTab={activeTab} onTabPress={setActiveTab} />
         </View>
@@ -59,7 +64,6 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    // Leave room for the absolute bottom nav (~72px + safe area)
     paddingBottom: 88,
   },
 });
