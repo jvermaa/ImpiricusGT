@@ -1,0 +1,1049 @@
+[
+  {
+    "doctor_key": "D001",
+    "display_name": "Dr. Amira Patel",
+    "credentials": "MD",
+    "specialty": "Cardiology",
+    "subspecialty_focus": "Hypertension",
+    "practice_type": "community",
+    "state": "AL",
+    "years_in_practice": 3,
+    "languages": [
+      "English",
+      "Spanish"
+    ],
+    "case_exchange_opt_in": false,
+    "accepts_peer_consults": false,
+    "patient_message_review_required": true,
+    "professional_email": "doctor001@example.invalid",
+    "professional_phone": null,
+    "license_number": null,
+    "npi": null,
+    "organization": "Fictional Care Group 1",
+    "patient_keys": [
+      "P001",
+      "P041",
+      "P081"
+    ]
+  },
+  {
+    "doctor_key": "D002",
+    "display_name": "Dr. Jordan Morgan",
+    "credentials": "DO",
+    "specialty": "Cardiology",
+    "subspecialty_focus": "Heart failure",
+    "practice_type": "community",
+    "state": "CA",
+    "years_in_practice": 4,
+    "languages": [
+      "English"
+    ],
+    "case_exchange_opt_in": true,
+    "accepts_peer_consults": true,
+    "patient_message_review_required": true,
+    "professional_email": "doctor002@example.invalid",
+    "professional_phone": null,
+    "license_number": null,
+    "npi": null,
+    "organization": "Fictional Care Group 2",
+    "patient_keys": [
+      "P002",
+      "P042",
+      "P082"
+    ]
+  },
+  {
+    "doctor_key": "D003",
+    "display_name": "Dr. Leena Morris",
+    "credentials": "DO",
+    "specialty": "Cardiology",
+    "subspecialty_focus": "Hypertension",
+    "practice_type": "multispecialty",
+    "state": "FL",
+    "years_in_practice": 5,
+    "languages": [
+      "English"
+    ],
+    "case_exchange_opt_in": true,
+    "accepts_peer_consults": true,
+    "patient_message_review_required": true,
+    "professional_email": "doctor003@example.invalid",
+    "professional_phone": null,
+    "license_number": null,
+    "npi": null,
+    "organization": "Fictional Care Group 3",
+    "patient_keys": [
+      "P003",
+      "P043",
+      "P083"
+    ]
+  },
+  {
+    "doctor_key": "D004",
+    "display_name": "Dr. Mateo Rivera",
+    "credentials": "MD",
+    "specialty": "Cardiology",
+    "subspecialty_focus": "Heart failure",
+    "practice_type": "community",
+    "state": "GA",
+    "years_in_practice": 6,
+    "languages": [
+      "English"
+    ],
+    "case_exchange_opt_in": true,
+    "accepts_peer_consults": true,
+    "patient_message_review_required": true,
+    "professional_email": "doctor004@example.invalid",
+    "professional_phone": null,
+    "license_number": null,
+    "npi": null,
+    "organization": "Fictional Care Group 4",
+    "patient_keys": [
+      "P004",
+      "P044",
+      "P084"
+    ]
+  },
+  {
+    "doctor_key": "D005",
+    "display_name": "Dr. Priya Singh",
+    "credentials": "DO",
+    "specialty": "Cardiology",
+    "subspecialty_focus": "Hypertension",
+    "practice_type": "multispecialty",
+    "state": "IL",
+    "years_in_practice": 7,
+    "languages": [
+      "English"
+    ],
+    "case_exchange_opt_in": true,
+    "accepts_peer_consults": false,
+    "patient_message_review_required": true,
+    "professional_email": "doctor005@example.invalid",
+    "professional_phone": null,
+    "license_number": null,
+    "npi": null,
+    "organization": "Fictional Care Group 1",
+    "patient_keys": [
+      "P005",
+      "P045",
+      "P085"
+    ]
+  },
+  {
+    "doctor_key": "D006",
+    "display_name": "Dr. Samir Khan",
+    "credentials": "DO",
+    "specialty": "Endocrinology",
+    "subspecialty_focus": "Hypothyroidism",
+    "practice_type": "multispecialty",
+    "state": "MA",
+    "years_in_practice": 8,
+    "languages": [
+      "English"
+    ],
+    "case_exchange_opt_in": false,
+    "accepts_peer_consults": true,
+    "patient_message_review_required": true,
+    "professional_email": "doctor006@example.invalid",
+    "professional_phone": null,
+    "license_number": null,
+    "npi": null,
+    "organization": "Fictional Care Group 2",
+    "patient_keys": [
+      "P006",
+      "P046",
+      "P086"
+    ]
+  },
+  {
+    "doctor_key": "D007",
+    "display_name": "Dr. Elena Chen",
+    "credentials": "DO",
+    "specialty": "Endocrinology",
+    "subspecialty_focus": "Type 2 diabetes",
+    "practice_type": "community",
+    "state": "NY",
+    "years_in_practice": 9,
+    "languages": [
+      "English",
+      "Spanish"
+    ],
+    "case_exchange_opt_in": true,
+    "accepts_peer_consults": true,
+    "patient_message_review_required": true,
+    "professional_email": "doctor007@example.invalid",
+    "professional_phone": null,
+    "license_number": null,
+    "npi": null,
+    "organization": "Fictional Care Group 3",
+    "patient_keys": [
+      "P007",
+      "P047",
+      "P087"
+    ]
+  },
+  {
+    "doctor_key": "D008",
+    "display_name": "Dr. Noah Park",
+    "credentials": "MD",
+    "specialty": "Endocrinology",
+    "subspecialty_focus": "Hypothyroidism",
+    "practice_type": "academic",
+    "state": "NC",
+    "years_in_practice": 10,
+    "languages": [
+      "English"
+    ],
+    "case_exchange_opt_in": true,
+    "accepts_peer_consults": true,
+    "patient_message_review_required": true,
+    "professional_email": "doctor008@example.invalid",
+    "professional_phone": null,
+    "license_number": null,
+    "npi": null,
+    "organization": "Fictional Care Group 4",
+    "patient_keys": [
+      "P008",
+      "P048",
+      "P088"
+    ]
+  },
+  {
+    "doctor_key": "D009",
+    "display_name": "Dr. Mina Lopez",
+    "credentials": "MD",
+    "specialty": "Endocrinology",
+    "subspecialty_focus": "Type 2 diabetes",
+    "practice_type": "academic",
+    "state": "PA",
+    "years_in_practice": 11,
+    "languages": [
+      "English"
+    ],
+    "case_exchange_opt_in": true,
+    "accepts_peer_consults": false,
+    "patient_message_review_required": true,
+    "professional_email": "doctor009@example.invalid",
+    "professional_phone": null,
+    "license_number": null,
+    "npi": null,
+    "organization": "Fictional Care Group 1",
+    "patient_keys": [
+      "P009",
+      "P049",
+      "P089"
+    ]
+  },
+  {
+    "doctor_key": "D010",
+    "display_name": "Dr. Daniel Brooks",
+    "credentials": "MD",
+    "specialty": "Endocrinology",
+    "subspecialty_focus": "Hypothyroidism",
+    "practice_type": "academic",
+    "state": "TX",
+    "years_in_practice": 12,
+    "languages": [
+      "English"
+    ],
+    "case_exchange_opt_in": true,
+    "accepts_peer_consults": true,
+    "patient_message_review_required": true,
+    "professional_email": "doctor010@example.invalid",
+    "professional_phone": null,
+    "license_number": null,
+    "npi": null,
+    "organization": "Fictional Care Group 2",
+    "patient_keys": [
+      "P010",
+      "P050",
+      "P090"
+    ]
+  },
+  {
+    "doctor_key": "D011",
+    "display_name": "Dr. Aisha Ali",
+    "credentials": "MD",
+    "specialty": "Pulmonology",
+    "subspecialty_focus": "Asthma",
+    "practice_type": "multispecialty",
+    "state": "AL",
+    "years_in_practice": 13,
+    "languages": [
+      "English"
+    ],
+    "case_exchange_opt_in": false,
+    "accepts_peer_consults": true,
+    "patient_message_review_required": true,
+    "professional_email": "doctor011@example.invalid",
+    "professional_phone": null,
+    "license_number": null,
+    "npi": null,
+    "organization": "Fictional Care Group 3",
+    "patient_keys": [
+      "P011",
+      "P051",
+      "P091"
+    ]
+  },
+  {
+    "doctor_key": "D012",
+    "display_name": "Dr. Ravi Nguyen",
+    "credentials": "MD",
+    "specialty": "Pulmonology",
+    "subspecialty_focus": "COPD",
+    "practice_type": "community",
+    "state": "CA",
+    "years_in_practice": 14,
+    "languages": [
+      "English"
+    ],
+    "case_exchange_opt_in": true,
+    "accepts_peer_consults": true,
+    "patient_message_review_required": true,
+    "professional_email": "doctor012@example.invalid",
+    "professional_phone": null,
+    "license_number": null,
+    "npi": null,
+    "organization": "Fictional Care Group 4",
+    "patient_keys": [
+      "P012",
+      "P052",
+      "P092"
+    ]
+  },
+  {
+    "doctor_key": "D013",
+    "display_name": "Dr. Sofia Shah",
+    "credentials": "MD",
+    "specialty": "Pulmonology",
+    "subspecialty_focus": "Asthma",
+    "practice_type": "community",
+    "state": "FL",
+    "years_in_practice": 15,
+    "languages": [
+      "English",
+      "Spanish"
+    ],
+    "case_exchange_opt_in": true,
+    "accepts_peer_consults": false,
+    "patient_message_review_required": true,
+    "professional_email": "doctor013@example.invalid",
+    "professional_phone": null,
+    "license_number": null,
+    "npi": null,
+    "organization": "Fictional Care Group 1",
+    "patient_keys": [
+      "P013",
+      "P053",
+      "P093"
+    ]
+  },
+  {
+    "doctor_key": "D014",
+    "display_name": "Dr. Omar Reed",
+    "credentials": "DO",
+    "specialty": "Pulmonology",
+    "subspecialty_focus": "COPD",
+    "practice_type": "academic",
+    "state": "GA",
+    "years_in_practice": 16,
+    "languages": [
+      "English"
+    ],
+    "case_exchange_opt_in": true,
+    "accepts_peer_consults": true,
+    "patient_message_review_required": true,
+    "professional_email": "doctor014@example.invalid",
+    "professional_phone": null,
+    "license_number": null,
+    "npi": null,
+    "organization": "Fictional Care Group 2",
+    "patient_keys": [
+      "P014",
+      "P054",
+      "P094"
+    ]
+  },
+  {
+    "doctor_key": "D015",
+    "display_name": "Dr. Nora Adams",
+    "credentials": "DO",
+    "specialty": "Pulmonology",
+    "subspecialty_focus": "Asthma",
+    "practice_type": "community",
+    "state": "IL",
+    "years_in_practice": 17,
+    "languages": [
+      "English"
+    ],
+    "case_exchange_opt_in": true,
+    "accepts_peer_consults": true,
+    "patient_message_review_required": true,
+    "professional_email": "doctor015@example.invalid",
+    "professional_phone": null,
+    "license_number": null,
+    "npi": null,
+    "organization": "Fictional Care Group 3",
+    "patient_keys": [
+      "P015",
+      "P055",
+      "P095"
+    ]
+  },
+  {
+    "doctor_key": "D016",
+    "display_name": "Dr. Elias Kim",
+    "credentials": "DO",
+    "specialty": "Dermatology",
+    "subspecialty_focus": "Psoriasis",
+    "practice_type": "community",
+    "state": "MA",
+    "years_in_practice": 18,
+    "languages": [
+      "English"
+    ],
+    "case_exchange_opt_in": false,
+    "accepts_peer_consults": true,
+    "patient_message_review_required": true,
+    "professional_email": "doctor016@example.invalid",
+    "professional_phone": null,
+    "license_number": null,
+    "npi": null,
+    "organization": "Fictional Care Group 4",
+    "patient_keys": [
+      "P016",
+      "P056",
+      "P096"
+    ]
+  },
+  {
+    "doctor_key": "D017",
+    "display_name": "Dr. Zara Gupta",
+    "credentials": "MD",
+    "specialty": "Dermatology",
+    "subspecialty_focus": "Atopic dermatitis",
+    "practice_type": "academic",
+    "state": "NY",
+    "years_in_practice": 19,
+    "languages": [
+      "English"
+    ],
+    "case_exchange_opt_in": true,
+    "accepts_peer_consults": false,
+    "patient_message_review_required": true,
+    "professional_email": "doctor017@example.invalid",
+    "professional_phone": null,
+    "license_number": null,
+    "npi": null,
+    "organization": "Fictional Care Group 1",
+    "patient_keys": [
+      "P017",
+      "P057",
+      "P097"
+    ]
+  },
+  {
+    "doctor_key": "D018",
+    "display_name": "Dr. Luca Turner",
+    "credentials": "MD",
+    "specialty": "Dermatology",
+    "subspecialty_focus": "Psoriasis",
+    "practice_type": "community",
+    "state": "NC",
+    "years_in_practice": 20,
+    "languages": [
+      "English"
+    ],
+    "case_exchange_opt_in": true,
+    "accepts_peer_consults": true,
+    "patient_message_review_required": true,
+    "professional_email": "doctor018@example.invalid",
+    "professional_phone": null,
+    "license_number": null,
+    "npi": null,
+    "organization": "Fictional Care Group 2",
+    "patient_keys": [
+      "P018",
+      "P058",
+      "P098"
+    ]
+  },
+  {
+    "doctor_key": "D019",
+    "display_name": "Dr. Mei Hassan",
+    "credentials": "MD",
+    "specialty": "Dermatology",
+    "subspecialty_focus": "Atopic dermatitis",
+    "practice_type": "academic",
+    "state": "PA",
+    "years_in_practice": 21,
+    "languages": [
+      "English",
+      "Spanish"
+    ],
+    "case_exchange_opt_in": true,
+    "accepts_peer_consults": true,
+    "patient_message_review_required": true,
+    "professional_email": "doctor019@example.invalid",
+    "professional_phone": null,
+    "license_number": null,
+    "npi": null,
+    "organization": "Fictional Care Group 3",
+    "patient_keys": [
+      "P019",
+      "P059",
+      "P099"
+    ]
+  },
+  {
+    "doctor_key": "D020",
+    "display_name": "Dr. Ibrahim Diaz",
+    "credentials": "MD",
+    "specialty": "Dermatology",
+    "subspecialty_focus": "Psoriasis",
+    "practice_type": "community",
+    "state": "TX",
+    "years_in_practice": 22,
+    "languages": [
+      "English"
+    ],
+    "case_exchange_opt_in": true,
+    "accepts_peer_consults": true,
+    "patient_message_review_required": true,
+    "professional_email": "doctor020@example.invalid",
+    "professional_phone": null,
+    "license_number": null,
+    "npi": null,
+    "organization": "Fictional Care Group 4",
+    "patient_keys": [
+      "P020",
+      "P060",
+      "P100"
+    ]
+  },
+  {
+    "doctor_key": "D021",
+    "display_name": "Dr. Amira Rivera",
+    "credentials": "DO",
+    "specialty": "Rheumatology",
+    "subspecialty_focus": "Rheumatoid arthritis",
+    "practice_type": "academic",
+    "state": "AL",
+    "years_in_practice": 23,
+    "languages": [
+      "English"
+    ],
+    "case_exchange_opt_in": false,
+    "accepts_peer_consults": false,
+    "patient_message_review_required": true,
+    "professional_email": "doctor021@example.invalid",
+    "professional_phone": null,
+    "license_number": null,
+    "npi": null,
+    "organization": "Fictional Care Group 1",
+    "patient_keys": [
+      "P021",
+      "P061",
+      "P101"
+    ]
+  },
+  {
+    "doctor_key": "D022",
+    "display_name": "Dr. Jordan Singh",
+    "credentials": "DO",
+    "specialty": "Rheumatology",
+    "subspecialty_focus": "Gout",
+    "practice_type": "multispecialty",
+    "state": "CA",
+    "years_in_practice": 24,
+    "languages": [
+      "English"
+    ],
+    "case_exchange_opt_in": true,
+    "accepts_peer_consults": true,
+    "patient_message_review_required": true,
+    "professional_email": "doctor022@example.invalid",
+    "professional_phone": null,
+    "license_number": null,
+    "npi": null,
+    "organization": "Fictional Care Group 2",
+    "patient_keys": [
+      "P022",
+      "P062",
+      "P102"
+    ]
+  },
+  {
+    "doctor_key": "D023",
+    "display_name": "Dr. Leena Khan",
+    "credentials": "DO",
+    "specialty": "Rheumatology",
+    "subspecialty_focus": "Rheumatoid arthritis",
+    "practice_type": "multispecialty",
+    "state": "FL",
+    "years_in_practice": 25,
+    "languages": [
+      "English"
+    ],
+    "case_exchange_opt_in": true,
+    "accepts_peer_consults": true,
+    "patient_message_review_required": true,
+    "professional_email": "doctor023@example.invalid",
+    "professional_phone": null,
+    "license_number": null,
+    "npi": null,
+    "organization": "Fictional Care Group 3",
+    "patient_keys": [
+      "P023",
+      "P063",
+      "P103"
+    ]
+  },
+  {
+    "doctor_key": "D024",
+    "display_name": "Dr. Mateo Chen",
+    "credentials": "MD",
+    "specialty": "Rheumatology",
+    "subspecialty_focus": "Gout",
+    "practice_type": "community",
+    "state": "GA",
+    "years_in_practice": 26,
+    "languages": [
+      "English"
+    ],
+    "case_exchange_opt_in": true,
+    "accepts_peer_consults": true,
+    "patient_message_review_required": true,
+    "professional_email": "doctor024@example.invalid",
+    "professional_phone": null,
+    "license_number": null,
+    "npi": null,
+    "organization": "Fictional Care Group 4",
+    "patient_keys": [
+      "P024",
+      "P064",
+      "P104"
+    ]
+  },
+  {
+    "doctor_key": "D025",
+    "display_name": "Dr. Priya Park",
+    "credentials": "DO",
+    "specialty": "Rheumatology",
+    "subspecialty_focus": "Rheumatoid arthritis",
+    "practice_type": "multispecialty",
+    "state": "IL",
+    "years_in_practice": 27,
+    "languages": [
+      "English",
+      "Spanish"
+    ],
+    "case_exchange_opt_in": true,
+    "accepts_peer_consults": false,
+    "patient_message_review_required": true,
+    "professional_email": "doctor025@example.invalid",
+    "professional_phone": null,
+    "license_number": null,
+    "npi": null,
+    "organization": "Fictional Care Group 1",
+    "patient_keys": [
+      "P025",
+      "P065",
+      "P105"
+    ]
+  },
+  {
+    "doctor_key": "D026",
+    "display_name": "Dr. Samir Lopez",
+    "credentials": "MD",
+    "specialty": "Gastroenterology",
+    "subspecialty_focus": "Inflammatory bowel disease",
+    "practice_type": "academic",
+    "state": "MA",
+    "years_in_practice": 28,
+    "languages": [
+      "English"
+    ],
+    "case_exchange_opt_in": false,
+    "accepts_peer_consults": true,
+    "patient_message_review_required": true,
+    "professional_email": "doctor026@example.invalid",
+    "professional_phone": null,
+    "license_number": null,
+    "npi": null,
+    "organization": "Fictional Care Group 2",
+    "patient_keys": [
+      "P026",
+      "P066",
+      "P106"
+    ]
+  },
+  {
+    "doctor_key": "D027",
+    "display_name": "Dr. Elena Brooks",
+    "credentials": "MD",
+    "specialty": "Gastroenterology",
+    "subspecialty_focus": "GERD",
+    "practice_type": "community",
+    "state": "NY",
+    "years_in_practice": 29,
+    "languages": [
+      "English"
+    ],
+    "case_exchange_opt_in": true,
+    "accepts_peer_consults": true,
+    "patient_message_review_required": true,
+    "professional_email": "doctor027@example.invalid",
+    "professional_phone": null,
+    "license_number": null,
+    "npi": null,
+    "organization": "Fictional Care Group 3",
+    "patient_keys": [
+      "P027",
+      "P067",
+      "P107"
+    ]
+  },
+  {
+    "doctor_key": "D028",
+    "display_name": "Dr. Noah Ali",
+    "credentials": "DO",
+    "specialty": "Gastroenterology",
+    "subspecialty_focus": "Inflammatory bowel disease",
+    "practice_type": "multispecialty",
+    "state": "NC",
+    "years_in_practice": 30,
+    "languages": [
+      "English"
+    ],
+    "case_exchange_opt_in": true,
+    "accepts_peer_consults": true,
+    "patient_message_review_required": true,
+    "professional_email": "doctor028@example.invalid",
+    "professional_phone": null,
+    "license_number": null,
+    "npi": null,
+    "organization": "Fictional Care Group 4",
+    "patient_keys": [
+      "P028",
+      "P068",
+      "P108"
+    ]
+  },
+  {
+    "doctor_key": "D029",
+    "display_name": "Dr. Mina Nguyen",
+    "credentials": "DO",
+    "specialty": "Gastroenterology",
+    "subspecialty_focus": "GERD",
+    "practice_type": "multispecialty",
+    "state": "PA",
+    "years_in_practice": 3,
+    "languages": [
+      "English"
+    ],
+    "case_exchange_opt_in": true,
+    "accepts_peer_consults": false,
+    "patient_message_review_required": true,
+    "professional_email": "doctor029@example.invalid",
+    "professional_phone": null,
+    "license_number": null,
+    "npi": null,
+    "organization": "Fictional Care Group 1",
+    "patient_keys": [
+      "P029",
+      "P069",
+      "P109"
+    ]
+  },
+  {
+    "doctor_key": "D030",
+    "display_name": "Dr. Daniel Shah",
+    "credentials": "DO",
+    "specialty": "Gastroenterology",
+    "subspecialty_focus": "Inflammatory bowel disease",
+    "practice_type": "community",
+    "state": "TX",
+    "years_in_practice": 4,
+    "languages": [
+      "English"
+    ],
+    "case_exchange_opt_in": true,
+    "accepts_peer_consults": true,
+    "patient_message_review_required": true,
+    "professional_email": "doctor030@example.invalid",
+    "professional_phone": null,
+    "license_number": null,
+    "npi": null,
+    "organization": "Fictional Care Group 2",
+    "patient_keys": [
+      "P030",
+      "P070",
+      "P110"
+    ]
+  },
+  {
+    "doctor_key": "D031",
+    "display_name": "Dr. Aisha Reed",
+    "credentials": "DO",
+    "specialty": "Neurology",
+    "subspecialty_focus": "Migraine",
+    "practice_type": "academic",
+    "state": "AL",
+    "years_in_practice": 5,
+    "languages": [
+      "English",
+      "Spanish"
+    ],
+    "case_exchange_opt_in": false,
+    "accepts_peer_consults": true,
+    "patient_message_review_required": true,
+    "professional_email": "doctor031@example.invalid",
+    "professional_phone": null,
+    "license_number": null,
+    "npi": null,
+    "organization": "Fictional Care Group 3",
+    "patient_keys": [
+      "P031",
+      "P071",
+      "P111"
+    ]
+  },
+  {
+    "doctor_key": "D032",
+    "display_name": "Dr. Ravi Adams",
+    "credentials": "DO",
+    "specialty": "Neurology",
+    "subspecialty_focus": "Epilepsy",
+    "practice_type": "academic",
+    "state": "CA",
+    "years_in_practice": 6,
+    "languages": [
+      "English"
+    ],
+    "case_exchange_opt_in": true,
+    "accepts_peer_consults": true,
+    "patient_message_review_required": true,
+    "professional_email": "doctor032@example.invalid",
+    "professional_phone": null,
+    "license_number": null,
+    "npi": null,
+    "organization": "Fictional Care Group 4",
+    "patient_keys": [
+      "P032",
+      "P072",
+      "P112"
+    ]
+  },
+  {
+    "doctor_key": "D033",
+    "display_name": "Dr. Sofia Kim",
+    "credentials": "DO",
+    "specialty": "Neurology",
+    "subspecialty_focus": "Migraine",
+    "practice_type": "community",
+    "state": "FL",
+    "years_in_practice": 7,
+    "languages": [
+      "English"
+    ],
+    "case_exchange_opt_in": true,
+    "accepts_peer_consults": false,
+    "patient_message_review_required": true,
+    "professional_email": "doctor033@example.invalid",
+    "professional_phone": null,
+    "license_number": null,
+    "npi": null,
+    "organization": "Fictional Care Group 1",
+    "patient_keys": [
+      "P033",
+      "P073",
+      "P113"
+    ]
+  },
+  {
+    "doctor_key": "D034",
+    "display_name": "Dr. Omar Gupta",
+    "credentials": "MD",
+    "specialty": "Neurology",
+    "subspecialty_focus": "Epilepsy",
+    "practice_type": "academic",
+    "state": "GA",
+    "years_in_practice": 8,
+    "languages": [
+      "English"
+    ],
+    "case_exchange_opt_in": true,
+    "accepts_peer_consults": true,
+    "patient_message_review_required": true,
+    "professional_email": "doctor034@example.invalid",
+    "professional_phone": null,
+    "license_number": null,
+    "npi": null,
+    "organization": "Fictional Care Group 2",
+    "patient_keys": [
+      "P034",
+      "P074",
+      "P114"
+    ]
+  },
+  {
+    "doctor_key": "D035",
+    "display_name": "Dr. Nora Turner",
+    "credentials": "MD",
+    "specialty": "Neurology",
+    "subspecialty_focus": "Migraine",
+    "practice_type": "multispecialty",
+    "state": "IL",
+    "years_in_practice": 9,
+    "languages": [
+      "English"
+    ],
+    "case_exchange_opt_in": true,
+    "accepts_peer_consults": true,
+    "patient_message_review_required": true,
+    "professional_email": "doctor035@example.invalid",
+    "professional_phone": null,
+    "license_number": null,
+    "npi": null,
+    "organization": "Fictional Care Group 3",
+    "patient_keys": [
+      "P035",
+      "P075",
+      "P115"
+    ]
+  },
+  {
+    "doctor_key": "D036",
+    "display_name": "Dr. Elias Hassan",
+    "credentials": "MD",
+    "specialty": "Primary Care",
+    "subspecialty_focus": "Iron deficiency anemia",
+    "practice_type": "community",
+    "state": "MA",
+    "years_in_practice": 10,
+    "languages": [
+      "English"
+    ],
+    "case_exchange_opt_in": false,
+    "accepts_peer_consults": true,
+    "patient_message_review_required": true,
+    "professional_email": "doctor036@example.invalid",
+    "professional_phone": null,
+    "license_number": null,
+    "npi": null,
+    "organization": "Fictional Care Group 4",
+    "patient_keys": [
+      "P036",
+      "P076",
+      "P116"
+    ]
+  },
+  {
+    "doctor_key": "D037",
+    "display_name": "Dr. Zara Diaz",
+    "credentials": "DO",
+    "specialty": "Primary Care",
+    "subspecialty_focus": "Hyperlipidemia",
+    "practice_type": "multispecialty",
+    "state": "NY",
+    "years_in_practice": 11,
+    "languages": [
+      "English",
+      "Spanish"
+    ],
+    "case_exchange_opt_in": true,
+    "accepts_peer_consults": false,
+    "patient_message_review_required": true,
+    "professional_email": "doctor037@example.invalid",
+    "professional_phone": null,
+    "license_number": null,
+    "npi": null,
+    "organization": "Fictional Care Group 1",
+    "patient_keys": [
+      "P037",
+      "P077",
+      "P117"
+    ]
+  },
+  {
+    "doctor_key": "D038",
+    "display_name": "Dr. Luca Patel",
+    "credentials": "MD",
+    "specialty": "Primary Care",
+    "subspecialty_focus": "Iron deficiency anemia",
+    "practice_type": "multispecialty",
+    "state": "NC",
+    "years_in_practice": 12,
+    "languages": [
+      "English"
+    ],
+    "case_exchange_opt_in": true,
+    "accepts_peer_consults": true,
+    "patient_message_review_required": true,
+    "professional_email": "doctor038@example.invalid",
+    "professional_phone": null,
+    "license_number": null,
+    "npi": null,
+    "organization": "Fictional Care Group 2",
+    "patient_keys": [
+      "P038",
+      "P078",
+      "P118"
+    ]
+  },
+  {
+    "doctor_key": "D039",
+    "display_name": "Dr. Mei Morgan",
+    "credentials": "DO",
+    "specialty": "Primary Care",
+    "subspecialty_focus": "Hyperlipidemia",
+    "practice_type": "community",
+    "state": "PA",
+    "years_in_practice": 13,
+    "languages": [
+      "English"
+    ],
+    "case_exchange_opt_in": true,
+    "accepts_peer_consults": true,
+    "patient_message_review_required": true,
+    "professional_email": "doctor039@example.invalid",
+    "professional_phone": null,
+    "license_number": null,
+    "npi": null,
+    "organization": "Fictional Care Group 3",
+    "patient_keys": [
+      "P039",
+      "P079",
+      "P119"
+    ]
+  },
+  {
+    "doctor_key": "D040",
+    "display_name": "Dr. Ibrahim Morris",
+    "credentials": "DO",
+    "specialty": "Primary Care",
+    "subspecialty_focus": "Iron deficiency anemia",
+    "practice_type": "community",
+    "state": "TX",
+    "years_in_practice": 14,
+    "languages": [
+      "English"
+    ],
+    "case_exchange_opt_in": true,
+    "accepts_peer_consults": true,
+    "patient_message_review_required": true,
+    "professional_email": "doctor040@example.invalid",
+    "professional_phone": null,
+    "license_number": null,
+    "npi": null,
+    "organization": "Fictional Care Group 4",
+    "patient_keys": [
+      "P040",
+      "P080",
+      "P120"
+    ]
+  }
+]

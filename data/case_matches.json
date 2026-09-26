@@ -1,0 +1,506 @@
+[
+  {
+    "query_patient_key": "P004",
+    "candidate_patient_key": "P002",
+    "query_doctor_key": "D004",
+    "candidate_doctor_key": "D002",
+    "matching_feature": "same diagnosis code",
+    "review_status": "unreviewed",
+    "score": null
+  },
+  {
+    "query_patient_key": "P010",
+    "candidate_patient_key": "P008",
+    "query_doctor_key": "D010",
+    "candidate_doctor_key": "D008",
+    "matching_feature": "same diagnosis code",
+    "review_status": "unreviewed",
+    "score": null
+  },
+  {
+    "query_patient_key": "P014",
+    "candidate_patient_key": "P012",
+    "query_doctor_key": "D014",
+    "candidate_doctor_key": "D012",
+    "matching_feature": "same diagnosis code",
+    "review_status": "unreviewed",
+    "score": null
+  },
+  {
+    "query_patient_key": "P020",
+    "candidate_patient_key": "P018",
+    "query_doctor_key": "D020",
+    "candidate_doctor_key": "D018",
+    "matching_feature": "same diagnosis code",
+    "review_status": "unreviewed",
+    "score": null
+  },
+  {
+    "query_patient_key": "P024",
+    "candidate_patient_key": "P022",
+    "query_doctor_key": "D024",
+    "candidate_doctor_key": "D022",
+    "matching_feature": "same diagnosis code",
+    "review_status": "unreviewed",
+    "score": null
+  },
+  {
+    "query_patient_key": "P030",
+    "candidate_patient_key": "P028",
+    "query_doctor_key": "D030",
+    "candidate_doctor_key": "D028",
+    "matching_feature": "same diagnosis code",
+    "review_status": "unreviewed",
+    "score": null
+  },
+  {
+    "query_patient_key": "P034",
+    "candidate_patient_key": "P032",
+    "query_doctor_key": "D034",
+    "candidate_doctor_key": "D032",
+    "matching_feature": "same diagnosis code",
+    "review_status": "unreviewed",
+    "score": null
+  },
+  {
+    "query_patient_key": "P040",
+    "candidate_patient_key": "P038",
+    "query_doctor_key": "D040",
+    "candidate_doctor_key": "D038",
+    "matching_feature": "same diagnosis code",
+    "review_status": "unreviewed",
+    "score": null
+  },
+  {
+    "query_patient_key": "P042",
+    "candidate_patient_key": "P003",
+    "query_doctor_key": "D002",
+    "candidate_doctor_key": "D003",
+    "matching_feature": "same diagnosis code",
+    "review_status": "unreviewed",
+    "score": null
+  },
+  {
+    "query_patient_key": "P043",
+    "candidate_patient_key": "P002",
+    "query_doctor_key": "D003",
+    "candidate_doctor_key": "D002",
+    "matching_feature": "same diagnosis code",
+    "review_status": "unreviewed",
+    "score": null
+  },
+  {
+    "query_patient_key": "P044",
+    "candidate_patient_key": "P003",
+    "query_doctor_key": "D004",
+    "candidate_doctor_key": "D003",
+    "matching_feature": "same diagnosis code",
+    "review_status": "unreviewed",
+    "score": null
+  },
+  {
+    "query_patient_key": "P047",
+    "candidate_patient_key": "P008",
+    "query_doctor_key": "D007",
+    "candidate_doctor_key": "D008",
+    "matching_feature": "same diagnosis code",
+    "review_status": "unreviewed",
+    "score": null
+  },
+  {
+    "query_patient_key": "P048",
+    "candidate_patient_key": "P007",
+    "query_doctor_key": "D008",
+    "candidate_doctor_key": "D007",
+    "matching_feature": "same diagnosis code",
+    "review_status": "unreviewed",
+    "score": null
+  },
+  {
+    "query_patient_key": "P050",
+    "candidate_patient_key": "P007",
+    "query_doctor_key": "D010",
+    "candidate_doctor_key": "D007",
+    "matching_feature": "same diagnosis code",
+    "review_status": "unreviewed",
+    "score": null
+  },
+  {
+    "query_patient_key": "P052",
+    "candidate_patient_key": "P015",
+    "query_doctor_key": "D012",
+    "candidate_doctor_key": "D015",
+    "matching_feature": "same diagnosis code",
+    "review_status": "unreviewed",
+    "score": null
+  },
+  {
+    "query_patient_key": "P054",
+    "candidate_patient_key": "P015",
+    "query_doctor_key": "D014",
+    "candidate_doctor_key": "D015",
+    "matching_feature": "same diagnosis code",
+    "review_status": "unreviewed",
+    "score": null
+  },
+  {
+    "query_patient_key": "P055",
+    "candidate_patient_key": "P012",
+    "query_doctor_key": "D015",
+    "candidate_doctor_key": "D012",
+    "matching_feature": "same diagnosis code",
+    "review_status": "unreviewed",
+    "score": null
+  },
+  {
+    "query_patient_key": "P058",
+    "candidate_patient_key": "P019",
+    "query_doctor_key": "D018",
+    "candidate_doctor_key": "D019",
+    "matching_feature": "same diagnosis code",
+    "review_status": "unreviewed",
+    "score": null
+  },
+  {
+    "query_patient_key": "P059",
+    "candidate_patient_key": "P018",
+    "query_doctor_key": "D019",
+    "candidate_doctor_key": "D018",
+    "matching_feature": "same diagnosis code",
+    "review_status": "unreviewed",
+    "score": null
+  },
+  {
+    "query_patient_key": "P060",
+    "candidate_patient_key": "P019",
+    "query_doctor_key": "D020",
+    "candidate_doctor_key": "D019",
+    "matching_feature": "same diagnosis code",
+    "review_status": "unreviewed",
+    "score": null
+  },
+  {
+    "query_patient_key": "P062",
+    "candidate_patient_key": "P023",
+    "query_doctor_key": "D022",
+    "candidate_doctor_key": "D023",
+    "matching_feature": "same diagnosis code",
+    "review_status": "unreviewed",
+    "score": null
+  },
+  {
+    "query_patient_key": "P063",
+    "candidate_patient_key": "P022",
+    "query_doctor_key": "D023",
+    "candidate_doctor_key": "D022",
+    "matching_feature": "same diagnosis code",
+    "review_status": "unreviewed",
+    "score": null
+  },
+  {
+    "query_patient_key": "P064",
+    "candidate_patient_key": "P023",
+    "query_doctor_key": "D024",
+    "candidate_doctor_key": "D023",
+    "matching_feature": "same diagnosis code",
+    "review_status": "unreviewed",
+    "score": null
+  },
+  {
+    "query_patient_key": "P067",
+    "candidate_patient_key": "P028",
+    "query_doctor_key": "D027",
+    "candidate_doctor_key": "D028",
+    "matching_feature": "same diagnosis code",
+    "review_status": "unreviewed",
+    "score": null
+  },
+  {
+    "query_patient_key": "P068",
+    "candidate_patient_key": "P027",
+    "query_doctor_key": "D028",
+    "candidate_doctor_key": "D027",
+    "matching_feature": "same diagnosis code",
+    "review_status": "unreviewed",
+    "score": null
+  },
+  {
+    "query_patient_key": "P070",
+    "candidate_patient_key": "P027",
+    "query_doctor_key": "D030",
+    "candidate_doctor_key": "D027",
+    "matching_feature": "same diagnosis code",
+    "review_status": "unreviewed",
+    "score": null
+  },
+  {
+    "query_patient_key": "P072",
+    "candidate_patient_key": "P035",
+    "query_doctor_key": "D032",
+    "candidate_doctor_key": "D035",
+    "matching_feature": "same diagnosis code",
+    "review_status": "unreviewed",
+    "score": null
+  },
+  {
+    "query_patient_key": "P074",
+    "candidate_patient_key": "P035",
+    "query_doctor_key": "D034",
+    "candidate_doctor_key": "D035",
+    "matching_feature": "same diagnosis code",
+    "review_status": "unreviewed",
+    "score": null
+  },
+  {
+    "query_patient_key": "P075",
+    "candidate_patient_key": "P032",
+    "query_doctor_key": "D035",
+    "candidate_doctor_key": "D032",
+    "matching_feature": "same diagnosis code",
+    "review_status": "unreviewed",
+    "score": null
+  },
+  {
+    "query_patient_key": "P078",
+    "candidate_patient_key": "P039",
+    "query_doctor_key": "D038",
+    "candidate_doctor_key": "D039",
+    "matching_feature": "same diagnosis code",
+    "review_status": "unreviewed",
+    "score": null
+  },
+  {
+    "query_patient_key": "P079",
+    "candidate_patient_key": "P038",
+    "query_doctor_key": "D039",
+    "candidate_doctor_key": "D038",
+    "matching_feature": "same diagnosis code",
+    "review_status": "unreviewed",
+    "score": null
+  },
+  {
+    "query_patient_key": "P080",
+    "candidate_patient_key": "P039",
+    "query_doctor_key": "D040",
+    "candidate_doctor_key": "D039",
+    "matching_feature": "same diagnosis code",
+    "review_status": "unreviewed",
+    "score": null
+  },
+  {
+    "query_patient_key": "P082",
+    "candidate_patient_key": "P004",
+    "query_doctor_key": "D002",
+    "candidate_doctor_key": "D004",
+    "matching_feature": "same diagnosis code",
+    "review_status": "unreviewed",
+    "score": null
+  },
+  {
+    "query_patient_key": "P083",
+    "candidate_patient_key": "P042",
+    "query_doctor_key": "D003",
+    "candidate_doctor_key": "D002",
+    "matching_feature": "same diagnosis code",
+    "review_status": "unreviewed",
+    "score": null
+  },
+  {
+    "query_patient_key": "P084",
+    "candidate_patient_key": "P002",
+    "query_doctor_key": "D004",
+    "candidate_doctor_key": "D002",
+    "matching_feature": "same diagnosis code",
+    "review_status": "unreviewed",
+    "score": null
+  },
+  {
+    "query_patient_key": "P087",
+    "candidate_patient_key": "P048",
+    "query_doctor_key": "D007",
+    "candidate_doctor_key": "D008",
+    "matching_feature": "same diagnosis code",
+    "review_status": "unreviewed",
+    "score": null
+  },
+  {
+    "query_patient_key": "P088",
+    "candidate_patient_key": "P010",
+    "query_doctor_key": "D008",
+    "candidate_doctor_key": "D010",
+    "matching_feature": "same diagnosis code",
+    "review_status": "unreviewed",
+    "score": null
+  },
+  {
+    "query_patient_key": "P090",
+    "candidate_patient_key": "P008",
+    "query_doctor_key": "D010",
+    "candidate_doctor_key": "D008",
+    "matching_feature": "same diagnosis code",
+    "review_status": "unreviewed",
+    "score": null
+  },
+  {
+    "query_patient_key": "P092",
+    "candidate_patient_key": "P014",
+    "query_doctor_key": "D012",
+    "candidate_doctor_key": "D014",
+    "matching_feature": "same diagnosis code",
+    "review_status": "unreviewed",
+    "score": null
+  },
+  {
+    "query_patient_key": "P094",
+    "candidate_patient_key": "P012",
+    "query_doctor_key": "D014",
+    "candidate_doctor_key": "D012",
+    "matching_feature": "same diagnosis code",
+    "review_status": "unreviewed",
+    "score": null
+  },
+  {
+    "query_patient_key": "P095",
+    "candidate_patient_key": "P052",
+    "query_doctor_key": "D015",
+    "candidate_doctor_key": "D012",
+    "matching_feature": "same diagnosis code",
+    "review_status": "unreviewed",
+    "score": null
+  },
+  {
+    "query_patient_key": "P098",
+    "candidate_patient_key": "P020",
+    "query_doctor_key": "D018",
+    "candidate_doctor_key": "D020",
+    "matching_feature": "same diagnosis code",
+    "review_status": "unreviewed",
+    "score": null
+  },
+  {
+    "query_patient_key": "P099",
+    "candidate_patient_key": "P058",
+    "query_doctor_key": "D019",
+    "candidate_doctor_key": "D018",
+    "matching_feature": "same diagnosis code",
+    "review_status": "unreviewed",
+    "score": null
+  },
+  {
+    "query_patient_key": "P100",
+    "candidate_patient_key": "P018",
+    "query_doctor_key": "D020",
+    "candidate_doctor_key": "D018",
+    "matching_feature": "same diagnosis code",
+    "review_status": "unreviewed",
+    "score": null
+  },
+  {
+    "query_patient_key": "P102",
+    "candidate_patient_key": "P024",
+    "query_doctor_key": "D022",
+    "candidate_doctor_key": "D024",
+    "matching_feature": "same diagnosis code",
+    "review_status": "unreviewed",
+    "score": null
+  },
+  {
+    "query_patient_key": "P103",
+    "candidate_patient_key": "P062",
+    "query_doctor_key": "D023",
+    "candidate_doctor_key": "D022",
+    "matching_feature": "same diagnosis code",
+    "review_status": "unreviewed",
+    "score": null
+  },
+  {
+    "query_patient_key": "P104",
+    "candidate_patient_key": "P022",
+    "query_doctor_key": "D024",
+    "candidate_doctor_key": "D022",
+    "matching_feature": "same diagnosis code",
+    "review_status": "unreviewed",
+    "score": null
+  },
+  {
+    "query_patient_key": "P107",
+    "candidate_patient_key": "P068",
+    "query_doctor_key": "D027",
+    "candidate_doctor_key": "D028",
+    "matching_feature": "same diagnosis code",
+    "review_status": "unreviewed",
+    "score": null
+  },
+  {
+    "query_patient_key": "P108",
+    "candidate_patient_key": "P030",
+    "query_doctor_key": "D028",
+    "candidate_doctor_key": "D030",
+    "matching_feature": "same diagnosis code",
+    "review_status": "unreviewed",
+    "score": null
+  },
+  {
+    "query_patient_key": "P110",
+    "candidate_patient_key": "P028",
+    "query_doctor_key": "D030",
+    "candidate_doctor_key": "D028",
+    "matching_feature": "same diagnosis code",
+    "review_status": "unreviewed",
+    "score": null
+  },
+  {
+    "query_patient_key": "P112",
+    "candidate_patient_key": "P034",
+    "query_doctor_key": "D032",
+    "candidate_doctor_key": "D034",
+    "matching_feature": "same diagnosis code",
+    "review_status": "unreviewed",
+    "score": null
+  },
+  {
+    "query_patient_key": "P114",
+    "candidate_patient_key": "P032",
+    "query_doctor_key": "D034",
+    "candidate_doctor_key": "D032",
+    "matching_feature": "same diagnosis code",
+    "review_status": "unreviewed",
+    "score": null
+  },
+  {
+    "query_patient_key": "P115",
+    "candidate_patient_key": "P072",
+    "query_doctor_key": "D035",
+    "candidate_doctor_key": "D032",
+    "matching_feature": "same diagnosis code",
+    "review_status": "unreviewed",
+    "score": null
+  },
+  {
+    "query_patient_key": "P118",
+    "candidate_patient_key": "P040",
+    "query_doctor_key": "D038",
+    "candidate_doctor_key": "D040",
+    "matching_feature": "same diagnosis code",
+    "review_status": "unreviewed",
+    "score": null
+  },
+  {
+    "query_patient_key": "P119",
+    "candidate_patient_key": "P078",
+    "query_doctor_key": "D039",
+    "candidate_doctor_key": "D038",
+    "matching_feature": "same diagnosis code",
+    "review_status": "unreviewed",
+    "score": null
+  },
+  {
+    "query_patient_key": "P120",
+    "candidate_patient_key": "P038",
+    "query_doctor_key": "D040",
+    "candidate_doctor_key": "D038",
+    "matching_feature": "same diagnosis code",
+    "review_status": "unreviewed",
+    "score": null
+  }
+]
