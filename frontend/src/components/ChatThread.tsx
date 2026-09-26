@@ -12,11 +12,12 @@ import {
 import { colors } from '../theme/colors';
 import { SendIcon } from './NavIcons';
 import { MessageBubble } from './MessageBubble';
-import type { ChatMessage } from '../data/chatMock';
+import type { ChatMessage } from '../types/chat';
 
 type Props = {
   messages: ChatMessage[];
   onSend: (text: string) => void;
+  currentUserId?: string;
   peerNameForTheirs?: (senderId: string) => string | undefined;
   placeholder?: string;
 };
@@ -24,6 +25,7 @@ type Props = {
 export function ChatThread({
   messages,
   onSend,
+  currentUserId = 'me',
   peerNameForTheirs,
   placeholder = 'Type a message…',
 }: Props) {
@@ -48,7 +50,7 @@ export function ChatThread({
         keyboardShouldPersistTaps="handled"
       >
         {messages.map((msg) => {
-          const isMine = msg.senderId === 'me';
+          const isMine = msg.senderId === currentUserId;
           return (
             <MessageBubble
               key={msg.id}

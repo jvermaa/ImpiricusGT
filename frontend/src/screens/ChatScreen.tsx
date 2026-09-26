@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   Platform,
   Pressable,
@@ -19,23 +19,79 @@ import {
   SearchIcon,
 } from '../components/NavIcons';
 import {
-  CURRENT_DOCTOR,
-  DOCTOR_DIRECTORY,
-  DOCTOR_THREADS,
-  SPECIALTIES,
-  type ChatMessage,
-  type DoctorProfile,
-  type DoctorThread,
-} from '../data/chatMock';
+  loadConsultDirectory,
+  loadCurrentDoctor,
+  loadThreadMessages,
+  sendConsultMessage,
+} from '../api/clinic';
+import type {
+  ChatMessage,
+  CurrentDoctor,
+  DoctorProfile,
+  DoctorThread,
+} from '../types/chat';
 import { colors } from '../theme/colors';
 
 export function ChatScreen() {
   const insets = useSafeAreaInsets();
   const [activeDoctorId, setActiveDoctorId] = useState<string | null>(null);
-  const [threads, setThreads] = useState<DoctorThread[]>(DOCTOR_THREADS);
+  const [threads, setThreads] = useState<DoctorThread[]>([]);
+  const [directory, setDirectory] = useState<DoctorProfile[]>([]);
+  const [specialties, setSpecialties] = useState<string[]>(['All']);
+  const [currentDoctor, setCurrentDoctor] = useState<CurrentDoctor>({
+    id: '',
+    name: 'Loading doctor',
+    designation: '',
+    initials: '',
+  });
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [specialtyFilter, setSpecialtyFilter] = useState('All');
   const [filterOpen, setFilterOpen] = useState(false);
   const [newChatOpen, setNewChatOpen] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    loadCurrentDoctor()
+      .then((doctor) => {
+        if (!cancelled) setCurrentDoctor(doctor);
+      })
+      .catch(() => {
+        if (!cancelled) setLoadError('Could not load the signed-in doctor from the API.');
+      });
+    loadConsultDirectory()
+      .then((data) => {
+        if (cancelled) return;
+        setDirectory(data.directory);
+        setThreads(data.threads);
+        setSpecialties(data.specialties);
+      })
+      .catch(() => {
+        if (!cancelled) setLoadError('Could not load peer consults from the API.');
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!activeDoctorId) return;
+    let cancelled = false;
+    loadThreadMessages(activeDoctorId)
+      .then((messages) => {
+        if (cancelled) return;
+        setThreads((prev) =>
+          prev.map((thread) =>
+            thread.id === activeDoctorId ? { ...thread, messages } : thread,
+          ),
+        );
+      })
+      .catch(() => {
+        if (!cancelled) setLoadError('Could not load this consult thread.');
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [activeDoctorId]);
 
   const activeDoctor = useMemo(
     () => threads.find((t) => t.id === activeDoctorId) ?? null,
@@ -69,19 +125,19 @@ export function ChatScreen() {
 
   const sendDoctor = (text: string) => {
     if (!activeDoctorId) return;
-    const msg: ChatMessage = {
-      id: `d-${Date.now()}`,
-      senderId: 'me',
-      text,
-      timestamp: 'Now',
-    };
-    setThreads((prev) =>
-      prev.map((t) =>
-        t.id === activeDoctorId
-          ? { ...t, messages: [...t.messages, msg], lastMessage: text }
-          : t,
-      ),
-    );
+    sendConsultMessage(activeDoctorId, text)
+      .then((msg: ChatMessage) => {
+        setThreads((prev) =>
+          prev.map((t) =>
+            t.id === activeDoctorId
+              ? { ...t, messages: [...t.messages, msg], lastMessage: msg.text }
+              : t,
+          ),
+        );
+      })
+      .catch(() => {
+        setLoadError('Could not send that consult message.');
+      });
   };
 
   const goBackToList = () => {
@@ -143,6 +199,7 @@ export function ChatScreen() {
       {showingList && filterOpen ? (
         <SpecialtyFilterMenu
           selected={specialtyFilter}
+          specialties={specialties}
           onSelect={(s) => {
             setSpecialtyFilter(s);
             setFilterOpen(false);
@@ -155,6 +212,8 @@ export function ChatScreen() {
         {showingList ? (
           <DoctorList
             threads={threads}
+            doctorName={currentDoctor.name}
+            statusMessage={loadError}
             specialtyFilter={specialtyFilter}
             onSelect={(id) => setActiveDoctorId(id)}
             onNewChat={() => {
@@ -166,6 +225,7 @@ export function ChatScreen() {
           <ChatThread
             messages={activeDoctor.messages}
             onSend={sendDoctor}
+            currentUserId={currentDoctor.id}
             peerNameForTheirs={() => activeDoctor.name}
             placeholder={`Message ${activeDoctor.name.split(' ')[1] ?? 'colleague'}…`}
           />
@@ -174,6 +234,7 @@ export function ChatScreen() {
 
       {newChatOpen ? (
         <NewChatSheet
+          directory={directory}
           existingIds={new Set(threads.map((t) => t.id))}
           onClose={() => setNewChatOpen(false)}
           onSelectDoctor={startOrOpenChat}
@@ -184,10 +245,12 @@ export function ChatScreen() {
 }
 
 function SpecialtyFilterMenu({
+  specialties,
   selected,
   onSelect,
   onClose,
 }: {
+  specialties: string[];
   selected: string;
   onSelect: (specialty: string) => void;
   onClose: () => void;
@@ -198,7 +261,7 @@ function SpecialtyFilterMenu({
       <View style={styles.filterMenu}>
         <Text style={styles.filterMenuTitle}>Specialty</Text>
         <ScrollView style={styles.filterScroll} nestedScrollEnabled>
-          {SPECIALTIES.map((s) => {
+          {specialties.map((s) => {
             const active = s === selected;
             return (
               <Pressable
@@ -227,11 +290,15 @@ function SpecialtyFilterMenu({
 
 function DoctorList({
   threads,
+  doctorName,
+  statusMessage,
   specialtyFilter,
   onSelect,
   onNewChat,
 }: {
   threads: DoctorThread[];
+  doctorName: string;
+  statusMessage: string | null;
   specialtyFilter: string;
   onSelect: (id: string) => void;
   onNewChat: () => void;
@@ -249,7 +316,8 @@ function DoctorList({
         showsVerticalScrollIndicator={false}
       >
         <Text style={styles.listHint}>
-          Doctor-to-doctor consults · {CURRENT_DOCTOR.name}
+          Doctor-to-doctor consults · {doctorName}
+          {statusMessage ? ` · ${statusMessage}` : ''}
         </Text>
         {filtered.length === 0 ? (
           <View style={styles.emptyCard}>
@@ -293,10 +361,12 @@ function DoctorList({
 }
 
 function NewChatSheet({
+  directory,
   existingIds,
   onClose,
   onSelectDoctor,
 }: {
+  directory: DoctorProfile[];
   existingIds: Set<string>;
   onClose: () => void;
   onSelectDoctor: (doctor: DoctorProfile) => void;
@@ -305,7 +375,7 @@ function NewChatSheet({
 
   const results = useMemo(() => {
     const q = query.trim().toLowerCase();
-    return DOCTOR_DIRECTORY.filter((d) => {
+    return directory.filter((d) => {
       if (!q) return true;
       return (
         d.name.toLowerCase().includes(q) ||
@@ -313,7 +383,7 @@ function NewChatSheet({
         d.designation.toLowerCase().includes(q)
       );
     });
-  }, [query]);
+  }, [directory, query]);
 
   return (
     <View style={styles.sheetRoot}>

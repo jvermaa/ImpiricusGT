@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { colors } from '../theme/colors';
-import type { ChatMessage } from '../data/chatMock';
+import type { ChatMessage } from '../types/chat';
 
 type Props = {
   message: ChatMessage;
