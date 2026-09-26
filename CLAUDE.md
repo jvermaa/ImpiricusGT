@@ -57,6 +57,8 @@ Application: went to a specialist or went to a different department and they nee
 
 7. Also connects the healthcare professionals. A doctor is not specialized in something and doesn’t have a lot of experience with it or just has a question, because of Impericus’s data, they would be able to connect HCP with each other.
 
-8. Doctors can refer other doctors who are on the impiricus network using the app to the patients. They can then use number 4 to send all the data easily.
+8. Doctors can refer other doctors who are on the impiricus network using the app to the patients. They can then use number 4 to send all the data easily. 
+Doctor chat page - plus button to search for speciization. The doctors are ordered by who is closest to you. Clicking on a doctor sends you to a doctor profile page which information about the doctors like degrees, specializations, and address. This also has the button to chat or refer. Chat sends you to the chat with the doctor. You can click the refer doctor to patient button. This would show you a popup of all patients to select the patient to refer (with the relevant patients having a red border). Clicking on a patient shows a popup for cancel or refer just for confirmation. When we again click refer, it sends the patient an email for referal to the doctor and the doctor’s details. It would also send the medical history immediately to the other doctor.
+
 
 9. What's new page to show new drugs on the market, their benefits, research for evidence, side effects, relevant patients button.
