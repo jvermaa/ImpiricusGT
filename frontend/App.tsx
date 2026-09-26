@@ -5,20 +5,10 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { BottomNavBar, TabKey } from './src/components/BottomNavBar';
 import { DottedGradientBackground } from './src/components/DottedGradientBackground';
 import { ChatScreen } from './src/screens/ChatScreen';
-<<<<<<< HEAD
 import { NotificationsScreen } from './src/screens/NotificationsScreen';
-import { PlaceholderScreen } from './src/screens/PlaceholderScreen';
-
-=======
 import { PatientScreen } from './src/screens/PatientScreen';
 import { PlaceholderScreen } from './src/screens/PlaceholderScreen';
 
-const TITLES: Record<Exclude<TabKey, 'chat' | 'patient'>, string> = {
-  notification: 'Notification',
-  profile: 'Profile',
-};
-
->>>>>>> origin/main
 function AppShell() {
   const [activeTab, setActiveTab] = useState<TabKey>('notification');
   const { width } = useWindowDimensions();
@@ -32,19 +22,14 @@ function AppShell() {
           <View style={styles.content}>
             {activeTab === 'chat' ? (
               <ChatScreen />
-<<<<<<< HEAD
             ) : activeTab === 'notification' ? (
               <NotificationsScreen
                 onOpenPatient={() => setActiveTab('patient')}
               />
-=======
             ) : activeTab === 'patient' ? (
               <PatientScreen />
->>>>>>> origin/main
             ) : (
-              <PlaceholderScreen
-                title={activeTab === 'profile' ? 'Profile' : 'Patient'}
-              />
+              <PlaceholderScreen title="Profile" />
             )}
           </View>
           <BottomNavBar activeTab={activeTab} onTabPress={setActiveTab} />
