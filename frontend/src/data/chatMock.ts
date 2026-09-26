@@ -27,12 +27,6 @@ export const CURRENT_DOCTOR = {
   initials: 'JH',
 };
 
-export const IRIS = {
-  id: 'iris',
-  name: 'Iris',
-  subtitle: 'Clinical AI assistant',
-};
-
 /** Full directory for starting new peer chats. */
 export const DOCTOR_DIRECTORY: DoctorProfile[] = [
   {
@@ -218,14 +212,5 @@ export const DOCTOR_THREADS: DoctorThread[] = [
         timestamp: 'Sun',
       },
     ],
-  },
-];
-
-export const IRIS_STARTER_MESSAGES: ChatMessage[] = [
-  {
-    id: 'iris-0',
-    senderId: 'iris',
-    text: 'Hi Dr. Hale — I’m Iris. Ask me about differential diagnoses, guideline summaries, or to draft a peer consult note.',
-    timestamp: 'Now',
   },
 ];

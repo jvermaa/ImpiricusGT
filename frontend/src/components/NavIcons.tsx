@@ -6,8 +6,8 @@ type IconProps = {
   size?: number;
 };
 
-/** Clipboard / document icon. */
-export function PrescriberIcon({ color, size = 24 }: IconProps) {
+/** Patient / clipboard document icon. */
+export function PatientIcon({ color, size = 24 }: IconProps) {
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
       <Path
@@ -32,44 +32,27 @@ export function PrescriberIcon({ color, size = 24 }: IconProps) {
   );
 }
 
-/** Two overlapping four-pointed sparkles. */
-export function TranslatorIcon({ color, size = 24 }: IconProps) {
+/** Bell for notifications. */
+export function NotificationIcon({ color, size = 24 }: IconProps) {
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
       <Path
-        d="M8.5 4.5 9.85 8.4l3.9 1.35-3.9 1.35L8.5 15 7.15 11.1 3.25 9.75l3.9-1.35L8.5 4.5Z"
-        fill={color}
-      />
-      <Path
-        d="M16.5 10 17.4 12.7l2.7.95-2.7.95-.9 2.7-.9-2.7-2.7-.95 2.7-.95.9-2.7Z"
-        fill={color}
-      />
-    </Svg>
-  );
-}
-
-/** Speech bubble with person — Concierge. */
-export function ConciergeIcon({ color, size = 24 }: IconProps) {
-  return (
-    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
-      <Path
-        d="M4.8 7.2c0-2.25 2.9-4.1 7.2-4.1s7.2 1.85 7.2 4.1v4.5c0 2.25-2.9 4.1-7.2 4.1-.95 0-1.85-.08-2.6-.23L5.6 18.7v-3.15c-.5-.7-.8-1.55-.8-2.45V7.2Z"
+        d="M6.5 16.5h11V11.2c0-3-2.1-5.4-4.8-5.9V4.6a1.2 1.2 0 0 0-2.4 0v.7C7.6 5.8 6.5 8.2 6.5 11.2v5.3Z"
         stroke={color}
         strokeWidth={1.55}
         strokeLinejoin="round"
       />
-      <Circle cx={12} cy={8.4} r={1.45} fill={color} />
       <Path
-        d="M9.1 13.3c.45-1.55 1.6-2.35 2.9-2.35s2.45.8 2.9 2.35"
+        d="M9.6 16.5a2.4 2.4 0 0 0 4.8 0"
         stroke={color}
-        strokeWidth={1.4}
+        strokeWidth={1.55}
         strokeLinecap="round"
       />
     </Svg>
   );
 }
 
-/** Chat bubbles — peer consult / Iris. */
+/** Chat bubbles — doctor-to-doctor. */
 export function ChatIcon({ color, size = 24 }: IconProps) {
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
