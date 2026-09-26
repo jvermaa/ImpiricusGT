@@ -22,8 +22,6 @@ import {
   CURRENT_DOCTOR,
   DOCTOR_DIRECTORY,
   DOCTOR_THREADS,
-  IRIS,
-  IRIS_STARTER_MESSAGES,
   SPECIALTIES,
   type ChatMessage,
   type DoctorProfile,
@@ -31,30 +29,9 @@ import {
 } from '../data/chatMock';
 import { colors } from '../theme/colors';
 
-type Destination = 'iris' | 'doctors';
-
-function irisReply(prompt: string): string {
-  const q = prompt.toLowerCase();
-  if (q.includes('differential') || q.includes('dx')) {
-    return 'A practical differential should weigh acuity, red flags, and base rate. Share key vitals, labs, and the leading concern — I can help prioritize next steps for a peer consult.';
-  }
-  if (q.includes('guideline') || q.includes('protocol')) {
-    return 'I can draft a short guideline-oriented summary. Tell me the condition and what decision you’re trying to make (start/stop therapy, imaging, referral).';
-  }
-  if (q.includes('note') || q.includes('consult')) {
-    return 'Here’s a draft framing you can paste to a colleague:\n\n“Seeking peer input on [case]. Brief HPI, key findings, and the specific question…”\n\nWant me to fill that in with details you provide?';
-  }
-  return `Got it. For “${prompt.slice(0, 80)}${prompt.length > 80 ? '…' : ''}” — I can help refine the clinical question, suggest what to include for a specialist, or draft a consult message. What would be most useful?`;
-}
-
 export function ChatScreen() {
   const insets = useSafeAreaInsets();
-  const [panelOpen, setPanelOpen] = useState(false);
-  const [destination, setDestination] = useState<Destination>('iris');
   const [activeDoctorId, setActiveDoctorId] = useState<string | null>(null);
-  const [irisMessages, setIrisMessages] = useState<ChatMessage[]>(
-    IRIS_STARTER_MESSAGES,
-  );
   const [threads, setThreads] = useState<DoctorThread[]>(DOCTOR_THREADS);
   const [specialtyFilter, setSpecialtyFilter] = useState('All');
   const [filterOpen, setFilterOpen] = useState(false);
@@ -65,29 +42,14 @@ export function ChatScreen() {
     [threads, activeDoctorId],
   );
 
-  const showingDoctorList = destination === 'doctors' && !activeDoctor;
+  const showingList = !activeDoctor;
 
-  const headerTitle = activeDoctor
-    ? activeDoctor.name
-    : destination === 'iris'
-      ? IRIS.name
-      : 'Doctors';
-
+  const headerTitle = activeDoctor ? activeDoctor.name : 'Doctors';
   const headerSubtitle = activeDoctor
     ? activeDoctor.designation
-    : destination === 'iris'
-      ? IRIS.subtitle
-      : specialtyFilter === 'All'
-        ? 'Peer consults'
-        : specialtyFilter;
-
-  const selectDestination = (next: Destination) => {
-    setDestination(next);
-    setActiveDoctorId(null);
-    setPanelOpen(false);
-    setFilterOpen(false);
-    setNewChatOpen(false);
-  };
+    : specialtyFilter === 'All'
+      ? 'Peer consults'
+      : specialtyFilter;
 
   const startOrOpenChat = (doctor: DoctorProfile) => {
     setThreads((prev) => {
@@ -103,22 +65,6 @@ export function ChatScreen() {
     setActiveDoctorId(doctor.id);
     setNewChatOpen(false);
     setFilterOpen(false);
-  };
-
-  const sendIris = (text: string) => {
-    const userMsg: ChatMessage = {
-      id: `iris-u-${Date.now()}`,
-      senderId: 'me',
-      text,
-      timestamp: 'Now',
-    };
-    const botMsg: ChatMessage = {
-      id: `iris-b-${Date.now()}`,
-      senderId: 'iris',
-      text: irisReply(text),
-      timestamp: 'Now',
-    };
-    setIrisMessages((prev) => [...prev, userMsg, botMsg]);
   };
 
   const sendDoctor = (text: string) => {
@@ -138,19 +84,26 @@ export function ChatScreen() {
     );
   };
 
+  const goBackToList = () => {
+    setActiveDoctorId(null);
+    setFilterOpen(false);
+  };
+
   return (
     <View style={styles.root}>
       <View style={[styles.header, { paddingTop: Math.max(insets.top, 12) }]}>
         <Pressable
           accessibilityRole="button"
-          accessibilityLabel="Open chat destinations"
-          onPress={() => {
-            setFilterOpen(false);
-            setPanelOpen(true);
-          }}
+          accessibilityLabel={
+            activeDoctor ? 'Back to doctor list' : 'Doctors'
+          }
+          onPress={activeDoctor ? goBackToList : undefined}
+          disabled={!activeDoctor}
           style={styles.headerLeft}
         >
-          <ChevronLeftIcon color={colors.white} size={22} />
+          {activeDoctor ? (
+            <ChevronLeftIcon color={colors.white} size={22} />
+          ) : null}
           <View style={styles.headerTitles}>
             <Text style={styles.headerTitle} numberOfLines={1}>
               {headerTitle}
@@ -161,7 +114,7 @@ export function ChatScreen() {
           </View>
         </Pressable>
 
-        {showingDoctorList ? (
+        {showingList ? (
           <Pressable
             accessibilityRole="button"
             accessibilityLabel="Filter by specialty"
@@ -184,14 +137,10 @@ export function ChatScreen() {
             color={activeDoctor.avatarColor}
             size={36}
           />
-        ) : destination === 'iris' ? (
-          <View style={styles.irisBadge}>
-            <Text style={styles.irisBadgeText}>AI</Text>
-          </View>
         ) : null}
       </View>
 
-      {showingDoctorList && filterOpen ? (
+      {showingList && filterOpen ? (
         <SpecialtyFilterMenu
           selected={specialtyFilter}
           onSelect={(s) => {
@@ -203,16 +152,7 @@ export function ChatScreen() {
       ) : null}
 
       <View style={styles.body}>
-        {destination === 'iris' && !activeDoctor ? (
-          <ChatThread
-            messages={irisMessages}
-            onSend={sendIris}
-            peerNameForTheirs={() => IRIS.name}
-            placeholder="Ask Iris a clinical question…"
-          />
-        ) : null}
-
-        {showingDoctorList ? (
+        {showingList ? (
           <DoctorList
             threads={threads}
             specialtyFilter={specialtyFilter}
@@ -222,9 +162,7 @@ export function ChatScreen() {
               setNewChatOpen(true);
             }}
           />
-        ) : null}
-
-        {activeDoctor ? (
+        ) : activeDoctor ? (
           <ChatThread
             messages={activeDoctor.messages}
             onSend={sendDoctor}
@@ -233,15 +171,6 @@ export function ChatScreen() {
           />
         ) : null}
       </View>
-
-      {panelOpen ? (
-        <DestinationPanel
-          current={destination}
-          onClose={() => setPanelOpen(false)}
-          onSelect={selectDestination}
-          topInset={Math.max(insets.top, 12)}
-        />
-      ) : null}
 
       {newChatOpen ? (
         <NewChatSheet
@@ -458,64 +387,6 @@ function NewChatSheet({
   );
 }
 
-function DestinationPanel({
-  current,
-  onClose,
-  onSelect,
-  topInset,
-}: {
-  current: Destination;
-  onClose: () => void;
-  onSelect: (d: Destination) => void;
-  topInset: number;
-}) {
-  return (
-    <View style={styles.modalRoot} pointerEvents="box-none">
-      <Pressable style={styles.overlay} onPress={onClose} />
-      <View style={[styles.panel, { paddingTop: topInset + 8 }]}>
-        <Text style={styles.panelEyebrow}>Conversations</Text>
-        <Text style={styles.panelTitle}>Where to?</Text>
-
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel="Iris Clinical AI assistant"
-          onPress={() => onSelect('iris')}
-          style={[
-            styles.panelItem,
-            current === 'iris' && styles.panelItemActive,
-          ]}
-        >
-          <View style={styles.panelAvatarIris}>
-            <Text style={styles.panelAvatarText}>AI</Text>
-          </View>
-          <View style={styles.panelItemText}>
-            <Text style={styles.panelItemTitle}>Iris</Text>
-            <Text style={styles.panelItemSub}>Clinical AI assistant</Text>
-          </View>
-        </Pressable>
-
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel="Doctors Peer-to-peer chats"
-          onPress={() => onSelect('doctors')}
-          style={[
-            styles.panelItem,
-            current === 'doctors' && styles.panelItemActive,
-          ]}
-        >
-          <View style={styles.panelAvatarDocs}>
-            <Text style={styles.panelAvatarText}>MD</Text>
-          </View>
-          <View style={styles.panelItemText}>
-            <Text style={styles.panelItemTitle}>Doctors</Text>
-            <Text style={styles.panelItemSub}>Peer-to-peer chats</Text>
-          </View>
-        </Pressable>
-      </View>
-    </View>
-  );
-}
-
 const styles = StyleSheet.create({
   root: {
     flex: 1,
@@ -564,19 +435,6 @@ const styles = StyleSheet.create({
   },
   filterBtnActive: {
     backgroundColor: 'rgba(123, 97, 255, 0.28)',
-  },
-  irisBadge: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: colors.accentPurple,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  irisBadgeText: {
-    color: colors.white,
-    fontSize: 11,
-    fontWeight: '800',
   },
   body: {
     flex: 1,
@@ -826,87 +684,5 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
     paddingVertical: 24,
     fontSize: 14,
-  },
-  modalRoot: {
-    ...StyleSheet.absoluteFill,
-    flexDirection: 'row',
-    zIndex: 50,
-  },
-  overlay: {
-    ...StyleSheet.absoluteFill,
-    backgroundColor: colors.overlay,
-  },
-  panel: {
-    width: '78%',
-    maxWidth: 320,
-    height: '100%',
-    backgroundColor: colors.panelBg,
-    borderRightWidth: StyleSheet.hairlineWidth,
-    borderRightColor: colors.panelBorder,
-    paddingHorizontal: 16,
-    paddingBottom: 24,
-    gap: 10,
-    zIndex: 51,
-  },
-  panelEyebrow: {
-    color: 'rgba(255,255,255,0.45)',
-    fontSize: 12,
-    fontWeight: '600',
-    letterSpacing: 0.8,
-    textTransform: 'uppercase',
-  },
-  panelTitle: {
-    color: colors.white,
-    fontSize: 24,
-    fontWeight: '700',
-    marginBottom: 8,
-  },
-  panelItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    backgroundColor: 'rgba(255,255,255,0.06)',
-    borderRadius: 16,
-    padding: 14,
-    borderWidth: 1.5,
-    borderColor: 'transparent',
-  },
-  panelItemActive: {
-    borderColor: colors.accentPurple,
-    backgroundColor: 'rgba(123, 97, 255, 0.18)',
-  },
-  panelAvatarIris: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: colors.accentPurple,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  panelAvatarDocs: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: '#4A90A4',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  panelAvatarText: {
-    color: colors.white,
-    fontWeight: '800',
-    fontSize: 12,
-  },
-  panelItemText: {
-    flex: 1,
-  },
-  panelItemTitle: {
-    color: colors.white,
-    fontSize: 17,
-    fontWeight: '700',
-  },
-  panelItemSub: {
-    color: 'rgba(255,255,255,0.55)',
-    fontSize: 13,
-    marginTop: 2,
   },
 });

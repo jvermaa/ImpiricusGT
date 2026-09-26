@@ -4,18 +4,12 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors } from '../theme/colors';
 import {
   ChatIcon,
-  ConciergeIcon,
-  PrescriberIcon,
+  NotificationIcon,
+  PatientIcon,
   ProfileIcon,
-  TranslatorIcon,
 } from './NavIcons';
 
-export type TabKey =
-  | 'prescriber'
-  | 'translator'
-  | 'concierge'
-  | 'chat'
-  | 'profile';
+export type TabKey = 'patient' | 'chat' | 'notification' | 'profile';
 
 type TabDef = {
   key: TabKey;
@@ -24,10 +18,9 @@ type TabDef = {
 };
 
 const TABS: TabDef[] = [
-  { key: 'prescriber', label: 'Prescriber', Icon: PrescriberIcon },
-  { key: 'translator', label: 'Translator', Icon: TranslatorIcon },
-  { key: 'concierge', label: 'Concierge', Icon: ConciergeIcon },
+  { key: 'patient', label: 'Patient', Icon: PatientIcon },
   { key: 'chat', label: 'Chat', Icon: ChatIcon },
+  { key: 'notification', label: 'Notification', Icon: NotificationIcon },
   { key: 'profile', label: 'Profile', Icon: ProfileIcon },
 ];
 
