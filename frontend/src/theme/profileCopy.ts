@@ -14,5 +14,5 @@ export const profileCopy = {
   clearFilters: 'Clear filters',
   noPatients: 'No patients on your panel.',
   noReferrals: 'No referrals in this list.',
-  shareHint: 'A peer can scan this for the doctor key and name.',
+  shareHint: 'A peer can scan this for your name and clinic address.',
 } as const;

@@ -40,6 +40,17 @@ TRANSITIONS = {
     "accepted": {"completed", "cancelled"},
 }
 OPEN_STATUSES = {"pending_patient_consent", "shared_with_specialist", "sent", "accepted"}
+
+# Live talk room shared when a patient approves/declines a referral (demo).
+DEFAULT_REFERRAL_TALK_URL = (
+    "https://8935-2001-468-300-800-7479-bf77-f309-d1f6.ngrok-free.app"
+    "/talk/-_Xf8sGnvTC7KLZ298C-lrxhlMNV83J3"
+)
+
+
+def _talk_url() -> str:
+    return os.getenv("REFERRAL_TALK_URL", "").strip() or DEFAULT_REFERRAL_TALK_URL
+
 SPECIALIST_VISIBLE_STATUSES = {"shared_with_specialist", "sent", "accepted", "completed"}
 CONSENT_TOKEN_TTL_HOURS = int(os.getenv("REFERRAL_CONSENT_TTL_HOURS", "168"))
 
@@ -343,6 +354,7 @@ def _consent_email_html(
     urgency: str,
     approve_url: str,
     decline_url: str,
+    talk_url: str,
 ) -> str:
     safe = html.escape
     return f"""
@@ -369,6 +381,10 @@ def _consent_email_html(
       Decline referral
     </a>
   </p>
+  <p>
+    <strong>Join the care talk room:</strong><br/>
+    <a href="{safe(talk_url)}">{safe(talk_url)}</a>
+  </p>
   <p style="font-size:12px;color:#666">
     If the buttons do not work, open these links:<br/>
     Approve: {safe(approve_url)}<br/>
@@ -388,6 +404,7 @@ def _send_consent_email(
     raw_token: str,
 ) -> dict:
     approve_url, decline_url = _consent_links(raw_token)
+    talk_url = _talk_url()
     intended = os.getenv("EMAIL_REDIRECT_TO", "").strip() or os.getenv("SMTP_FROM", "").strip()
     if not intended:
         return {
@@ -410,6 +427,7 @@ def _send_consent_email(
         f"Reason for referral ({urgency}): {reason}\n\n"
         f"Approve referral:\n{approve_url}\n\n"
         f"Decline referral:\n{decline_url}\n\n"
+        f"Join the care talk room:\n{talk_url}\n\n"
         f"Your medical history is shared with the specialist only if you approve.\n"
     )
     html_body = _consent_email_html(
@@ -423,6 +441,7 @@ def _send_consent_email(
         urgency=urgency,
         approve_url=approve_url,
         decline_url=decline_url,
+        talk_url=talk_url,
     )
     delivery = _send_email(subject, plain, intended, html=html_body)
     return {**delivery, "approve_url": approve_url, "decline_url": decline_url}
@@ -440,6 +459,7 @@ def _send_specialist_handoff_email(
     intended = os.getenv("EMAIL_REDIRECT_TO", "").strip() or os.getenv("SMTP_FROM", "").strip()
     if not intended:
         return {"status": "skipped", "detail": "no destination"}
+    talk_url = _talk_url()
     subject = f"Patient consent granted: {patient.name} → {recipient.display_name}"
     body = (
         f"Patient {patient.name} approved the referral from {referring.display_name}.\n\n"
@@ -451,9 +471,48 @@ def _send_specialist_handoff_email(
         f"Allergies: {_plain(handoff.get('allergies'))}\n"
         f"Prescriptions: {_plain(handoff.get('active_prescriptions'))}\n"
         f"Labs: {_plain(handoff.get('labs'))}\n"
-        f"Visits: {_plain(handoff.get('encounters'))}\n"
+        f"Visits: {_plain(handoff.get('encounters'))}\n\n"
+        f"Join the care talk room:\n{talk_url}\n"
     )
     return _send_email(subject, body, intended)
+
+
+def _send_decision_email(
+    *,
+    referring: Doctor,
+    specialist: Doctor,
+    patient: Patient,
+    decision: str,
+) -> dict:
+    """Email after the patient picks Approve or Decline — always includes the talk room link."""
+    intended = os.getenv("EMAIL_REDIRECT_TO", "").strip() or os.getenv("SMTP_FROM", "").strip()
+    if not intended:
+        return {"status": "skipped", "detail": "no destination"}
+    talk_url = _talk_url()
+    approved = decision == "approve"
+    subject = (
+        f"Referral {'approved' if approved else 'declined'}: {patient.name} → {specialist.display_name}"
+    )
+    plain = (
+        f"Patient {patient.name} {'approved' if approved else 'declined'} the referral "
+        f"from {referring.display_name} to {specialist.display_name}.\n\n"
+        f"Join the care talk room:\n{talk_url}\n"
+    )
+    html_body = f"""
+<div style="font-family:Arial,sans-serif;line-height:1.5;color:#1a1a1a;max-width:560px">
+  <p>
+    Patient <strong>{html.escape(patient.name)}</strong>
+    {'approved' if approved else 'declined'} the referral from
+    <strong>{html.escape(referring.display_name)}</strong> to
+    <strong>{html.escape(specialist.display_name)}</strong>.
+  </p>
+  <p>
+    <strong>Join the care talk room:</strong><br/>
+    <a href="{html.escape(talk_url)}">{html.escape(talk_url)}</a>
+  </p>
+</div>
+""".strip()
+    return _send_email(subject, plain, intended, html=html_body)
 
 
 def _notify_referring_doctor(
@@ -663,6 +722,15 @@ def patient_consent(
             )
         except HTTPException:
             pass
+        try:
+            _send_decision_email(
+                referring=referring,
+                specialist=specialist,
+                patient=patient,
+                decision="approve",
+            )
+        except HTTPException:
+            pass
         alert = _notify_referring_doctor(
             db,
             referral=referral,
@@ -689,6 +757,15 @@ def patient_consent(
         referral.from_doctor_key,
         "[status] Patient declined the referral.",
     )
+    try:
+        _send_decision_email(
+            referring=referring,
+            specialist=specialist,
+            patient=patient,
+            decision="decline",
+        )
+    except HTTPException:
+        pass
     alert = _notify_referring_doctor(
         db,
         referral=referral,

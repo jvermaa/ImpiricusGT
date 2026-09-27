@@ -57,6 +57,9 @@ type QrCore = {
 
 const pointer: ViewStyle = Platform.OS === 'web' ? ({ cursor: 'pointer' } as ViewStyle) : {};
 
+/** Hardcoded clinic address shared from the doctor card (demo). */
+const SHARE_ADDRESS = '742 Evergreen Clinic Way, Suite 210\nBirmingham, AL 35203';
+
 function readableLabel(value: string): string {
   return value
     .replace(/[_-]+/g, ' ')
@@ -166,7 +169,9 @@ export function DoctorProfileCard({
   }, [toast]);
 
   const theme = themeForSpecialty(profile?.specialty ?? '');
-  const shareText = profile ? `${profile.headline}\n${profile.doctorKey}` : '';
+  const shareText = profile
+    ? `${profile.headline}\n${profile.organization}\n${SHARE_ADDRESS}`
+    : '';
 
   const setSetting = async (key: 'consults' | 'cases', value: boolean) => {
     if (!profile || savingKey === key) return;
@@ -468,7 +473,7 @@ export function DoctorProfileCard({
       ) : null}
 
       <Sheet visible={shareOpen} onClose={() => setShareOpen(false)} title={profile?.headline ?? 'Share card'}>
-        <Text style={styles.sheetKey}>{profile?.doctorKey}</Text>
+        <Text style={styles.sheetKey}>{SHARE_ADDRESS}</Text>
         {shareText ? <QrMark text={shareText} /> : null}
         <Text style={styles.sheetBody}>{profileCopy.shareHint}</Text>
         <View style={styles.sheetButtons}>

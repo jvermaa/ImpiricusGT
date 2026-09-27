@@ -151,8 +151,6 @@ export function PatientScreen({
   const [rankedHcps, setRankedHcps] = useState<DoctorProfile[] | null>(null);
   const [similarCases, setSimilarCases] = useState<SimilarCase[] | null>(null);
   const [similarLoading, setSimilarLoading] = useState(false);
-  const [emailPrompt, setEmailPrompt] = useState('');
-  const [emailOpen, setEmailOpen] = useState(false);
   const [emailBusy, setEmailBusy] = useState(false);
   const [apiDoctors, setApiDoctors] = useState<DoctorProfile[]>([]);
   const [currentDoctor, setCurrentDoctor] = useState<CurrentDoctor | null>(null);
@@ -496,8 +494,25 @@ export function PatientScreen({
       return;
     }
     if (action === 'send-notification') {
-      setEmailPrompt('');
-      setEmailOpen(true);
+      if (emailBusy) return;
+      const patient = selectedPatient;
+      const cohort = suitableSource?.brand
+        ? `${suitableSource.brand} (${suitableSource.title})`
+        : suitableSource?.title ?? 'a relevant clinical update';
+      const prompt =
+        `Write a short, friendly patient email to ${patient.name}. ` +
+        `Tell them their care team identified them as a good match for ${cohort}. ` +
+        `Ask them to contact the clinic if they have questions. Keep it plain language.`;
+      setEmailBusy(true);
+      sendPromptEmail(patient.id, prompt)
+        .then((result) => {
+          setSelectedPatientId(null);
+          setInfoMessage(`Notification email sent to ${patient.name}. Subject: ${result.subject}`);
+        })
+        .catch(() => {
+          setInfoMessage('Could not send that notification email.');
+        })
+        .finally(() => setEmailBusy(false));
       return;
     }
     if (action === 'find-similar') {
@@ -1209,55 +1224,21 @@ export function PatientScreen({
                   key={action.key}
                   accessibilityRole="button"
                   accessibilityLabel={action.label}
+                  disabled={action.key === 'send-notification' && emailBusy}
                   onPress={() => handleAction(action.key)}
                   style={styles.sheetAction}
                 >
                   <View style={styles.sheetActionInner}>
                     <Icon color={colors.textMuted} size={18} />
-                    <Text style={styles.sheetActionText}>{action.label}</Text>
+                    <Text style={styles.sheetActionText}>
+                      {action.key === 'send-notification' && emailBusy
+                        ? 'Sending…'
+                        : action.label}
+                    </Text>
                   </View>
                 </Pressable>
               );
             })}
-            {emailOpen ? (
-              <View style={styles.emailBox}>
-                <TextInput
-                  value={emailPrompt}
-                  onChangeText={setEmailPrompt}
-                  style={styles.emailInput}
-                  placeholder="What should the email say?"
-                  placeholderTextColor={colors.searchPlaceholder}
-                  multiline
-                />
-                <Pressable
-                  accessibilityRole="button"
-                  accessibilityLabel="Send email"
-                  disabled={emailBusy}
-                  onPress={() => {
-                    const prompt = emailPrompt.trim();
-                    if (!prompt || !selectedPatient) return;
-                    setEmailBusy(true);
-                    sendPromptEmail(selectedPatient.id, prompt)
-                      .then((result) => {
-                        setEmailOpen(false);
-                        setSelectedPatientId(null);
-                        setInfoMessage(
-                          result.source === 'gemini'
-                            ? `Email sent to the clinic inbox. Subject: ${result.subject}`
-                            : `Email sent with the doctor's note. Subject: ${result.subject}`,
-                        );
-                      })
-                      .catch(() => setInfoMessage('Could not send that email.'))
-                      .finally(() => setEmailBusy(false));
-                  }}
-                  style={styles.primaryButton}
-                >
-                  <Text style={styles.primaryButtonText}>
-                    {emailBusy ? 'Sending...' : 'Write and send email'}
-                  </Text>
-                </Pressable>
-              </View>
-            ) : null}
           </View>
         </View>
       ) : null}
