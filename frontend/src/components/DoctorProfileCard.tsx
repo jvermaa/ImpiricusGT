@@ -14,7 +14,7 @@ import {
   type ViewStyle,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import Svg, { Path, Rect } from 'react-native-svg';
+import Svg, { Rect } from 'react-native-svg';
 import {
   loadDoctorProfile,
   loadPanelPatients,
@@ -29,6 +29,7 @@ import { profileCopy } from '../theme/profileCopy';
 import { space } from '../theme/spacing';
 import { themeForSpecialty } from '../theme/specialtyThemes';
 import { Avatar } from './Avatar';
+import { ChatIcon, ReferHcpIcon, ShareIcon, SlidersIcon } from './NavIcons';
 import { SpecialtyIcon } from './SpecialtyIcon';
 
 export type ProfileActions = {
@@ -315,7 +316,7 @@ export function DoctorProfileCard({
                       accent={theme.accent}
                       disabled={!profile.canMessage}
                       onPress={() => onOpenConsults?.(profile.doctorKey)}
-                      icon={<BubbleIcon color={profile.canMessage ? theme.accent : colors.textMuted} />}
+                      icon={<ChatIcon color={profile.canMessage ? theme.accent : colors.textMuted} size={20} />}
                     />
                     <RoundAction
                       title="Refer"
@@ -323,7 +324,7 @@ export function DoctorProfileCard({
                       accent={theme.accent}
                       disabled={!profile.canRefer}
                       onPress={openRefer}
-                      icon={<ReferIcon color={profile.canRefer ? theme.accent : colors.textMuted} />}
+                      icon={<ReferHcpIcon color={profile.canRefer ? theme.accent : colors.textMuted} size={20} />}
                     />
                     <RoundAction title="Share" label={`Share ${profile.displayName}`} accent={theme.accent} onPress={() => setShareOpen(true)} icon={<ShareIcon color={theme.accent} />} />
                   </>
@@ -732,41 +733,6 @@ function QrMark({ text }: { text: string }) {
         )}
       </Svg>
     </View>
-  );
-}
-
-function ShareIcon({ color }: { color: string }) {
-  return (
-    <Svg width={20} height={20} viewBox="0 0 24 24" fill="none">
-      <Path d="M12 14V5M12 5 8.8 8.2M12 5l3.2 3.2" stroke={color} strokeWidth={1.7} strokeLinecap="round" />
-      <Path d="M6 12.5v5.2A1.8 1.8 0 0 0 7.8 19.5h8.4a1.8 1.8 0 0 0 1.8-1.8v-5.2" stroke={color} strokeWidth={1.7} strokeLinecap="round" />
-    </Svg>
-  );
-}
-
-function SlidersIcon({ color }: { color: string }) {
-  return (
-    <Svg width={20} height={20} viewBox="0 0 24 24" fill="none">
-      <Path d="M5 8h14M5 16h14" stroke={color} strokeWidth={1.7} strokeLinecap="round" />
-      <Path d="M9 8a1.8 1.8 0 1 0 .01 0M15 16a1.8 1.8 0 1 0 .01 0" stroke={color} strokeWidth={1.7} />
-    </Svg>
-  );
-}
-
-function BubbleIcon({ color }: { color: string }) {
-  return (
-    <Svg width={20} height={20} viewBox="0 0 24 24" fill="none">
-      <Path d="M6.5 7.5A2.5 2.5 0 0 1 9 5h6a2.5 2.5 0 0 1 2.5 2.5v4.5A2.5 2.5 0 0 1 15 14.5H10L7 17v-2.6A2.5 2.5 0 0 1 6.5 12V7.5Z" stroke={color} strokeWidth={1.6} />
-    </Svg>
-  );
-}
-
-function ReferIcon({ color }: { color: string }) {
-  return (
-    <Svg width={20} height={20} viewBox="0 0 24 24" fill="none">
-      <Path d="M8 11a2.6 2.6 0 1 0 0-5.2A2.6 2.6 0 0 0 8 11ZM4.8 18c.4-2.2 1.8-3.4 3.2-3.4S10.8 15.8 11.2 18" stroke={color} strokeWidth={1.6} strokeLinecap="round" />
-      <Path d="M16 8.5v5M13.5 11h5" stroke={color} strokeWidth={1.6} strokeLinecap="round" />
-    </Svg>
   );
 }
 
