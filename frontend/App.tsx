@@ -13,7 +13,7 @@ import type { DirectoryFilter } from './src/api/directory';
 import { ProfileScreen, type ProfileRoute } from './src/screens/ProfileScreen';
 
 function AppShell() {
-  const [activeTab, setActiveTab] = useState<TabKey>('notification');
+  const [activeTab, setActiveTab] = useState<TabKey>('patient');
   const [suitablePatientsMode, setSuitablePatientsMode] = useState(false);
   const [suitableSource, setSuitableSource] = useState<AppNotification | null>(null);
   const [keyboardVisible, setKeyboardVisible] = useState(false);

@@ -4,12 +4,7 @@ function trimTrailingSlash(url: string): string {
   return url.replace(/\/+$/, '');
 }
 
-function inferApiBaseUrl(): string {
-  const explicitUrl = process.env.EXPO_PUBLIC_API_URL?.trim();
-  if (explicitUrl) {
-    return trimTrailingSlash(explicitUrl);
-  }
-
+function inferLocalApiBaseUrl(): string {
   if (Platform.OS === 'web' && typeof window !== 'undefined') {
     return `${window.location.protocol}//${window.location.hostname}:8000`;
   }
@@ -25,7 +20,12 @@ function inferApiBaseUrl(): string {
   return 'http://localhost:8000';
 }
 
-export const API_BASE_URL = inferApiBaseUrl();
+const explicitUrl = process.env.EXPO_PUBLIC_API_URL?.trim();
+const inferredLocal = trimTrailingSlash(inferLocalApiBaseUrl());
+
+export const API_BASE_URL = explicitUrl ? trimTrailingSlash(explicitUrl) : inferredLocal;
+export const FALLBACK_API_BASE_URL =
+  explicitUrl && trimTrailingSlash(explicitUrl) !== inferredLocal ? inferredLocal : null;
 
 /** Signed-in HCP: Dr. Aisha Reed in data/doctors.json. */
 export const CURRENT_DOCTOR_KEY = 'D031';

@@ -54,17 +54,22 @@ def _patient(key: str, doctor_key: str, sharing: str) -> Patient:
     return Patient(
         patient_key=key,
         name=f"Synthetic {key}",
-        age_group="45-54",
+        email_address="harisamser27@gmail.com",
+        age=48,
         state="GA",
         sex_for_clinical_context="female",
         preferred_language="English",
         primary_doctor_key=doctor_key,
         allergy_status="none reported",
-        symptoms_json='["dyspnea"]',
-        tobacco_use="never",
-        surgery_history="not recorded",
-        family_history="not recorded",
-        pregnancy_status="not recorded",
+        relevant_medical_history="Progressive exertional dyspnea with episodic edema.",
+        family_medical_history="Family history reviewed with cardiovascular risk factors.",
+        current_medications="Lisinopril 10mg daily.",
+        alcohol_use="Social",
+        smoking_status="Never smoker",
+        lab_results="BNP mild elevation; chemistry panel otherwise stable.",
+        pregnancy_status="Not Pregnant",
+        immune_status="Immunocompetent",
+        latest_visit_symptoms_json='[{"name":"dyspnea","duration":"3 weeks","frequency":"Daily","trigger":"Walking uphill","onset":"Gradual"}]',
         portal_access=False,
         email_contact_available=False,
         messaging_preference="unavailable",
@@ -128,7 +133,7 @@ def client():
 def test_profile_stats_match_the_database(client: TestClient):
     created = client.post("/patients", json={
         "name": "Second panel patient",
-        "age_group": "55-64",
+        "age": 59,
         "state": "GA",
         "sex_for_clinical_context": "male",
         "preferred_language": "English",
@@ -242,7 +247,21 @@ def test_profile_hides_private_fields_and_reports_the_mutual_thread(client: Test
 def test_opting_out_of_case_exchange_hides_matches_without_deleting_them(client: TestClient):
     before = client.get("/patients/P001/similar", params={"doctor": "D011"})
     assert before.status_code == 200
-    assert [row["patient_key"] for row in before.json()] == ["P002"]
+    before_body = before.json()
+    assert before_body["title"] == "Similar Cohort Analysis"
+    assert "Clinical match based on symptom overlaps" in before_body["explanation"]
+    assert before_body["matches"]
+    assert len(before_body["matches"]) <= 10
+    first = before_body["matches"][0]
+    assert first["confidence_percent"] >= 0
+    assert first["confidence_percent"] <= 100
+    assert "patient_key" not in first
+    assert "candidate_doctor_key" not in first
+    assert "visit_date" not in before.text
+    assert "encounters" not in before.text
+    assert "history_timeline" not in before.text
+    assert "anonymized_email" not in before.text
+    assert "Synthetic P002" not in before.text
 
     off = client.patch(
         "/doctors/D012/settings",
@@ -252,7 +271,8 @@ def test_opting_out_of_case_exchange_hides_matches_without_deleting_them(client:
     assert off.status_code == 200
 
     hidden = client.get("/patients/P001/similar", params={"doctor": "D011"})
-    assert hidden.json() == []
+    assert hidden.status_code == 200
+    assert hidden.json()["matches"] == []
 
     session_factory = app.dependency_overrides[get_db]
     generator = session_factory()
@@ -275,7 +295,8 @@ def test_opting_out_of_case_exchange_hides_matches_without_deleting_them(client:
     )
     assert on.status_code == 200
     restored = client.get("/patients/P001/similar", params={"doctor": "D011"})
-    assert [row["patient_key"] for row in restored.json()] == ["P002"]
+    assert restored.status_code == 200
+    assert restored.json()["matches"]
 
 
 def test_consults_and_referral_suggestions_follow_the_accepts_flag(client: TestClient):
