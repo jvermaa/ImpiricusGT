@@ -240,3 +240,38 @@ class Message(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
 
     thread: Mapped[ConsultThread] = relationship(back_populates="messages")
+
+
+class ReferralRequest(Base):
+    __tablename__ = "referral_requests"
+
+    referral_key: Mapped[str] = mapped_column(String, primary_key=True)
+    from_doctor_key: Mapped[str] = mapped_column(
+        ForeignKey("doctors.doctor_key"), nullable=False
+    )
+    to_doctor_key: Mapped[str] = mapped_column(
+        ForeignKey("doctors.doctor_key"), nullable=False
+    )
+    patient_key: Mapped[str] = mapped_column(
+        ForeignKey("patients.patient_key"), nullable=False
+    )
+    status: Mapped[str] = mapped_column(String, nullable=False, default="sent")
+    urgency: Mapped[str] = mapped_column(String, nullable=False, default="routine")
+    reason: Mapped[str] = mapped_column(Text, nullable=False)
+    outcome: Mapped[str | None] = mapped_column(Text, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+
+
+class ReferralMessage(Base):
+    __tablename__ = "referral_messages"
+
+    message_key: Mapped[str] = mapped_column(String, primary_key=True)
+    referral_key: Mapped[str] = mapped_column(
+        ForeignKey("referral_requests.referral_key", ondelete="CASCADE"), nullable=False
+    )
+    sender_doctor_key: Mapped[str] = mapped_column(
+        ForeignKey("doctors.doctor_key"), nullable=False
+    )
+    text: Mapped[str] = mapped_column(Text, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)

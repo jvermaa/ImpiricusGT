@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { StyleSheet, View, useWindowDimensions } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { Keyboard, Platform, StyleSheet, View, useWindowDimensions } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { BottomNavBar, TabKey } from './src/components/BottomNavBar';
@@ -14,8 +14,21 @@ function AppShell() {
   const [activeTab, setActiveTab] = useState<TabKey>('notification');
   const [suitablePatientsMode, setSuitablePatientsMode] = useState(false);
   const [suitableSource, setSuitableSource] = useState<AppNotification | null>(null);
+  const [keyboardVisible, setKeyboardVisible] = useState(false);
   const { width } = useWindowDimensions();
   const isWide = width > 768;
+
+  useEffect(() => {
+    const showEvent = Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow';
+    const hideEvent = Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide';
+    const showSubscription = Keyboard.addListener(showEvent, () => setKeyboardVisible(true));
+    const hideSubscription = Keyboard.addListener(hideEvent, () => setKeyboardVisible(false));
+
+    return () => {
+      showSubscription.remove();
+      hideSubscription.remove();
+    };
+  }, []);
 
   const exitSuitableMode = () => {
     setSuitablePatientsMode(false);
@@ -34,7 +47,7 @@ function AppShell() {
       <StatusBar style="light" />
       <View style={[styles.shell, isWide && styles.shellCentered]}>
         <View style={[styles.phoneFrame, isWide && styles.phoneFrameWide]}>
-          <View style={styles.content}>
+          <View style={[styles.content, keyboardVisible && styles.contentWithKeyboard]}>
             {activeTab === 'chat' ? (
               <ChatScreen />
             ) : activeTab === 'notification' ? (
@@ -56,7 +69,9 @@ function AppShell() {
               <PlaceholderScreen title="Profile" />
             )}
           </View>
-          <BottomNavBar activeTab={activeTab} onTabPress={switchTab} />
+          {!keyboardVisible ? (
+            <BottomNavBar activeTab={activeTab} onTabPress={switchTab} />
+          ) : null}
         </View>
       </View>
     </DottedGradientBackground>
@@ -90,5 +105,8 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     paddingBottom: 88,
+  },
+  contentWithKeyboard: {
+    paddingBottom: 0,
   },
 });

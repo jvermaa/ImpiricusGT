@@ -136,6 +136,12 @@ def doctor_payload(doctor: Doctor) -> dict:
         "specialty": doctor.specialty,
         "specialty_title": _specialty_title(doctor.specialty),
         "credentials": doctor.credentials,
+        "subspecialty_focus": doctor.subspecialty_focus,
+        "practice_type": doctor.practice_type,
+        "state": doctor.state,
+        "years_in_practice": doctor.years_in_practice,
+        "languages": json.loads(doctor.languages_json),
+        "organization": doctor.organization,
         "accepts_peer_consults": doctor.accepts_peer_consults,
         "case_exchange_opt_in": doctor.case_exchange_opt_in,
     }
@@ -471,6 +477,10 @@ def handoff_summary(
     db: Session = Depends(get_db),
 ) -> dict:
     patient = _panel_patient(db, patient_key, doctor)
+    return build_handoff_summary(db, patient, doctor)
+
+
+def build_handoff_summary(db: Session, patient: Patient, doctor: str) -> dict:
     diagnoses = db.scalars(select(Diagnosis).where(Diagnosis.patient_key == patient.patient_key)).all()
     allergies = db.scalars(select(Allergy).where(Allergy.patient_key == patient.patient_key)).all()
     prescriptions = db.scalars(
@@ -488,9 +498,22 @@ def handoff_summary(
     followups = db.scalars(select(Followup).where(Followup.patient_key == patient.patient_key)).all()
     return {
         "patient_key": patient.patient_key,
+        "patient_display_label": patient.name,
+        "age_group": patient.age_group,
+        "sex_for_clinical_context": SEX_LABELS.get(
+            patient.sex_for_clinical_context, "Not recorded"
+        ),
+        "state": patient.state,
+        "preferred_language": patient.preferred_language,
         "doctor_key": doctor,
         "status": "draft not clinically verified",
         "source": patient.source,
+        "symptoms": json.loads(patient.symptoms_json),
+        "tobacco_use": patient.tobacco_use,
+        "pregnancy_status": patient.pregnancy_status,
+        "surgery_history": patient.surgery_history,
+        "family_history": patient.family_history,
+        "allergy_status": patient.allergy_status,
         "diagnoses": [
             {"label": row.label, "code": row.code, "status": row.status} for row in diagnoses
         ],
