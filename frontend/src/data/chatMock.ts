@@ -9,29 +9,10 @@ export type DoctorProfile = {
   distanceKm: number;
   initials: string;
   avatarColor: string;
+  subspecialtyFocus?: string;
 };
 
-export type ChatMessage = {
-  id: string;
-  senderId: string;
-  text: string;
-  timestamp: string;
-};
-
-export type DoctorThread = DoctorProfile & {
-  lastMessage: string;
-  messages: ChatMessage[];
-};
-
-/** Current user (also a doctor). */
-export const CURRENT_DOCTOR = {
-  id: 'me',
-  name: 'Dr. Jordan Hale',
-  designation: 'Attending Physician',
-  initials: 'JH',
-};
-
-/** Full directory for starting new peer chats. */
+/** Full directory for starting new peer chats when the API is unavailable. */
 export const DOCTOR_DIRECTORY: DoctorProfile[] = [
   {
     id: 'doc-1',
@@ -160,100 +141,107 @@ export const SPECIALTIES = [
   ...Array.from(new Set(DOCTOR_DIRECTORY.map((d) => d.specialty))).sort(),
 ];
 
-export const DOCTOR_THREADS: DoctorThread[] = [
+/** Signed-in doctor for the prototype chat list. Not loaded from the API. */
+export const DEMO_CURRENT_DOCTOR = {
+  id: 'me',
+  name: 'Dr. Aisha Reed',
+  designation: 'Neurologist',
+  initials: 'AR',
+};
+
+const peer = (id: string) => {
+  const doctor = DOCTOR_DIRECTORY.find((entry) => entry.id === id);
+  if (!doctor) throw new Error(`Missing demo doctor ${id}`);
+  return doctor;
+};
+
+/** Prototype consults. Messages stay on this device; nothing is sent to the API. */
+export const DEMO_THREADS = [
   {
-    ...DOCTOR_DIRECTORY[0],
-    lastMessage: 'Happy to review the ECG when you have it.',
+    ...peer('doc-1'),
+    threadId: 'demo-1',
+    lastMessage: 'ECG is normal. I would not hold the migraine prevention plan.',
     messages: [
       {
-        id: 'm1',
-        senderId: 'me',
-        text: 'Amira — I have a 58F with atypical chest pain and a borderline troponin. Would you take a quick look at the rhythm strip?',
-        timestamp: '9:12 AM',
-      },
-      {
-        id: 'm2',
+        id: 'demo-1-a',
         senderId: 'doc-1',
-        text: 'Of course. Any prior CAD history or recent exertion?',
-        timestamp: '9:14 AM',
+        text: 'Aisha — palpitations only during the migraine. Exam is clean. Do you still want them on the preventive?',
+        timestamp: 'Sep 24, 9:05 AM',
       },
       {
-        id: 'm3',
+        id: 'demo-1-b',
         senderId: 'me',
-        text: 'No known CAD. Mild HTN on lisinopril. Pain started overnight, non-radiating.',
-        timestamp: '9:15 AM',
+        text: 'Yes. If the palpitations stay tied to the attack, I would not stop prevention.',
+        timestamp: 'Sep 24, 9:12 AM',
       },
       {
-        id: 'm4',
+        id: 'demo-1-c',
         senderId: 'doc-1',
-        text: 'Happy to review the ECG when you have it. If ST changes are subtle, consider serial trop and admit for observation.',
-        timestamp: '9:18 AM',
+        text: 'ECG is normal. I would not hold the migraine prevention plan.',
+        timestamp: 'Sep 24, 9:20 AM',
       },
     ],
   },
   {
-    ...DOCTOR_DIRECTORY[1],
-    lastMessage: 'I’d start empiric coverage and get cultures first.',
+    ...peer('doc-8'),
+    threadId: 'demo-2',
+    lastMessage: 'That timing fits the medicine. I would switch it before a GI workup.',
     messages: [
       {
-        id: 'm1',
+        id: 'demo-2-a',
         senderId: 'me',
-        text: 'Marcus, 72M post-op day 3 with fever 38.9 and rising WBC. Surgical site looks clean. Thoughts on ID workup?',
-        timestamp: 'Yesterday',
+        text: 'Hassan — daily nausea after starting a migraine preventive. No weight loss or bleeding. Medication effect, or something you should see?',
+        timestamp: 'Sep 25, 2:05 PM',
       },
       {
-        id: 'm2',
-        senderId: 'doc-2',
-        text: 'I’d start empiric coverage and get cultures first. Include blood, urine, and consider C. diff if there’s diarrhea.',
-        timestamp: 'Yesterday',
-      },
-      {
-        id: 'm3',
-        senderId: 'me',
-        text: 'Good call. I’ll hold off on broadening until we have more data unless he becomes hypotensive.',
-        timestamp: 'Yesterday',
+        id: 'demo-2-b',
+        senderId: 'doc-8',
+        text: 'That timing fits the medicine. I would switch it before a GI workup.',
+        timestamp: 'Sep 25, 2:18 PM',
       },
     ],
   },
   {
-    ...DOCTOR_DIRECTORY[2],
-    lastMessage: 'If imaging is clean, I’d still watch for delayed deficits.',
+    ...peer('doc-3'),
+    threadId: 'demo-3',
+    lastMessage: 'Agreed. I would not start an antiseizure medicine on this description.',
     messages: [
       {
-        id: 'm1',
+        id: 'demo-3-a',
         senderId: 'doc-3',
-        text: 'Jordan — following up on that thunderclap headache consult. Any new neuro findings overnight?',
-        timestamp: 'Mon',
+        text: 'Brief visual change, then a headache. The family is asking if this could be a seizure rather than migraine aura.',
+        timestamp: 'Sep 26, 8:40 AM',
       },
       {
-        id: 'm2',
+        id: 'demo-3-b',
         senderId: 'me',
-        text: 'Neuro exam remains non-focal. CT angio pending this morning.',
-        timestamp: 'Mon',
+        text: 'The visual change builds over minutes and the headache follows. That fits aura better than a seizure for me.',
+        timestamp: 'Sep 26, 8:47 AM',
       },
       {
-        id: 'm3',
+        id: 'demo-3-c',
         senderId: 'doc-3',
-        text: 'If imaging is clean, I’d still watch for delayed deficits. Happy to reassess after the CTA.',
-        timestamp: 'Mon',
+        text: 'Agreed. I would not start an antiseizure medicine on this description.',
+        timestamp: 'Sep 26, 8:55 AM',
       },
     ],
   },
   {
-    ...DOCTOR_DIRECTORY[3],
-    lastMessage: 'Let’s retitrate insulin and recheck in 48h.',
+    ...peer('doc-5'),
+    threadId: 'demo-4',
+    lastMessage: 'I can see them this week if the cough is still worse lying down.',
     messages: [
       {
-        id: 'm1',
+        id: 'demo-4-a',
         senderId: 'me',
-        text: 'Eli, steroid taper patient with glucose swinging 220–340. Keep basal the same or bump?',
-        timestamp: 'Sun',
+        text: 'Priya — cough is worse lying down, three weeks, no fever. Migraine patient, otherwise well. Worth a chest film?',
+        timestamp: 'Sep 26, 4:10 PM',
       },
       {
-        id: 'm2',
-        senderId: 'doc-4',
-        text: 'Let’s retitrate insulin and recheck in 48h. I’d raise basal 10–15% while on higher steroid dose.',
-        timestamp: 'Sun',
+        id: 'demo-4-b',
+        senderId: 'doc-5',
+        text: 'I can see them this week if the cough is still worse lying down.',
+        timestamp: 'Sep 26, 4:22 PM',
       },
     ],
   },

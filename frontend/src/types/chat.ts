@@ -23,9 +23,12 @@ export type ChatMessage = {
   senderId: string;
   text: string;
   timestamp: string;
+  status?: 'pending' | 'failed' | 'saved';
 };
 
 export type DoctorThread = DoctorProfile & {
+  /** Consult thread id from the API. Profile requests use `id` (the peer doctor key). */
+  threadId: string;
   lastMessage: string;
   messages: ChatMessage[];
 };

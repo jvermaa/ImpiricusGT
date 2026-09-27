@@ -10,13 +10,13 @@ from database import Base, SessionLocal, engine
 from models import (
     Allergy,
     CaseMatch,
+    ConsultMessage,
     ConsultThread,
     Diagnosis,
     Doctor,
     Encounter,
     Followup,
     Lab,
-    Message,
     Patient,
     Prescription,
 )
@@ -42,8 +42,11 @@ def _require(row: dict, fields: set[str], label: str) -> None:
 
 
 def seed() -> None:
-    Base.metadata.drop_all(bind=engine)
-    Base.metadata.create_all(bind=engine)
+    with engine.begin() as connection:
+        if connection.dialect.name == "sqlite":
+            connection.exec_driver_sql("PRAGMA foreign_keys=OFF")
+        Base.metadata.drop_all(bind=connection)
+        Base.metadata.create_all(bind=connection)
 
     doctors = _load("doctors")
     patients = _load("patients")
@@ -197,7 +200,7 @@ def seed() -> None:
                 )
             )
 
-        _seed_doctor_chats(db)
+        _seed_consults(db)
         db.commit()
         errors, warnings = run_checks(db)
         doctor_count = len(db.scalars(select(Doctor)).all())
@@ -213,98 +216,42 @@ def seed() -> None:
     print("Clean.")
 
 
-def _seed_doctor_chats(db) -> None:
-    """Three stored consults for the signed-in profile, Dr. Aisha Reed (D031)."""
-    threads = [
-        ("T001", "D002", "D031", datetime(2026, 9, 24, 9, 12)),
-        ("T002", "D030", "D031", datetime(2026, 9, 25, 14, 5)),
-        ("T003", "D031", "D032", datetime(2026, 9, 26, 8, 40)),
-    ]
-    messages = [
-        (
-            "M001",
-            "T001",
-            "D031",
-            "Jordan — I have a 50–59 patient with migraine and new palpitations during the headache. Any reason to look at this as cardiac before I adjust prevention?",
-            datetime(2026, 9, 24, 9, 12),
-        ),
-        (
-            "M002",
-            "T001",
-            "D002",
-            "Worth a basic screen. If the palpitations only come with the migraine and the exam is clean, I would not hold the prevention plan.",
-            datetime(2026, 9, 24, 9, 20),
-        ),
-        (
-            "M003",
-            "T001",
-            "D031",
-            "ECG is normal sinus. I will keep the migraine plan and send them back if the palpitations show up between attacks.",
-            datetime(2026, 9, 24, 9, 28),
-        ),
-        (
-            "M004",
-            "T002",
-            "D031",
-            "Daniel — a patient on a migraine preventive is having daily nausea. I want to know if this looks like a medication effect or something you should see.",
-            datetime(2026, 9, 25, 14, 5),
-        ),
-        (
-            "M005",
-            "T002",
-            "D030",
-            "If the nausea started with the preventive and there is no weight loss or bleeding, I would switch the agent before a GI workup.",
-            datetime(2026, 9, 25, 14, 18),
-        ),
-        (
-            "M006",
-            "T002",
-            "D031",
-            "That matches the timing. I will change the preventive and check in next week.",
-            datetime(2026, 9, 25, 14, 26),
-        ),
-        (
-            "M007",
-            "T003",
-            "D032",
-            "Aisha — brief visual change, then a headache. The family is asking if this could be a seizure rather than migraine aura.",
-            datetime(2026, 9, 26, 8, 40),
-        ),
-        (
-            "M008",
-            "T003",
-            "D031",
-            "The visual change builds over minutes and the headache follows. That fits aura better than a seizure for me.",
-            datetime(2026, 9, 26, 8, 47),
-        ),
-        (
-            "M009",
-            "T003",
-            "D032",
-            "Agreed. I would not start an antiseizure medicine on this description. Send them over if the spells become abrupt or include loss of awareness.",
-            datetime(2026, 9, 26, 8, 55),
-        ),
-    ]
-    for thread_key, low_key, high_key, created_at in threads:
+def _seed_consults(db) -> None:
+    """Load deterministic peer-consult threads and messages from fixtures."""
+    threads = _load("consult_threads")
+    messages = _load("consult_messages")
+    for row in threads:
+        _require(
+            row,
+            {"thread_id", "doctor_a_key", "doctor_b_key", "patient_case_summary", "created_at"},
+            row.get("thread_id", "consult thread"),
+        )
         db.add(
             ConsultThread(
-                thread_key=thread_key,
-                doctor_low_key=low_key,
-                doctor_high_key=high_key,
-                created_at=created_at,
+                thread_id=row["thread_id"],
+                doctor_a_key=row["doctor_a_key"],
+                doctor_b_key=row["doctor_b_key"],
+                patient_case_summary=row["patient_case_summary"],
+                created_at=datetime.fromisoformat(row["created_at"]),
             )
         )
     db.flush()
-    for message_key, thread_key, sender_key, text, created_at in messages:
+    for row in messages:
+        _require(
+            row,
+            {"id", "thread_id", "sender_doctor_key", "text", "created_at"},
+            f"consult message {row.get('id', '?')}",
+        )
         db.add(
-            Message(
-                message_key=message_key,
-                thread_key=thread_key,
-                sender_doctor_key=sender_key,
-                text=text,
-                created_at=created_at,
+            ConsultMessage(
+                id=row["id"],
+                thread_id=row["thread_id"],
+                sender_doctor_key=row["sender_doctor_key"],
+                text=row["text"],
+                created_at=datetime.fromisoformat(row["created_at"]),
             )
         )
+
 
 
 if __name__ == "__main__":

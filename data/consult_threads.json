@@ -1,0 +1,324 @@
+[
+  {
+    "thread_id": "T001",
+    "doctor_a_key": "D002",
+    "doctor_b_key": "D014",
+    "patient_case_summary": "A 34-year-old with heart failure. De-identified synthetic case with no name, contact details, or doses.",
+    "created_at": "2026-09-27T09:00:00"
+  },
+  {
+    "thread_id": "T002",
+    "doctor_a_key": "D002",
+    "doctor_b_key": "D031",
+    "patient_case_summary": "A 46-year-old with migraine. De-identified synthetic case with no name, contact details, or doses.",
+    "created_at": "2026-09-27T06:00:00"
+  },
+  {
+    "thread_id": "T003",
+    "doctor_a_key": "D002",
+    "doctor_b_key": "D032",
+    "patient_case_summary": "A 58-year-old with heart failure. De-identified synthetic case with no name, contact details, or doses.",
+    "created_at": "2026-09-27T03:00:00"
+  },
+  {
+    "thread_id": "T004",
+    "doctor_a_key": "D002",
+    "doctor_b_key": "D034",
+    "patient_case_summary": "A 64-year-old with epilepsy. De-identified synthetic case with no name, contact details, or doses.",
+    "created_at": "2026-09-27T00:00:00"
+  },
+  {
+    "thread_id": "T005",
+    "doctor_a_key": "D003",
+    "doctor_b_key": "D012",
+    "patient_case_summary": "A 72-year-old with hypertension. De-identified synthetic case with no name, contact details, or doses.",
+    "created_at": "2026-09-26T21:00:00"
+  },
+  {
+    "thread_id": "T006",
+    "doctor_a_key": "D003",
+    "doctor_b_key": "D031",
+    "patient_case_summary": "A 24-year-old with migraine. De-identified synthetic case with no name, contact details, or doses.",
+    "created_at": "2026-09-26T18:00:00"
+  },
+  {
+    "thread_id": "T007",
+    "doctor_a_key": "D003",
+    "doctor_b_key": "D032",
+    "patient_case_summary": "A 34-year-old with hypertension. De-identified synthetic case with no name, contact details, or doses.",
+    "created_at": "2026-09-26T15:00:00"
+  },
+  {
+    "thread_id": "T008",
+    "doctor_a_key": "D004",
+    "doctor_b_key": "D008",
+    "patient_case_summary": "A 46-year-old with hypothyroidism. De-identified synthetic case with no name, contact details, or doses.",
+    "created_at": "2026-09-26T12:00:00"
+  },
+  {
+    "thread_id": "T009",
+    "doctor_a_key": "D004",
+    "doctor_b_key": "D012",
+    "patient_case_summary": "A 58-year-old with heart failure. De-identified synthetic case with no name, contact details, or doses.",
+    "created_at": "2026-09-26T09:00:00"
+  },
+  {
+    "thread_id": "T010",
+    "doctor_a_key": "D004",
+    "doctor_b_key": "D032",
+    "patient_case_summary": "A 64-year-old with epilepsy. De-identified synthetic case with no name, contact details, or doses.",
+    "created_at": "2026-09-26T06:00:00"
+  },
+  {
+    "thread_id": "T011",
+    "doctor_a_key": "D004",
+    "doctor_b_key": "D036",
+    "patient_case_summary": "A 72-year-old with heart failure. De-identified synthetic case with no name, contact details, or doses.",
+    "created_at": "2026-09-26T03:00:00"
+  },
+  {
+    "thread_id": "T012",
+    "doctor_a_key": "D006",
+    "doctor_b_key": "D026",
+    "patient_case_summary": "A 24-year-old with inflammatory bowel disease. De-identified synthetic case with no name, contact details, or doses.",
+    "created_at": "2026-09-26T00:00:00"
+  },
+  {
+    "thread_id": "T013",
+    "doctor_a_key": "D006",
+    "doctor_b_key": "D027",
+    "patient_case_summary": "A 34-year-old with hypothyroidism. De-identified synthetic case with no name, contact details, or doses.",
+    "created_at": "2026-09-25T21:00:00"
+  },
+  {
+    "thread_id": "T014",
+    "doctor_a_key": "D007",
+    "doctor_b_key": "D026",
+    "patient_case_summary": "A 46-year-old with inflammatory bowel disease. De-identified synthetic case with no name, contact details, or doses.",
+    "created_at": "2026-09-25T18:00:00"
+  },
+  {
+    "thread_id": "T015",
+    "doctor_a_key": "D007",
+    "doctor_b_key": "D027",
+    "patient_case_summary": "A 58-year-old with type 2 diabetes. De-identified synthetic case with no name, contact details, or doses.",
+    "created_at": "2026-09-25T15:00:00"
+  },
+  {
+    "thread_id": "T016",
+    "doctor_a_key": "D007",
+    "doctor_b_key": "D028",
+    "patient_case_summary": "A 64-year-old with inflammatory bowel disease. De-identified synthetic case with no name, contact details, or doses.",
+    "created_at": "2026-09-25T12:00:00"
+  },
+  {
+    "thread_id": "T017",
+    "doctor_a_key": "D008",
+    "doctor_b_key": "D028",
+    "patient_case_summary": "A 72-year-old with hypothyroidism. De-identified synthetic case with no name, contact details, or doses.",
+    "created_at": "2026-09-25T09:00:00"
+  },
+  {
+    "thread_id": "T018",
+    "doctor_a_key": "D008",
+    "doctor_b_key": "D030",
+    "patient_case_summary": "A 24-year-old with inflammatory bowel disease. De-identified synthetic case with no name, contact details, or doses.",
+    "created_at": "2026-09-25T06:00:00"
+  },
+  {
+    "thread_id": "T019",
+    "doctor_a_key": "D008",
+    "doctor_b_key": "D040",
+    "patient_case_summary": "A 34-year-old with hypothyroidism. De-identified synthetic case with no name, contact details, or doses.",
+    "created_at": "2026-09-25T03:00:00"
+  },
+  {
+    "thread_id": "T020",
+    "doctor_a_key": "D010",
+    "doctor_b_key": "D028",
+    "patient_case_summary": "A 46-year-old with inflammatory bowel disease. De-identified synthetic case with no name, contact details, or doses.",
+    "created_at": "2026-09-25T00:00:00"
+  },
+  {
+    "thread_id": "T021",
+    "doctor_a_key": "D010",
+    "doctor_b_key": "D030",
+    "patient_case_summary": "A 58-year-old with hypothyroidism. De-identified synthetic case with no name, contact details, or doses.",
+    "created_at": "2026-09-24T21:00:00"
+  },
+  {
+    "thread_id": "T022",
+    "doctor_a_key": "D011",
+    "doctor_b_key": "D022",
+    "patient_case_summary": "A 64-year-old with gout. De-identified synthetic case with no name, contact details, or doses.",
+    "created_at": "2026-09-24T18:00:00"
+  },
+  {
+    "thread_id": "T023",
+    "doctor_a_key": "D011",
+    "doctor_b_key": "D023",
+    "patient_case_summary": "A 72-year-old with asthma. De-identified synthetic case with no name, contact details, or doses.",
+    "created_at": "2026-09-24T15:00:00"
+  },
+  {
+    "thread_id": "T024",
+    "doctor_a_key": "D011",
+    "doctor_b_key": "D024",
+    "patient_case_summary": "A 24-year-old with gout. De-identified synthetic case with no name, contact details, or doses.",
+    "created_at": "2026-09-24T12:00:00"
+  },
+  {
+    "thread_id": "T025",
+    "doctor_a_key": "D012",
+    "doctor_b_key": "D014",
+    "patient_case_summary": "A 34-year-old with copd. De-identified synthetic case with no name, contact details, or doses.",
+    "created_at": "2026-09-24T09:00:00"
+  },
+  {
+    "thread_id": "T026",
+    "doctor_a_key": "D012",
+    "doctor_b_key": "D024",
+    "patient_case_summary": "A 46-year-old with gout. De-identified synthetic case with no name, contact details, or doses.",
+    "created_at": "2026-09-24T06:00:00"
+  },
+  {
+    "thread_id": "T027",
+    "doctor_a_key": "D015",
+    "doctor_b_key": "D038",
+    "patient_case_summary": "A 58-year-old with asthma. De-identified synthetic case with no name, contact details, or doses.",
+    "created_at": "2026-09-24T03:00:00"
+  },
+  {
+    "thread_id": "T028",
+    "doctor_a_key": "D015",
+    "doctor_b_key": "D039",
+    "patient_case_summary": "A 64-year-old with hyperlipidemia. De-identified synthetic case with no name, contact details, or doses.",
+    "created_at": "2026-09-24T00:00:00"
+  },
+  {
+    "thread_id": "T029",
+    "doctor_a_key": "D015",
+    "doctor_b_key": "D040",
+    "patient_case_summary": "A 72-year-old with asthma. De-identified synthetic case with no name, contact details, or doses.",
+    "created_at": "2026-09-23T21:00:00"
+  },
+  {
+    "thread_id": "T030",
+    "doctor_a_key": "D016",
+    "doctor_b_key": "D018",
+    "patient_case_summary": "A 24-year-old with psoriasis. De-identified synthetic case with no name, contact details, or doses.",
+    "created_at": "2026-09-23T18:00:00"
+  },
+  {
+    "thread_id": "T031",
+    "doctor_a_key": "D016",
+    "doctor_b_key": "D023",
+    "patient_case_summary": "A 34-year-old with psoriasis. De-identified synthetic case with no name, contact details, or doses.",
+    "created_at": "2026-09-23T15:00:00"
+  },
+  {
+    "thread_id": "T032",
+    "doctor_a_key": "D016",
+    "doctor_b_key": "D024",
+    "patient_case_summary": "A 46-year-old with gout. De-identified synthetic case with no name, contact details, or doses.",
+    "created_at": "2026-09-23T12:00:00"
+  },
+  {
+    "thread_id": "T033",
+    "doctor_a_key": "D016",
+    "doctor_b_key": "D036",
+    "patient_case_summary": "A 58-year-old with psoriasis. De-identified synthetic case with no name, contact details, or doses.",
+    "created_at": "2026-09-23T09:00:00"
+  },
+  {
+    "thread_id": "T034",
+    "doctor_a_key": "D018",
+    "doctor_b_key": "D020",
+    "patient_case_summary": "A 64-year-old with psoriasis. De-identified synthetic case with no name, contact details, or doses.",
+    "created_at": "2026-09-23T06:00:00"
+  },
+  {
+    "thread_id": "T035",
+    "doctor_a_key": "D019",
+    "doctor_b_key": "D022",
+    "patient_case_summary": "A 72-year-old with atopic dermatitis. De-identified synthetic case with no name, contact details, or doses.",
+    "created_at": "2026-09-23T03:00:00"
+  },
+  {
+    "thread_id": "T036",
+    "doctor_a_key": "D019",
+    "doctor_b_key": "D023",
+    "patient_case_summary": "A 24-year-old with rheumatoid arthritis. De-identified synthetic case with no name, contact details, or doses.",
+    "created_at": "2026-09-23T00:00:00"
+  },
+  {
+    "thread_id": "T037",
+    "doctor_a_key": "D019",
+    "doctor_b_key": "D024",
+    "patient_case_summary": "A 34-year-old with atopic dermatitis. De-identified synthetic case with no name, contact details, or doses.",
+    "created_at": "2026-09-22T21:00:00"
+  },
+  {
+    "thread_id": "T038",
+    "doctor_a_key": "D020",
+    "doctor_b_key": "D039",
+    "patient_case_summary": "A 46-year-old with hyperlipidemia. De-identified synthetic case with no name, contact details, or doses.",
+    "created_at": "2026-09-22T18:00:00"
+  },
+  {
+    "thread_id": "T039",
+    "doctor_a_key": "D020",
+    "doctor_b_key": "D040",
+    "patient_case_summary": "A 58-year-old with psoriasis. De-identified synthetic case with no name, contact details, or doses.",
+    "created_at": "2026-09-22T15:00:00"
+  },
+  {
+    "thread_id": "T040",
+    "doctor_a_key": "D027",
+    "doctor_b_key": "D028",
+    "patient_case_summary": "A 64-year-old with inflammatory bowel disease. De-identified synthetic case with no name, contact details, or doses.",
+    "created_at": "2026-09-22T12:00:00"
+  },
+  {
+    "thread_id": "T041",
+    "doctor_a_key": "D031",
+    "doctor_b_key": "D036",
+    "patient_case_summary": "A 72-year-old with migraine. De-identified synthetic case with no name, contact details, or doses.",
+    "created_at": "2026-09-22T09:00:00"
+  },
+  {
+    "thread_id": "T042",
+    "doctor_a_key": "D032",
+    "doctor_b_key": "D036",
+    "patient_case_summary": "A 24-year-old with iron deficiency anemia. De-identified synthetic case with no name, contact details, or doses.",
+    "created_at": "2026-09-22T06:00:00"
+  },
+  {
+    "thread_id": "T043",
+    "doctor_a_key": "D034",
+    "doctor_b_key": "D038",
+    "patient_case_summary": "A 34-year-old with epilepsy. De-identified synthetic case with no name, contact details, or doses.",
+    "created_at": "2026-09-22T03:00:00"
+  },
+  {
+    "thread_id": "T044",
+    "doctor_a_key": "D035",
+    "doctor_b_key": "D038",
+    "patient_case_summary": "A 46-year-old with iron deficiency anemia. De-identified synthetic case with no name, contact details, or doses.",
+    "created_at": "2026-09-22T00:00:00"
+  },
+  {
+    "thread_id": "T045",
+    "doctor_a_key": "D035",
+    "doctor_b_key": "D039",
+    "patient_case_summary": "A 58-year-old with migraine. De-identified synthetic case with no name, contact details, or doses.",
+    "created_at": "2026-09-21T21:00:00"
+  },
+  {
+    "thread_id": "T046",
+    "doctor_a_key": "D035",
+    "doctor_b_key": "D040",
+    "patient_case_summary": "A 64-year-old with iron deficiency anemia. De-identified synthetic case with no name, contact details, or doses.",
+    "created_at": "2026-09-21T18:00:00"
+  }
+]

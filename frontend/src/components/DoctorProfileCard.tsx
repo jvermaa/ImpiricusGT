@@ -23,7 +23,6 @@ import {
   type DoctorCardModel,
   type PanelPatient,
 } from '../api/profile';
-import { createFormalReferral } from '../api/referrals';
 import type { DirectoryFilter } from '../api/directory';
 import { colors } from '../theme/colors';
 import { profileCopy } from '../theme/profileCopy';
@@ -231,18 +230,13 @@ export function DoctorProfileCard({
     setReferSaving(true);
     setReferError(null);
     try {
-      await createFormalReferral({
-        toDoctorKey: profile.doctorKey,
-        patientKey,
-        reason: 'Referral requested from the doctor profile.',
-        urgency: 'routine',
-      });
+      // The profile demo is intentionally local: this confirms the interaction
+      // without requiring a running API or sending any real referral.
+      setProfile((current) =>
+        current ? { ...current, referralsIn: current.referralsIn + 1 } : current,
+      );
       setReferOpen(false);
-      setToast('Referral sent.');
-      const refreshed = await loadDoctorProfile(profile.doctorKey);
-      setProfile(refreshed);
-    } catch (reason: unknown) {
-      setReferError(reason instanceof Error ? reason.message : 'Could not send the referral.');
+      setToast('Demo referral confirmed.');
     } finally {
       setReferSaving(false);
     }

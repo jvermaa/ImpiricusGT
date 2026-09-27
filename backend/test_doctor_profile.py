@@ -1,5 +1,6 @@
 """Profile card, settings, and the case-exchange filter that reads them."""
 import os
+from datetime import datetime
 
 os.environ["DATABASE_URL"] = "sqlite://"
 
@@ -9,9 +10,10 @@ from sqlalchemy import create_engine, select
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 
+from checks import run_checks
 from database import Base, get_db
 from main import app
-from models import CaseMatch, Diagnosis, Doctor, Patient
+from models import CaseMatch, ConsultMessage, Diagnosis, Doctor, Patient
 
 
 def _doctor(key: str, name: str, specialty: str, *, exchange: bool, email: str) -> Doctor:
@@ -34,6 +36,18 @@ def _doctor(key: str, name: str, specialty: str, *, exchange: bool, email: str) 
         npi=None,
         organization="Synthetic Clinic",
     )
+
+
+def _start_consult(client: TestClient, doctor: str, peer: str, text: str) -> tuple[dict, dict]:
+    opened = client.post("/consults", params={"doctor": doctor}, json={"peer_doctor_key": peer})
+    assert opened.status_code == 201, opened.text
+    sent = client.post(
+        f"/consults/{opened.json()['thread_id']}/messages",
+        params={"doctor": doctor},
+        json={"text": text},
+    )
+    assert sent.status_code == 201, sent.text
+    return opened.json(), sent.json()
 
 
 def _patient(key: str, doctor_key: str, sharing: str) -> Patient:
@@ -122,12 +136,7 @@ def test_profile_stats_match_the_database(client: TestClient):
     })
     assert created.status_code == 201
 
-    message = client.post("/consults/messages", json={
-        "doctor_key": "D011",
-        "peer_doctor_key": "D012",
-        "text": "De-identified consult about heart failure ranges.",
-    })
-    assert message.status_code == 201
+    _start_consult(client, "D011", "D012", "De-identified consult about heart failure ranges.")
 
     referral = client.post("/referrals", json={
         "from_doctor_key": "D011",
@@ -220,12 +229,7 @@ def test_profile_hides_private_fields_and_reports_the_mutual_thread(client: Test
     assert stranger.json()["can_message"] is True
     assert "mutual_thread_id" not in stranger.json()
 
-    sent = client.post("/consults/messages", json={
-        "doctor_key": "D011",
-        "peer_doctor_key": "D013",
-        "text": "Opening a consult thread.",
-    })
-    assert sent.status_code == 201
+    _start_consult(client, "D011", "D013", "Opening a consult thread.")
 
     peer = client.get("/doctors/D013/profile", params={"viewer": "D011"})
     body = peer.json()
@@ -275,12 +279,8 @@ def test_opting_out_of_case_exchange_hides_matches_without_deleting_them(client:
 
 
 def test_consults_and_referral_suggestions_follow_the_accepts_flag(client: TestClient):
-    opened = client.post("/consults/messages", json={
-        "doctor_key": "D011",
-        "peer_doctor_key": "D012",
-        "text": "Starting a consult thread.",
-    })
-    assert opened.status_code == 201
+    opened, _sent = _start_consult(client, "D011", "D012", "Starting a consult thread.")
+    thread_id = opened["thread_id"]
 
     listed = client.get("/consults", params={"doctor": "D011"})
     assert any(row["doctor_key"] == "D012" for row in listed.json())
@@ -297,34 +297,32 @@ def test_consults_and_referral_suggestions_follow_the_accepts_flag(client: TestC
 
     hidden = client.get("/consults", params={"doctor": "D011"})
     assert all(row["doctor_key"] != "D012" for row in hidden.json())
-    history = client.get("/consults/D012/messages", params={"doctor": "D011"})
+    history = client.get(f"/consults/{thread_id}/messages", params={"doctor": "D011"})
     assert history.status_code == 200
     assert history.json()[0]["text"] == "Starting a consult thread."
-    blocked = client.post("/consults/messages", json={
-        "doctor_key": "D011",
-        "peer_doctor_key": "D012",
-        "text": "This should stay read-only.",
-    })
+    blocked = client.post(
+        f"/consults/{thread_id}/messages",
+        params={"doctor": "D011"},
+        json={"text": "This should stay read-only."},
+    )
     assert blocked.status_code == 403
     suggestions = client.get("/referrals/directory", params={"doctor": "D011", "patient_key": "P001"})
     assert all(row["provider"]["doctor_key"] != "D012" for row in suggestions.json()["results"])
 
-    fresh = client.post("/consults/messages", json={
-        "doctor_key": "D011",
-        "peer_doctor_key": "D013",
-        "text": "Should not open.",
-    })
+    fresh = client.post("/consults", params={"doctor": "D011"}, json={"peer_doctor_key": "D013"})
+    assert fresh.status_code == 201
+    client.post(
+        f"/consults/{fresh.json()['thread_id']}/messages",
+        params={"doctor": "D011"},
+        json={"text": "Should not open."},
+    )
     client.patch(
         "/doctors/D013/settings",
         params={"viewer": "D013"},
         json={"accepts_peer_consults": False},
     )
     # The thread above was created while D013 still accepted consults. Close it, then prove a new pair is rejected.
-    denied = client.post("/consults/messages", json={
-        "doctor_key": "D012",
-        "peer_doctor_key": "D013",
-        "text": "New thread while consults are off.",
-    })
+    denied = client.post("/consults", params={"doctor": "D012"}, json={"peer_doctor_key": "D013"})
     assert denied.status_code == 403
     assert "not accepting peer consults" in denied.json()["detail"]
 
@@ -385,3 +383,72 @@ def test_bio_is_plain_text_and_only_the_doctor_can_edit_it(client: TestClient):
     )
     assert cleared.status_code == 200
     assert cleared.json()["bio"] is None
+
+
+def test_outsider_cannot_read_or_send_on_a_thread(client: TestClient):
+    opened, _sent = _start_consult(client, "D011", "D012", "Peer consult between the two participants.")
+    thread_id = opened["thread_id"]
+    hidden = client.get(f"/consults/{thread_id}/messages", params={"doctor": "D013"})
+    assert hidden.status_code == 403
+    outsider = client.post(
+        f"/consults/{thread_id}/messages",
+        params={"doctor": "D013"},
+        json={"text": "I am not on this thread."},
+    )
+    assert outsider.status_code == 403
+    visible = client.get(f"/consults/{thread_id}/messages", params={"doctor": "D012"})
+    assert visible.status_code == 200
+    assert visible.json()[0]["sender_doctor_key"] == "D011"
+
+
+def test_new_threads_require_both_doctors_to_accept_consults(client: TestClient):
+    client.patch(
+        "/doctors/D013/settings",
+        params={"viewer": "D013"},
+        json={"accepts_peer_consults": False},
+    )
+    denied = client.post("/consults", params={"doctor": "D011"}, json={"peer_doctor_key": "D013"})
+    assert denied.status_code == 403
+    assert "not accepting peer consults" in denied.json()["detail"]
+    client.patch(
+        "/doctors/D013/settings",
+        params={"viewer": "D013"},
+        json={"accepts_peer_consults": True},
+    )
+    restored = client.post("/consults", params={"doctor": "D011"}, json={"peer_doctor_key": "D013"})
+    assert restored.status_code == 201
+
+
+def test_check_db_rejects_outside_senders_and_consults_off(client: TestClient):
+    opened, _sent = _start_consult(client, "D011", "D012", "Stored consult for the integrity check.")
+    thread_id = opened["thread_id"]
+    session_factory = app.dependency_overrides[get_db]
+    generator = session_factory()
+    db = next(generator)
+    try:
+        db.add(
+            ConsultMessage(
+                thread_id=thread_id,
+                sender_doctor_key="D013",
+                text="This sender is not on the thread.",
+                created_at=datetime.utcnow(),
+            )
+        )
+        db.commit()
+        sender_errors, _warnings = run_checks(db)
+    finally:
+        generator.close()
+    assert any("sender is outside" in error for error in sender_errors)
+
+    client.patch(
+        "/doctors/D012/settings",
+        params={"viewer": "D012"},
+        json={"accepts_peer_consults": False},
+    )
+    generator = session_factory()
+    db = next(generator)
+    try:
+        closed_errors, _warnings = run_checks(db)
+    finally:
+        generator.close()
+    assert any("consults off" in error for error in closed_errors)

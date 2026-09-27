@@ -14,19 +14,21 @@ type DoctorDTO = {
 };
 
 type ConsultDTO = {
+  thread_id: string;
   doctor_key: string;
   display_name: string;
   initials: string;
   specialty: string;
   specialty_title: string;
-  last_message: string;
+  last_message: { text: string; created_at: string } | null;
 };
 
 type MessageDTO = {
-  message_key: string;
+  id: number;
+  thread_id: string;
   sender_doctor_key: string;
   text: string;
-  timestamp: string;
+  created_at: string;
 };
 
 type EncounterDTO = {
@@ -54,10 +56,32 @@ type PatientDTO = {
   encounters: EncounterDTO[];
 };
 
+const NGROK_HEADER = 'ngrok-skip-browser-warning';
+
+async function readError(response: Response): Promise<string> {
+  try {
+    const payload = (await response.json()) as { detail?: string };
+    if (typeof payload.detail === 'string' && payload.detail) return payload.detail;
+  } catch {
+    // Non-JSON bodies stay as the status line.
+  }
+  return `API ${response.status}`;
+}
+
+function jsonHeaders(): Record<string, string> {
+  return {
+    Accept: 'application/json',
+    'Content-Type': 'application/json',
+    [NGROK_HEADER]: 'true',
+  };
+}
+
 async function getJson<T>(path: string): Promise<T> {
-  const response = await fetch(`${API_BASE_URL}${path}`);
+  const response = await fetch(`${API_BASE_URL}${path}`, {
+    headers: { Accept: 'application/json', [NGROK_HEADER]: 'true' },
+  });
   if (!response.ok) {
-    throw new Error(`API ${response.status} for ${path}`);
+    throw new Error(await readError(response));
   }
   return response.json() as Promise<T>;
 }
@@ -117,12 +141,34 @@ function toProfile(doctor: DoctorDTO | ConsultDTO): DoctorProfile {
   };
 }
 
+function formatStamp(iso: string): string {
+  const date = new Date(iso.endsWith('Z') ? iso : `${iso}Z`);
+  if (Number.isNaN(date.getTime())) return iso;
+  return date.toLocaleString(undefined, {
+    month: 'short',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+  });
+}
+
 function toMessage(message: MessageDTO): ChatMessage {
   return {
-    id: message.message_key,
+    id: String(message.id),
     senderId: message.sender_doctor_key,
     text: message.text,
-    timestamp: message.timestamp,
+    timestamp: formatStamp(message.created_at),
+    status: 'saved',
+  };
+}
+
+function toThread(consult: ConsultDTO): DoctorThread {
+  return {
+    ...toProfile(consult),
+    id: consult.doctor_key,
+    threadId: consult.thread_id,
+    lastMessage: consult.last_message?.text || 'No messages yet',
+    messages: [],
   };
 }
 
@@ -197,34 +243,41 @@ export async function loadConsultDirectory(): Promise<{
   const directory = doctors
     .filter((doctor) => doctor.doctor_key !== CURRENT_DOCTOR_KEY)
     .map(toProfile);
-  const threads = consults.map((consult) => ({
-    ...toProfile(consult),
-    lastMessage: consult.last_message || 'No messages yet',
-    messages: [] as ChatMessage[],
-  }));
+  const threads = consults.map(toThread);
   const specialties = ['All', ...Array.from(new Set(threads.map((thread) => thread.specialty))).sort()];
   return { directory, threads, specialties };
 }
 
-export async function loadThreadMessages(peerDoctorKey: string): Promise<ChatMessage[]> {
+export async function loadThreadMessages(threadId: string): Promise<ChatMessage[]> {
   const rows = await getJson<MessageDTO[]>(
-    `/consults/${peerDoctorKey}/messages?doctor=${CURRENT_DOCTOR_KEY}`,
+    `/consults/${encodeURIComponent(threadId)}/messages?doctor=${CURRENT_DOCTOR_KEY}`,
   );
   return rows.map(toMessage);
 }
 
-export async function sendConsultMessage(peerDoctorKey: string, text: string): Promise<ChatMessage> {
-  const response = await fetch(`${API_BASE_URL}/consults/messages`, {
+export async function openConsultThread(peerDoctorKey: string): Promise<DoctorThread> {
+  const response = await fetch(`${API_BASE_URL}/consults?doctor=${CURRENT_DOCTOR_KEY}`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      doctor_key: CURRENT_DOCTOR_KEY,
-      peer_doctor_key: peerDoctorKey,
-      text,
-    }),
+    headers: jsonHeaders(),
+    body: JSON.stringify({ peer_doctor_key: peerDoctorKey }),
   });
   if (!response.ok) {
-    throw new Error(`API ${response.status} while sending a consult message`);
+    throw new Error(await readError(response));
+  }
+  return toThread((await response.json()) as ConsultDTO);
+}
+
+export async function sendConsultMessage(threadId: string, text: string): Promise<ChatMessage> {
+  const response = await fetch(
+    `${API_BASE_URL}/consults/${encodeURIComponent(threadId)}/messages?doctor=${CURRENT_DOCTOR_KEY}`,
+    {
+      method: 'POST',
+      headers: jsonHeaders(),
+      body: JSON.stringify({ text }),
+    },
+  );
+  if (!response.ok) {
+    throw new Error(await readError(response));
   }
   return toMessage((await response.json()) as MessageDTO);
 }
@@ -232,4 +285,54 @@ export async function sendConsultMessage(peerDoctorKey: string, text: string): P
 export async function loadMyPatients(): Promise<PatientProfile[]> {
   const rows = await getJson<PatientDTO[]>(`/patients?doctor=${CURRENT_DOCTOR_KEY}`);
   return rows.map(toPatient);
+}
+
+export type SimilarCase = {
+  patient_key: string;
+  age_group: string;
+  sex_label: string;
+  diagnosis_label: string;
+  matching_feature: string;
+  score: number | null;
+};
+
+export async function loadSimilarCases(patientKey: string): Promise<SimilarCase[]> {
+  return getJson<SimilarCase[]>(
+    `/patients/${encodeURIComponent(patientKey)}/similar?doctor=${CURRENT_DOCTOR_KEY}`,
+  );
+}
+
+export function recordPdfUrl(patientKey: string): string {
+  return `${API_BASE_URL}/patients/${encodeURIComponent(patientKey)}/record.pdf?doctor=${CURRENT_DOCTOR_KEY}`;
+}
+
+export async function sendPromptEmail(
+  patientKey: string,
+  prompt: string,
+): Promise<{ subject: string; body: string; source: string; status: string; detail: string }> {
+  const response = await fetch(
+    `${API_BASE_URL}/patients/${encodeURIComponent(patientKey)}/prompt-email?doctor=${CURRENT_DOCTOR_KEY}`,
+    {
+      method: 'POST',
+      headers: jsonHeaders(),
+      body: JSON.stringify({ prompt }),
+    },
+  );
+  if (!response.ok) {
+    throw new Error(await readError(response));
+  }
+  return response.json();
+}
+
+export async function loadRankedDoctors(patientKey: string): Promise<DoctorProfile[]> {
+  const payload = await getJson<{
+    results: Array<{ provider: DoctorDTO; score: number; reasons: string[] }>;
+  }>(
+    `/referrals/directory?doctor=${CURRENT_DOCTOR_KEY}&patient_key=${encodeURIComponent(patientKey)}&limit=10`,
+  );
+  return payload.results.map((row, index) => ({
+    ...toProfile(row.provider),
+    distanceKm: index,
+    subspecialtyFocus: row.reasons[0] ?? `Match score ${row.score}`,
+  }));
 }

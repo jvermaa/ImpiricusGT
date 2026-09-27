@@ -20,18 +20,8 @@ import {
   PlusIcon,
   SearchIcon,
 } from '../components/NavIcons';
-import {
-  loadConsultDirectory,
-  loadCurrentDoctor,
-  loadThreadMessages,
-  sendConsultMessage,
-} from '../api/clinic';
-import type {
-  ChatMessage,
-  CurrentDoctor,
-  DoctorProfile,
-  DoctorThread,
-} from '../types/chat';
+import type { ChatMessage, DoctorProfile, DoctorThread } from '../types/chat';
+import { DEMO_CURRENT_DOCTOR, DEMO_THREADS, DOCTOR_DIRECTORY, SPECIALTIES } from '../data/chatMock';
 import { getPatientsRankedForDoctor, searchDoctorsByNameOrSpecialization } from '../data/doctorDiscovery';
 import { PATIENTS, type PatientProfile } from '../data/patientMock';
 import type { DirectoryFilter } from '../api/directory';
@@ -58,23 +48,17 @@ export function ChatScreen({
   const insets = useSafeAreaInsets();
   const [activeDoctorId, setActiveDoctorId] = useState<string | null>(null);
   const [profileDoctorId, setProfileDoctorId] = useState<string | null>(null);
-  const [threads, setThreads] = useState<DoctorThread[]>([]);
-  const [directory, setDirectory] = useState<DoctorProfile[]>([]);
-  const [specialties, setSpecialties] = useState<string[]>(['All']);
-  const [currentDoctor, setCurrentDoctor] = useState<CurrentDoctor>({
-    id: '',
-    name: 'Loading doctor',
-    designation: '',
-    initials: '',
-  });
-  const [loadError, setLoadError] = useState<string | null>(null);
+  const [threads, setThreads] = useState<DoctorThread[]>(DEMO_THREADS);
+  const [directory] = useState<DoctorProfile[]>(DOCTOR_DIRECTORY);
+  const [specialties] = useState<string[]>(SPECIALTIES);
+  const [currentDoctor] = useState(DEMO_CURRENT_DOCTOR);
   const [specialtyFilter, setSpecialtyFilter] = useState('All');
   const [filterOpen, setFilterOpen] = useState(false);
   const [newChatOpen, setNewChatOpen] = useState(false);
   const [referralDoctorId, setReferralDoctorId] = useState<string | null>(null);
   const [referralPatientId, setReferralPatientId] = useState<string | null>(null);
   const [referralSuccessMessage, setReferralSuccessMessage] = useState<string | null>(null);
-  const [directoryReady, setDirectoryReady] = useState(false);
+  const [directoryReady] = useState(true);
   const [threadReadOnly, setThreadReadOnly] = useState<string | undefined>();
 
   const activeDoctor = useMemo(
@@ -105,55 +89,6 @@ export function ChatScreen({
     [referralDoctor],
   );
 
-  useEffect(() => {
-    let cancelled = false;
-
-    Promise.all([loadCurrentDoctor(), loadConsultDirectory()])
-      .then(([doctor, consultData]) => {
-        if (cancelled) return;
-        setCurrentDoctor(doctor);
-        setDirectory(consultData.directory);
-        setThreads(consultData.threads);
-        setSpecialties(consultData.specialties);
-        setLoadError(null);
-        setDirectoryReady(true);
-      })
-      .catch(() => {
-        if (cancelled) return;
-        setLoadError('Could not load consult directory.');
-        setDirectoryReady(true);
-      });
-
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
-  useEffect(() => {
-    if (!activeDoctorId) return;
-    const thread = threads.find((entry) => entry.id === activeDoctorId);
-    if (!thread || thread.messages.length > 0) return;
-
-    let cancelled = false;
-    loadThreadMessages(activeDoctorId)
-      .then((messages) => {
-        if (cancelled) return;
-        setThreads((current) =>
-          current.map((entry) =>
-            entry.id === activeDoctorId ? { ...entry, messages } : entry,
-          ),
-        );
-      })
-      .catch(() => {
-        if (cancelled) return;
-        setLoadError('Could not load this consult thread.');
-      });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [activeDoctorId, threads]);
-
   const showingProfile = !!profileDoctor && !activeDoctor;
   const showingList = !activeDoctor && !showingProfile;
 
@@ -173,10 +108,10 @@ export function ChatScreen({
   const startOrOpenChat = (doctor: DoctorProfile) => {
     setThreadReadOnly(undefined);
     setThreads((prev) => {
-      const existing = prev.find((t) => t.id === doctor.id);
-      if (existing) return prev;
+      if (prev.some((entry) => entry.id === doctor.id)) return prev;
       const fresh: DoctorThread = {
         ...doctor,
+        threadId: `demo-${doctor.id}`,
         lastMessage: 'New consult',
         messages: [],
       };
@@ -220,20 +155,21 @@ export function ChatScreen({
   };
 
   const sendDoctor = (text: string) => {
-    if (!activeDoctorId) return;
-    sendConsultMessage(activeDoctorId, text)
-      .then((msg: ChatMessage) => {
-        setThreads((prev) =>
-          prev.map((t) =>
-            t.id === activeDoctorId
-              ? { ...t, messages: [...t.messages, msg], lastMessage: msg.text }
-              : t,
-          ),
-        );
-      })
-      .catch(() => {
-        setLoadError('Could not send that consult message.');
-      });
+    if (!activeDoctor?.threadId || threadReadOnly) return;
+    const threadId = activeDoctor.threadId;
+    const message: ChatMessage = {
+      id: `local-${Date.now()}`,
+      senderId: currentDoctor.id,
+      text,
+      timestamp: 'Just now',
+    };
+    setThreads((prev) =>
+      prev.map((entry) =>
+        entry.threadId === threadId
+          ? { ...entry, messages: [...entry.messages, message], lastMessage: text }
+          : entry,
+      ),
+    );
   };
 
   const goBackToList = () => {
@@ -346,11 +282,11 @@ export function ChatScreen({
           <DoctorList
             threads={threads}
             doctorName={currentDoctor.name}
-            statusMessage={loadError}
+            statusMessage={null}
             specialtyFilter={specialtyFilter}
             onSelect={(id) => {
               const doctor = threads.find((entry) => entry.id === id);
-              if (doctor) openDoctorProfile(doctor);
+              if (doctor) startOrOpenChat(doctor);
             }}
             onNewChat={() => {
               setFilterOpen(false);
@@ -380,6 +316,7 @@ export function ChatScreen({
             />
           </View>
         ) : activeDoctor ? (
+          <View style={styles.flex}>
           <ChatThread
             messages={activeDoctor.messages}
             readOnlyReason={threadReadOnly}
@@ -388,6 +325,7 @@ export function ChatScreen({
             peerNameForTheirs={() => activeDoctor.name}
             placeholder={`Message ${activeDoctor.name.split(' ')[1] ?? 'colleague'}…`}
           />
+          </View>
         ) : null}
       </View>
 
@@ -509,7 +447,7 @@ function DoctorList({
             <Pressable
               key={doc.id}
               accessibilityRole="button"
-              accessibilityLabel={`Open profile for ${doc.name}`}
+              accessibilityLabel={`Open chat with ${doc.name}`}
               onPress={() => {
                 Keyboard.dismiss();
                 onSelect(doc.id);
