@@ -1,7 +1,8 @@
 """Keep the committed synthetic fixtures in ../data.
 
 Those JSON files are the source loaded by seed.py. This script checks that
-they are present and internally consistent. It does not rewrite them.
+they are present and internally consistent, then rewrites the deterministic
+consult-thread fixtures.
 """
 
 import json
@@ -100,8 +101,17 @@ def main() -> None:
             print(f"ERROR {error}")
         sys.exit(1)
 
+    from consult_fixtures import write_consult_fixtures
+
+    consult_errors = write_consult_fixtures(DATA_DIR, list(doctors.values()))
+    if consult_errors:
+        for error in consult_errors[:20]:
+            print(f"ERROR {error}")
+        sys.exit(1)
+
     print(f"Fixtures in {DATA_DIR} already exist and passed integrity checks.")
-    print("Left data/*.json unchanged.")
+    print("Wrote data/consult_threads.json and data/consult_messages.json.")
+    print("Left the other data/*.json files unchanged.")
     print("Clean.")
 
 

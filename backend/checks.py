@@ -6,13 +6,13 @@ from sqlalchemy.orm import Session
 from models import (
     Allergy,
     CaseMatch,
+    ConsultMessage,
     ConsultThread,
     Diagnosis,
     Doctor,
     Encounter,
     Followup,
     Lab,
-    Message,
     Patient,
     Prescription,
 )
@@ -163,21 +163,29 @@ def run_checks(db: Session) -> tuple[list[str], list[str]]:
         errors.append("doctors.patient_keys is stored; patient panels must be derived from foreign keys")
 
     bad_messages = []
-    threads = {row.thread_key: row for row in db.scalars(select(ConsultThread)).all()}
-    for row in db.scalars(select(Message)).all():
-        thread = threads.get(row.thread_key)
-        if thread is None or row.sender_doctor_key not in {
-            thread.doctor_low_key,
-            thread.doctor_high_key,
-        }:
-            bad_messages.append(row.message_key)
+    closed_threads = []
+    threads = {row.thread_id: row for row in db.scalars(select(ConsultThread)).all()}
+    for thread in threads.values():
+        participants = []
+        for doctor_key in (thread.doctor_a_key, thread.doctor_b_key):
+            participants.append(doctors.get(doctor_key))
+        if thread.doctor_a_key >= thread.doctor_b_key or any(
+            doctor is None or not doctor.accepts_peer_consults for doctor in participants
+        ):
+            closed_threads.append(thread.thread_id)
+    for row in db.scalars(select(ConsultMessage)).all():
+        thread = threads.get(row.thread_id)
+        if thread is None or row.sender_doctor_key not in {thread.doctor_a_key, thread.doctor_b_key}:
+            bad_messages.append(row.id)
             continue
-        for doctor_key in (thread.doctor_low_key, thread.doctor_high_key):
-            doctor = doctors.get(doctor_key)
-            if doctor is None or not doctor.accepts_peer_consults:
-                bad_messages.append(row.message_key)
+        if not 1 <= len(row.text) <= 1000:
+            bad_messages.append(row.id)
+    if closed_threads:
+        errors.append(
+            f"consult threads that include a doctor with consults off: {closed_threads[:8]}"
+        )
     if bad_messages:
-        errors.append(f"consult messages whose sender is outside an opted-in thread: {bad_messages[:8]}")
+        errors.append(f"consult messages whose sender is outside the thread: {bad_messages[:8]}")
 
     if not doctors or not patients:
         warnings.append("database has no doctors or patients loaded")

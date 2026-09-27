@@ -20,8 +20,21 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { loadMyPatients } from '../api/clinic';
+import {
+  loadMyPatients,
+  loadConsultDirectory,
+  loadRankedDoctors,
+  loadSimilarCases,
+  loadThreadMessages,
+  openConsultThread,
+  recordPdfUrl,
+  sendConsultMessage,
+  sendPromptEmail,
+  type SimilarCase,
+} from '../api/clinic';
+import { CURRENT_DOCTOR_KEY } from '../api/config';
 import { Avatar } from '../components/Avatar';
+import { DoctorProfileCard } from '../components/DoctorProfileCard';
 import { ChatThread } from '../components/ChatThread';
 import {
   ChevronLeftIcon,
@@ -31,13 +44,8 @@ import {
   SearchIcon,
 } from '../components/NavIcons';
 import type { AppNotification } from '../data/notificationsMock';
-import {
-  DOCTOR_DIRECTORY,
-  DOCTOR_THREADS,
-  type ChatMessage,
-  type DoctorProfile,
-  type DoctorThread,
-} from '../data/chatMock';
+import { DOCTOR_DIRECTORY, type DoctorProfile } from '../data/chatMock';
+import type { ChatMessage, DoctorThread } from '../types/chat';
 import {
   formatDistance,
   inferSpecializationsFromSymptoms,
@@ -218,10 +226,14 @@ export function PatientScreen({
   suitableMode = false,
   suitableSource = null,
   onExitSuitableMode,
+  onOpenDirectory,
+  onOpenReferrals,
 }: {
   suitableMode?: boolean;
   suitableSource?: AppNotification | null;
   onExitSuitableMode?: () => void;
+  onOpenDirectory?: (filter: import('../api/directory').DirectoryFilter) => void;
+  onOpenReferrals?: (direction: 'in' | 'out', withDoctor?: string) => void;
 }) {
   const insets = useSafeAreaInsets();
   const [patients, setPatients] = useState<PatientProfile[]>([]);
@@ -229,10 +241,17 @@ export function PatientScreen({
   const [query, setQuery] = useState('');
   const [selectedPatientId, setSelectedPatientId] = useState<string | null>(null);
   const [infoMessage, setInfoMessage] = useState<string | null>(null);
-  const [consultThreads, setConsultThreads] = useState<DoctorThread[]>(DOCTOR_THREADS);
+  const [consultThreads, setConsultThreads] = useState<DoctorThread[]>([]);
   const [confirmReferralOpen, setConfirmReferralOpen] = useState(false);
   const [referralSuccessMessage, setReferralSuccessMessage] = useState<string | null>(null);
   const [hcpSearchQuery, setHcpSearchQuery] = useState('');
+  const [rankedHcps, setRankedHcps] = useState<DoctorProfile[] | null>(null);
+  const [similarCases, setSimilarCases] = useState<SimilarCase[] | null>(null);
+  const [similarLoading, setSimilarLoading] = useState(false);
+  const [emailPrompt, setEmailPrompt] = useState('');
+  const [emailOpen, setEmailOpen] = useState(false);
+  const [emailBusy, setEmailBusy] = useState(false);
+  const [apiDoctors, setApiDoctors] = useState<DoctorProfile[]>([]);
 
   const [visitForm, setVisitForm] = useState<VisitForm | null>(null);
   const [addSymptomOpen, setAddSymptomOpen] = useState(false);
@@ -253,6 +272,22 @@ export function PatientScreen({
   const menuBackdropProgress = useSharedValue(0);
   const menuDrugsPillProgress = useSharedValue(0);
   const menuPatientsPillProgress = useSharedValue(0);
+
+  useEffect(() => {
+    let cancelled = false;
+    loadConsultDirectory()
+      .then((consults) => {
+        if (cancelled) return;
+        setApiDoctors(consults.directory);
+        setConsultThreads(consults.threads);
+      })
+      .catch(() => {
+        if (!cancelled) setApiDoctors([]);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -314,14 +349,15 @@ export function PatientScreen({
     [patients, routedPatientId],
   );
 
+  const hcpCatalog = apiDoctors.length > 0 ? apiDoctors : DOCTOR_DIRECTORY;
   const routedDoctorId =
     route.name === 'doctorProfile' || route.name === 'doctorChat' ? route.doctorId : null;
   const routedDoctor = useMemo(
     () =>
       routedDoctorId
-        ? DOCTOR_DIRECTORY.find((doctor) => doctor.id === routedDoctorId) ?? null
+        ? hcpCatalog.find((doctor) => doctor.id === routedDoctorId) ?? null
         : null,
-    [routedDoctorId],
+    [hcpCatalog, routedDoctorId],
   );
 
   const routedDoctorThread = useMemo(
@@ -362,9 +398,12 @@ export function PatientScreen({
   }, [routedPatient]);
   const defaultSpecializationQuery = inferredSpecializations[0] ?? '';
   const hcpSearchResults = useMemo(() => {
-    const seedQuery = hcpSearchQuery.trim() || defaultSpecializationQuery;
-    return searchDoctorsByNameOrSpecialization(DOCTOR_DIRECTORY, seedQuery).slice(0, 10);
-  }, [hcpSearchQuery, defaultSpecializationQuery]);
+    const pool = rankedHcps && rankedHcps.length > 0 ? rankedHcps : hcpCatalog;
+    const typed = hcpSearchQuery.trim();
+    if (!typed && rankedHcps && rankedHcps.length > 0) return rankedHcps.slice(0, 10);
+    const seedQuery = typed || defaultSpecializationQuery;
+    return searchDoctorsByNameOrSpecialization(pool, seedQuery).slice(0, 10);
+  }, [hcpCatalog, hcpSearchQuery, defaultSpecializationQuery, rankedHcps]);
 
   const activeVisit = useMemo(() => {
     if (route.name !== 'visitDetails' || !routedPatient) return null;
@@ -557,10 +596,11 @@ export function PatientScreen({
   };
 
   const openHcpReferral = (patientId: string) => {
-    const patient = patients.find((entry) => entry.id === patientId) ?? null;
-    const sourceSymptoms = patient?.pastVisits[0]?.symptoms ?? patient?.symptoms ?? [];
-    const inferred = inferSpecializationsFromSymptoms(sourceSymptoms);
-    setHcpSearchQuery(inferred[0] ?? '');
+    setHcpSearchQuery('');
+    setRankedHcps(null);
+    loadRankedDoctors(patientId)
+      .then(setRankedHcps)
+      .catch(() => setRankedHcps([]));
     setInfoMessage(null);
     setReferralSuccessMessage(null);
     setConfirmReferralOpen(false);
@@ -575,19 +615,33 @@ export function PatientScreen({
   };
 
   const openDoctorChat = (patientId: string, doctorId: string) => {
-    const doctor = DOCTOR_DIRECTORY.find((entry) => entry.id === doctorId);
+    const doctor = hcpCatalog.find((entry) => entry.id === doctorId);
     if (!doctor) return;
-    setConsultThreads((current) => {
-      const existing = current.find((thread) => thread.id === doctorId);
-      if (existing) return current;
-      const fresh: DoctorThread = {
-        ...doctor,
-        lastMessage: 'New consult',
-        messages: [],
-      };
-      return [fresh, ...current];
-    });
     setRoute({ name: 'doctorChat', patientId, doctorId });
+    const existing = consultThreads.find((thread) => thread.id === doctorId);
+    const ensure = existing?.threadId
+      ? Promise.resolve(existing)
+      : openConsultThread(doctorId).then((opened) => {
+          const next: DoctorThread = {
+            ...doctor,
+            ...opened,
+            id: doctor.id,
+            threadId: opened.threadId,
+            messages: [],
+          };
+          setConsultThreads((current) => [next, ...current.filter((thread) => thread.id !== doctorId)]);
+          return next;
+        });
+    ensure
+      .then((thread) => loadThreadMessages(thread.threadId).then((messages) => ({ thread, messages })))
+      .then(({ thread, messages }) => {
+        setConsultThreads((current) =>
+          current.map((entry) =>
+            entry.id === doctorId || entry.threadId === thread.threadId ? { ...entry, messages } : entry,
+          ),
+        );
+      })
+      .catch(() => setInfoMessage('Could not open that consult.'));
   };
 
   const openWhatsNewFeed = () => {
@@ -624,19 +678,47 @@ export function PatientScreen({
 
   const sendDoctorMessage = (text: string) => {
     if (route.name !== 'doctorChat') return;
-    const msg: ChatMessage = {
-      id: `pchat-${Date.now()}`,
-      senderId: 'me',
+    const thread = consultThreads.find((entry) => entry.id === route.doctorId);
+    if (!thread?.threadId) return;
+    const localId = `local-${Date.now()}`;
+    const optimistic: ChatMessage = {
+      id: localId,
+      senderId: CURRENT_DOCTOR_KEY,
       text,
-      timestamp: 'Now',
+      timestamp: 'Sending…',
+      status: 'pending',
     };
     setConsultThreads((current) =>
-      current.map((thread) =>
-        thread.id === route.doctorId
-          ? { ...thread, messages: [...thread.messages, msg], lastMessage: text }
-          : thread,
+      current.map((entry) =>
+        entry.threadId === thread.threadId
+          ? { ...entry, messages: [...entry.messages, optimistic], lastMessage: text }
+          : entry,
       ),
     );
+    const post = (attempt: number) => {
+      sendConsultMessage(thread.threadId, text)
+        .then((saved) => {
+          setConsultThreads((current) =>
+            current.map((entry) =>
+              entry.threadId === thread.threadId
+                ? {
+                    ...entry,
+                    lastMessage: saved.text,
+                    messages: [...entry.messages.filter((message) => message.id !== localId), saved],
+                  }
+                : entry,
+            ),
+          );
+        })
+        .catch(() => {
+          if (attempt < 1) {
+            post(attempt + 1);
+            return;
+          }
+          setInfoMessage('Could not send that consult message.');
+        });
+    };
+    post(0);
   };
 
   const handleAction = (action: ActionKey) => {
@@ -650,14 +732,32 @@ export function PatientScreen({
       return;
     }
     if (action === 'send-notification') {
-      notifyPatients([selectedPatient], `Notification sent to ${selectedPatient.name}`);
+      setEmailPrompt('');
+      setEmailOpen(true);
       return;
     }
     if (action === 'find-similar') {
-      setInfoMessage(
-        `Find Similar Patients for ${selectedPatient.name} is ready for backend wiring.`,
-      );
+      const patientId = selectedPatient.id;
       setSelectedPatientId(null);
+      setSimilarLoading(true);
+      setSimilarCases([]);
+      loadSimilarCases(patientId)
+        .then(setSimilarCases)
+        .catch(() => {
+          setSimilarCases(null);
+          setInfoMessage('Could not load similar patients.');
+        })
+        .finally(() => setSimilarLoading(false));
+      return;
+    }
+    if (action === 'generate-pdf') {
+      const url = recordPdfUrl(selectedPatient.id);
+      setSelectedPatientId(null);
+      if (Platform.OS === 'web' && typeof globalThis.open === 'function') {
+        globalThis.open(url, '_blank');
+      } else {
+        Linking.openURL(url).catch(() => setInfoMessage('Could not open the medical record.'));
+      }
       return;
     }
     if (action === 'ask-refer-hcp') {
@@ -1886,7 +1986,11 @@ export function PatientScreen({
                   >
                     <View style={styles.doctorCardHead}>
                       <Text style={styles.doctorName}>{doctor.name}</Text>
-                      <Text style={styles.doctorDistance}>{formatDistance(doctor.distanceKm)}</Text>
+                      <Text style={styles.doctorDistance}>
+                        {rankedHcps && rankedHcps.some((ranked) => ranked.id === doctor.id)
+                          ? doctor.subspecialtyFocus ?? formatDistance(doctor.distanceKm)
+                          : formatDistance(doctor.distanceKm)}
+                      </Text>
                     </View>
                     <Text style={styles.doctorMeta}>{doctor.designation}</Text>
                     <Text style={styles.doctorMeta}>{doctor.specializations.join(' · ')}</Text>
@@ -1899,69 +2003,20 @@ export function PatientScreen({
               </View>
             </ScrollView>
           </KeyboardAvoidingView>
-        ) : route.name === 'doctorProfile' && routedPatient && routedDoctor ? (
-          <ScrollView
-            style={styles.flex}
-            contentContainerStyle={styles.detailsContent}
-            showsVerticalScrollIndicator={false}
-          >
+        ) : route.name === 'doctorProfile' && routedPatient && routedDoctorId ? (
+          <View style={styles.flex}>
             {referralSuccessMessage ? (
               <View style={styles.infoBanner}>
                 <Text style={styles.infoBannerText}>{referralSuccessMessage}</Text>
               </View>
             ) : null}
-            <View style={styles.profileHeroCard}>
-              <View style={styles.profileAvatarWrap}>
-                <Avatar
-                  initials={routedDoctor.initials}
-                  color={routedDoctor.avatarColor}
-                  size={144}
-                />
-              </View>
-
-              <Text style={styles.profileHeroName}>{routedDoctor.name}</Text>
-              <Text style={styles.profileHeroMeta}>
-                {routedDoctor.specialty} | {routedDoctor.degrees.join(', ')}
-              </Text>
-
-              <View style={styles.profileDivider} />
-
-              <Text style={styles.profileSectionTitle}>Medical Profile</Text>
-              <Text style={styles.profileDescription}>
-                {routedDoctor.name} specializes in comprehensive {routedDoctor.specialty.toLowerCase()} care with
-                a focus on long-term outcomes and peer collaboration.
-              </Text>
-              <Text style={styles.profileDescription}>
-                {routedDoctor.name} is board certified and available for rapid consults and referrals.
-              </Text>
-
-              <Text style={styles.profileAddressLabel}>Address</Text>
-              <Text style={styles.profileAddressValue}>{routedDoctor.address}</Text>
-              <Text style={styles.profileDistanceNote}>
-                {formatDistance(routedDoctor.distanceKm)}
-              </Text>
-            </View>
-
-            <View style={styles.profileActionRow}>
-              <Pressable
-                accessibilityRole="button"
-                accessibilityLabel={`Open chat with ${routedDoctor.name}`}
-                onPress={() => openDoctorChat(routedPatient.id, routedDoctor.id)}
-                style={styles.profileActionPrimary}
-              >
-                <Text style={styles.profileActionPrimaryText}>Chat</Text>
-              </Pressable>
-
-              <Pressable
-                accessibilityRole="button"
-                accessibilityLabel={`Refer ${routedPatient.name} to ${routedDoctor.name}`}
-                onPress={() => setConfirmReferralOpen(true)}
-                style={styles.profileActionSecondary}
-              >
-                <Text style={styles.profileActionSecondaryText}>Refer</Text>
-              </Pressable>
-            </View>
-          </ScrollView>
+            <DoctorProfileCard
+              doctorKey={routedDoctorId}
+              onOpenConsults={() => openDoctorChat(routedPatient.id, routedDoctorId)}
+              onOpenDirectory={onOpenDirectory}
+              onOpenReferrals={onOpenReferrals}
+            />
+          </View>
         ) : route.name === 'doctorChat' && routedPatient && routedDoctor ? (
           <View style={styles.flex}>
             {referralSuccessMessage ? (
@@ -1972,6 +2027,7 @@ export function PatientScreen({
             <ChatThread
               messages={routedDoctorThread?.messages ?? []}
               onSend={sendDoctorMessage}
+              currentUserId={CURRENT_DOCTOR_KEY}
               peerNameForTheirs={() => routedDoctor.name}
               placeholder={`Message ${routedDoctor.name.split(' ')[1] ?? 'doctor'}…`}
             />
@@ -2143,6 +2199,72 @@ export function PatientScreen({
                 </Pressable>
               );
             })}
+            {emailOpen ? (
+              <View style={styles.emailBox}>
+                <TextInput
+                  value={emailPrompt}
+                  onChangeText={setEmailPrompt}
+                  style={styles.emailInput}
+                  placeholder="What should the email say?"
+                  placeholderTextColor={colors.searchPlaceholder}
+                  multiline
+                />
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel="Send email"
+                  disabled={emailBusy}
+                  onPress={() => {
+                    const prompt = emailPrompt.trim();
+                    if (!prompt || !selectedPatient) return;
+                    setEmailBusy(true);
+                    sendPromptEmail(selectedPatient.id, prompt)
+                      .then((result) => {
+                        setEmailOpen(false);
+                        setSelectedPatientId(null);
+                        setInfoMessage(
+                          result.source === 'gemini'
+                            ? `Email sent to the clinic inbox. Subject: ${result.subject}`
+                            : `Email sent with the doctor's note. Subject: ${result.subject}`,
+                        );
+                      })
+                      .catch(() => setInfoMessage('Could not send that email.'))
+                      .finally(() => setEmailBusy(false));
+                  }}
+                  style={styles.primaryButton}
+                >
+                  <Text style={styles.primaryButtonText}>
+                    {emailBusy ? 'Sending...' : 'Write and send email'}
+                  </Text>
+                </Pressable>
+              </View>
+            ) : null}
+          </View>
+        </View>
+      ) : null}
+
+      {similarCases ? (
+        <View style={styles.sheetRoot}>
+          <Pressable style={styles.sheetOverlay} onPress={() => setSimilarCases(null)} />
+          <View style={[styles.sheetCard, { paddingBottom: Math.max(insets.bottom, 16) }]}>
+            <View style={styles.sheetHandle} />
+            <Text style={styles.sheetTitle}>Similar patients</Text>
+            <ScrollView style={styles.similarList}>
+              {similarLoading ? (
+                <Text style={styles.emptySectionText}>Finding stored matches...</Text>
+              ) : similarCases.length === 0 ? (
+                <Text style={styles.emptySectionText}>No stored similar cases yet.</Text>
+              ) : (
+                similarCases.map((match) => (
+                  <View key={match.patient_key} style={styles.similarRow}>
+                    <Text style={styles.similarTitle}>
+                      {match.age_group} · {match.sex_label}
+                    </Text>
+                    <Text style={styles.similarMeta}>{match.diagnosis_label}</Text>
+                    <Text style={styles.similarMeta}>{match.matching_feature}</Text>
+                  </View>
+                ))
+              )}
+            </ScrollView>
           </View>
         </View>
       ) : null}
@@ -3973,5 +4095,38 @@ const styles = StyleSheet.create({
     color: colors.white,
     fontSize: 14,
     fontWeight: '700',
+  },
+  emailBox: {
+    marginTop: 12,
+    gap: 10,
+  },
+  emailInput: {
+    minHeight: 72,
+    borderWidth: 1,
+    borderColor: 'rgba(90,96,112,0.22)',
+    borderRadius: 10,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    color: colors.textPrimary,
+    backgroundColor: '#fff',
+  },
+  similarList: {
+    maxHeight: 360,
+    marginTop: 8,
+  },
+  similarRow: {
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(90,96,112,0.12)',
+  },
+  similarTitle: {
+    color: colors.textPrimary,
+    fontSize: 15,
+    fontWeight: '700',
+  },
+  similarMeta: {
+    color: colors.textMuted,
+    fontSize: 13,
+    marginTop: 2,
   },
 });

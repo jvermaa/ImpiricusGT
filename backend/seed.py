@@ -1,5 +1,6 @@
 import json
 import sys
+from datetime import datetime
 from pathlib import Path
 
 from sqlalchemy import select
@@ -9,6 +10,8 @@ from database import Base, SessionLocal, engine
 from models import (
     Allergy,
     CaseMatch,
+    ConsultMessage,
+    ConsultThread,
     Diagnosis,
     Doctor,
     Encounter,
@@ -39,8 +42,11 @@ def _require(row: dict, fields: set[str], label: str) -> None:
 
 
 def seed() -> None:
-    Base.metadata.drop_all(bind=engine)
-    Base.metadata.create_all(bind=engine)
+    with engine.begin() as connection:
+        if connection.dialect.name == "sqlite":
+            connection.exec_driver_sql("PRAGMA foreign_keys=OFF")
+        Base.metadata.drop_all(bind=connection)
+        Base.metadata.create_all(bind=connection)
 
     doctors = _load("doctors")
     patients = _load("patients")
@@ -94,6 +100,7 @@ def seed() -> None:
                     license_number=row["license_number"],
                     npi=row["npi"],
                     organization=row["organization"],
+                    bio=None,
                 )
             )
         db.flush()
@@ -193,6 +200,7 @@ def seed() -> None:
                 )
             )
 
+        _seed_consults(db)
         db.commit()
         errors, warnings = run_checks(db)
         doctor_count = len(db.scalars(select(Doctor)).all())
@@ -206,6 +214,44 @@ def seed() -> None:
         raise SystemExit(1)
     print(f"Loaded {doctor_count} doctors and {patient_count} patients from {DATA_DIR}.")
     print("Clean.")
+
+
+def _seed_consults(db) -> None:
+    """Load deterministic peer-consult threads and messages from fixtures."""
+    threads = _load("consult_threads")
+    messages = _load("consult_messages")
+    for row in threads:
+        _require(
+            row,
+            {"thread_id", "doctor_a_key", "doctor_b_key", "patient_case_summary", "created_at"},
+            row.get("thread_id", "consult thread"),
+        )
+        db.add(
+            ConsultThread(
+                thread_id=row["thread_id"],
+                doctor_a_key=row["doctor_a_key"],
+                doctor_b_key=row["doctor_b_key"],
+                patient_case_summary=row["patient_case_summary"],
+                created_at=datetime.fromisoformat(row["created_at"]),
+            )
+        )
+    db.flush()
+    for row in messages:
+        _require(
+            row,
+            {"id", "thread_id", "sender_doctor_key", "text", "created_at"},
+            f"consult message {row.get('id', '?')}",
+        )
+        db.add(
+            ConsultMessage(
+                id=row["id"],
+                thread_id=row["thread_id"],
+                sender_doctor_key=row["sender_doctor_key"],
+                text=row["text"],
+                created_at=datetime.fromisoformat(row["created_at"]),
+            )
+        )
+
 
 
 if __name__ == "__main__":

@@ -1,0 +1,1927 @@
+[
+  {
+    "id": 1,
+    "thread_id": "T001",
+    "sender_doctor_key": "D002",
+    "text": "Omar \u2014 I have a 34-year-old with heart failure. It has come on gradually, and I want a peer read before the next visit.",
+    "created_at": "2026-09-27T09:00:00"
+  },
+  {
+    "id": 2,
+    "thread_id": "T001",
+    "sender_doctor_key": "D014",
+    "text": "Happy to think it through, Jordan. Is there a clear trigger, or has this been a steady pattern?",
+    "created_at": "2026-09-27T09:08:00"
+  },
+  {
+    "id": 3,
+    "thread_id": "T001",
+    "sender_doctor_key": "D002",
+    "text": "No single trigger. I am keeping this de-identified: age and heart failure only, with no name and no doses.",
+    "created_at": "2026-09-27T09:16:00"
+  },
+  {
+    "id": 4,
+    "thread_id": "T001",
+    "sender_doctor_key": "D014",
+    "text": "That fits a routine heart failure consult. I would confirm the history and review current medicines in general terms before changing strategy.",
+    "created_at": "2026-09-27T09:24:00"
+  },
+  {
+    "id": 5,
+    "thread_id": "T001",
+    "sender_doctor_key": "D002",
+    "text": "Agreed. I will keep the plan general, reassess soon, and send them over if the course turns sudden.",
+    "created_at": "2026-09-27T09:32:00"
+  },
+  {
+    "id": 6,
+    "thread_id": "T002",
+    "sender_doctor_key": "D031",
+    "text": "Jordan \u2014 I have a 46-year-old with migraine. It has come on gradually, and I want a peer read before the next visit.",
+    "created_at": "2026-09-27T06:00:00"
+  },
+  {
+    "id": 7,
+    "thread_id": "T002",
+    "sender_doctor_key": "D002",
+    "text": "Happy to think it through, Aisha. Is there a clear trigger, or has this been a steady pattern?",
+    "created_at": "2026-09-27T06:08:00"
+  },
+  {
+    "id": 8,
+    "thread_id": "T002",
+    "sender_doctor_key": "D031",
+    "text": "No single trigger. I am keeping this de-identified: age and migraine only, with no name and no doses.",
+    "created_at": "2026-09-27T06:16:00"
+  },
+  {
+    "id": 9,
+    "thread_id": "T002",
+    "sender_doctor_key": "D002",
+    "text": "That fits a routine migraine consult. I would confirm the history and review current medicines in general terms before changing strategy.",
+    "created_at": "2026-09-27T06:24:00"
+  },
+  {
+    "id": 10,
+    "thread_id": "T002",
+    "sender_doctor_key": "D031",
+    "text": "Agreed. I will keep the plan general, reassess soon, and send them over if the course turns sudden.",
+    "created_at": "2026-09-27T06:32:00"
+  },
+  {
+    "id": 11,
+    "thread_id": "T002",
+    "sender_doctor_key": "D002",
+    "text": "Good next step. If it stays refractory, a short clinic visit is reasonable. I would not pin this to a specific dose from chat.",
+    "created_at": "2026-09-27T06:40:00"
+  },
+  {
+    "id": 12,
+    "thread_id": "T003",
+    "sender_doctor_key": "D002",
+    "text": "Ravi \u2014 I have a 58-year-old with heart failure. It has come on gradually, and I want a peer read before the next visit.",
+    "created_at": "2026-09-27T03:00:00"
+  },
+  {
+    "id": 13,
+    "thread_id": "T003",
+    "sender_doctor_key": "D032",
+    "text": "Happy to think it through, Jordan. Is there a clear trigger, or has this been a steady pattern?",
+    "created_at": "2026-09-27T03:08:00"
+  },
+  {
+    "id": 14,
+    "thread_id": "T003",
+    "sender_doctor_key": "D002",
+    "text": "No single trigger. I am keeping this de-identified: age and heart failure only, with no name and no doses.",
+    "created_at": "2026-09-27T03:16:00"
+  },
+  {
+    "id": 15,
+    "thread_id": "T003",
+    "sender_doctor_key": "D032",
+    "text": "That fits a routine heart failure consult. I would confirm the history and review current medicines in general terms before changing strategy.",
+    "created_at": "2026-09-27T03:24:00"
+  },
+  {
+    "id": 16,
+    "thread_id": "T003",
+    "sender_doctor_key": "D002",
+    "text": "Agreed. I will keep the plan general, reassess soon, and send them over if the course turns sudden.",
+    "created_at": "2026-09-27T03:32:00"
+  },
+  {
+    "id": 17,
+    "thread_id": "T003",
+    "sender_doctor_key": "D032",
+    "text": "Good next step. If it stays refractory, a short clinic visit is reasonable. I would not pin this to a specific dose from chat.",
+    "created_at": "2026-09-27T03:40:00"
+  },
+  {
+    "id": 18,
+    "thread_id": "T003",
+    "sender_doctor_key": "D002",
+    "text": "I will document that shared plan and update you after follow-up. Still no patient identifiers in this thread.",
+    "created_at": "2026-09-27T03:48:00"
+  },
+  {
+    "id": 19,
+    "thread_id": "T004",
+    "sender_doctor_key": "D034",
+    "text": "Jordan \u2014 I have a 64-year-old with epilepsy. It has come on gradually, and I want a peer read before the next visit.",
+    "created_at": "2026-09-27T00:00:00"
+  },
+  {
+    "id": 20,
+    "thread_id": "T004",
+    "sender_doctor_key": "D002",
+    "text": "Happy to think it through, Omar. Is there a clear trigger, or has this been a steady pattern?",
+    "created_at": "2026-09-27T00:08:00"
+  },
+  {
+    "id": 21,
+    "thread_id": "T004",
+    "sender_doctor_key": "D034",
+    "text": "No single trigger. I am keeping this de-identified: age and epilepsy only, with no name and no doses.",
+    "created_at": "2026-09-27T00:16:00"
+  },
+  {
+    "id": 22,
+    "thread_id": "T004",
+    "sender_doctor_key": "D002",
+    "text": "That fits a routine epilepsy consult. I would confirm the history and review current medicines in general terms before changing strategy.",
+    "created_at": "2026-09-27T00:24:00"
+  },
+  {
+    "id": 23,
+    "thread_id": "T004",
+    "sender_doctor_key": "D034",
+    "text": "Agreed. I will keep the plan general, reassess soon, and send them over if the course turns sudden.",
+    "created_at": "2026-09-27T00:32:00"
+  },
+  {
+    "id": 24,
+    "thread_id": "T004",
+    "sender_doctor_key": "D002",
+    "text": "Good next step. If it stays refractory, a short clinic visit is reasonable. I would not pin this to a specific dose from chat.",
+    "created_at": "2026-09-27T00:40:00"
+  },
+  {
+    "id": 25,
+    "thread_id": "T004",
+    "sender_doctor_key": "D034",
+    "text": "I will document that shared plan and update you after follow-up. Still no patient identifiers in this thread.",
+    "created_at": "2026-09-27T00:48:00"
+  },
+  {
+    "id": 26,
+    "thread_id": "T004",
+    "sender_doctor_key": "D002",
+    "text": "Sounds right. We can revisit if something new shows up. This stays a synthetic peer consult.",
+    "created_at": "2026-09-27T00:56:00"
+  },
+  {
+    "id": 27,
+    "thread_id": "T005",
+    "sender_doctor_key": "D003",
+    "text": "Ravi \u2014 I have a 72-year-old with hypertension. It has come on gradually, and I want a peer read before the next visit.",
+    "created_at": "2026-09-26T21:00:00"
+  },
+  {
+    "id": 28,
+    "thread_id": "T005",
+    "sender_doctor_key": "D012",
+    "text": "Happy to think it through, Leena. Is there a clear trigger, or has this been a steady pattern?",
+    "created_at": "2026-09-26T21:08:00"
+  },
+  {
+    "id": 29,
+    "thread_id": "T005",
+    "sender_doctor_key": "D003",
+    "text": "No single trigger. I am keeping this de-identified: age and hypertension only, with no name and no doses.",
+    "created_at": "2026-09-26T21:16:00"
+  },
+  {
+    "id": 30,
+    "thread_id": "T005",
+    "sender_doctor_key": "D012",
+    "text": "That fits a routine hypertension consult. I would confirm the history and review current medicines in general terms before changing strategy.",
+    "created_at": "2026-09-26T21:24:00"
+  },
+  {
+    "id": 31,
+    "thread_id": "T006",
+    "sender_doctor_key": "D031",
+    "text": "Leena \u2014 I have a 24-year-old with migraine. It has come on gradually, and I want a peer read before the next visit.",
+    "created_at": "2026-09-26T18:00:00"
+  },
+  {
+    "id": 32,
+    "thread_id": "T006",
+    "sender_doctor_key": "D003",
+    "text": "Happy to think it through, Aisha. Is there a clear trigger, or has this been a steady pattern?",
+    "created_at": "2026-09-26T18:08:00"
+  },
+  {
+    "id": 33,
+    "thread_id": "T006",
+    "sender_doctor_key": "D031",
+    "text": "No single trigger. I am keeping this de-identified: age and migraine only, with no name and no doses.",
+    "created_at": "2026-09-26T18:16:00"
+  },
+  {
+    "id": 34,
+    "thread_id": "T006",
+    "sender_doctor_key": "D003",
+    "text": "That fits a routine migraine consult. I would confirm the history and review current medicines in general terms before changing strategy.",
+    "created_at": "2026-09-26T18:24:00"
+  },
+  {
+    "id": 35,
+    "thread_id": "T006",
+    "sender_doctor_key": "D031",
+    "text": "Agreed. I will keep the plan general, reassess soon, and send them over if the course turns sudden.",
+    "created_at": "2026-09-26T18:32:00"
+  },
+  {
+    "id": 36,
+    "thread_id": "T007",
+    "sender_doctor_key": "D003",
+    "text": "Ravi \u2014 I have a 34-year-old with hypertension. It has come on gradually, and I want a peer read before the next visit.",
+    "created_at": "2026-09-26T15:00:00"
+  },
+  {
+    "id": 37,
+    "thread_id": "T007",
+    "sender_doctor_key": "D032",
+    "text": "Happy to think it through, Leena. Is there a clear trigger, or has this been a steady pattern?",
+    "created_at": "2026-09-26T15:08:00"
+  },
+  {
+    "id": 38,
+    "thread_id": "T007",
+    "sender_doctor_key": "D003",
+    "text": "No single trigger. I am keeping this de-identified: age and hypertension only, with no name and no doses.",
+    "created_at": "2026-09-26T15:16:00"
+  },
+  {
+    "id": 39,
+    "thread_id": "T007",
+    "sender_doctor_key": "D032",
+    "text": "That fits a routine hypertension consult. I would confirm the history and review current medicines in general terms before changing strategy.",
+    "created_at": "2026-09-26T15:24:00"
+  },
+  {
+    "id": 40,
+    "thread_id": "T007",
+    "sender_doctor_key": "D003",
+    "text": "Agreed. I will keep the plan general, reassess soon, and send them over if the course turns sudden.",
+    "created_at": "2026-09-26T15:32:00"
+  },
+  {
+    "id": 41,
+    "thread_id": "T007",
+    "sender_doctor_key": "D032",
+    "text": "Good next step. If it stays refractory, a short clinic visit is reasonable. I would not pin this to a specific dose from chat.",
+    "created_at": "2026-09-26T15:40:00"
+  },
+  {
+    "id": 42,
+    "thread_id": "T008",
+    "sender_doctor_key": "D008",
+    "text": "Mateo \u2014 I have a 46-year-old with hypothyroidism. It has come on gradually, and I want a peer read before the next visit.",
+    "created_at": "2026-09-26T12:00:00"
+  },
+  {
+    "id": 43,
+    "thread_id": "T008",
+    "sender_doctor_key": "D004",
+    "text": "Happy to think it through, Noah. Is there a clear trigger, or has this been a steady pattern?",
+    "created_at": "2026-09-26T12:08:00"
+  },
+  {
+    "id": 44,
+    "thread_id": "T008",
+    "sender_doctor_key": "D008",
+    "text": "No single trigger. I am keeping this de-identified: age and hypothyroidism only, with no name and no doses.",
+    "created_at": "2026-09-26T12:16:00"
+  },
+  {
+    "id": 45,
+    "thread_id": "T008",
+    "sender_doctor_key": "D004",
+    "text": "That fits a routine hypothyroidism consult. I would confirm the history and review current medicines in general terms before changing strategy.",
+    "created_at": "2026-09-26T12:24:00"
+  },
+  {
+    "id": 46,
+    "thread_id": "T008",
+    "sender_doctor_key": "D008",
+    "text": "Agreed. I will keep the plan general, reassess soon, and send them over if the course turns sudden.",
+    "created_at": "2026-09-26T12:32:00"
+  },
+  {
+    "id": 47,
+    "thread_id": "T008",
+    "sender_doctor_key": "D004",
+    "text": "Good next step. If it stays refractory, a short clinic visit is reasonable. I would not pin this to a specific dose from chat.",
+    "created_at": "2026-09-26T12:40:00"
+  },
+  {
+    "id": 48,
+    "thread_id": "T008",
+    "sender_doctor_key": "D008",
+    "text": "I will document that shared plan and update you after follow-up. Still no patient identifiers in this thread.",
+    "created_at": "2026-09-26T12:48:00"
+  },
+  {
+    "id": 49,
+    "thread_id": "T009",
+    "sender_doctor_key": "D004",
+    "text": "Ravi \u2014 I have a 58-year-old with heart failure. It has come on gradually, and I want a peer read before the next visit.",
+    "created_at": "2026-09-26T09:00:00"
+  },
+  {
+    "id": 50,
+    "thread_id": "T009",
+    "sender_doctor_key": "D012",
+    "text": "Happy to think it through, Mateo. Is there a clear trigger, or has this been a steady pattern?",
+    "created_at": "2026-09-26T09:08:00"
+  },
+  {
+    "id": 51,
+    "thread_id": "T009",
+    "sender_doctor_key": "D004",
+    "text": "No single trigger. I am keeping this de-identified: age and heart failure only, with no name and no doses.",
+    "created_at": "2026-09-26T09:16:00"
+  },
+  {
+    "id": 52,
+    "thread_id": "T009",
+    "sender_doctor_key": "D012",
+    "text": "That fits a routine heart failure consult. I would confirm the history and review current medicines in general terms before changing strategy.",
+    "created_at": "2026-09-26T09:24:00"
+  },
+  {
+    "id": 53,
+    "thread_id": "T009",
+    "sender_doctor_key": "D004",
+    "text": "Agreed. I will keep the plan general, reassess soon, and send them over if the course turns sudden.",
+    "created_at": "2026-09-26T09:32:00"
+  },
+  {
+    "id": 54,
+    "thread_id": "T009",
+    "sender_doctor_key": "D012",
+    "text": "Good next step. If it stays refractory, a short clinic visit is reasonable. I would not pin this to a specific dose from chat.",
+    "created_at": "2026-09-26T09:40:00"
+  },
+  {
+    "id": 55,
+    "thread_id": "T009",
+    "sender_doctor_key": "D004",
+    "text": "I will document that shared plan and update you after follow-up. Still no patient identifiers in this thread.",
+    "created_at": "2026-09-26T09:48:00"
+  },
+  {
+    "id": 56,
+    "thread_id": "T009",
+    "sender_doctor_key": "D012",
+    "text": "Sounds right. We can revisit if something new shows up. This stays a synthetic peer consult.",
+    "created_at": "2026-09-26T09:56:00"
+  },
+  {
+    "id": 57,
+    "thread_id": "T010",
+    "sender_doctor_key": "D032",
+    "text": "Mateo \u2014 I have a 64-year-old with epilepsy. It has come on gradually, and I want a peer read before the next visit.",
+    "created_at": "2026-09-26T06:00:00"
+  },
+  {
+    "id": 58,
+    "thread_id": "T010",
+    "sender_doctor_key": "D004",
+    "text": "Happy to think it through, Ravi. Is there a clear trigger, or has this been a steady pattern?",
+    "created_at": "2026-09-26T06:08:00"
+  },
+  {
+    "id": 59,
+    "thread_id": "T010",
+    "sender_doctor_key": "D032",
+    "text": "No single trigger. I am keeping this de-identified: age and epilepsy only, with no name and no doses.",
+    "created_at": "2026-09-26T06:16:00"
+  },
+  {
+    "id": 60,
+    "thread_id": "T010",
+    "sender_doctor_key": "D004",
+    "text": "That fits a routine epilepsy consult. I would confirm the history and review current medicines in general terms before changing strategy.",
+    "created_at": "2026-09-26T06:24:00"
+  },
+  {
+    "id": 61,
+    "thread_id": "T011",
+    "sender_doctor_key": "D004",
+    "text": "Elias \u2014 I have a 72-year-old with heart failure. It has come on gradually, and I want a peer read before the next visit.",
+    "created_at": "2026-09-26T03:00:00"
+  },
+  {
+    "id": 62,
+    "thread_id": "T011",
+    "sender_doctor_key": "D036",
+    "text": "Happy to think it through, Mateo. Is there a clear trigger, or has this been a steady pattern?",
+    "created_at": "2026-09-26T03:08:00"
+  },
+  {
+    "id": 63,
+    "thread_id": "T011",
+    "sender_doctor_key": "D004",
+    "text": "No single trigger. I am keeping this de-identified: age and heart failure only, with no name and no doses.",
+    "created_at": "2026-09-26T03:16:00"
+  },
+  {
+    "id": 64,
+    "thread_id": "T011",
+    "sender_doctor_key": "D036",
+    "text": "That fits a routine heart failure consult. I would confirm the history and review current medicines in general terms before changing strategy.",
+    "created_at": "2026-09-26T03:24:00"
+  },
+  {
+    "id": 65,
+    "thread_id": "T011",
+    "sender_doctor_key": "D004",
+    "text": "Agreed. I will keep the plan general, reassess soon, and send them over if the course turns sudden.",
+    "created_at": "2026-09-26T03:32:00"
+  },
+  {
+    "id": 66,
+    "thread_id": "T012",
+    "sender_doctor_key": "D026",
+    "text": "Samir \u2014 I have a 24-year-old with inflammatory bowel disease. It has come on gradually, and I want a peer read before the next visit.",
+    "created_at": "2026-09-26T00:00:00"
+  },
+  {
+    "id": 67,
+    "thread_id": "T012",
+    "sender_doctor_key": "D006",
+    "text": "Happy to think it through, Samir. Is there a clear trigger, or has this been a steady pattern?",
+    "created_at": "2026-09-26T00:08:00"
+  },
+  {
+    "id": 68,
+    "thread_id": "T012",
+    "sender_doctor_key": "D026",
+    "text": "No single trigger. I am keeping this de-identified: age and inflammatory bowel disease only, with no name and no doses.",
+    "created_at": "2026-09-26T00:16:00"
+  },
+  {
+    "id": 69,
+    "thread_id": "T012",
+    "sender_doctor_key": "D006",
+    "text": "That fits a routine inflammatory bowel disease consult. I would confirm the history and review current medicines in general terms before changing strategy.",
+    "created_at": "2026-09-26T00:24:00"
+  },
+  {
+    "id": 70,
+    "thread_id": "T012",
+    "sender_doctor_key": "D026",
+    "text": "Agreed. I will keep the plan general, reassess soon, and send them over if the course turns sudden.",
+    "created_at": "2026-09-26T00:32:00"
+  },
+  {
+    "id": 71,
+    "thread_id": "T012",
+    "sender_doctor_key": "D006",
+    "text": "Good next step. If it stays refractory, a short clinic visit is reasonable. I would not pin this to a specific dose from chat.",
+    "created_at": "2026-09-26T00:40:00"
+  },
+  {
+    "id": 72,
+    "thread_id": "T013",
+    "sender_doctor_key": "D006",
+    "text": "Elena \u2014 I have a 34-year-old with hypothyroidism. It has come on gradually, and I want a peer read before the next visit.",
+    "created_at": "2026-09-25T21:00:00"
+  },
+  {
+    "id": 73,
+    "thread_id": "T013",
+    "sender_doctor_key": "D027",
+    "text": "Happy to think it through, Samir. Is there a clear trigger, or has this been a steady pattern?",
+    "created_at": "2026-09-25T21:08:00"
+  },
+  {
+    "id": 74,
+    "thread_id": "T013",
+    "sender_doctor_key": "D006",
+    "text": "No single trigger. I am keeping this de-identified: age and hypothyroidism only, with no name and no doses.",
+    "created_at": "2026-09-25T21:16:00"
+  },
+  {
+    "id": 75,
+    "thread_id": "T013",
+    "sender_doctor_key": "D027",
+    "text": "That fits a routine hypothyroidism consult. I would confirm the history and review current medicines in general terms before changing strategy.",
+    "created_at": "2026-09-25T21:24:00"
+  },
+  {
+    "id": 76,
+    "thread_id": "T013",
+    "sender_doctor_key": "D006",
+    "text": "Agreed. I will keep the plan general, reassess soon, and send them over if the course turns sudden.",
+    "created_at": "2026-09-25T21:32:00"
+  },
+  {
+    "id": 77,
+    "thread_id": "T013",
+    "sender_doctor_key": "D027",
+    "text": "Good next step. If it stays refractory, a short clinic visit is reasonable. I would not pin this to a specific dose from chat.",
+    "created_at": "2026-09-25T21:40:00"
+  },
+  {
+    "id": 78,
+    "thread_id": "T013",
+    "sender_doctor_key": "D006",
+    "text": "I will document that shared plan and update you after follow-up. Still no patient identifiers in this thread.",
+    "created_at": "2026-09-25T21:48:00"
+  },
+  {
+    "id": 79,
+    "thread_id": "T014",
+    "sender_doctor_key": "D026",
+    "text": "Elena \u2014 I have a 46-year-old with inflammatory bowel disease. It has come on gradually, and I want a peer read before the next visit.",
+    "created_at": "2026-09-25T18:00:00"
+  },
+  {
+    "id": 80,
+    "thread_id": "T014",
+    "sender_doctor_key": "D007",
+    "text": "Happy to think it through, Samir. Is there a clear trigger, or has this been a steady pattern?",
+    "created_at": "2026-09-25T18:08:00"
+  },
+  {
+    "id": 81,
+    "thread_id": "T014",
+    "sender_doctor_key": "D026",
+    "text": "No single trigger. I am keeping this de-identified: age and inflammatory bowel disease only, with no name and no doses.",
+    "created_at": "2026-09-25T18:16:00"
+  },
+  {
+    "id": 82,
+    "thread_id": "T014",
+    "sender_doctor_key": "D007",
+    "text": "That fits a routine inflammatory bowel disease consult. I would confirm the history and review current medicines in general terms before changing strategy.",
+    "created_at": "2026-09-25T18:24:00"
+  },
+  {
+    "id": 83,
+    "thread_id": "T014",
+    "sender_doctor_key": "D026",
+    "text": "Agreed. I will keep the plan general, reassess soon, and send them over if the course turns sudden.",
+    "created_at": "2026-09-25T18:32:00"
+  },
+  {
+    "id": 84,
+    "thread_id": "T014",
+    "sender_doctor_key": "D007",
+    "text": "Good next step. If it stays refractory, a short clinic visit is reasonable. I would not pin this to a specific dose from chat.",
+    "created_at": "2026-09-25T18:40:00"
+  },
+  {
+    "id": 85,
+    "thread_id": "T014",
+    "sender_doctor_key": "D026",
+    "text": "I will document that shared plan and update you after follow-up. Still no patient identifiers in this thread.",
+    "created_at": "2026-09-25T18:48:00"
+  },
+  {
+    "id": 86,
+    "thread_id": "T014",
+    "sender_doctor_key": "D007",
+    "text": "Sounds right. We can revisit if something new shows up. This stays a synthetic peer consult.",
+    "created_at": "2026-09-25T18:56:00"
+  },
+  {
+    "id": 87,
+    "thread_id": "T015",
+    "sender_doctor_key": "D007",
+    "text": "Elena \u2014 I have a 58-year-old with type 2 diabetes. It has come on gradually, and I want a peer read before the next visit.",
+    "created_at": "2026-09-25T15:00:00"
+  },
+  {
+    "id": 88,
+    "thread_id": "T015",
+    "sender_doctor_key": "D027",
+    "text": "Happy to think it through, Elena. Is there a clear trigger, or has this been a steady pattern?",
+    "created_at": "2026-09-25T15:08:00"
+  },
+  {
+    "id": 89,
+    "thread_id": "T015",
+    "sender_doctor_key": "D007",
+    "text": "No single trigger. I am keeping this de-identified: age and type 2 diabetes only, with no name and no doses.",
+    "created_at": "2026-09-25T15:16:00"
+  },
+  {
+    "id": 90,
+    "thread_id": "T015",
+    "sender_doctor_key": "D027",
+    "text": "That fits a routine type 2 diabetes consult. I would confirm the history and review current medicines in general terms before changing strategy.",
+    "created_at": "2026-09-25T15:24:00"
+  },
+  {
+    "id": 91,
+    "thread_id": "T016",
+    "sender_doctor_key": "D028",
+    "text": "Elena \u2014 I have a 64-year-old with inflammatory bowel disease. It has come on gradually, and I want a peer read before the next visit.",
+    "created_at": "2026-09-25T12:00:00"
+  },
+  {
+    "id": 92,
+    "thread_id": "T016",
+    "sender_doctor_key": "D007",
+    "text": "Happy to think it through, Noah. Is there a clear trigger, or has this been a steady pattern?",
+    "created_at": "2026-09-25T12:08:00"
+  },
+  {
+    "id": 93,
+    "thread_id": "T016",
+    "sender_doctor_key": "D028",
+    "text": "No single trigger. I am keeping this de-identified: age and inflammatory bowel disease only, with no name and no doses.",
+    "created_at": "2026-09-25T12:16:00"
+  },
+  {
+    "id": 94,
+    "thread_id": "T016",
+    "sender_doctor_key": "D007",
+    "text": "That fits a routine inflammatory bowel disease consult. I would confirm the history and review current medicines in general terms before changing strategy.",
+    "created_at": "2026-09-25T12:24:00"
+  },
+  {
+    "id": 95,
+    "thread_id": "T016",
+    "sender_doctor_key": "D028",
+    "text": "Agreed. I will keep the plan general, reassess soon, and send them over if the course turns sudden.",
+    "created_at": "2026-09-25T12:32:00"
+  },
+  {
+    "id": 96,
+    "thread_id": "T017",
+    "sender_doctor_key": "D008",
+    "text": "Noah \u2014 I have a 72-year-old with hypothyroidism. It has come on gradually, and I want a peer read before the next visit.",
+    "created_at": "2026-09-25T09:00:00"
+  },
+  {
+    "id": 97,
+    "thread_id": "T017",
+    "sender_doctor_key": "D028",
+    "text": "Happy to think it through, Noah. Is there a clear trigger, or has this been a steady pattern?",
+    "created_at": "2026-09-25T09:08:00"
+  },
+  {
+    "id": 98,
+    "thread_id": "T017",
+    "sender_doctor_key": "D008",
+    "text": "No single trigger. I am keeping this de-identified: age and hypothyroidism only, with no name and no doses.",
+    "created_at": "2026-09-25T09:16:00"
+  },
+  {
+    "id": 99,
+    "thread_id": "T017",
+    "sender_doctor_key": "D028",
+    "text": "That fits a routine hypothyroidism consult. I would confirm the history and review current medicines in general terms before changing strategy.",
+    "created_at": "2026-09-25T09:24:00"
+  },
+  {
+    "id": 100,
+    "thread_id": "T017",
+    "sender_doctor_key": "D008",
+    "text": "Agreed. I will keep the plan general, reassess soon, and send them over if the course turns sudden.",
+    "created_at": "2026-09-25T09:32:00"
+  },
+  {
+    "id": 101,
+    "thread_id": "T017",
+    "sender_doctor_key": "D028",
+    "text": "Good next step. If it stays refractory, a short clinic visit is reasonable. I would not pin this to a specific dose from chat.",
+    "created_at": "2026-09-25T09:40:00"
+  },
+  {
+    "id": 102,
+    "thread_id": "T018",
+    "sender_doctor_key": "D030",
+    "text": "Noah \u2014 I have a 24-year-old with inflammatory bowel disease. It has come on gradually, and I want a peer read before the next visit.",
+    "created_at": "2026-09-25T06:00:00"
+  },
+  {
+    "id": 103,
+    "thread_id": "T018",
+    "sender_doctor_key": "D008",
+    "text": "Happy to think it through, Daniel. Is there a clear trigger, or has this been a steady pattern?",
+    "created_at": "2026-09-25T06:08:00"
+  },
+  {
+    "id": 104,
+    "thread_id": "T018",
+    "sender_doctor_key": "D030",
+    "text": "No single trigger. I am keeping this de-identified: age and inflammatory bowel disease only, with no name and no doses.",
+    "created_at": "2026-09-25T06:16:00"
+  },
+  {
+    "id": 105,
+    "thread_id": "T018",
+    "sender_doctor_key": "D008",
+    "text": "That fits a routine inflammatory bowel disease consult. I would confirm the history and review current medicines in general terms before changing strategy.",
+    "created_at": "2026-09-25T06:24:00"
+  },
+  {
+    "id": 106,
+    "thread_id": "T018",
+    "sender_doctor_key": "D030",
+    "text": "Agreed. I will keep the plan general, reassess soon, and send them over if the course turns sudden.",
+    "created_at": "2026-09-25T06:32:00"
+  },
+  {
+    "id": 107,
+    "thread_id": "T018",
+    "sender_doctor_key": "D008",
+    "text": "Good next step. If it stays refractory, a short clinic visit is reasonable. I would not pin this to a specific dose from chat.",
+    "created_at": "2026-09-25T06:40:00"
+  },
+  {
+    "id": 108,
+    "thread_id": "T018",
+    "sender_doctor_key": "D030",
+    "text": "I will document that shared plan and update you after follow-up. Still no patient identifiers in this thread.",
+    "created_at": "2026-09-25T06:48:00"
+  },
+  {
+    "id": 109,
+    "thread_id": "T019",
+    "sender_doctor_key": "D008",
+    "text": "Ibrahim \u2014 I have a 34-year-old with hypothyroidism. It has come on gradually, and I want a peer read before the next visit.",
+    "created_at": "2026-09-25T03:00:00"
+  },
+  {
+    "id": 110,
+    "thread_id": "T019",
+    "sender_doctor_key": "D040",
+    "text": "Happy to think it through, Noah. Is there a clear trigger, or has this been a steady pattern?",
+    "created_at": "2026-09-25T03:08:00"
+  },
+  {
+    "id": 111,
+    "thread_id": "T019",
+    "sender_doctor_key": "D008",
+    "text": "No single trigger. I am keeping this de-identified: age and hypothyroidism only, with no name and no doses.",
+    "created_at": "2026-09-25T03:16:00"
+  },
+  {
+    "id": 112,
+    "thread_id": "T019",
+    "sender_doctor_key": "D040",
+    "text": "That fits a routine hypothyroidism consult. I would confirm the history and review current medicines in general terms before changing strategy.",
+    "created_at": "2026-09-25T03:24:00"
+  },
+  {
+    "id": 113,
+    "thread_id": "T019",
+    "sender_doctor_key": "D008",
+    "text": "Agreed. I will keep the plan general, reassess soon, and send them over if the course turns sudden.",
+    "created_at": "2026-09-25T03:32:00"
+  },
+  {
+    "id": 114,
+    "thread_id": "T019",
+    "sender_doctor_key": "D040",
+    "text": "Good next step. If it stays refractory, a short clinic visit is reasonable. I would not pin this to a specific dose from chat.",
+    "created_at": "2026-09-25T03:40:00"
+  },
+  {
+    "id": 115,
+    "thread_id": "T019",
+    "sender_doctor_key": "D008",
+    "text": "I will document that shared plan and update you after follow-up. Still no patient identifiers in this thread.",
+    "created_at": "2026-09-25T03:48:00"
+  },
+  {
+    "id": 116,
+    "thread_id": "T019",
+    "sender_doctor_key": "D040",
+    "text": "Sounds right. We can revisit if something new shows up. This stays a synthetic peer consult.",
+    "created_at": "2026-09-25T03:56:00"
+  },
+  {
+    "id": 117,
+    "thread_id": "T020",
+    "sender_doctor_key": "D028",
+    "text": "Daniel \u2014 I have a 46-year-old with inflammatory bowel disease. It has come on gradually, and I want a peer read before the next visit.",
+    "created_at": "2026-09-25T00:00:00"
+  },
+  {
+    "id": 118,
+    "thread_id": "T020",
+    "sender_doctor_key": "D010",
+    "text": "Happy to think it through, Noah. Is there a clear trigger, or has this been a steady pattern?",
+    "created_at": "2026-09-25T00:08:00"
+  },
+  {
+    "id": 119,
+    "thread_id": "T020",
+    "sender_doctor_key": "D028",
+    "text": "No single trigger. I am keeping this de-identified: age and inflammatory bowel disease only, with no name and no doses.",
+    "created_at": "2026-09-25T00:16:00"
+  },
+  {
+    "id": 120,
+    "thread_id": "T020",
+    "sender_doctor_key": "D010",
+    "text": "That fits a routine inflammatory bowel disease consult. I would confirm the history and review current medicines in general terms before changing strategy.",
+    "created_at": "2026-09-25T00:24:00"
+  },
+  {
+    "id": 121,
+    "thread_id": "T021",
+    "sender_doctor_key": "D010",
+    "text": "Daniel \u2014 I have a 58-year-old with hypothyroidism. It has come on gradually, and I want a peer read before the next visit.",
+    "created_at": "2026-09-24T21:00:00"
+  },
+  {
+    "id": 122,
+    "thread_id": "T021",
+    "sender_doctor_key": "D030",
+    "text": "Happy to think it through, Daniel. Is there a clear trigger, or has this been a steady pattern?",
+    "created_at": "2026-09-24T21:08:00"
+  },
+  {
+    "id": 123,
+    "thread_id": "T021",
+    "sender_doctor_key": "D010",
+    "text": "No single trigger. I am keeping this de-identified: age and hypothyroidism only, with no name and no doses.",
+    "created_at": "2026-09-24T21:16:00"
+  },
+  {
+    "id": 124,
+    "thread_id": "T021",
+    "sender_doctor_key": "D030",
+    "text": "That fits a routine hypothyroidism consult. I would confirm the history and review current medicines in general terms before changing strategy.",
+    "created_at": "2026-09-24T21:24:00"
+  },
+  {
+    "id": 125,
+    "thread_id": "T021",
+    "sender_doctor_key": "D010",
+    "text": "Agreed. I will keep the plan general, reassess soon, and send them over if the course turns sudden.",
+    "created_at": "2026-09-24T21:32:00"
+  },
+  {
+    "id": 126,
+    "thread_id": "T022",
+    "sender_doctor_key": "D022",
+    "text": "Aisha \u2014 I have a 64-year-old with gout. It has come on gradually, and I want a peer read before the next visit.",
+    "created_at": "2026-09-24T18:00:00"
+  },
+  {
+    "id": 127,
+    "thread_id": "T022",
+    "sender_doctor_key": "D011",
+    "text": "Happy to think it through, Jordan. Is there a clear trigger, or has this been a steady pattern?",
+    "created_at": "2026-09-24T18:08:00"
+  },
+  {
+    "id": 128,
+    "thread_id": "T022",
+    "sender_doctor_key": "D022",
+    "text": "No single trigger. I am keeping this de-identified: age and gout only, with no name and no doses.",
+    "created_at": "2026-09-24T18:16:00"
+  },
+  {
+    "id": 129,
+    "thread_id": "T022",
+    "sender_doctor_key": "D011",
+    "text": "That fits a routine gout consult. I would confirm the history and review current medicines in general terms before changing strategy.",
+    "created_at": "2026-09-24T18:24:00"
+  },
+  {
+    "id": 130,
+    "thread_id": "T022",
+    "sender_doctor_key": "D022",
+    "text": "Agreed. I will keep the plan general, reassess soon, and send them over if the course turns sudden.",
+    "created_at": "2026-09-24T18:32:00"
+  },
+  {
+    "id": 131,
+    "thread_id": "T022",
+    "sender_doctor_key": "D011",
+    "text": "Good next step. If it stays refractory, a short clinic visit is reasonable. I would not pin this to a specific dose from chat.",
+    "created_at": "2026-09-24T18:40:00"
+  },
+  {
+    "id": 132,
+    "thread_id": "T023",
+    "sender_doctor_key": "D011",
+    "text": "Leena \u2014 I have a 72-year-old with asthma. It has come on gradually, and I want a peer read before the next visit.",
+    "created_at": "2026-09-24T15:00:00"
+  },
+  {
+    "id": 133,
+    "thread_id": "T023",
+    "sender_doctor_key": "D023",
+    "text": "Happy to think it through, Aisha. Is there a clear trigger, or has this been a steady pattern?",
+    "created_at": "2026-09-24T15:08:00"
+  },
+  {
+    "id": 134,
+    "thread_id": "T023",
+    "sender_doctor_key": "D011",
+    "text": "No single trigger. I am keeping this de-identified: age and asthma only, with no name and no doses.",
+    "created_at": "2026-09-24T15:16:00"
+  },
+  {
+    "id": 135,
+    "thread_id": "T023",
+    "sender_doctor_key": "D023",
+    "text": "That fits a routine asthma consult. I would confirm the history and review current medicines in general terms before changing strategy.",
+    "created_at": "2026-09-24T15:24:00"
+  },
+  {
+    "id": 136,
+    "thread_id": "T023",
+    "sender_doctor_key": "D011",
+    "text": "Agreed. I will keep the plan general, reassess soon, and send them over if the course turns sudden.",
+    "created_at": "2026-09-24T15:32:00"
+  },
+  {
+    "id": 137,
+    "thread_id": "T023",
+    "sender_doctor_key": "D023",
+    "text": "Good next step. If it stays refractory, a short clinic visit is reasonable. I would not pin this to a specific dose from chat.",
+    "created_at": "2026-09-24T15:40:00"
+  },
+  {
+    "id": 138,
+    "thread_id": "T023",
+    "sender_doctor_key": "D011",
+    "text": "I will document that shared plan and update you after follow-up. Still no patient identifiers in this thread.",
+    "created_at": "2026-09-24T15:48:00"
+  },
+  {
+    "id": 139,
+    "thread_id": "T024",
+    "sender_doctor_key": "D024",
+    "text": "Aisha \u2014 I have a 24-year-old with gout. It has come on gradually, and I want a peer read before the next visit.",
+    "created_at": "2026-09-24T12:00:00"
+  },
+  {
+    "id": 140,
+    "thread_id": "T024",
+    "sender_doctor_key": "D011",
+    "text": "Happy to think it through, Mateo. Is there a clear trigger, or has this been a steady pattern?",
+    "created_at": "2026-09-24T12:08:00"
+  },
+  {
+    "id": 141,
+    "thread_id": "T024",
+    "sender_doctor_key": "D024",
+    "text": "No single trigger. I am keeping this de-identified: age and gout only, with no name and no doses.",
+    "created_at": "2026-09-24T12:16:00"
+  },
+  {
+    "id": 142,
+    "thread_id": "T024",
+    "sender_doctor_key": "D011",
+    "text": "That fits a routine gout consult. I would confirm the history and review current medicines in general terms before changing strategy.",
+    "created_at": "2026-09-24T12:24:00"
+  },
+  {
+    "id": 143,
+    "thread_id": "T024",
+    "sender_doctor_key": "D024",
+    "text": "Agreed. I will keep the plan general, reassess soon, and send them over if the course turns sudden.",
+    "created_at": "2026-09-24T12:32:00"
+  },
+  {
+    "id": 144,
+    "thread_id": "T024",
+    "sender_doctor_key": "D011",
+    "text": "Good next step. If it stays refractory, a short clinic visit is reasonable. I would not pin this to a specific dose from chat.",
+    "created_at": "2026-09-24T12:40:00"
+  },
+  {
+    "id": 145,
+    "thread_id": "T024",
+    "sender_doctor_key": "D024",
+    "text": "I will document that shared plan and update you after follow-up. Still no patient identifiers in this thread.",
+    "created_at": "2026-09-24T12:48:00"
+  },
+  {
+    "id": 146,
+    "thread_id": "T024",
+    "sender_doctor_key": "D011",
+    "text": "Sounds right. We can revisit if something new shows up. This stays a synthetic peer consult.",
+    "created_at": "2026-09-24T12:56:00"
+  },
+  {
+    "id": 147,
+    "thread_id": "T025",
+    "sender_doctor_key": "D012",
+    "text": "Omar \u2014 I have a 34-year-old with copd. It has come on gradually, and I want a peer read before the next visit.",
+    "created_at": "2026-09-24T09:00:00"
+  },
+  {
+    "id": 148,
+    "thread_id": "T025",
+    "sender_doctor_key": "D014",
+    "text": "Happy to think it through, Ravi. Is there a clear trigger, or has this been a steady pattern?",
+    "created_at": "2026-09-24T09:08:00"
+  },
+  {
+    "id": 149,
+    "thread_id": "T025",
+    "sender_doctor_key": "D012",
+    "text": "No single trigger. I am keeping this de-identified: age and copd only, with no name and no doses.",
+    "created_at": "2026-09-24T09:16:00"
+  },
+  {
+    "id": 150,
+    "thread_id": "T025",
+    "sender_doctor_key": "D014",
+    "text": "That fits a routine copd consult. I would confirm the history and review current medicines in general terms before changing strategy.",
+    "created_at": "2026-09-24T09:24:00"
+  },
+  {
+    "id": 151,
+    "thread_id": "T026",
+    "sender_doctor_key": "D024",
+    "text": "Ravi \u2014 I have a 46-year-old with gout. It has come on gradually, and I want a peer read before the next visit.",
+    "created_at": "2026-09-24T06:00:00"
+  },
+  {
+    "id": 152,
+    "thread_id": "T026",
+    "sender_doctor_key": "D012",
+    "text": "Happy to think it through, Mateo. Is there a clear trigger, or has this been a steady pattern?",
+    "created_at": "2026-09-24T06:08:00"
+  },
+  {
+    "id": 153,
+    "thread_id": "T026",
+    "sender_doctor_key": "D024",
+    "text": "No single trigger. I am keeping this de-identified: age and gout only, with no name and no doses.",
+    "created_at": "2026-09-24T06:16:00"
+  },
+  {
+    "id": 154,
+    "thread_id": "T026",
+    "sender_doctor_key": "D012",
+    "text": "That fits a routine gout consult. I would confirm the history and review current medicines in general terms before changing strategy.",
+    "created_at": "2026-09-24T06:24:00"
+  },
+  {
+    "id": 155,
+    "thread_id": "T026",
+    "sender_doctor_key": "D024",
+    "text": "Agreed. I will keep the plan general, reassess soon, and send them over if the course turns sudden.",
+    "created_at": "2026-09-24T06:32:00"
+  },
+  {
+    "id": 156,
+    "thread_id": "T027",
+    "sender_doctor_key": "D015",
+    "text": "Luca \u2014 I have a 58-year-old with asthma. It has come on gradually, and I want a peer read before the next visit.",
+    "created_at": "2026-09-24T03:00:00"
+  },
+  {
+    "id": 157,
+    "thread_id": "T027",
+    "sender_doctor_key": "D038",
+    "text": "Happy to think it through, Nora. Is there a clear trigger, or has this been a steady pattern?",
+    "created_at": "2026-09-24T03:08:00"
+  },
+  {
+    "id": 158,
+    "thread_id": "T027",
+    "sender_doctor_key": "D015",
+    "text": "No single trigger. I am keeping this de-identified: age and asthma only, with no name and no doses.",
+    "created_at": "2026-09-24T03:16:00"
+  },
+  {
+    "id": 159,
+    "thread_id": "T027",
+    "sender_doctor_key": "D038",
+    "text": "That fits a routine asthma consult. I would confirm the history and review current medicines in general terms before changing strategy.",
+    "created_at": "2026-09-24T03:24:00"
+  },
+  {
+    "id": 160,
+    "thread_id": "T027",
+    "sender_doctor_key": "D015",
+    "text": "Agreed. I will keep the plan general, reassess soon, and send them over if the course turns sudden.",
+    "created_at": "2026-09-24T03:32:00"
+  },
+  {
+    "id": 161,
+    "thread_id": "T027",
+    "sender_doctor_key": "D038",
+    "text": "Good next step. If it stays refractory, a short clinic visit is reasonable. I would not pin this to a specific dose from chat.",
+    "created_at": "2026-09-24T03:40:00"
+  },
+  {
+    "id": 162,
+    "thread_id": "T028",
+    "sender_doctor_key": "D039",
+    "text": "Nora \u2014 I have a 64-year-old with hyperlipidemia. It has come on gradually, and I want a peer read before the next visit.",
+    "created_at": "2026-09-24T00:00:00"
+  },
+  {
+    "id": 163,
+    "thread_id": "T028",
+    "sender_doctor_key": "D015",
+    "text": "Happy to think it through, Mei. Is there a clear trigger, or has this been a steady pattern?",
+    "created_at": "2026-09-24T00:08:00"
+  },
+  {
+    "id": 164,
+    "thread_id": "T028",
+    "sender_doctor_key": "D039",
+    "text": "No single trigger. I am keeping this de-identified: age and hyperlipidemia only, with no name and no doses.",
+    "created_at": "2026-09-24T00:16:00"
+  },
+  {
+    "id": 165,
+    "thread_id": "T028",
+    "sender_doctor_key": "D015",
+    "text": "That fits a routine hyperlipidemia consult. I would confirm the history and review current medicines in general terms before changing strategy.",
+    "created_at": "2026-09-24T00:24:00"
+  },
+  {
+    "id": 166,
+    "thread_id": "T028",
+    "sender_doctor_key": "D039",
+    "text": "Agreed. I will keep the plan general, reassess soon, and send them over if the course turns sudden.",
+    "created_at": "2026-09-24T00:32:00"
+  },
+  {
+    "id": 167,
+    "thread_id": "T028",
+    "sender_doctor_key": "D015",
+    "text": "Good next step. If it stays refractory, a short clinic visit is reasonable. I would not pin this to a specific dose from chat.",
+    "created_at": "2026-09-24T00:40:00"
+  },
+  {
+    "id": 168,
+    "thread_id": "T028",
+    "sender_doctor_key": "D039",
+    "text": "I will document that shared plan and update you after follow-up. Still no patient identifiers in this thread.",
+    "created_at": "2026-09-24T00:48:00"
+  },
+  {
+    "id": 169,
+    "thread_id": "T029",
+    "sender_doctor_key": "D015",
+    "text": "Ibrahim \u2014 I have a 72-year-old with asthma. It has come on gradually, and I want a peer read before the next visit.",
+    "created_at": "2026-09-23T21:00:00"
+  },
+  {
+    "id": 170,
+    "thread_id": "T029",
+    "sender_doctor_key": "D040",
+    "text": "Happy to think it through, Nora. Is there a clear trigger, or has this been a steady pattern?",
+    "created_at": "2026-09-23T21:08:00"
+  },
+  {
+    "id": 171,
+    "thread_id": "T029",
+    "sender_doctor_key": "D015",
+    "text": "No single trigger. I am keeping this de-identified: age and asthma only, with no name and no doses.",
+    "created_at": "2026-09-23T21:16:00"
+  },
+  {
+    "id": 172,
+    "thread_id": "T029",
+    "sender_doctor_key": "D040",
+    "text": "That fits a routine asthma consult. I would confirm the history and review current medicines in general terms before changing strategy.",
+    "created_at": "2026-09-23T21:24:00"
+  },
+  {
+    "id": 173,
+    "thread_id": "T029",
+    "sender_doctor_key": "D015",
+    "text": "Agreed. I will keep the plan general, reassess soon, and send them over if the course turns sudden.",
+    "created_at": "2026-09-23T21:32:00"
+  },
+  {
+    "id": 174,
+    "thread_id": "T029",
+    "sender_doctor_key": "D040",
+    "text": "Good next step. If it stays refractory, a short clinic visit is reasonable. I would not pin this to a specific dose from chat.",
+    "created_at": "2026-09-23T21:40:00"
+  },
+  {
+    "id": 175,
+    "thread_id": "T029",
+    "sender_doctor_key": "D015",
+    "text": "I will document that shared plan and update you after follow-up. Still no patient identifiers in this thread.",
+    "created_at": "2026-09-23T21:48:00"
+  },
+  {
+    "id": 176,
+    "thread_id": "T029",
+    "sender_doctor_key": "D040",
+    "text": "Sounds right. We can revisit if something new shows up. This stays a synthetic peer consult.",
+    "created_at": "2026-09-23T21:56:00"
+  },
+  {
+    "id": 177,
+    "thread_id": "T030",
+    "sender_doctor_key": "D018",
+    "text": "Elias \u2014 I have a 24-year-old with psoriasis. It has come on gradually, and I want a peer read before the next visit.",
+    "created_at": "2026-09-23T18:00:00"
+  },
+  {
+    "id": 178,
+    "thread_id": "T030",
+    "sender_doctor_key": "D016",
+    "text": "Happy to think it through, Luca. Is there a clear trigger, or has this been a steady pattern?",
+    "created_at": "2026-09-23T18:08:00"
+  },
+  {
+    "id": 179,
+    "thread_id": "T030",
+    "sender_doctor_key": "D018",
+    "text": "No single trigger. I am keeping this de-identified: age and psoriasis only, with no name and no doses.",
+    "created_at": "2026-09-23T18:16:00"
+  },
+  {
+    "id": 180,
+    "thread_id": "T030",
+    "sender_doctor_key": "D016",
+    "text": "That fits a routine psoriasis consult. I would confirm the history and review current medicines in general terms before changing strategy.",
+    "created_at": "2026-09-23T18:24:00"
+  },
+  {
+    "id": 181,
+    "thread_id": "T031",
+    "sender_doctor_key": "D016",
+    "text": "Leena \u2014 I have a 34-year-old with psoriasis. It has come on gradually, and I want a peer read before the next visit.",
+    "created_at": "2026-09-23T15:00:00"
+  },
+  {
+    "id": 182,
+    "thread_id": "T031",
+    "sender_doctor_key": "D023",
+    "text": "Happy to think it through, Elias. Is there a clear trigger, or has this been a steady pattern?",
+    "created_at": "2026-09-23T15:08:00"
+  },
+  {
+    "id": 183,
+    "thread_id": "T031",
+    "sender_doctor_key": "D016",
+    "text": "No single trigger. I am keeping this de-identified: age and psoriasis only, with no name and no doses.",
+    "created_at": "2026-09-23T15:16:00"
+  },
+  {
+    "id": 184,
+    "thread_id": "T031",
+    "sender_doctor_key": "D023",
+    "text": "That fits a routine psoriasis consult. I would confirm the history and review current medicines in general terms before changing strategy.",
+    "created_at": "2026-09-23T15:24:00"
+  },
+  {
+    "id": 185,
+    "thread_id": "T031",
+    "sender_doctor_key": "D016",
+    "text": "Agreed. I will keep the plan general, reassess soon, and send them over if the course turns sudden.",
+    "created_at": "2026-09-23T15:32:00"
+  },
+  {
+    "id": 186,
+    "thread_id": "T032",
+    "sender_doctor_key": "D024",
+    "text": "Elias \u2014 I have a 46-year-old with gout. It has come on gradually, and I want a peer read before the next visit.",
+    "created_at": "2026-09-23T12:00:00"
+  },
+  {
+    "id": 187,
+    "thread_id": "T032",
+    "sender_doctor_key": "D016",
+    "text": "Happy to think it through, Mateo. Is there a clear trigger, or has this been a steady pattern?",
+    "created_at": "2026-09-23T12:08:00"
+  },
+  {
+    "id": 188,
+    "thread_id": "T032",
+    "sender_doctor_key": "D024",
+    "text": "No single trigger. I am keeping this de-identified: age and gout only, with no name and no doses.",
+    "created_at": "2026-09-23T12:16:00"
+  },
+  {
+    "id": 189,
+    "thread_id": "T032",
+    "sender_doctor_key": "D016",
+    "text": "That fits a routine gout consult. I would confirm the history and review current medicines in general terms before changing strategy.",
+    "created_at": "2026-09-23T12:24:00"
+  },
+  {
+    "id": 190,
+    "thread_id": "T032",
+    "sender_doctor_key": "D024",
+    "text": "Agreed. I will keep the plan general, reassess soon, and send them over if the course turns sudden.",
+    "created_at": "2026-09-23T12:32:00"
+  },
+  {
+    "id": 191,
+    "thread_id": "T032",
+    "sender_doctor_key": "D016",
+    "text": "Good next step. If it stays refractory, a short clinic visit is reasonable. I would not pin this to a specific dose from chat.",
+    "created_at": "2026-09-23T12:40:00"
+  },
+  {
+    "id": 192,
+    "thread_id": "T033",
+    "sender_doctor_key": "D016",
+    "text": "Elias \u2014 I have a 58-year-old with psoriasis. It has come on gradually, and I want a peer read before the next visit.",
+    "created_at": "2026-09-23T09:00:00"
+  },
+  {
+    "id": 193,
+    "thread_id": "T033",
+    "sender_doctor_key": "D036",
+    "text": "Happy to think it through, Elias. Is there a clear trigger, or has this been a steady pattern?",
+    "created_at": "2026-09-23T09:08:00"
+  },
+  {
+    "id": 194,
+    "thread_id": "T033",
+    "sender_doctor_key": "D016",
+    "text": "No single trigger. I am keeping this de-identified: age and psoriasis only, with no name and no doses.",
+    "created_at": "2026-09-23T09:16:00"
+  },
+  {
+    "id": 195,
+    "thread_id": "T033",
+    "sender_doctor_key": "D036",
+    "text": "That fits a routine psoriasis consult. I would confirm the history and review current medicines in general terms before changing strategy.",
+    "created_at": "2026-09-23T09:24:00"
+  },
+  {
+    "id": 196,
+    "thread_id": "T033",
+    "sender_doctor_key": "D016",
+    "text": "Agreed. I will keep the plan general, reassess soon, and send them over if the course turns sudden.",
+    "created_at": "2026-09-23T09:32:00"
+  },
+  {
+    "id": 197,
+    "thread_id": "T033",
+    "sender_doctor_key": "D036",
+    "text": "Good next step. If it stays refractory, a short clinic visit is reasonable. I would not pin this to a specific dose from chat.",
+    "created_at": "2026-09-23T09:40:00"
+  },
+  {
+    "id": 198,
+    "thread_id": "T033",
+    "sender_doctor_key": "D016",
+    "text": "I will document that shared plan and update you after follow-up. Still no patient identifiers in this thread.",
+    "created_at": "2026-09-23T09:48:00"
+  },
+  {
+    "id": 199,
+    "thread_id": "T034",
+    "sender_doctor_key": "D020",
+    "text": "Luca \u2014 I have a 64-year-old with psoriasis. It has come on gradually, and I want a peer read before the next visit.",
+    "created_at": "2026-09-23T06:00:00"
+  },
+  {
+    "id": 200,
+    "thread_id": "T034",
+    "sender_doctor_key": "D018",
+    "text": "Happy to think it through, Ibrahim. Is there a clear trigger, or has this been a steady pattern?",
+    "created_at": "2026-09-23T06:08:00"
+  },
+  {
+    "id": 201,
+    "thread_id": "T034",
+    "sender_doctor_key": "D020",
+    "text": "No single trigger. I am keeping this de-identified: age and psoriasis only, with no name and no doses.",
+    "created_at": "2026-09-23T06:16:00"
+  },
+  {
+    "id": 202,
+    "thread_id": "T034",
+    "sender_doctor_key": "D018",
+    "text": "That fits a routine psoriasis consult. I would confirm the history and review current medicines in general terms before changing strategy.",
+    "created_at": "2026-09-23T06:24:00"
+  },
+  {
+    "id": 203,
+    "thread_id": "T034",
+    "sender_doctor_key": "D020",
+    "text": "Agreed. I will keep the plan general, reassess soon, and send them over if the course turns sudden.",
+    "created_at": "2026-09-23T06:32:00"
+  },
+  {
+    "id": 204,
+    "thread_id": "T034",
+    "sender_doctor_key": "D018",
+    "text": "Good next step. If it stays refractory, a short clinic visit is reasonable. I would not pin this to a specific dose from chat.",
+    "created_at": "2026-09-23T06:40:00"
+  },
+  {
+    "id": 205,
+    "thread_id": "T034",
+    "sender_doctor_key": "D020",
+    "text": "I will document that shared plan and update you after follow-up. Still no patient identifiers in this thread.",
+    "created_at": "2026-09-23T06:48:00"
+  },
+  {
+    "id": 206,
+    "thread_id": "T034",
+    "sender_doctor_key": "D018",
+    "text": "Sounds right. We can revisit if something new shows up. This stays a synthetic peer consult.",
+    "created_at": "2026-09-23T06:56:00"
+  },
+  {
+    "id": 207,
+    "thread_id": "T035",
+    "sender_doctor_key": "D019",
+    "text": "Jordan \u2014 I have a 72-year-old with atopic dermatitis. It has come on gradually, and I want a peer read before the next visit.",
+    "created_at": "2026-09-23T03:00:00"
+  },
+  {
+    "id": 208,
+    "thread_id": "T035",
+    "sender_doctor_key": "D022",
+    "text": "Happy to think it through, Mei. Is there a clear trigger, or has this been a steady pattern?",
+    "created_at": "2026-09-23T03:08:00"
+  },
+  {
+    "id": 209,
+    "thread_id": "T035",
+    "sender_doctor_key": "D019",
+    "text": "No single trigger. I am keeping this de-identified: age and atopic dermatitis only, with no name and no doses.",
+    "created_at": "2026-09-23T03:16:00"
+  },
+  {
+    "id": 210,
+    "thread_id": "T035",
+    "sender_doctor_key": "D022",
+    "text": "That fits a routine atopic dermatitis consult. I would confirm the history and review current medicines in general terms before changing strategy.",
+    "created_at": "2026-09-23T03:24:00"
+  },
+  {
+    "id": 211,
+    "thread_id": "T036",
+    "sender_doctor_key": "D023",
+    "text": "Mei \u2014 I have a 24-year-old with rheumatoid arthritis. It has come on gradually, and I want a peer read before the next visit.",
+    "created_at": "2026-09-23T00:00:00"
+  },
+  {
+    "id": 212,
+    "thread_id": "T036",
+    "sender_doctor_key": "D019",
+    "text": "Happy to think it through, Leena. Is there a clear trigger, or has this been a steady pattern?",
+    "created_at": "2026-09-23T00:08:00"
+  },
+  {
+    "id": 213,
+    "thread_id": "T036",
+    "sender_doctor_key": "D023",
+    "text": "No single trigger. I am keeping this de-identified: age and rheumatoid arthritis only, with no name and no doses.",
+    "created_at": "2026-09-23T00:16:00"
+  },
+  {
+    "id": 214,
+    "thread_id": "T036",
+    "sender_doctor_key": "D019",
+    "text": "That fits a routine rheumatoid arthritis consult. I would confirm the history and review current medicines in general terms before changing strategy.",
+    "created_at": "2026-09-23T00:24:00"
+  },
+  {
+    "id": 215,
+    "thread_id": "T036",
+    "sender_doctor_key": "D023",
+    "text": "Agreed. I will keep the plan general, reassess soon, and send them over if the course turns sudden.",
+    "created_at": "2026-09-23T00:32:00"
+  },
+  {
+    "id": 216,
+    "thread_id": "T037",
+    "sender_doctor_key": "D019",
+    "text": "Mateo \u2014 I have a 34-year-old with atopic dermatitis. It has come on gradually, and I want a peer read before the next visit.",
+    "created_at": "2026-09-22T21:00:00"
+  },
+  {
+    "id": 217,
+    "thread_id": "T037",
+    "sender_doctor_key": "D024",
+    "text": "Happy to think it through, Mei. Is there a clear trigger, or has this been a steady pattern?",
+    "created_at": "2026-09-22T21:08:00"
+  },
+  {
+    "id": 218,
+    "thread_id": "T037",
+    "sender_doctor_key": "D019",
+    "text": "No single trigger. I am keeping this de-identified: age and atopic dermatitis only, with no name and no doses.",
+    "created_at": "2026-09-22T21:16:00"
+  },
+  {
+    "id": 219,
+    "thread_id": "T037",
+    "sender_doctor_key": "D024",
+    "text": "That fits a routine atopic dermatitis consult. I would confirm the history and review current medicines in general terms before changing strategy.",
+    "created_at": "2026-09-22T21:24:00"
+  },
+  {
+    "id": 220,
+    "thread_id": "T037",
+    "sender_doctor_key": "D019",
+    "text": "Agreed. I will keep the plan general, reassess soon, and send them over if the course turns sudden.",
+    "created_at": "2026-09-22T21:32:00"
+  },
+  {
+    "id": 221,
+    "thread_id": "T037",
+    "sender_doctor_key": "D024",
+    "text": "Good next step. If it stays refractory, a short clinic visit is reasonable. I would not pin this to a specific dose from chat.",
+    "created_at": "2026-09-22T21:40:00"
+  },
+  {
+    "id": 222,
+    "thread_id": "T038",
+    "sender_doctor_key": "D039",
+    "text": "Ibrahim \u2014 I have a 46-year-old with hyperlipidemia. It has come on gradually, and I want a peer read before the next visit.",
+    "created_at": "2026-09-22T18:00:00"
+  },
+  {
+    "id": 223,
+    "thread_id": "T038",
+    "sender_doctor_key": "D020",
+    "text": "Happy to think it through, Mei. Is there a clear trigger, or has this been a steady pattern?",
+    "created_at": "2026-09-22T18:08:00"
+  },
+  {
+    "id": 224,
+    "thread_id": "T038",
+    "sender_doctor_key": "D039",
+    "text": "No single trigger. I am keeping this de-identified: age and hyperlipidemia only, with no name and no doses.",
+    "created_at": "2026-09-22T18:16:00"
+  },
+  {
+    "id": 225,
+    "thread_id": "T038",
+    "sender_doctor_key": "D020",
+    "text": "That fits a routine hyperlipidemia consult. I would confirm the history and review current medicines in general terms before changing strategy.",
+    "created_at": "2026-09-22T18:24:00"
+  },
+  {
+    "id": 226,
+    "thread_id": "T038",
+    "sender_doctor_key": "D039",
+    "text": "Agreed. I will keep the plan general, reassess soon, and send them over if the course turns sudden.",
+    "created_at": "2026-09-22T18:32:00"
+  },
+  {
+    "id": 227,
+    "thread_id": "T038",
+    "sender_doctor_key": "D020",
+    "text": "Good next step. If it stays refractory, a short clinic visit is reasonable. I would not pin this to a specific dose from chat.",
+    "created_at": "2026-09-22T18:40:00"
+  },
+  {
+    "id": 228,
+    "thread_id": "T038",
+    "sender_doctor_key": "D039",
+    "text": "I will document that shared plan and update you after follow-up. Still no patient identifiers in this thread.",
+    "created_at": "2026-09-22T18:48:00"
+  },
+  {
+    "id": 229,
+    "thread_id": "T039",
+    "sender_doctor_key": "D020",
+    "text": "Ibrahim \u2014 I have a 58-year-old with psoriasis. It has come on gradually, and I want a peer read before the next visit.",
+    "created_at": "2026-09-22T15:00:00"
+  },
+  {
+    "id": 230,
+    "thread_id": "T039",
+    "sender_doctor_key": "D040",
+    "text": "Happy to think it through, Ibrahim. Is there a clear trigger, or has this been a steady pattern?",
+    "created_at": "2026-09-22T15:08:00"
+  },
+  {
+    "id": 231,
+    "thread_id": "T039",
+    "sender_doctor_key": "D020",
+    "text": "No single trigger. I am keeping this de-identified: age and psoriasis only, with no name and no doses.",
+    "created_at": "2026-09-22T15:16:00"
+  },
+  {
+    "id": 232,
+    "thread_id": "T039",
+    "sender_doctor_key": "D040",
+    "text": "That fits a routine psoriasis consult. I would confirm the history and review current medicines in general terms before changing strategy.",
+    "created_at": "2026-09-22T15:24:00"
+  },
+  {
+    "id": 233,
+    "thread_id": "T039",
+    "sender_doctor_key": "D020",
+    "text": "Agreed. I will keep the plan general, reassess soon, and send them over if the course turns sudden.",
+    "created_at": "2026-09-22T15:32:00"
+  },
+  {
+    "id": 234,
+    "thread_id": "T039",
+    "sender_doctor_key": "D040",
+    "text": "Good next step. If it stays refractory, a short clinic visit is reasonable. I would not pin this to a specific dose from chat.",
+    "created_at": "2026-09-22T15:40:00"
+  },
+  {
+    "id": 235,
+    "thread_id": "T039",
+    "sender_doctor_key": "D020",
+    "text": "I will document that shared plan and update you after follow-up. Still no patient identifiers in this thread.",
+    "created_at": "2026-09-22T15:48:00"
+  },
+  {
+    "id": 236,
+    "thread_id": "T039",
+    "sender_doctor_key": "D040",
+    "text": "Sounds right. We can revisit if something new shows up. This stays a synthetic peer consult.",
+    "created_at": "2026-09-22T15:56:00"
+  },
+  {
+    "id": 237,
+    "thread_id": "T040",
+    "sender_doctor_key": "D028",
+    "text": "Elena \u2014 I have a 64-year-old with inflammatory bowel disease. It has come on gradually, and I want a peer read before the next visit.",
+    "created_at": "2026-09-22T12:00:00"
+  },
+  {
+    "id": 238,
+    "thread_id": "T040",
+    "sender_doctor_key": "D027",
+    "text": "Happy to think it through, Noah. Is there a clear trigger, or has this been a steady pattern?",
+    "created_at": "2026-09-22T12:08:00"
+  },
+  {
+    "id": 239,
+    "thread_id": "T040",
+    "sender_doctor_key": "D028",
+    "text": "No single trigger. I am keeping this de-identified: age and inflammatory bowel disease only, with no name and no doses.",
+    "created_at": "2026-09-22T12:16:00"
+  },
+  {
+    "id": 240,
+    "thread_id": "T040",
+    "sender_doctor_key": "D027",
+    "text": "That fits a routine inflammatory bowel disease consult. I would confirm the history and review current medicines in general terms before changing strategy.",
+    "created_at": "2026-09-22T12:24:00"
+  },
+  {
+    "id": 241,
+    "thread_id": "T041",
+    "sender_doctor_key": "D031",
+    "text": "Elias \u2014 I have a 72-year-old with migraine. It has come on gradually, and I want a peer read before the next visit.",
+    "created_at": "2026-09-22T09:00:00"
+  },
+  {
+    "id": 242,
+    "thread_id": "T041",
+    "sender_doctor_key": "D036",
+    "text": "Happy to think it through, Aisha. Is there a clear trigger, or has this been a steady pattern?",
+    "created_at": "2026-09-22T09:08:00"
+  },
+  {
+    "id": 243,
+    "thread_id": "T041",
+    "sender_doctor_key": "D031",
+    "text": "No single trigger. I am keeping this de-identified: age and migraine only, with no name and no doses.",
+    "created_at": "2026-09-22T09:16:00"
+  },
+  {
+    "id": 244,
+    "thread_id": "T041",
+    "sender_doctor_key": "D036",
+    "text": "That fits a routine migraine consult. I would confirm the history and review current medicines in general terms before changing strategy.",
+    "created_at": "2026-09-22T09:24:00"
+  },
+  {
+    "id": 245,
+    "thread_id": "T041",
+    "sender_doctor_key": "D031",
+    "text": "Agreed. I will keep the plan general, reassess soon, and send them over if the course turns sudden.",
+    "created_at": "2026-09-22T09:32:00"
+  },
+  {
+    "id": 246,
+    "thread_id": "T042",
+    "sender_doctor_key": "D036",
+    "text": "Ravi \u2014 I have a 24-year-old with iron deficiency anemia. It has come on gradually, and I want a peer read before the next visit.",
+    "created_at": "2026-09-22T06:00:00"
+  },
+  {
+    "id": 247,
+    "thread_id": "T042",
+    "sender_doctor_key": "D032",
+    "text": "Happy to think it through, Elias. Is there a clear trigger, or has this been a steady pattern?",
+    "created_at": "2026-09-22T06:08:00"
+  },
+  {
+    "id": 248,
+    "thread_id": "T042",
+    "sender_doctor_key": "D036",
+    "text": "No single trigger. I am keeping this de-identified: age and iron deficiency anemia only, with no name and no doses.",
+    "created_at": "2026-09-22T06:16:00"
+  },
+  {
+    "id": 249,
+    "thread_id": "T042",
+    "sender_doctor_key": "D032",
+    "text": "That fits a routine iron deficiency anemia consult. I would confirm the history and review current medicines in general terms before changing strategy.",
+    "created_at": "2026-09-22T06:24:00"
+  },
+  {
+    "id": 250,
+    "thread_id": "T042",
+    "sender_doctor_key": "D036",
+    "text": "Agreed. I will keep the plan general, reassess soon, and send them over if the course turns sudden.",
+    "created_at": "2026-09-22T06:32:00"
+  },
+  {
+    "id": 251,
+    "thread_id": "T042",
+    "sender_doctor_key": "D032",
+    "text": "Good next step. If it stays refractory, a short clinic visit is reasonable. I would not pin this to a specific dose from chat.",
+    "created_at": "2026-09-22T06:40:00"
+  },
+  {
+    "id": 252,
+    "thread_id": "T043",
+    "sender_doctor_key": "D034",
+    "text": "Luca \u2014 I have a 34-year-old with epilepsy. It has come on gradually, and I want a peer read before the next visit.",
+    "created_at": "2026-09-22T03:00:00"
+  },
+  {
+    "id": 253,
+    "thread_id": "T043",
+    "sender_doctor_key": "D038",
+    "text": "Happy to think it through, Omar. Is there a clear trigger, or has this been a steady pattern?",
+    "created_at": "2026-09-22T03:08:00"
+  },
+  {
+    "id": 254,
+    "thread_id": "T043",
+    "sender_doctor_key": "D034",
+    "text": "No single trigger. I am keeping this de-identified: age and epilepsy only, with no name and no doses.",
+    "created_at": "2026-09-22T03:16:00"
+  },
+  {
+    "id": 255,
+    "thread_id": "T043",
+    "sender_doctor_key": "D038",
+    "text": "That fits a routine epilepsy consult. I would confirm the history and review current medicines in general terms before changing strategy.",
+    "created_at": "2026-09-22T03:24:00"
+  },
+  {
+    "id": 256,
+    "thread_id": "T043",
+    "sender_doctor_key": "D034",
+    "text": "Agreed. I will keep the plan general, reassess soon, and send them over if the course turns sudden.",
+    "created_at": "2026-09-22T03:32:00"
+  },
+  {
+    "id": 257,
+    "thread_id": "T043",
+    "sender_doctor_key": "D038",
+    "text": "Good next step. If it stays refractory, a short clinic visit is reasonable. I would not pin this to a specific dose from chat.",
+    "created_at": "2026-09-22T03:40:00"
+  },
+  {
+    "id": 258,
+    "thread_id": "T043",
+    "sender_doctor_key": "D034",
+    "text": "I will document that shared plan and update you after follow-up. Still no patient identifiers in this thread.",
+    "created_at": "2026-09-22T03:48:00"
+  },
+  {
+    "id": 259,
+    "thread_id": "T044",
+    "sender_doctor_key": "D038",
+    "text": "Nora \u2014 I have a 46-year-old with iron deficiency anemia. It has come on gradually, and I want a peer read before the next visit.",
+    "created_at": "2026-09-22T00:00:00"
+  },
+  {
+    "id": 260,
+    "thread_id": "T044",
+    "sender_doctor_key": "D035",
+    "text": "Happy to think it through, Luca. Is there a clear trigger, or has this been a steady pattern?",
+    "created_at": "2026-09-22T00:08:00"
+  },
+  {
+    "id": 261,
+    "thread_id": "T044",
+    "sender_doctor_key": "D038",
+    "text": "No single trigger. I am keeping this de-identified: age and iron deficiency anemia only, with no name and no doses.",
+    "created_at": "2026-09-22T00:16:00"
+  },
+  {
+    "id": 262,
+    "thread_id": "T044",
+    "sender_doctor_key": "D035",
+    "text": "That fits a routine iron deficiency anemia consult. I would confirm the history and review current medicines in general terms before changing strategy.",
+    "created_at": "2026-09-22T00:24:00"
+  },
+  {
+    "id": 263,
+    "thread_id": "T044",
+    "sender_doctor_key": "D038",
+    "text": "Agreed. I will keep the plan general, reassess soon, and send them over if the course turns sudden.",
+    "created_at": "2026-09-22T00:32:00"
+  },
+  {
+    "id": 264,
+    "thread_id": "T044",
+    "sender_doctor_key": "D035",
+    "text": "Good next step. If it stays refractory, a short clinic visit is reasonable. I would not pin this to a specific dose from chat.",
+    "created_at": "2026-09-22T00:40:00"
+  },
+  {
+    "id": 265,
+    "thread_id": "T044",
+    "sender_doctor_key": "D038",
+    "text": "I will document that shared plan and update you after follow-up. Still no patient identifiers in this thread.",
+    "created_at": "2026-09-22T00:48:00"
+  },
+  {
+    "id": 266,
+    "thread_id": "T044",
+    "sender_doctor_key": "D035",
+    "text": "Sounds right. We can revisit if something new shows up. This stays a synthetic peer consult.",
+    "created_at": "2026-09-22T00:56:00"
+  },
+  {
+    "id": 267,
+    "thread_id": "T045",
+    "sender_doctor_key": "D035",
+    "text": "Mei \u2014 I have a 58-year-old with migraine. It has come on gradually, and I want a peer read before the next visit.",
+    "created_at": "2026-09-21T21:00:00"
+  },
+  {
+    "id": 268,
+    "thread_id": "T045",
+    "sender_doctor_key": "D039",
+    "text": "Happy to think it through, Nora. Is there a clear trigger, or has this been a steady pattern?",
+    "created_at": "2026-09-21T21:08:00"
+  },
+  {
+    "id": 269,
+    "thread_id": "T045",
+    "sender_doctor_key": "D035",
+    "text": "No single trigger. I am keeping this de-identified: age and migraine only, with no name and no doses.",
+    "created_at": "2026-09-21T21:16:00"
+  },
+  {
+    "id": 270,
+    "thread_id": "T045",
+    "sender_doctor_key": "D039",
+    "text": "That fits a routine migraine consult. I would confirm the history and review current medicines in general terms before changing strategy.",
+    "created_at": "2026-09-21T21:24:00"
+  },
+  {
+    "id": 271,
+    "thread_id": "T046",
+    "sender_doctor_key": "D040",
+    "text": "Nora \u2014 I have a 64-year-old with iron deficiency anemia. It has come on gradually, and I want a peer read before the next visit.",
+    "created_at": "2026-09-21T18:00:00"
+  },
+  {
+    "id": 272,
+    "thread_id": "T046",
+    "sender_doctor_key": "D035",
+    "text": "Happy to think it through, Ibrahim. Is there a clear trigger, or has this been a steady pattern?",
+    "created_at": "2026-09-21T18:08:00"
+  },
+  {
+    "id": 273,
+    "thread_id": "T046",
+    "sender_doctor_key": "D040",
+    "text": "No single trigger. I am keeping this de-identified: age and iron deficiency anemia only, with no name and no doses.",
+    "created_at": "2026-09-21T18:16:00"
+  },
+  {
+    "id": 274,
+    "thread_id": "T046",
+    "sender_doctor_key": "D035",
+    "text": "That fits a routine iron deficiency anemia consult. I would confirm the history and review current medicines in general terms before changing strategy.",
+    "created_at": "2026-09-21T18:24:00"
+  },
+  {
+    "id": 275,
+    "thread_id": "T046",
+    "sender_doctor_key": "D040",
+    "text": "Agreed. I will keep the plan general, reassess soon, and send them over if the course turns sudden.",
+    "created_at": "2026-09-21T18:32:00"
+  }
+]

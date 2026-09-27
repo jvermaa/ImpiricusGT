@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Avatar } from '../components/Avatar';
+import { DoctorProfileCard } from '../components/DoctorProfileCard';
 import { ChatThread } from '../components/ChatThread';
 import {
   ChevronLeftIcon,
@@ -20,42 +21,46 @@ import {
   PlusIcon,
   SearchIcon,
 } from '../components/NavIcons';
-import {
-  loadConsultDirectory,
-  loadCurrentDoctor,
-  loadThreadMessages,
-  sendConsultMessage,
-} from '../api/clinic';
-import type {
-  ChatMessage,
-  CurrentDoctor,
-  DoctorProfile,
-  DoctorThread,
-} from '../types/chat';
+import type { ChatMessage, DoctorProfile, DoctorThread } from '../types/chat';
+import { DEMO_CURRENT_DOCTOR, DEMO_THREADS, DOCTOR_DIRECTORY, SPECIALTIES } from '../data/chatMock';
 import { getPatientsRankedForDoctor, searchDoctorsByNameOrSpecialization } from '../data/doctorDiscovery';
 import { PATIENTS, type PatientProfile } from '../data/patientMock';
+import type { DirectoryFilter } from '../api/directory';
 import { colors } from '../theme/colors';
 
-export function ChatScreen() {
+type ChatLaunch = {
+  peerKey: string | null;
+  readOnlyReason?: string;
+} | null;
+
+export function ChatScreen({
+  launch = null,
+  onLaunchHandled,
+  onOpenPatients,
+  onOpenReferrals,
+  onOpenDirectory,
+}: {
+  launch?: ChatLaunch;
+  onLaunchHandled?: () => void;
+  onOpenPatients?: () => void;
+  onOpenReferrals?: (direction: 'in' | 'out', withDoctor?: string) => void;
+  onOpenDirectory?: (filter: DirectoryFilter) => void;
+}) {
   const insets = useSafeAreaInsets();
   const [activeDoctorId, setActiveDoctorId] = useState<string | null>(null);
   const [profileDoctorId, setProfileDoctorId] = useState<string | null>(null);
-  const [threads, setThreads] = useState<DoctorThread[]>([]);
-  const [directory, setDirectory] = useState<DoctorProfile[]>([]);
-  const [specialties, setSpecialties] = useState<string[]>(['All']);
-  const [currentDoctor, setCurrentDoctor] = useState<CurrentDoctor>({
-    id: '',
-    name: 'Loading doctor',
-    designation: '',
-    initials: '',
-  });
-  const [loadError, setLoadError] = useState<string | null>(null);
+  const [threads, setThreads] = useState<DoctorThread[]>(DEMO_THREADS);
+  const [directory] = useState<DoctorProfile[]>(DOCTOR_DIRECTORY);
+  const [specialties] = useState<string[]>(SPECIALTIES);
+  const [currentDoctor] = useState(DEMO_CURRENT_DOCTOR);
   const [specialtyFilter, setSpecialtyFilter] = useState('All');
   const [filterOpen, setFilterOpen] = useState(false);
   const [newChatOpen, setNewChatOpen] = useState(false);
   const [referralDoctorId, setReferralDoctorId] = useState<string | null>(null);
   const [referralPatientId, setReferralPatientId] = useState<string | null>(null);
   const [referralSuccessMessage, setReferralSuccessMessage] = useState<string | null>(null);
+  const [directoryReady] = useState(true);
+  const [threadReadOnly, setThreadReadOnly] = useState<string | undefined>();
 
   const activeDoctor = useMemo(
     () => threads.find((t) => t.id === activeDoctorId) ?? null,
@@ -85,75 +90,29 @@ export function ChatScreen() {
     [referralDoctor],
   );
 
-  useEffect(() => {
-    let cancelled = false;
-
-    Promise.all([loadCurrentDoctor(), loadConsultDirectory()])
-      .then(([doctor, consultData]) => {
-        if (cancelled) return;
-        setCurrentDoctor(doctor);
-        setDirectory(consultData.directory);
-        setThreads(consultData.threads);
-        setSpecialties(consultData.specialties);
-        setLoadError(null);
-      })
-      .catch(() => {
-        if (cancelled) return;
-        setLoadError('Could not load consult directory.');
-      });
-
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
-  useEffect(() => {
-    if (!activeDoctorId) return;
-    const thread = threads.find((entry) => entry.id === activeDoctorId);
-    if (!thread || thread.messages.length > 0) return;
-
-    let cancelled = false;
-    loadThreadMessages(activeDoctorId)
-      .then((messages) => {
-        if (cancelled) return;
-        setThreads((current) =>
-          current.map((entry) =>
-            entry.id === activeDoctorId ? { ...entry, messages } : entry,
-          ),
-        );
-      })
-      .catch(() => {
-        if (cancelled) return;
-        setLoadError('Could not load this consult thread.');
-      });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [activeDoctorId, threads]);
-
   const showingProfile = !!profileDoctor && !activeDoctor;
   const showingList = !activeDoctor && !showingProfile;
 
   const headerTitle = activeDoctor
     ? activeDoctor.name
     : profileDoctor
-      ? profileDoctor.name
+      ? 'Profile'
       : 'Doctors';
   const headerSubtitle = activeDoctor
     ? activeDoctor.designation
     : profileDoctor
-      ? profileDoctor.specializations.slice(0, 2).join(' · ')
+      ? profileDoctor.designation
       : specialtyFilter === 'All'
         ? 'Peer consults'
         : specialtyFilter;
 
   const startOrOpenChat = (doctor: DoctorProfile) => {
+    setThreadReadOnly(undefined);
     setThreads((prev) => {
-      const existing = prev.find((t) => t.id === doctor.id);
-      if (existing) return prev;
+      if (prev.some((entry) => entry.id === doctor.id)) return prev;
       const fresh: DoctorThread = {
         ...doctor,
+        threadId: `demo-${doctor.id}`,
         lastMessage: 'New consult',
         messages: [],
       };
@@ -166,6 +125,28 @@ export function ChatScreen() {
     setReferralSuccessMessage(null);
   };
 
+  useEffect(() => {
+    if (!launch || !directoryReady) return;
+    if (!launch.peerKey) {
+      setActiveDoctorId(null);
+      setProfileDoctorId(null);
+      setThreadReadOnly(undefined);
+      onLaunchHandled?.();
+      return;
+    }
+    const doctor =
+      directory.find((item) => item.id === launch.peerKey) ??
+      threads.find((item) => item.id === launch.peerKey);
+    if (doctor) {
+      startOrOpenChat(doctor);
+    } else {
+      setActiveDoctorId(launch.peerKey);
+      setProfileDoctorId(null);
+    }
+    setThreadReadOnly(launch.readOnlyReason);
+    onLaunchHandled?.();
+  }, [launch, directoryReady]);
+
   const openDoctorProfile = (doctor: DoctorProfile) => {
     setProfileDoctorId(doctor.id);
     setActiveDoctorId(null);
@@ -175,20 +156,21 @@ export function ChatScreen() {
   };
 
   const sendDoctor = (text: string) => {
-    if (!activeDoctorId) return;
-    sendConsultMessage(activeDoctorId, text)
-      .then((msg: ChatMessage) => {
-        setThreads((prev) =>
-          prev.map((t) =>
-            t.id === activeDoctorId
-              ? { ...t, messages: [...t.messages, msg], lastMessage: msg.text }
-              : t,
-          ),
-        );
-      })
-      .catch(() => {
-        setLoadError('Could not send that consult message.');
-      });
+    if (!activeDoctor?.threadId || threadReadOnly) return;
+    const threadId = activeDoctor.threadId;
+    const message: ChatMessage = {
+      id: `local-${Date.now()}`,
+      senderId: currentDoctor.id,
+      text,
+      timestamp: 'Just now',
+    };
+    setThreads((prev) =>
+      prev.map((entry) =>
+        entry.threadId === threadId
+          ? { ...entry, messages: [...entry.messages, message], lastMessage: text }
+          : entry,
+      ),
+    );
   };
 
   const goBackToList = () => {
@@ -301,29 +283,50 @@ export function ChatScreen() {
           <DoctorList
             threads={threads}
             doctorName={currentDoctor.name}
-            statusMessage={loadError}
+            statusMessage={null}
             specialtyFilter={specialtyFilter}
-            onSelect={(id) => setActiveDoctorId(id)}
+            onSelect={(id) => {
+              const doctor = threads.find((entry) => entry.id === id);
+              if (doctor) startOrOpenChat(doctor);
+            }}
             onNewChat={() => {
               setFilterOpen(false);
               setNewChatOpen(true);
             }}
           />
         ) : showingProfile && profileDoctor ? (
-          <DoctorProfileView
-            doctor={profileDoctor}
-            onChat={() => startOrOpenChat(profileDoctor)}
-            onRefer={() => openReferralPicker(profileDoctor.id)}
-            successMessage={referralSuccessMessage}
-          />
+          <View style={styles.flex}>
+            {referralSuccessMessage ? (
+              <View style={styles.successBanner}>
+                <Text style={styles.successBannerText}>{referralSuccessMessage}</Text>
+              </View>
+            ) : null}
+            <DoctorProfileCard
+              doctorKey={profileDoctor.id}
+              onOpenPatients={onOpenPatients}
+              onOpenConsults={(peerKey, reason) => {
+                const doctor =
+                  directory.find((item) => item.id === peerKey) ??
+                  threads.find((item) => item.id === peerKey) ??
+                  profileDoctor;
+                if (doctor && doctor.id === peerKey) startOrOpenChat(doctor);
+                setThreadReadOnly(reason);
+              }}
+              onOpenReferrals={onOpenReferrals}
+              onOpenDirectory={onOpenDirectory}
+            />
+          </View>
         ) : activeDoctor ? (
+          <View style={styles.flex}>
           <ChatThread
             messages={activeDoctor.messages}
+            readOnlyReason={threadReadOnly}
             onSend={sendDoctor}
             currentUserId={currentDoctor.id}
             peerNameForTheirs={() => activeDoctor.name}
             placeholder={`Message ${activeDoctor.name.split(' ')[1] ?? 'colleague'}…`}
           />
+          </View>
         ) : null}
       </View>
 
@@ -445,7 +448,7 @@ function DoctorList({
             <Pressable
               key={doc.id}
               accessibilityRole="button"
-              accessibilityLabel={`Chat with ${doc.name}`}
+              accessibilityLabel={`Open chat with ${doc.name}`}
               onPress={() => {
                 Keyboard.dismiss();
                 onSelect(doc.id);
@@ -580,77 +583,6 @@ function NewChatSheet({
         </ScrollView>
       </View>
     </KeyboardAvoidingView>
-  );
-}
-
-function DoctorProfileView({
-  doctor,
-  onChat,
-  onRefer,
-  successMessage,
-}: {
-  doctor: DoctorProfile;
-  onChat: () => void;
-  onRefer: () => void;
-  successMessage: string | null;
-}) {
-  return (
-    <ScrollView
-      style={styles.flex}
-      contentContainerStyle={styles.profileContent}
-      showsVerticalScrollIndicator={false}
-    >
-      {successMessage ? (
-        <View style={styles.successBanner}>
-          <Text style={styles.successBannerText}>{successMessage}</Text>
-        </View>
-      ) : null}
-
-      <View style={styles.profileHeroCard}>
-        <View style={styles.profileAvatarWrap}>
-          <Avatar initials={doctor.initials} color={doctor.avatarColor} size={144} />
-        </View>
-        <Text style={styles.profileHeroName}>{doctor.name}</Text>
-        <Text style={styles.profileHeroMeta}>
-          {doctor.specialty} | {doctor.degrees.join(', ')}
-        </Text>
-
-        <View style={styles.profileDivider} />
-
-        <Text style={styles.profileSectionTitle}>Medical Profile</Text>
-        <Text style={styles.profileDescription}>
-          {doctor.name} specializes in comprehensive {doctor.specialty.toLowerCase()} care with a
-          strong focus on long-term outcomes and collaborative treatment planning.
-        </Text>
-        <Text style={styles.profileDescription}>
-          Board certified and available for rapid peer consults and patient referrals.
-        </Text>
-
-        <Text style={styles.profileAddressLabel}>Address</Text>
-        <Text style={styles.profileAddressValue}>{doctor.address}</Text>
-        <Text style={styles.profileDistanceNote}>{doctor.distanceKm.toFixed(1)} km away</Text>
-      </View>
-
-      <View style={styles.profileActionRow}>
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel={`Chat with ${doctor.name}`}
-          onPress={onChat}
-          style={styles.profileActionPrimary}
-        >
-          <Text style={styles.profileActionPrimaryText}>Chat</Text>
-        </Pressable>
-
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel={`Refer patient to ${doctor.name}`}
-          onPress={onRefer}
-          style={styles.profileActionSecondary}
-        >
-          <Text style={styles.profileActionSecondaryText}>Refer</Text>
-        </Pressable>
-      </View>
-    </ScrollView>
   );
 }
 

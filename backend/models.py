@@ -36,6 +36,7 @@ class Doctor(Base):
     license_number: Mapped[str | None] = mapped_column(String, nullable=True)
     npi: Mapped[str | None] = mapped_column(String, nullable=True)
     organization: Mapped[str] = mapped_column(String, nullable=False)
+    bio: Mapped[str | None] = mapped_column(String(280), nullable=True)
 
     patients: Mapped[list["Patient"]] = relationship(back_populates="primary_doctor")
 
@@ -216,27 +217,69 @@ class CaseMatch(Base):
 class ConsultThread(Base):
     __tablename__ = "consult_threads"
     __table_args__ = (
-        UniqueConstraint("doctor_low_key", "doctor_high_key", name="uq_consult_pair"),
-        CheckConstraint("doctor_low_key < doctor_high_key", name="ck_consult_doctor_order"),
+        UniqueConstraint("doctor_a_key", "doctor_b_key", name="uq_consult_pair"),
+        CheckConstraint("doctor_a_key < doctor_b_key", name="ck_consult_doctor_order"),
     )
 
-    thread_key: Mapped[str] = mapped_column(String, primary_key=True)
-    doctor_low_key: Mapped[str] = mapped_column(ForeignKey("doctors.doctor_key"), nullable=False)
-    doctor_high_key: Mapped[str] = mapped_column(ForeignKey("doctors.doctor_key"), nullable=False)
+    thread_id: Mapped[str] = mapped_column(String, primary_key=True)
+    doctor_a_key: Mapped[str] = mapped_column(ForeignKey("doctors.doctor_key"), nullable=False)
+    doctor_b_key: Mapped[str] = mapped_column(ForeignKey("doctors.doctor_key"), nullable=False)
+    patient_case_summary: Mapped[str | None] = mapped_column(Text, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
 
-    messages: Mapped[list["Message"]] = relationship(back_populates="thread")
+    messages: Mapped[list["ConsultMessage"]] = relationship(back_populates="thread")
 
 
-class Message(Base):
-    __tablename__ = "messages"
+class ConsultMessage(Base):
+    __tablename__ = "consult_messages"
+    __table_args__ = (
+        CheckConstraint(
+            "length(text) >= 1 AND length(text) <= 1000",
+            name="ck_consult_message_text_len",
+        ),
+    )
 
-    message_key: Mapped[str] = mapped_column(String, primary_key=True)
-    thread_key: Mapped[str] = mapped_column(
-        ForeignKey("consult_threads.thread_key"), nullable=False
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    thread_id: Mapped[str] = mapped_column(
+        ForeignKey("consult_threads.thread_id"), nullable=False
     )
     sender_doctor_key: Mapped[str] = mapped_column(ForeignKey("doctors.doctor_key"), nullable=False)
-    text: Mapped[str] = mapped_column(Text, nullable=False)
+    text: Mapped[str] = mapped_column(String(1000), nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
 
     thread: Mapped[ConsultThread] = relationship(back_populates="messages")
+
+
+class ReferralRequest(Base):
+    __tablename__ = "referral_requests"
+
+    referral_key: Mapped[str] = mapped_column(String, primary_key=True)
+    from_doctor_key: Mapped[str] = mapped_column(
+        ForeignKey("doctors.doctor_key"), nullable=False
+    )
+    to_doctor_key: Mapped[str] = mapped_column(
+        ForeignKey("doctors.doctor_key"), nullable=False
+    )
+    patient_key: Mapped[str] = mapped_column(
+        ForeignKey("patients.patient_key"), nullable=False
+    )
+    status: Mapped[str] = mapped_column(String, nullable=False, default="sent")
+    urgency: Mapped[str] = mapped_column(String, nullable=False, default="routine")
+    reason: Mapped[str] = mapped_column(Text, nullable=False)
+    outcome: Mapped[str | None] = mapped_column(Text, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+
+
+class ReferralMessage(Base):
+    __tablename__ = "referral_messages"
+
+    message_key: Mapped[str] = mapped_column(String, primary_key=True)
+    referral_key: Mapped[str] = mapped_column(
+        ForeignKey("referral_requests.referral_key", ondelete="CASCADE"), nullable=False
+    )
+    sender_doctor_key: Mapped[str] = mapped_column(
+        ForeignKey("doctors.doctor_key"), nullable=False
+    )
+    text: Mapped[str] = mapped_column(Text, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
