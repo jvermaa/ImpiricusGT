@@ -34,9 +34,27 @@ import type {
 } from '../types/chat';
 import { getPatientsRankedForDoctor, searchDoctorsByNameOrSpecialization } from '../data/doctorDiscovery';
 import { PATIENTS, type PatientProfile } from '../data/patientMock';
+import type { DirectoryFilter } from '../api/directory';
 import { colors } from '../theme/colors';
 
-export function ChatScreen() {
+type ChatLaunch = {
+  peerKey: string | null;
+  readOnlyReason?: string;
+} | null;
+
+export function ChatScreen({
+  launch = null,
+  onLaunchHandled,
+  onOpenPatients,
+  onOpenReferrals,
+  onOpenDirectory,
+}: {
+  launch?: ChatLaunch;
+  onLaunchHandled?: () => void;
+  onOpenPatients?: () => void;
+  onOpenReferrals?: (direction: 'in' | 'out', withDoctor?: string) => void;
+  onOpenDirectory?: (filter: DirectoryFilter) => void;
+}) {
   const insets = useSafeAreaInsets();
   const [activeDoctorId, setActiveDoctorId] = useState<string | null>(null);
   const [profileDoctorId, setProfileDoctorId] = useState<string | null>(null);
@@ -56,6 +74,8 @@ export function ChatScreen() {
   const [referralDoctorId, setReferralDoctorId] = useState<string | null>(null);
   const [referralPatientId, setReferralPatientId] = useState<string | null>(null);
   const [referralSuccessMessage, setReferralSuccessMessage] = useState<string | null>(null);
+  const [directoryReady, setDirectoryReady] = useState(false);
+  const [threadReadOnly, setThreadReadOnly] = useState<string | undefined>();
 
   const activeDoctor = useMemo(
     () => threads.find((t) => t.id === activeDoctorId) ?? null,
@@ -96,10 +116,12 @@ export function ChatScreen() {
         setThreads(consultData.threads);
         setSpecialties(consultData.specialties);
         setLoadError(null);
+        setDirectoryReady(true);
       })
       .catch(() => {
         if (cancelled) return;
         setLoadError('Could not load consult directory.');
+        setDirectoryReady(true);
       });
 
     return () => {
@@ -149,6 +171,7 @@ export function ChatScreen() {
         : specialtyFilter;
 
   const startOrOpenChat = (doctor: DoctorProfile) => {
+    setThreadReadOnly(undefined);
     setThreads((prev) => {
       const existing = prev.find((t) => t.id === doctor.id);
       if (existing) return prev;
@@ -165,6 +188,28 @@ export function ChatScreen() {
     setFilterOpen(false);
     setReferralSuccessMessage(null);
   };
+
+  useEffect(() => {
+    if (!launch || !directoryReady) return;
+    if (!launch.peerKey) {
+      setActiveDoctorId(null);
+      setProfileDoctorId(null);
+      setThreadReadOnly(undefined);
+      onLaunchHandled?.();
+      return;
+    }
+    const doctor =
+      directory.find((item) => item.id === launch.peerKey) ??
+      threads.find((item) => item.id === launch.peerKey);
+    if (doctor) {
+      startOrOpenChat(doctor);
+    } else {
+      setActiveDoctorId(launch.peerKey);
+      setProfileDoctorId(null);
+    }
+    setThreadReadOnly(launch.readOnlyReason);
+    onLaunchHandled?.();
+  }, [launch, directoryReady]);
 
   const openDoctorProfile = (doctor: DoctorProfile) => {
     setProfileDoctorId(doctor.id);
@@ -321,13 +366,23 @@ export function ChatScreen() {
             ) : null}
             <DoctorProfileCard
               doctorKey={profileDoctor.id}
-              onMessage={() => startOrOpenChat(profileDoctor)}
-              onRefer={() => openReferralPicker(profileDoctor.id)}
+              onOpenPatients={onOpenPatients}
+              onOpenConsults={(peerKey, reason) => {
+                const doctor =
+                  directory.find((item) => item.id === peerKey) ??
+                  threads.find((item) => item.id === peerKey) ??
+                  profileDoctor;
+                if (doctor && doctor.id === peerKey) startOrOpenChat(doctor);
+                setThreadReadOnly(reason);
+              }}
+              onOpenReferrals={onOpenReferrals}
+              onOpenDirectory={onOpenDirectory}
             />
           </View>
         ) : activeDoctor ? (
           <ChatThread
             messages={activeDoctor.messages}
+            readOnlyReason={threadReadOnly}
             onSend={sendDoctor}
             currentUserId={currentDoctor.id}
             peerNameForTheirs={() => activeDoctor.name}

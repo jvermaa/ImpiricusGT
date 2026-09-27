@@ -1,32 +1,46 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
-  Animated,
-  Linking,
+  ActivityIndicator,
   Modal,
+  Platform,
   Pressable,
   RefreshControl,
   ScrollView,
+  Share,
   StyleSheet,
-  Switch,
   Text,
+  TextInput,
   View,
+  type ViewStyle,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import Svg, { Path, Rect } from 'react-native-svg';
 import {
   loadDoctorProfile,
+  loadPanelPatients,
+  updateDoctorBio,
   updateDoctorSettings,
   type DoctorCardModel,
+  type PanelPatient,
 } from '../api/profile';
+import { createFormalReferral } from '../api/referrals';
+import type { DirectoryFilter } from '../api/directory';
 import { colors } from '../theme/colors';
+import { profileCopy } from '../theme/profileCopy';
+import { space } from '../theme/spacing';
 import { themeForSpecialty } from '../theme/specialtyThemes';
 import { Avatar } from './Avatar';
 import { SpecialtyIcon } from './SpecialtyIcon';
 
-type Props = {
+export type ProfileActions = {
+  onOpenPatients?: () => void;
+  onOpenConsults?: (peerKey: string | null, readOnlyReason?: string) => void;
+  onOpenReferrals?: (direction: 'in' | 'out', withDoctor?: string) => void;
+  onOpenDirectory?: (filter: DirectoryFilter) => void;
+};
+
+type Props = ProfileActions & {
   doctorKey: string;
-  onMessage?: (doctorKey: string) => void;
-  onRefer?: (doctorKey: string) => void;
 };
 
 type QrCore = {
@@ -35,6 +49,8 @@ type QrCore = {
     options?: { errorCorrectionLevel?: string },
   ): { modules: { size: number; get(x: number, y: number): number } };
 };
+
+const pointer: ViewStyle = Platform.OS === 'web' ? ({ cursor: 'pointer' } as ViewStyle) : {};
 
 function readableLabel(value: string): string {
   return value
@@ -47,7 +63,6 @@ function readableLabel(value: string): string {
 
 function qrMatrix(text: string): boolean[][] | null {
   try {
-    // Subpath stays on the pure JS encoder so web and Expo Go do not load node canvas.
     const core = require('qrcode/lib/core/qrcode') as QrCore;
     const code = core.create(text, { errorCorrectionLevel: 'M' });
     const size = code.modules.size;
@@ -63,55 +78,76 @@ function qrMatrix(text: string): boolean[][] | null {
   }
 }
 
-function useCountUp(target: number, animate: boolean): number {
-  const [shown, setShown] = useState(animate ? 0 : target);
-  useEffect(() => {
-    if (!animate) {
-      setShown(target);
-      return;
-    }
-    const started = Date.now();
-    const duration = 720;
-    let frame = 0;
-    const tick = () => {
-      const progress = Math.min(1, (Date.now() - started) / duration);
-      const eased = 1 - (1 - progress) ** 3;
-      setShown(Math.round(target * eased));
-      if (progress < 1) frame = requestAnimationFrame(tick);
-    };
-    frame = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(frame);
-  }, [target, animate]);
-  return shown;
+async function copyText(value: string): Promise<boolean> {
+  const clipboard = typeof navigator !== 'undefined' ? navigator.clipboard : undefined;
+  if (!clipboard) return false;
+  await clipboard.writeText(value);
+  return true;
 }
 
-export function DoctorProfileCard({ doctorKey, onMessage, onRefer }: Props) {
+export function DoctorProfileCard({
+  doctorKey,
+  onOpenPatients,
+  onOpenConsults,
+  onOpenReferrals,
+  onOpenDirectory,
+}: Props) {
   const [profile, setProfile] = useState<DoctorCardModel | null>(null);
   const [status, setStatus] = useState<'loading' | 'ready' | 'error'>('loading');
   const [errorText, setErrorText] = useState('Could not load this profile.');
   const [refreshing, setRefreshing] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
   const [shareOpen, setShareOpen] = useState(false);
-  const [animateStats, setAnimateStats] = useState(true);
+  const [demoOpen, setDemoOpen] = useState(false);
+  const [bioOpen, setBioOpen] = useState(false);
+  const [bioDraft, setBioDraft] = useState('');
+  const [bioError, setBioError] = useState<string | null>(null);
+  const [bioSaving, setBioSaving] = useState(false);
+  const [referOpen, setReferOpen] = useState(false);
+  const [patients, setPatients] = useState<PanelPatient[]>([]);
+  const [patientKey, setPatientKey] = useState<string | null>(null);
+  const [referError, setReferError] = useState<string | null>(null);
+  const [referSaving, setReferSaving] = useState(false);
+  const [savingKey, setSavingKey] = useState<'consults' | 'cases' | null>(null);
+  const [highlightAvailability, setHighlightAvailability] = useState(false);
   const scrollRef = useRef<ScrollView>(null);
   const settingsY = useRef(0);
-  const saving = useRef(false);
+
+  const load = (mode: 'initial' | 'refresh') => {
+    if (mode === 'refresh') setRefreshing(true);
+    else setStatus('loading');
+    return loadDoctorProfile(doctorKey)
+      .then((card) => {
+        setProfile(card);
+        setStatus('ready');
+      })
+      .catch((reason: unknown) => {
+        const message = reason instanceof Error ? reason.message : 'Could not load this profile.';
+        if (mode === 'refresh') setToast(message);
+        else {
+          setErrorText(message);
+          setStatus('error');
+        }
+      })
+      .finally(() => setRefreshing(false));
+  };
 
   useEffect(() => {
     let cancelled = false;
     setProfile(null);
     setStatus('loading');
-    setAnimateStats(true);
     loadDoctorProfile(doctorKey)
       .then((card) => {
-        if (cancelled) return;
-        setProfile(card);
-        setStatus('ready');
+        if (!cancelled) {
+          setProfile(card);
+          setStatus('ready');
+        }
       })
       .catch((reason: unknown) => {
-        if (cancelled) return;
-        setErrorText(reason instanceof Error ? reason.message : 'Could not load this profile.');
-        setStatus('error');
+        if (!cancelled) {
+          setErrorText(reason instanceof Error ? reason.message : 'Could not load this profile.');
+          setStatus('error');
+        }
       });
     return () => {
       cancelled = true;
@@ -120,55 +156,102 @@ export function DoctorProfileCard({ doctorKey, onMessage, onRefer }: Props) {
 
   useEffect(() => {
     if (!toast) return;
-    const timer = setTimeout(() => setToast(null), 2800);
+    const timer = setTimeout(() => setToast(null), 2400);
     return () => clearTimeout(timer);
   }, [toast]);
 
-  const refresh = async () => {
-    setRefreshing(true);
-    try {
-      const card = await loadDoctorProfile(doctorKey);
-      setAnimateStats(false);
-      setProfile(card);
-      setStatus('ready');
-    } catch {
-      setToast('Could not refresh this profile.');
-    } finally {
-      setRefreshing(false);
-    }
-  };
-
   const theme = themeForSpecialty(profile?.specialty ?? '');
+  const shareText = profile ? `${profile.headline}\n${profile.doctorKey}` : '';
 
-  const setSetting = async (
-    key: 'accepts_peer_consults' | 'case_exchange_opt_in',
-    value: boolean,
-  ) => {
-    if (!profile || saving.current) return;
+  const setSetting = async (key: 'consults' | 'cases', value: boolean) => {
+    if (!profile || savingKey) return;
     const previous = profile;
-    saving.current = true;
+    const field = key === 'consults' ? 'accepts_peer_consults' : 'case_exchange_opt_in';
+    setSavingKey(key);
     setProfile({
       ...profile,
-      acceptsPeerConsults: key === 'accepts_peer_consults' ? value : profile.acceptsPeerConsults,
-      caseExchangeOptIn: key === 'case_exchange_opt_in' ? value : profile.caseExchangeOptIn,
+      acceptsPeerConsults: key === 'consults' ? value : profile.acceptsPeerConsults,
+      caseExchangeOptIn: key === 'cases' ? value : profile.caseExchangeOptIn,
     });
     try {
-      const settings = await updateDoctorSettings(profile.doctorKey, { [key]: value });
+      const saved = await updateDoctorSettings(profile.doctorKey, { [field]: value });
       setProfile((current) =>
         current
           ? {
               ...current,
-              acceptsPeerConsults: settings.accepts_peer_consults,
-              caseExchangeOptIn: settings.case_exchange_opt_in,
+              acceptsPeerConsults: saved.accepts_peer_consults,
+              caseExchangeOptIn: saved.case_exchange_opt_in,
             }
           : current,
       );
-    } catch {
+    } catch (reason: unknown) {
       setProfile(previous);
-      setToast('Could not save that setting.');
+      setToast(reason instanceof Error ? reason.message : 'Could not save that setting.');
     } finally {
-      saving.current = false;
+      setSavingKey(null);
     }
+  };
+
+  const openBio = () => {
+    if (!profile?.isSelf) return;
+    setBioDraft(profile.bio ?? '');
+    setBioError(null);
+    setBioOpen(true);
+  };
+
+  const saveBio = async () => {
+    if (!profile) return;
+    setBioSaving(true);
+    setBioError(null);
+    try {
+      const saved = await updateDoctorBio(profile.doctorKey, bioDraft);
+      setProfile({ ...profile, bio: saved });
+      setBioOpen(false);
+    } catch (reason: unknown) {
+      setBioError(reason instanceof Error ? reason.message : 'Could not save the bio.');
+    } finally {
+      setBioSaving(false);
+    }
+  };
+
+  const openRefer = () => {
+    if (!profile?.canRefer) return;
+    setReferError(null);
+    setPatientKey(null);
+    setReferOpen(true);
+    loadPanelPatients()
+      .then(setPatients)
+      .catch((reason: unknown) => {
+        setReferError(reason instanceof Error ? reason.message : 'Could not load patients.');
+      });
+  };
+
+  const confirmRefer = async () => {
+    if (!profile || !patientKey) return;
+    setReferSaving(true);
+    setReferError(null);
+    try {
+      await createFormalReferral({
+        toDoctorKey: profile.doctorKey,
+        patientKey,
+        reason: 'Referral requested from the doctor profile.',
+        urgency: 'routine',
+      });
+      setReferOpen(false);
+      setToast('Referral sent.');
+      const refreshed = await loadDoctorProfile(profile.doctorKey);
+      setProfile(refreshed);
+    } catch (reason: unknown) {
+      setReferError(reason instanceof Error ? reason.message : 'Could not send the referral.');
+    } finally {
+      setReferSaving(false);
+    }
+  };
+
+  const scrollToAvailability = () => {
+    scrollRef.current?.scrollTo({ y: Math.max(settingsY.current - space.sm, 0), animated: true });
+    setHighlightAvailability(true);
+    setTimeout(() => setHighlightAvailability(false), 1200);
   };
 
   return (
@@ -179,33 +262,15 @@ export function DoctorProfileCard({ doctorKey, onMessage, onRefer }: Props) {
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={refresh} tintColor={colors.white} />
+          <RefreshControl refreshing={refreshing} onRefresh={() => load('refresh')} tintColor={colors.white} />
         }
       >
         {status === 'loading' ? <ProfileSkeleton /> : null}
         {status === 'error' ? (
-          <View style={styles.errorCard}>
-            <Text style={styles.errorTitle}>Profile unavailable</Text>
-            <Text style={styles.errorBody}>{errorText}</Text>
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel="Retry loading profile"
-              onPress={() => {
-                setStatus('loading');
-                loadDoctorProfile(doctorKey)
-                  .then((card) => {
-                    setProfile(card);
-                    setStatus('ready');
-                  })
-                  .catch((reason: unknown) => {
-                    setErrorText(reason instanceof Error ? reason.message : errorText);
-                    setStatus('error');
-                  });
-              }}
-              style={styles.retryButton}
-            >
-              <Text style={styles.retryText}>Retry</Text>
-            </Pressable>
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Profile unavailable</Text>
+            <Text style={styles.body}>{errorText}</Text>
+            <ActionButton label="Retry loading profile" title="Retry" accent={colors.accentPurple} onPress={() => load('initial')} />
           </View>
         ) : null}
         {status === 'ready' && profile ? (
@@ -216,107 +281,145 @@ export function DoctorProfileCard({ doctorKey, onMessage, onRefer }: Props) {
               end={{ x: 1, y: 1 }}
               style={styles.headerCard}
             >
-              <View style={styles.avatarRing}>
-                <Avatar
-                  initials={profile.initials}
-                  color={theme.accent}
-                  gradient={theme.gradient}
-                  size={108}
-                />
-              </View>
-              <Text style={styles.name}>{profile.headline}</Text>
-              <View style={styles.specialtyRow}>
-                <SpecialtyIcon name={theme.icon} color={theme.accent} size={18} />
-                <Text style={styles.specialty}>{profile.specialtyTitle}</Text>
-              </View>
-              <Text style={styles.orgLine}>
-                {profile.organization} · {profile.state}
-              </Text>
+              <Pressable
+                accessibilityRole={profile.isSelf ? 'button' : 'text'}
+                accessibilityLabel={profile.isSelf ? `Edit bio for ${profile.headline}` : profile.headline}
+                disabled={!profile.isSelf}
+                onPress={openBio}
+                style={({ pressed }) => [styles.identity, pointer, pressed && profile.isSelf && styles.pressed]}
+              >
+                <Avatar initials={profile.initials} color={theme.accent} gradient={theme.gradient} size={72} />
+                <Text style={styles.name}>{profile.headline}</Text>
+                <View style={styles.specialtyRow}>
+                  <SpecialtyIcon name={theme.icon} color={theme.accent} size={16} />
+                  <Text style={styles.specialty}>{profile.specialtyTitle}</Text>
+                </View>
+                <Text style={styles.orgLine}>
+                  {profile.organization} · {profile.state}
+                </Text>
+              </Pressable>
               <View style={styles.badgeRow}>
-                {profile.verification === 'demo' ? (
-                  <View style={styles.badge}>
-                    <Text style={styles.badgeText}>Demo profile</Text>
-                  </View>
-                ) : null}
-                {!profile.isSelf && profile.hasConsultThread ? (
-                  <View style={[styles.badge, { borderColor: theme.accent }]}>
-                    <Text style={[styles.badgeText, { color: theme.accent }]}>Mutual</Text>
-                  </View>
-                ) : null}
+                <ActionButton
+                  label="About the demo profile badge"
+                  title={profileCopy.demoBadge}
+                  accent={colors.white}
+                  outline
+                  onPress={() => setDemoOpen(true)}
+                />
               </View>
               <View style={styles.actions}>
                 {profile.isSelf ? (
                   <>
-                    <RoundAction
-                      label="Share card"
-                      accent={theme.accent}
-                      onPress={() => setShareOpen(true)}
-                      icon={<ShareIcon color={theme.accent} />}
-                    />
-                    <RoundAction
-                      label="Edit availability"
-                      accent={theme.accent}
-                      onPress={() => scrollRef.current?.scrollTo({ y: settingsY.current, animated: true })}
-                      icon={<SlidersIcon color={theme.accent} />}
-                    />
+                    <RoundAction title="Share card" label="Share card" accent={theme.accent} onPress={() => setShareOpen(true)} icon={<ShareIcon color={theme.accent} />} />
+                    <RoundAction title="Edit availability" label="Edit availability" accent={theme.accent} onPress={scrollToAvailability} icon={<SlidersIcon color={theme.accent} />} />
                   </>
                 ) : (
                   <>
-                    {profile.acceptsPeerConsults && onMessage ? (
-                      <RoundAction
-                        label="Message"
-                        accent={theme.accent}
-                        onPress={() => onMessage(profile.doctorKey)}
-                        icon={<BubbleIcon color={theme.accent} />}
-                      />
-                    ) : null}
-                    {onRefer ? (
-                      <RoundAction
-                        label="Refer"
-                        accent={theme.accent}
-                        onPress={() => onRefer(profile.doctorKey)}
-                        icon={<ReferIcon color={theme.accent} />}
-                      />
-                    ) : null}
-                    {profile.professionalEmail ? (
-                      <RoundAction
-                        label="Email"
-                        accent={theme.accent}
-                        onPress={() => {
-                          const address = profile.professionalEmail;
-                          if (!address) return;
-                          Linking.openURL(`mailto:${address}`).catch(() => {
-                            setToast('Could not open mail for this address.');
-                          });
-                        }}
-                        icon={<MailIcon color={theme.accent} />}
-                      />
-                    ) : null}
+                    <RoundAction
+                      title="Message"
+                      label={profile.canMessage ? `Message ${profile.displayName}` : profile.messageBlockReason ?? 'Message unavailable'}
+                      accent={theme.accent}
+                      disabled={!profile.canMessage}
+                      onPress={() => onOpenConsults?.(profile.doctorKey)}
+                      icon={<BubbleIcon color={profile.canMessage ? theme.accent : colors.textMuted} />}
+                    />
+                    <RoundAction
+                      title="Refer"
+                      label={profile.canRefer ? `Refer a patient to ${profile.displayName}` : profile.referBlockReason ?? 'Refer unavailable'}
+                      accent={theme.accent}
+                      disabled={!profile.canRefer}
+                      onPress={openRefer}
+                      icon={<ReferIcon color={profile.canRefer ? theme.accent : colors.textMuted} />}
+                    />
+                    <RoundAction title="Share" label={`Share ${profile.displayName}`} accent={theme.accent} onPress={() => setShareOpen(true)} icon={<ShareIcon color={theme.accent} />} />
                   </>
                 )}
               </View>
+              {!profile.isSelf && !profile.canMessage && profile.messageBlockReason ? (
+                <Text style={styles.reason}>{profile.messageBlockReason}</Text>
+              ) : null}
+              {!profile.isSelf && !profile.canRefer && profile.referBlockReason ? (
+                <Text style={styles.reason}>{profile.referBlockReason}</Text>
+              ) : null}
               <View style={styles.stats}>
-                <Stat label="Patients" value={profile.patientCount} accent={theme.accent} animate={animateStats} />
-                <Stat label="Consults" value={profile.peerConsultThreads} accent={theme.accent} animate={animateStats} />
-                <Stat label="Referrals in" value={profile.referralsReceived} accent={theme.accent} animate={animateStats} />
-                <Stat label="Years" value={profile.yearsInPractice} accent={theme.accent} animate={animateStats} />
+                {profile.isSelf ? (
+                  <Stat label="Patients" value={profile.patientCount ?? 0} accent={theme.accent} onPress={onOpenPatients} blockedReason={onOpenPatients ? undefined : 'Patient list is not available here.'} />
+                ) : null}
+                <Stat
+                  label={profile.isSelf ? 'Consults' : 'Consults with you'}
+                  value={profile.consultThreadCount}
+                  accent={theme.accent}
+                  onPress={
+                    profile.isSelf
+                      ? () => onOpenConsults?.(null)
+                      : profile.mutualThreadId
+                        ? () => onOpenConsults?.(profile.doctorKey, profile.canMessage ? undefined : profile.messageBlockReason ?? undefined)
+                        : undefined
+                  }
+                  blockedReason={
+                    !profile.isSelf && !profile.mutualThreadId
+                      ? 'No consult thread yet.'
+                      : onOpenConsults
+                        ? undefined
+                        : 'Chat is not available here.'
+                  }
+                />
+                <Stat
+                  label={profile.isSelf ? 'Referrals in' : 'Referrals they sent you'}
+                  value={profile.referralsIn}
+                  accent={theme.accent}
+                  onPress={() => onOpenReferrals?.('in', profile.isSelf ? undefined : profile.doctorKey)}
+                  blockedReason={onOpenReferrals ? undefined : 'Referral list is not available here.'}
+                />
+                <Stat
+                  label={profile.isSelf ? 'Referrals out' : 'Referrals you sent'}
+                  value={profile.referralsOut}
+                  accent={theme.accent}
+                  onPress={() => onOpenReferrals?.('out', profile.isSelf ? undefined : profile.doctorKey)}
+                  blockedReason={onOpenReferrals ? undefined : 'Referral list is not available here.'}
+                />
               </View>
             </LinearGradient>
 
+            {!profile.isSelf && profile.mutualLastMessage ? (
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel="Open the mutual consult thread"
+                onPress={() => onOpenConsults?.(profile.doctorKey, profile.canMessage ? undefined : profile.messageBlockReason ?? undefined)}
+                style={({ pressed }) => [styles.section, pointer, pressed && styles.pressed]}
+              >
+                <Text style={styles.sectionTitle}>Mutual</Text>
+                <Text style={styles.body}>{profile.mutualLastMessage}</Text>
+              </Pressable>
+            ) : null}
+
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>About</Text>
-              <Text style={styles.aboutLine}>{profile.subspecialtyFocus}</Text>
+              {profile.isSelf ? (
+                <Pressable accessibilityRole="button" accessibilityLabel={profile.bio ? 'Edit bio' : profileCopy.addBio} onPress={openBio} style={({ pressed }) => [pointer, pressed && styles.pressed]}>
+                  <Text style={profile.bio ? styles.body : styles.prompt}>{profile.bio ?? profileCopy.addBio}</Text>
+                </Pressable>
+              ) : profile.bio ? (
+                <Text style={styles.body}>{profile.bio}</Text>
+              ) : null}
+              <Text style={styles.plain}>Focus: {profile.subspecialtyFocus}</Text>
+              <Text style={styles.plain}>{profile.yearsInPractice} years in practice</Text>
               <View style={styles.chips}>
-                <Chip label={readableLabel(profile.practiceType)} />
+                <Chip label={profile.specialty} onPress={() => onOpenDirectory?.({ specialty: profile.specialty })} />
+                <Chip label={profile.subspecialtyFocus} onPress={() => onOpenDirectory?.({ focus: profile.subspecialtyFocus })} />
+                <Chip label={readableLabel(profile.practiceType)} onPress={() => onOpenDirectory?.({ practiceType: profile.practiceType })} />
                 {profile.languages.map((language) => (
-                  <Chip key={language} label={language} />
+                  <Chip key={language} label={language} onPress={() => onOpenDirectory?.({ language })} />
                 ))}
+                <Chip label={profile.organization} onPress={() => onOpenDirectory?.({ organization: profile.organization })} />
+                <Chip label={profile.state} onPress={() => onOpenDirectory?.({ state: profile.state })} />
               </View>
+              {!onOpenDirectory ? <Text style={styles.hint}>Directory filters are not available on this screen.</Text> : null}
             </View>
 
             {profile.isSelf ? (
               <View
-                style={styles.section}
+                style={[styles.section, highlightAvailability && { borderColor: theme.accent, borderWidth: 2 }]}
                 onLayout={(event) => {
                   settingsY.current = event.nativeEvent.layout.y;
                 }}
@@ -324,17 +427,19 @@ export function DoctorProfileCard({ doctorKey, onMessage, onRefer }: Props) {
                 <Text style={styles.sectionTitle}>Availability</Text>
                 <SettingRow
                   title="Accept peer consults"
-                  detail="Other doctors can message you."
+                  detail={profile.acceptsPeerConsults ? profileCopy.consultsOn : profileCopy.consultsOff}
                   value={profile.acceptsPeerConsults}
                   accent={theme.accent}
-                  onChange={(value) => setSetting('accepts_peer_consults', value)}
+                  saving={savingKey === 'consults'}
+                  onChange={(value) => setSetting('consults', value)}
                 />
                 <SettingRow
                   title="Share de-identified cases"
-                  detail="Your consented patients can appear in similar-case search."
+                  detail={profile.caseExchangeOptIn ? profileCopy.sharingOn : profileCopy.sharingOff}
                   value={profile.caseExchangeOptIn}
                   accent={theme.accent}
-                  onChange={(value) => setSetting('case_exchange_opt_in', value)}
+                  saving={savingKey === 'cases'}
+                  onChange={(value) => setSetting('cases', value)}
                 />
               </View>
             ) : null}
@@ -348,24 +453,89 @@ export function DoctorProfileCard({ doctorKey, onMessage, onRefer }: Props) {
         </View>
       ) : null}
 
-      <Modal visible={shareOpen} transparent animationType="fade" onRequestClose={() => setShareOpen(false)}>
-        <Pressable style={styles.modalBackdrop} onPress={() => setShareOpen(false)}>
-          <Pressable style={styles.shareCard} onPress={() => undefined}>
-            <Text style={styles.shareTitle}>{profile?.headline ?? 'Doctor card'}</Text>
-            <Text style={styles.shareKey}>{profile?.doctorKey}</Text>
-            {profile ? <QrMark text={`${profile.doctorKey} ${profile.displayName}`} /> : null}
-            <Text style={styles.shareHint}>A peer can scan this for the doctor key and name.</Text>
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel="Close share card"
-              onPress={() => setShareOpen(false)}
-              style={[styles.retryButton, { backgroundColor: theme.accent }]}
-            >
-              <Text style={styles.shareCloseText}>Done</Text>
-            </Pressable>
-          </Pressable>
-        </Pressable>
-      </Modal>
+      <Sheet visible={demoOpen} onClose={() => setDemoOpen(false)} title={profileCopy.demoTitle}>
+        <Text style={styles.sheetBody}>{profileCopy.demoBody}</Text>
+      </Sheet>
+
+      <Sheet visible={shareOpen} onClose={() => setShareOpen(false)} title={profile?.headline ?? 'Share card'}>
+        <Text style={styles.sheetKey}>{profile?.doctorKey}</Text>
+        {shareText ? <QrMark text={shareText} /> : null}
+        <Text style={styles.sheetBody}>{profileCopy.shareHint}</Text>
+        <View style={styles.sheetButtons}>
+          <ActionButton
+            label="Copy doctor card"
+            title="Copy"
+            accent={theme.accent}
+            onPress={() => {
+              copyText(shareText)
+                .then((ok) => setToast(ok ? 'Copied.' : 'Copy is not available on this device.'))
+                .catch(() => setToast('Could not copy the card.'));
+            }}
+          />
+          <ActionButton
+            label="Share doctor card"
+            title="Share"
+            accent={theme.accent}
+            onPress={() => {
+              Share.share({ message: shareText }).catch(() => setToast('Could not open the share sheet.'));
+            }}
+          />
+        </View>
+      </Sheet>
+
+      <Sheet visible={bioOpen} onClose={() => setBioOpen(false)} title="Bio">
+        <TextInput
+          value={bioDraft}
+          onChangeText={setBioDraft}
+          multiline
+          maxLength={320}
+          placeholder={profileCopy.bioPlaceholder}
+          placeholderTextColor={colors.searchPlaceholder}
+          style={styles.bioInput}
+        />
+        <Text style={styles.counter}>{bioDraft.trim().length}/280</Text>
+        {bioError ? <Text style={styles.errorText}>{bioError}</Text> : null}
+        <View style={styles.sheetButtons}>
+          <ActionButton label="Cancel bio edit" title="Cancel" accent={colors.textMuted} outline onPress={() => setBioOpen(false)} />
+          <ActionButton
+            label="Save bio"
+            title={bioSaving ? 'Saving' : 'Save'}
+            accent={theme.accent}
+            disabled={bioSaving || bioDraft.trim() === (profile?.bio ?? '')}
+            onPress={saveBio}
+          />
+        </View>
+      </Sheet>
+
+      <Sheet visible={referOpen} onClose={() => setReferOpen(false)} title={`Refer to ${profile?.displayName ?? 'doctor'}`}>
+        <ScrollView style={styles.patientList}>
+          {patients.map((patient) => {
+            const selected = patient.patientKey === patientKey;
+            return (
+              <Pressable
+                key={patient.patientKey}
+                accessibilityRole="button"
+                accessibilityState={{ selected }}
+                accessibilityLabel={`Select ${patient.label}`}
+                onPress={() => setPatientKey(patient.patientKey)}
+                style={({ pressed }) => [styles.patientRow, selected && styles.patientRowSelected, pointer, pressed && styles.pressed]}
+              >
+                <Text style={styles.patientName}>{patient.label}</Text>
+                <Text style={styles.plain}>{patient.detail}</Text>
+              </Pressable>
+            );
+          })}
+          {patients.length === 0 ? <Text style={styles.body}>{profileCopy.noPatients}</Text> : null}
+        </ScrollView>
+        {referError ? <Text style={styles.errorText}>{referError}</Text> : null}
+        <ActionButton
+          label="Confirm referral"
+          title={referSaving ? 'Sending' : 'Confirm referral'}
+          accent={theme.accent}
+          disabled={!patientKey || referSaving}
+          onPress={confirmRefer}
+        />
+      </Sheet>
     </View>
   );
 }
@@ -374,27 +544,43 @@ function Stat({
   label,
   value,
   accent,
-  animate,
+  onPress,
+  blockedReason,
 }: {
   label: string;
   value: number;
   accent: string;
-  animate: boolean;
+  onPress?: () => void;
+  blockedReason?: string;
 }) {
-  const shown = useCountUp(value, animate);
+  const disabled = !onPress;
   return (
-    <View style={styles.stat}>
-      <Text style={[styles.statValue, { color: accent }]}>{shown}</Text>
+    <Pressable
+      accessibilityRole="button"
+      accessibilityState={{ disabled }}
+      accessibilityLabel={disabled ? `${label}, ${blockedReason ?? 'unavailable'}` : `Open ${label}`}
+      disabled={disabled}
+      onPress={onPress}
+      style={({ pressed }) => [styles.stat, pointer, pressed && !disabled && styles.pressed, disabled && styles.dimmed]}
+    >
+      <Text style={[styles.statValue, { color: accent }]}>{value}</Text>
       <Text style={styles.statLabel}>{label}</Text>
-    </View>
+    </Pressable>
   );
 }
 
-function Chip({ label }: { label: string }) {
+function Chip({ label, onPress }: { label: string; onPress?: () => void }) {
   return (
-    <View style={styles.chip}>
+    <Pressable
+      accessibilityRole="button"
+      accessibilityState={{ disabled: !onPress }}
+      accessibilityLabel={`Filter directory by ${label}`}
+      disabled={!onPress}
+      onPress={onPress}
+      style={({ pressed }) => [styles.chip, pointer, pressed && styles.pressed]}
+    >
       <Text style={styles.chipText}>{label}</Text>
-    </View>
+    </Pressable>
   );
 }
 
@@ -403,12 +589,14 @@ function SettingRow({
   detail,
   value,
   accent,
+  saving,
   onChange,
 }: {
   title: string;
   detail: string;
   value: boolean;
   accent: string;
+  saving: boolean;
   onChange: (value: boolean) => void;
 }) {
   return (
@@ -417,97 +605,135 @@ function SettingRow({
         <Text style={styles.settingTitle}>{title}</Text>
         <Text style={styles.settingDetail}>{detail}</Text>
       </View>
-      <Switch
+      {saving ? <ActivityIndicator color={accent} /> : null}
+      <Pressable
+        accessibilityRole="switch"
         accessibilityLabel={title}
-        value={value}
-        onValueChange={onChange}
-        trackColor={{ false: 'rgba(26,26,46,0.18)', true: accent }}
-        thumbColor={colors.white}
-      />
+        accessibilityState={{ checked: value, disabled: saving }}
+        disabled={saving}
+        onPress={() => onChange(!value)}
+        style={[
+          styles.switchTrack,
+          pointer,
+          { backgroundColor: value ? accent : '#3A4158', borderColor: value ? accent : '#8B90A0' },
+        ]}
+      >
+        <View style={[styles.switchThumb, value ? styles.switchThumbOn : null, { backgroundColor: value ? accent : '#C5CAD6' }]} />
+      </Pressable>
     </View>
   );
 }
 
 function RoundAction({
   label,
+  title,
   accent,
   onPress,
   icon,
+  disabled,
 }: {
   label: string;
+  title: string;
   accent: string;
-  onPress: () => void;
+  onPress?: () => void;
   icon: React.ReactNode;
+  disabled?: boolean;
+}) {
+  return (
+    <Pressable
+      accessibilityRole="button"
+      accessibilityState={{ disabled: !!disabled }}
+      accessibilityLabel={label}
+      disabled={disabled || !onPress}
+      onPress={onPress}
+      style={({ pressed }) => [styles.action, pointer, pressed && !disabled && styles.pressed, disabled && styles.dimmed]}
+    >
+      <View style={[styles.actionCircle, { borderColor: disabled ? colors.textMuted : accent }]}>{icon}</View>
+      <Text style={styles.actionLabel}>{title}</Text>
+    </Pressable>
+  );
+}
+
+function ActionButton({
+  label,
+  title,
+  accent,
+  onPress,
+  disabled,
+  outline,
+}: {
+  label: string;
+  title: string;
+  accent: string;
+  onPress?: () => void;
+  disabled?: boolean;
+  outline?: boolean;
 }) {
   return (
     <Pressable
       accessibilityRole="button"
       accessibilityLabel={label}
+      accessibilityState={{ disabled: !!disabled }}
+      disabled={disabled}
       onPress={onPress}
-      style={styles.action}
+      style={({ pressed }) => [
+        styles.textButton,
+        pointer,
+        { backgroundColor: outline ? 'transparent' : accent, borderColor: accent },
+        pressed && !disabled && styles.pressed,
+        disabled && styles.dimmed,
+      ]}
     >
-      <View style={[styles.actionCircle, { borderColor: accent, backgroundColor: 'rgba(255,255,255,0.14)' }]}>
-        {icon}
-      </View>
-      <Text style={styles.actionLabel}>{label}</Text>
+      <Text style={[styles.textButtonLabel, { color: outline ? accent : colors.navy }]}>{title}</Text>
     </Pressable>
   );
 }
 
-function ProfileSkeleton() {
-  const pulse = useRef(new Animated.Value(0.45)).current;
-  useEffect(() => {
-    const loop = Animated.loop(
-      Animated.sequence([
-        Animated.timing(pulse, { toValue: 1, duration: 700, useNativeDriver: false }),
-        Animated.timing(pulse, { toValue: 0.45, duration: 700, useNativeDriver: false }),
-      ]),
-    );
-    loop.start();
-    return () => loop.stop();
-  }, [pulse]);
-
+function Sheet({
+  visible,
+  title,
+  onClose,
+  children,
+}: {
+  visible: boolean;
+  title: string;
+  onClose: () => void;
+  children: React.ReactNode;
+}) {
   return (
-    <Animated.View style={{ opacity: pulse }}>
-      <View style={styles.skeletonHeader}>
-        <View style={styles.skeletonAvatar} />
-        <View style={styles.skeletonLineWide} />
-        <View style={styles.skeletonLine} />
-        <View style={styles.skeletonStats}>
-          <View style={styles.skeletonStat} />
-          <View style={styles.skeletonStat} />
-          <View style={styles.skeletonStat} />
-          <View style={styles.skeletonStat} />
-        </View>
-      </View>
-      <View style={styles.skeletonSection} />
-    </Animated.View>
+    <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
+      <Pressable style={styles.backdrop} onPress={onClose}>
+        <Pressable style={styles.sheet} onPress={() => undefined}>
+          <Text style={styles.sheetTitle}>{title}</Text>
+          {children}
+        </Pressable>
+      </Pressable>
+    </Modal>
+  );
+}
+
+function ProfileSkeleton() {
+  return (
+    <View style={styles.skeleton}>
+      <View style={styles.skeletonAvatar} />
+      <View style={styles.skeletonLine} />
+      <View style={styles.skeletonLineShort} />
+    </View>
   );
 }
 
 function QrMark({ text }: { text: string }) {
   const matrix = useMemo(() => qrMatrix(text), [text]);
-  if (!matrix) {
-    return <Text style={styles.shareKey}>{text}</Text>;
-  }
-  const cell = 7;
+  if (!matrix) return <Text style={styles.sheetKey}>{text}</Text>;
+  const cell = 6;
   const size = matrix.length * cell;
   return (
     <View style={styles.qrFrame}>
       <Svg width={size} height={size}>
         <Rect x={0} y={0} width={size} height={size} fill={colors.white} />
-        {matrix.map((row, y) =>
+        {matrix.flatMap((row, y) =>
           row.map((on, x) =>
-            on ? (
-              <Rect
-                key={`${x}-${y}`}
-                x={x * cell}
-                y={y * cell}
-                width={cell}
-                height={cell}
-                fill={colors.navy}
-              />
-            ) : null,
+            on ? <Rect key={`${x}-${y}`} x={x * cell} y={y * cell} width={cell} height={cell} fill={colors.navy} /> : null,
           ),
         )}
       </Svg>
@@ -517,8 +743,8 @@ function QrMark({ text }: { text: string }) {
 
 function ShareIcon({ color }: { color: string }) {
   return (
-    <Svg width={22} height={22} viewBox="0 0 24 24" fill="none">
-      <Path d="M12 14.5V4.8M12 4.8 8.6 8.2M12 4.8l3.4 3.4" stroke={color} strokeWidth={1.7} strokeLinecap="round" strokeLinejoin="round" />
+    <Svg width={20} height={20} viewBox="0 0 24 24" fill="none">
+      <Path d="M12 14V5M12 5 8.8 8.2M12 5l3.2 3.2" stroke={color} strokeWidth={1.7} strokeLinecap="round" />
       <Path d="M6 12.5v5.2A1.8 1.8 0 0 0 7.8 19.5h8.4a1.8 1.8 0 0 0 1.8-1.8v-5.2" stroke={color} strokeWidth={1.7} strokeLinecap="round" />
     </Svg>
   );
@@ -526,276 +752,137 @@ function ShareIcon({ color }: { color: string }) {
 
 function SlidersIcon({ color }: { color: string }) {
   return (
-    <Svg width={22} height={22} viewBox="0 0 24 24" fill="none">
-      <Path d="M5 7.5h14M5 16.5h14" stroke={color} strokeWidth={1.7} strokeLinecap="round" />
-      <Path d="M9 7.5a2 2 0 1 0 0 .01M15 16.5a2 2 0 1 0 0 .01" stroke={color} strokeWidth={1.7} />
+    <Svg width={20} height={20} viewBox="0 0 24 24" fill="none">
+      <Path d="M5 8h14M5 16h14" stroke={color} strokeWidth={1.7} strokeLinecap="round" />
+      <Path d="M9 8a1.8 1.8 0 1 0 .01 0M15 16a1.8 1.8 0 1 0 .01 0" stroke={color} strokeWidth={1.7} />
     </Svg>
   );
 }
 
 function BubbleIcon({ color }: { color: string }) {
   return (
-    <Svg width={22} height={22} viewBox="0 0 24 24" fill="none">
-      <Path
-        d="M6 7.2A3.2 3.2 0 0 1 9.2 4h5.6A3.2 3.2 0 0 1 18 7.2v5.1a3.2 3.2 0 0 1-3.2 3.2H10l-3.2 2.6v-2.2A3.2 3.2 0 0 1 6 12.3V7.2Z"
-        stroke={color}
-        strokeWidth={1.6}
-        strokeLinejoin="round"
-      />
+    <Svg width={20} height={20} viewBox="0 0 24 24" fill="none">
+      <Path d="M6.5 7.5A2.5 2.5 0 0 1 9 5h6a2.5 2.5 0 0 1 2.5 2.5v4.5A2.5 2.5 0 0 1 15 14.5H10L7 17v-2.6A2.5 2.5 0 0 1 6.5 12V7.5Z" stroke={color} strokeWidth={1.6} />
     </Svg>
   );
 }
 
 function ReferIcon({ color }: { color: string }) {
   return (
-    <Svg width={22} height={22} viewBox="0 0 24 24" fill="none">
-      <Path d="M8.5 11.2a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM4.8 18.2c.4-2.4 2-3.8 3.7-3.8s3.3 1.4 3.7 3.8" stroke={color} strokeWidth={1.6} strokeLinecap="round" />
-      <Path d="M16.2 8.2v5.2M13.6 10.8h5.2" stroke={color} strokeWidth={1.6} strokeLinecap="round" />
-    </Svg>
-  );
-}
-
-function MailIcon({ color }: { color: string }) {
-  return (
-    <Svg width={22} height={22} viewBox="0 0 24 24" fill="none">
-      <Path d="M5 7.2h14v9.6H5V7.2Z" stroke={color} strokeWidth={1.6} strokeLinejoin="round" />
-      <Path d="m5.4 7.6 6.6 5.2 6.6-5.2" stroke={color} strokeWidth={1.6} strokeLinejoin="round" />
+    <Svg width={20} height={20} viewBox="0 0 24 24" fill="none">
+      <Path d="M8 11a2.6 2.6 0 1 0 0-5.2A2.6 2.6 0 0 0 8 11ZM4.8 18c.4-2.2 1.8-3.4 3.2-3.4S10.8 15.8 11.2 18" stroke={color} strokeWidth={1.6} strokeLinecap="round" />
+      <Path d="M16 8.5v5M13.5 11h5" stroke={color} strokeWidth={1.6} strokeLinecap="round" />
     </Svg>
   );
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1 },
+  root: { flex: 1, width: '100%', maxWidth: 480, alignSelf: 'center' },
   flex: { flex: 1 },
-  content: { paddingHorizontal: 16, paddingTop: 8, paddingBottom: 28, gap: 14 },
-  headerCard: {
-    borderRadius: 24,
-    paddingHorizontal: 16,
-    paddingTop: 22,
-    paddingBottom: 16,
-    alignItems: 'center',
-  },
-  avatarRing: {
-    padding: 4,
-    borderRadius: 60,
-    backgroundColor: 'rgba(255,255,255,0.16)',
-    marginBottom: 12,
-  },
-  name: {
-    color: colors.white,
-    fontSize: 22,
-    fontWeight: '800',
-    textAlign: 'center',
-  },
-  specialtyRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    marginTop: 6,
-  },
-  specialty: {
-    color: 'rgba(255,255,255,0.92)',
-    fontSize: 15,
-    fontWeight: '600',
-  },
-  orgLine: {
-    color: 'rgba(255,255,255,0.78)',
-    fontSize: 13,
-    marginTop: 4,
-    textAlign: 'center',
-  },
-  badgeRow: {
-    flexDirection: 'row',
-    gap: 8,
-    marginTop: 12,
-  },
-  badge: {
-    borderRadius: 999,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.45)',
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-  },
-  badgeText: {
-    color: colors.white,
-    fontSize: 12,
-    fontWeight: '700',
-  },
-  actions: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    gap: 18,
-    marginTop: 16,
-  },
-  action: { alignItems: 'center', width: 84 },
+  content: { paddingHorizontal: space.lg, paddingTop: space.sm, paddingBottom: space.xl, gap: space.md },
+  headerCard: { borderRadius: space.lg, paddingHorizontal: space.lg, paddingTop: space.md, paddingBottom: space.md },
+  identity: { alignItems: 'center', gap: space.xs },
+  name: { color: colors.white, fontSize: 20, fontWeight: '800', textAlign: 'center', marginTop: space.xs },
+  specialtyRow: { flexDirection: 'row', alignItems: 'center', gap: space.xs },
+  specialty: { color: colors.white, fontSize: 14, fontWeight: '600' },
+  orgLine: { color: 'rgba(255,255,255,0.82)', fontSize: 13, textAlign: 'center' },
+  badgeRow: { alignItems: 'center', marginTop: space.sm },
+  actions: { flexDirection: 'row', justifyContent: 'center', gap: space.lg, marginTop: space.md },
+  action: { alignItems: 'center', width: 76 },
   actionCircle: {
-    width: 52,
-    height: 52,
-    borderRadius: 26,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     borderWidth: 1.5,
     alignItems: 'center',
     justifyContent: 'center',
+    backgroundColor: 'rgba(255,255,255,0.14)',
   },
-  actionLabel: {
-    color: colors.white,
-    fontSize: 12,
-    fontWeight: '600',
-    marginTop: 6,
-    textAlign: 'center',
-  },
+  actionLabel: { color: colors.white, fontSize: 11, fontWeight: '600', marginTop: space.xs, textAlign: 'center' },
+  reason: { color: 'rgba(255,255,255,0.88)', fontSize: 12, textAlign: 'center', marginTop: space.sm },
   stats: {
     flexDirection: 'row',
     alignSelf: 'stretch',
-    marginTop: 16,
+    marginTop: space.md,
     backgroundColor: 'rgba(10,14,39,0.82)',
-    borderRadius: 16,
-    paddingVertical: 12,
+    borderRadius: space.md,
   },
-  stat: { flex: 1, alignItems: 'center' },
-  statValue: { fontSize: 20, fontWeight: '800' },
-  statLabel: {
-    color: 'rgba(255,255,255,0.78)',
-    fontSize: 11,
-    marginTop: 2,
-    textAlign: 'center',
-  },
+  stat: { flex: 1, alignItems: 'center', paddingVertical: space.sm },
+  statValue: { fontSize: 18, fontWeight: '800' },
+  statLabel: { color: 'rgba(255,255,255,0.8)', fontSize: 11, marginTop: 2, textAlign: 'center' },
   section: {
     backgroundColor: colors.cardBg,
-    borderRadius: 18,
-    paddingHorizontal: 16,
-    paddingVertical: 14,
+    borderRadius: space.lg,
+    padding: space.lg,
+    gap: space.sm,
   },
-  sectionTitle: {
-    color: colors.textPrimary,
-    fontSize: 16,
-    fontWeight: '800',
-    marginBottom: 8,
-  },
-  aboutLine: {
-    color: colors.textSecondary,
-    fontSize: 15,
-    marginBottom: 10,
-  },
-  chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  chip: {
-    backgroundColor: colors.navyMid,
-    borderRadius: 999,
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-  },
+  sectionTitle: { color: colors.textPrimary, fontSize: 16, fontWeight: '800', marginBottom: space.sm },
+  body: { color: colors.textSecondary, fontSize: 14, lineHeight: 20 },
+  plain: { color: colors.textSecondary, fontSize: 14 },
+  prompt: { color: colors.accentPurple, fontSize: 14, fontWeight: '700' },
+  hint: { color: colors.textMuted, fontSize: 12 },
+  chips: { flexDirection: 'row', flexWrap: 'wrap', gap: space.sm },
+  chip: { backgroundColor: colors.navyMid, borderRadius: 999, paddingHorizontal: space.sm, paddingVertical: space.xs },
   chipText: { color: colors.white, fontSize: 12, fontWeight: '600' },
-  setting: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    paddingVertical: 10,
-  },
+  setting: { flexDirection: 'row', alignItems: 'center', gap: space.md },
   settingCopy: { flex: 1 },
   settingTitle: { color: colors.textPrimary, fontSize: 15, fontWeight: '700' },
   settingDetail: { color: colors.textMuted, fontSize: 13, marginTop: 2, lineHeight: 18 },
-  errorCard: {
-    backgroundColor: colors.cardBg,
-    borderRadius: 18,
-    padding: 20,
-    alignItems: 'flex-start',
-    gap: 8,
+  switchTrack: {
+    width: 48,
+    height: 28,
+    borderRadius: 14,
+    borderWidth: 1.5,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 3,
   },
-  errorTitle: { color: colors.textPrimary, fontSize: 18, fontWeight: '800' },
-  errorBody: { color: colors.textSecondary, fontSize: 14, lineHeight: 20 },
-  retryButton: {
-    marginTop: 8,
-    backgroundColor: colors.accentPurple,
-    borderRadius: 999,
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-  },
-  retryText: { color: colors.white, fontWeight: '700' },
-  shareCloseText: { color: colors.navy, fontWeight: '800' },
+  switchThumb: { width: 20, height: 20, borderRadius: 10, borderWidth: 2, borderColor: colors.white },
+  switchThumbOn: { alignSelf: 'flex-end' },
+  textButton: { borderRadius: 999, borderWidth: 1.5, paddingHorizontal: space.md, paddingVertical: space.sm },
+  textButtonLabel: { fontWeight: '800', fontSize: 13 },
+  pressed: { opacity: 0.72 },
+  dimmed: { opacity: 0.45 },
   toast: {
     position: 'absolute',
-    left: 20,
-    right: 20,
-    bottom: 12,
+    left: space.lg,
+    right: space.lg,
+    bottom: space.md,
     backgroundColor: colors.panelBg,
-    borderRadius: 12,
-    paddingHorizontal: 14,
-    paddingVertical: 12,
+    borderRadius: space.md,
+    padding: space.md,
+  },
+  toastText: { color: colors.white, textAlign: 'center' },
+  backdrop: { flex: 1, backgroundColor: colors.overlay, justifyContent: 'flex-end', padding: space.lg },
+  sheet: { backgroundColor: colors.cardBg, borderRadius: space.lg, padding: space.lg, gap: space.sm, maxHeight: '80%' },
+  sheetTitle: { color: colors.textPrimary, fontSize: 18, fontWeight: '800' },
+  sheetBody: { color: colors.textSecondary, fontSize: 14, lineHeight: 20 },
+  sheetKey: { color: colors.textMuted, fontSize: 13 },
+  sheetButtons: { flexDirection: 'row', gap: space.sm, marginTop: space.sm },
+  bioInput: {
+    minHeight: 96,
     borderWidth: 1,
-    borderColor: colors.panelBorder,
+    borderColor: 'rgba(26,26,46,0.16)',
+    borderRadius: space.md,
+    padding: space.md,
+    color: colors.textPrimary,
+    textAlignVertical: 'top',
   },
-  toastText: { color: colors.white, fontSize: 14, textAlign: 'center' },
-  modalBackdrop: {
-    flex: 1,
-    backgroundColor: colors.overlay,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 24,
-  },
-  shareCard: {
-    width: '100%',
-    maxWidth: 340,
-    backgroundColor: colors.cardBg,
-    borderRadius: 20,
-    padding: 20,
-    alignItems: 'center',
-  },
-  shareTitle: { color: colors.textPrimary, fontSize: 18, fontWeight: '800', textAlign: 'center' },
-  shareKey: { color: colors.textMuted, marginTop: 4, marginBottom: 12, fontSize: 13 },
-  shareHint: {
-    color: colors.textSecondary,
-    fontSize: 13,
-    textAlign: 'center',
-    marginTop: 12,
-    lineHeight: 18,
-  },
-  qrFrame: {
-    padding: 10,
-    backgroundColor: colors.white,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: 'rgba(26,26,46,0.08)',
-  },
-  skeletonHeader: {
-    borderRadius: 24,
+  counter: { color: colors.textMuted, fontSize: 12, textAlign: 'right' },
+  errorText: { color: colors.matchRed, fontSize: 13 },
+  patientList: { maxHeight: 240 },
+  patientRow: { paddingVertical: space.sm, borderBottomWidth: 1, borderBottomColor: 'rgba(26,26,46,0.08)' },
+  patientRowSelected: { backgroundColor: 'rgba(123,97,255,0.12)' },
+  patientName: { color: colors.textPrimary, fontWeight: '700' },
+  qrFrame: { alignSelf: 'center', padding: space.sm, backgroundColor: colors.white, borderRadius: space.sm },
+  skeleton: {
+    borderRadius: space.lg,
     backgroundColor: 'rgba(255,255,255,0.12)',
-    padding: 20,
+    padding: space.lg,
     alignItems: 'center',
-    gap: 10,
+    gap: space.sm,
   },
-  skeletonAvatar: {
-    width: 108,
-    height: 108,
-    borderRadius: 54,
-    backgroundColor: 'rgba(255,255,255,0.28)',
-  },
-  skeletonLineWide: {
-    width: '70%',
-    height: 16,
-    borderRadius: 8,
-    backgroundColor: 'rgba(255,255,255,0.28)',
-  },
-  skeletonLine: {
-    width: '46%',
-    height: 12,
-    borderRadius: 6,
-    backgroundColor: 'rgba(255,255,255,0.2)',
-  },
-  skeletonStats: {
-    flexDirection: 'row',
-    alignSelf: 'stretch',
-    gap: 8,
-    marginTop: 8,
-  },
-  skeletonStat: {
-    flex: 1,
-    height: 48,
-    borderRadius: 12,
-    backgroundColor: 'rgba(255,255,255,0.16)',
-  },
-  skeletonSection: {
-    height: 96,
-    borderRadius: 18,
-    marginTop: 14,
-    backgroundColor: 'rgba(255,255,255,0.16)',
-  },
+  skeletonAvatar: { width: 72, height: 72, borderRadius: 36, backgroundColor: 'rgba(255,255,255,0.28)' },
+  skeletonLine: { width: '62%', height: 14, borderRadius: space.xs, backgroundColor: 'rgba(255,255,255,0.28)' },
+  skeletonLineShort: { width: '40%', height: 12, borderRadius: space.xs, backgroundColor: 'rgba(255,255,255,0.2)' },
 });

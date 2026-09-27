@@ -20,6 +20,7 @@ type Props = {
   currentUserId?: string;
   peerNameForTheirs?: (senderId: string) => string | undefined;
   placeholder?: string;
+  readOnlyReason?: string;
 };
 
 export function ChatThread({
@@ -28,6 +29,7 @@ export function ChatThread({
   currentUserId = 'me',
   peerNameForTheirs,
   placeholder = 'Type a message…',
+  readOnlyReason,
 }: Props) {
   const [draft, setDraft] = useState('');
 
@@ -66,26 +68,32 @@ export function ChatThread({
         })}
       </ScrollView>
 
-      <View style={styles.composer}>
-        <TextInput
-          style={styles.input}
-          value={draft}
-          onChangeText={setDraft}
-          placeholder={placeholder}
-          placeholderTextColor={colors.searchPlaceholder}
-          multiline
-          onSubmitEditing={submit}
-          blurOnSubmit={false}
-        />
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel="Send message"
-          onPress={submit}
-          style={[styles.sendBtn, !draft.trim() && styles.sendBtnDisabled]}
-        >
-          <SendIcon color={colors.white} size={18} />
-        </Pressable>
-      </View>
+      {readOnlyReason ? (
+        <View style={styles.composer}>
+          <Text style={styles.readOnly}>{readOnlyReason}</Text>
+        </View>
+      ) : (
+        <View style={styles.composer}>
+          <TextInput
+            style={styles.input}
+            value={draft}
+            onChangeText={setDraft}
+            placeholder={placeholder}
+            placeholderTextColor={colors.searchPlaceholder}
+            multiline
+            onSubmitEditing={submit}
+            blurOnSubmit={false}
+          />
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Send message"
+            onPress={submit}
+            style={[styles.sendBtn, !draft.trim() && styles.sendBtnDisabled]}
+          >
+            <SendIcon color={colors.white} size={18} />
+          </Pressable>
+        </View>
+      )}
     </KeyboardAvoidingView>
   );
 }
@@ -97,6 +105,11 @@ const styles = StyleSheet.create({
   messageList: {
     paddingTop: 12,
     paddingBottom: 8,
+  },
+  readOnly: {
+    flex: 1,
+    color: colors.textSecondary,
+    fontSize: 13,
   },
   composer: {
     flexDirection: 'row',

@@ -41,6 +41,10 @@ function doctorProfile(doctor: DoctorDirectoryDTO): ReferralDirectoryEntry['prov
     specialty: doctor.specialty,
     initials: doctor.initials,
     avatarColor: AVATAR_PALETTE[paletteIndex],
+    specializations: [doctor.specialty_title || doctor.specialty],
+    degrees: doctor.credentials ? [doctor.credentials] : [],
+    address: doctor.state,
+    distanceKm: 0,
     credentials: doctor.credentials,
     subspecialtyFocus: doctor.subspecialty_focus,
     practiceType: doctor.practice_type,
@@ -52,7 +56,14 @@ function doctorProfile(doctor: DoctorDirectoryDTO): ReferralDirectoryEntry['prov
 }
 
 async function requestJson<T>(path: string, init?: RequestInit): Promise<T> {
-  const response = await fetch(`${API_BASE_URL}${path}`, init);
+  const response = await fetch(`${API_BASE_URL}${path}`, {
+    ...init,
+    headers: {
+      'ngrok-skip-browser-warning': 'true',
+      Accept: 'application/json',
+      ...(init?.headers ?? {}),
+    },
+  });
   if (!response.ok) {
     let detail = `API ${response.status}`;
     try {
@@ -76,6 +87,15 @@ export async function loadReferralDirectory(
     `/referrals/directory?${params.toString()}`,
   );
   return response.results.map((row) => ({ ...row, provider: doctorProfile(row.provider) }));
+}
+
+export function loadReferralList(
+  direction: 'in' | 'out',
+  withDoctor?: string,
+): Promise<ReferralSummary[]> {
+  const params = new URLSearchParams({ doctor: CURRENT_DOCTOR_KEY, direction });
+  if (withDoctor) params.set('with', withDoctor);
+  return requestJson<ReferralSummary[]>(`/referrals?${params.toString()}`);
 }
 
 export function loadMyReferrals(): Promise<ReferralSummary[]> {

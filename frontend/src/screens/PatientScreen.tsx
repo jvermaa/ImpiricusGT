@@ -110,10 +110,14 @@ export function PatientScreen({
   suitableMode = false,
   suitableSource = null,
   onExitSuitableMode,
+  onOpenDirectory,
+  onOpenReferrals,
 }: {
   suitableMode?: boolean;
   suitableSource?: AppNotification | null;
   onExitSuitableMode?: () => void;
+  onOpenDirectory?: (filter: import('../api/directory').DirectoryFilter) => void;
+  onOpenReferrals?: (direction: 'in' | 'out', withDoctor?: string) => void;
 }) {
   const insets = useSafeAreaInsets();
   const [patients, setPatients] = useState<PatientProfile[]>([]);
@@ -926,8 +930,9 @@ export function PatientScreen({
             ) : null}
             <DoctorProfileCard
               doctorKey={routedDoctorId}
-              onMessage={() => openDoctorChat(routedPatient.id, routedDoctorId)}
-              onRefer={() => setConfirmReferralOpen(true)}
+              onOpenConsults={() => openDoctorChat(routedPatient.id, routedDoctorId)}
+              onOpenDirectory={onOpenDirectory}
+              onOpenReferrals={onOpenReferrals}
             />
           </View>
         ) : route.name === 'doctorChat' && routedPatient && routedDoctor ? (
