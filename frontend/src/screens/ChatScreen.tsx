@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import {
+  ActivityIndicator,
   Keyboard,
   Platform,
   Pressable,
@@ -27,6 +28,10 @@ import type { DirectoryFilter } from '../api/directory';
 import { loadConsultDirectory, loadCurrentDoctor } from '../api/clinic';
 import { colors } from '../theme/colors';
 import { ReferralWorkspace } from './ReferralWorkspace';
+// Used by the referral picker (from improve-ui-visual). VERIFY PATHS, see note below.
+import type { PatientProfile } from '../types/patient'; // VERIFY PATH
+import { createFormalReferral, loadMyPatients } from '../api/referrals'; // VERIFY PATH
+import { getPatientsRankedForDoctor } from '../data/patientRanking'; // VERIFY PATH
 
 type ChatLaunch = {
   peerKey: string | null;
@@ -57,6 +62,12 @@ export function ChatScreen({
   const [filterOpen, setFilterOpen] = useState(false);
   const [newChatOpen, setNewChatOpen] = useState(false);
   const [referralDoctorId, setReferralDoctorId] = useState<string | null>(null);
+  const [referralPatientId, setReferralPatientId] = useState<string | null>(null);
+  const [referralPatients, setReferralPatients] = useState<PatientProfile[]>([]);
+  const [referralReason, setReferralReason] = useState('Please evaluate this patient.');
+  const [referralLoading, setReferralLoading] = useState(false);
+  const [referralSubmitting, setReferralSubmitting] = useState(false);
+  const [referralError, setReferralError] = useState<string | null>(null);
   const [referralSuccessMessage, setReferralSuccessMessage] = useState<string | null>(null);
   const [directoryReady, setDirectoryReady] = useState(false);
   const [threadReadOnly, setThreadReadOnly] = useState<string | undefined>();
@@ -79,6 +90,15 @@ export function ChatScreen({
       threads.find((doctor) => doctor.id === referralDoctorId) ??
       null,
     [directory, threads, referralDoctorId],
+  );
+  const selectedReferralPatient = useMemo(
+    () => referralPatients.find((patient) => patient.id === referralPatientId) ?? null,
+    [referralPatientId, referralPatients],
+  );
+  const patientsRankedForReferral = useMemo(
+    () =>
+      referralDoctor ? getPatientsRankedForDoctor(referralDoctor, referralPatients) : [],
+    [referralDoctor, referralPatients],
   );
 
   useEffect(() => {
@@ -192,7 +212,8 @@ export function ChatScreen({
     setFilterOpen(false);
   };
 
-  const openReferralPicker = (doctorId: string) => {
+  // Merged: main's API-doctor checks first, then improve-ui-visual's patient loading.
+  const openReferralPicker = async (doctorId: string) => {
     if (!/^D\d+/i.test(doctorId)) {
       setLoadError('Formal referral needs an API doctor. Wait for the directory to load, then try again.');
       return;
@@ -202,11 +223,51 @@ export function ChatScreen({
       return;
     }
     setReferralDoctorId(doctorId);
+    setReferralPatientId(null);
+    setReferralPatients([]);
+    setReferralReason('Please evaluate this patient.');
+    setReferralError(null);
     setReferralSuccessMessage(null);
+    setReferralLoading(true);
+    try {
+      const patients = await loadMyPatients();
+      setReferralPatients(patients);
+      if (patients.length === 0) {
+        setReferralError('No patients are available on your API-backed panel.');
+      }
+    } catch (error) {
+      setReferralError(error instanceof Error ? error.message : 'Could not load patients from the API.');
+    } finally {
+      setReferralLoading(false);
+    }
   };
 
   const closeReferralFlow = () => {
     setReferralDoctorId(null);
+    setReferralPatientId(null);
+    setReferralError(null);
+  };
+
+  const confirmReferral = async () => {
+    if (!referralDoctor || !selectedReferralPatient || referralReason.trim().length < 5) return;
+    setReferralSubmitting(true);
+    setReferralError(null);
+    try {
+      const result = await createFormalReferral({
+        toDoctorKey: referralDoctor.id,
+        patientKey: selectedReferralPatient.id,
+        reason: referralReason.trim(),
+        urgency: 'routine',
+      });
+      setReferralSuccessMessage(
+        `Referral ${result.referral.referral_key} sent to ${referralDoctor.name}. Patient handoff is shared after the recipient accepts.`,
+      );
+      closeReferralFlow();
+    } catch (error) {
+      setReferralError(error instanceof Error ? error.message : 'Could not create the referral.');
+    } finally {
+      setReferralSubmitting(false);
+    }
   };
 
   return (
@@ -329,17 +390,23 @@ export function ChatScreen({
           </View>
         ) : activeDoctor ? (
           <View style={styles.flex}>
-          <ChatThread
-            messages={activeDoctor.messages}
-            readOnlyReason={threadReadOnly}
-            onSend={sendDoctor}
-            currentUserId={currentDoctor.id}
-            peerNameForTheirs={() => activeDoctor.name}
-            placeholder={`Message ${activeDoctor.name.split(' ')[1] ?? 'colleague'}…`}
-          />
+            <ChatThread
+              messages={activeDoctor.messages}
+              readOnlyReason={threadReadOnly}
+              onSend={sendDoctor}
+              currentUserId={currentDoctor.id}
+              peerNameForTheirs={() => activeDoctor.name}
+              placeholder={`Message ${activeDoctor.name.split(' ')[1] ?? 'colleague'}…`}
+            />
           </View>
         ) : null}
       </View>
+
+      {referralSuccessMessage && !showingProfile ? (
+        <View style={styles.successBanner}>
+          <Text style={styles.successBannerText}>{referralSuccessMessage}</Text>
+        </View>
+      ) : null}
 
       {newChatOpen ? (
         <NewChatSheet
@@ -351,19 +418,26 @@ export function ChatScreen({
       ) : null}
 
       {referralDoctor ? (
-        <ReferralWorkspace
-          currentDoctor={currentDoctor}
-          provider={referralDoctor}
+        <PatientPickerSheet
+          doctor={referralDoctor}
+          rankedPatients={patientsRankedForReferral}
+          loading={referralLoading}
+          error={referralError}
           onClose={closeReferralFlow}
-          onMessageDoctor={(doctor) => {
-            closeReferralFlow();
-            startOrOpenChat(doctor);
-          }}
-          onSaved={() => {
-            setReferralSuccessMessage(
-              `Referral sent to ${referralDoctor.name}. Patient handoff packet shared with the receiving doctor.`,
-            );
-          }}
+          onSelectPatient={(patientId) => setReferralPatientId(patientId)}
+        />
+      ) : null}
+
+      {referralDoctor && selectedReferralPatient ? (
+        <ReferralConfirmSheet
+          doctor={referralDoctor}
+          patient={selectedReferralPatient}
+          reason={referralReason}
+          submitting={referralSubmitting}
+          error={referralError}
+          onReasonChange={setReferralReason}
+          onClose={() => setReferralPatientId(null)}
+          onConfirm={confirmReferral}
         />
       ) : null}
     </View>
@@ -592,17 +666,206 @@ function NewChatSheet({
   );
 }
 
+function DoctorProfileView({
+  doctor,
+  onChat,
+  onRefer,
+  successMessage,
+}: {
+  doctor: DoctorProfile;
+  onChat: () => void;
+  onRefer: () => void;
+  successMessage: string | null;
+}) {
+  return (
+    <ScrollView
+      style={styles.flex}
+      contentContainerStyle={styles.profileContent}
+      showsVerticalScrollIndicator={false}
+    >
+      {successMessage ? (
+        <View style={styles.successBanner}>
+          <Text style={styles.successBannerText}>{successMessage}</Text>
+        </View>
+      ) : null}
+
+      <View style={styles.profileHeroCard}>
+        <View style={styles.profileAvatarWrap}>
+          <Avatar initials={doctor.initials} color={doctor.avatarColor} size={144} />
+        </View>
+        <Text style={styles.profileHeroName}>{doctor.name}</Text>
+        <Text style={styles.profileHeroMeta}>
+          {doctor.specialty} | {doctor.degrees.join(', ')}
+        </Text>
+
+        <View style={styles.profileDivider} />
+
+        <Text style={styles.profileSectionTitle}>Medical Profile</Text>
+        <Text style={styles.profileDescription}>
+          {doctor.name} specializes in comprehensive {doctor.specialty.toLowerCase()} care with a
+          strong focus on long-term outcomes and collaborative treatment planning.
+        </Text>
+        <Text style={styles.profileDescription}>
+          Board certified and available for rapid peer consults and patient referrals.
+        </Text>
+
+        <Text style={styles.profileAddressLabel}>Address</Text>
+        <Text style={styles.profileAddressValue}>{doctor.address}</Text>
+        <Text style={styles.profileDistanceNote}>{doctor.distanceKm.toFixed(1)} km away</Text>
+      </View>
+
+      <View style={styles.profileActionRow}>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={`Chat with ${doctor.name}`}
+          onPress={onChat}
+          style={styles.profileActionPrimary}
+        >
+          <Text style={styles.profileActionPrimaryText}>Chat</Text>
+        </Pressable>
+
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={`Refer patient to ${doctor.name}`}
+          onPress={onRefer}
+          style={styles.profileActionSecondary}
+        >
+          <Text style={styles.profileActionSecondaryText}>Refer</Text>
+        </Pressable>
+      </View>
+    </ScrollView>
+  );
+}
+
+function PatientPickerSheet({
+  doctor,
+  rankedPatients,
+  loading,
+  error,
+  onClose,
+  onSelectPatient,
+}: {
+  doctor: DoctorProfile;
+  rankedPatients: Array<{ patient: PatientProfile; relevant: boolean; score: number }>;
+  loading: boolean;
+  error: string | null;
+  onClose: () => void;
+  onSelectPatient: (patientId: string) => void;
+}) {
+  return (
+    <View style={styles.sheetRoot}>
+      <Pressable style={styles.sheetOverlay} onPress={onClose} />
+      <View style={styles.sheetCard}>
+        <View style={styles.sheetHeader}>
+          <Text style={styles.sheetTitle}>Refer to {doctor.name}</Text>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Close referral sheet"
+            onPress={onClose}
+            style={styles.sheetClose}
+          >
+            <CloseIcon color={colors.textMuted} size={18} />
+          </Pressable>
+        </View>
+        <Text style={styles.sheetSubtext}>
+          Select a patient from your live clinic panel. Relevant matches are highlighted with a red border.
+        </Text>
+        {loading ? <ActivityIndicator color={colors.accentPurple} /> : null}
+        {error ? <Text style={styles.referralError}>{error}</Text> : null}
+        <ScrollView
+          style={styles.patientPickerList}
+          contentContainerStyle={styles.patientPickerContent}
+          showsVerticalScrollIndicator={false}
+        >
+          {rankedPatients.map(({ patient, relevant }) => (
+            <Pressable
+              key={patient.id}
+              accessibilityRole="button"
+              accessibilityLabel={`Select ${patient.name} for referral`}
+              onPress={() => onSelectPatient(patient.id)}
+              style={[styles.patientSelectRow, relevant && styles.patientSelectRowRelevant]}
+            >
+              <View style={styles.patientSelectMeta}>
+                <Text style={styles.patientSelectName}>
+                  {patient.name} · Age {patient.age}
+                </Text>
+                <Text style={styles.patientSelectDx}>Dx: {patient.diagnosis}</Text>
+              </View>
+              {relevant ? <Text style={styles.relevantBadge}>Relevant</Text> : null}
+            </Pressable>
+          ))}
+          {!loading && !error && rankedPatients.length === 0 ? (
+            <Text style={styles.sheetEmpty}>No API-backed patients were returned.</Text>
+          ) : null}
+        </ScrollView>
+      </View>
+    </View>
+  );
+}
+
+function ReferralConfirmSheet({
+  doctor,
+  patient,
+  reason,
+  submitting,
+  error,
+  onReasonChange,
+  onClose,
+  onConfirm,
+}: {
+  doctor: DoctorProfile;
+  patient: PatientProfile;
+  reason: string;
+  submitting: boolean;
+  error: string | null;
+  onReasonChange: (reason: string) => void;
+  onClose: () => void;
+  onConfirm: () => void;
+}) {
+  return (
+    <View style={styles.confirmRoot} pointerEvents="box-none">
+      <Pressable style={styles.confirmOverlay} onPress={onClose} />
+      <View style={styles.confirmCard}>
+        <Text style={styles.confirmTitle}>Confirm Referral</Text>
+        <Text style={styles.confirmText}>
+          Create a formal referral for {patient.name} to {doctor.name}. The receiving doctor can view
+          the clinical handoff after accepting.
+        </Text>
+        <TextInput
+          accessibilityLabel="Referral reason"
+          value={reason}
+          onChangeText={onReasonChange}
+          placeholder="Reason for referral"
+          multiline
+          maxLength={1000}
+          style={styles.referralReasonInput}
+        />
+        {error ? <Text style={styles.referralError}>{error}</Text> : null}
+        <View style={styles.confirmActions}>
+          <Pressable onPress={onClose} disabled={submitting} style={styles.cancelBtn}>
+            <Text style={styles.cancelBtnText}>Cancel</Text>
+          </Pressable>
+          <Pressable
+            onPress={onConfirm}
+            disabled={submitting || reason.trim().length < 5}
+            style={[styles.referBtn, (submitting || reason.trim().length < 5) && styles.referBtnDisabled]}
+          >
+            {submitting ? <ActivityIndicator color={colors.white} /> : <Text style={styles.referBtnText}>Refer</Text>}
+          </Pressable>
+        </View>
+      </View>
+    </View>
+  );
+}
+
 const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-  },
-  flex: {
-    flex: 1,
-  },
+  root: { flex: 1 },
+  flex: { flex: 1 },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    backgroundColor: 'rgba(65, 77, 154, 0.96)',
     paddingHorizontal: 12,
     paddingBottom: 12,
     borderBottomWidth: StyleSheet.hairlineWidth,
@@ -617,24 +880,10 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
     paddingRight: 12,
   },
-  headerTitles: {
-    flex: 1,
-  },
-  headerTitle: {
-    color: colors.white,
-    fontSize: 18,
-    fontWeight: '700',
-  },
-  headerSubtitle: {
-    color: 'rgba(255,255,255,0.65)',
-    fontSize: 12,
-    marginTop: 1,
-  },
-  chatHeaderActions: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
+  headerTitles: { flex: 1 },
+  headerTitle: { color: colors.white, fontSize: 18, fontWeight: '700' },
+  headerSubtitle: { color: 'rgba(255,255,255,0.65)', fontSize: 12, marginTop: 1 },
+  chatHeaderActions: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   chatReferBtn: {
     minHeight: 34,
     paddingHorizontal: 12,
@@ -645,15 +894,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  chatReferText: {
-    color: colors.white,
-    fontSize: 12,
-    fontWeight: '700',
-  },
-  chatAvatarButton: {
-    borderRadius: 20,
-    overflow: 'hidden',
-  },
+  chatReferText: { color: colors.white, fontSize: 12, fontWeight: '700' },
+  chatAvatarButton: { borderRadius: 20, overflow: 'hidden' },
   filterBtn: {
     width: 40,
     height: 40,
@@ -662,18 +904,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: 'rgba(255,255,255,0.1)',
   },
-  filterBtnActive: {
-    backgroundColor: 'rgba(123, 97, 255, 0.28)',
-  },
-  body: {
-    flex: 1,
-  },
-  profileContent: {
-    paddingHorizontal: 16,
-    paddingTop: 78,
-    paddingBottom: 96,
-    gap: 12,
-  },
+  filterBtnActive: { backgroundColor: 'rgba(123, 97, 255, 0.28)' },
+  body: { flex: 1 },
+  profileContent: { paddingHorizontal: 16, paddingTop: 78, paddingBottom: 96, gap: 12 },
   successBanner: {
     backgroundColor: 'rgba(93, 200, 129, 0.2)',
     borderColor: 'rgba(93, 200, 129, 0.42)',
@@ -684,15 +917,8 @@ const styles = StyleSheet.create({
     marginHorizontal: 16,
     marginTop: 12,
   },
-  successBannerClear: {
-    marginBottom: 12,
-    zIndex: 5,
-  },
-  successBannerText: {
-    color: colors.white,
-    fontSize: 13,
-    fontWeight: '600',
-  },
+  successBannerClear: { marginBottom: 12, zIndex: 5 },
+  successBannerText: { color: colors.white, fontSize: 13, fontWeight: '600' },
   profileHeroCard: {
     backgroundColor: colors.cardBg,
     borderRadius: 18,
@@ -701,19 +927,8 @@ const styles = StyleSheet.create({
     paddingBottom: 16,
     position: 'relative',
   },
-  profileAvatarWrap: {
-    position: 'absolute',
-    top: -64,
-    left: 0,
-    right: 0,
-    alignItems: 'center',
-  },
-  profileHeroName: {
-    color: colors.textPrimary,
-    fontSize: 20,
-    fontWeight: '800',
-    textAlign: 'center',
-  },
+  profileAvatarWrap: { position: 'absolute', top: -64, left: 0, right: 0, alignItems: 'center' },
+  profileHeroName: { color: colors.textPrimary, fontSize: 20, fontWeight: '800', textAlign: 'center' },
   profileHeroMeta: {
     color: colors.accentPurple,
     fontSize: 16,
@@ -727,17 +942,8 @@ const styles = StyleSheet.create({
     marginTop: 14,
     marginBottom: 12,
   },
-  profileSectionTitle: {
-    color: colors.textPrimary,
-    fontSize: 18,
-    fontWeight: '800',
-  },
-  profileDescription: {
-    color: colors.textSecondary,
-    fontSize: 14,
-    lineHeight: 22,
-    marginTop: 6,
-  },
+  profileSectionTitle: { color: colors.textPrimary, fontSize: 18, fontWeight: '800' },
+  profileDescription: { color: colors.textSecondary, fontSize: 14, lineHeight: 22, marginTop: 6 },
   profileAddressLabel: {
     color: colors.textMuted,
     fontSize: 12,
@@ -746,22 +952,9 @@ const styles = StyleSheet.create({
     letterSpacing: 0.4,
     marginTop: 10,
   },
-  profileAddressValue: {
-    color: colors.textPrimary,
-    fontSize: 14,
-    fontWeight: '600',
-    marginTop: 4,
-  },
-  profileDistanceNote: {
-    color: colors.textMuted,
-    fontSize: 12,
-    marginTop: 4,
-  },
-  profileActionRow: {
-    flexDirection: 'row',
-    gap: 10,
-    marginTop: 2,
-  },
+  profileAddressValue: { color: colors.textPrimary, fontSize: 14, fontWeight: '600', marginTop: 4 },
+  profileDistanceNote: { color: colors.textMuted, fontSize: 12, marginTop: 4 },
+  profileActionRow: { flexDirection: 'row', gap: 10, marginTop: 2 },
   profileActionPrimary: {
     flex: 1,
     minHeight: 50,
@@ -770,11 +963,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  profileActionPrimaryText: {
-    color: colors.white,
-    fontSize: 14,
-    fontWeight: '700',
-  },
+  profileActionPrimaryText: { color: colors.white, fontSize: 14, fontWeight: '700' },
   profileActionSecondary: {
     flex: 1,
     minHeight: 50,
@@ -783,23 +972,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  profileActionSecondaryText: {
-    color: colors.white,
-    fontSize: 14,
-    fontWeight: '700',
-  },
-  listHint: {
-    color: 'rgba(255,255,255,0.7)',
-    fontSize: 13,
-    marginBottom: 12,
-    paddingHorizontal: 2,
-  },
-  doctorList: {
-    paddingHorizontal: 16,
-    paddingTop: 14,
-    paddingBottom: 96,
-    gap: 12,
-  },
+  profileActionSecondaryText: { color: colors.white, fontSize: 14, fontWeight: '700' },
+  listHint: { color: 'rgba(26,26,46,0.68)', fontSize: 13, marginBottom: 12, paddingHorizontal: 2 },
+  doctorList: { paddingHorizontal: 16, paddingTop: 14, paddingBottom: 96, gap: 12 },
   doctorCard: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -809,41 +984,13 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     paddingHorizontal: 14,
   },
-  doctorMeta: {
-    flex: 1,
-    minWidth: 0,
-  },
-  doctorName: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: colors.textPrimary,
-  },
-  doctorDesignation: {
-    fontSize: 13,
-    color: colors.accentPurple,
-    fontWeight: '600',
-    marginTop: 2,
-  },
-  doctorPreview: {
-    fontSize: 13,
-    color: colors.textMuted,
-    marginTop: 4,
-  },
-  emptyCard: {
-    backgroundColor: colors.cardBg,
-    borderRadius: 16,
-    padding: 20,
-  },
-  emptyTitle: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: colors.textPrimary,
-  },
-  emptySub: {
-    marginTop: 6,
-    fontSize: 14,
-    color: colors.textMuted,
-  },
+  doctorMeta: { flex: 1, minWidth: 0 },
+  doctorName: { fontSize: 16, fontWeight: '700', color: colors.textPrimary },
+  doctorDesignation: { fontSize: 13, color: colors.accentPurple, fontWeight: '600', marginTop: 2 },
+  doctorPreview: { fontSize: 13, color: colors.textMuted, marginTop: 4 },
+  emptyCard: { backgroundColor: colors.cardBg, borderRadius: 16, padding: 20 },
+  emptyTitle: { fontSize: 16, fontWeight: '700', color: colors.textPrimary },
+  emptySub: { marginTop: 6, fontSize: 14, color: colors.textMuted },
   fab: {
     position: 'absolute',
     right: 18,
@@ -862,19 +1009,12 @@ const styles = StyleSheet.create({
         shadowRadius: 8,
       },
       android: { elevation: 6 },
-      web: {
-        boxShadow: `0 6px 16px ${colors.accentPurple}88`,
-      } as object,
+      web: { boxShadow: `0 6px 16px ${colors.accentPurple}88` } as object,
       default: {},
     }),
   },
-  filterMenuWrap: {
-    ...StyleSheet.absoluteFill,
-    zIndex: 40,
-  },
-  filterDismiss: {
-    ...StyleSheet.absoluteFill,
-  },
+  filterMenuWrap: { ...StyleSheet.absoluteFill, zIndex: 40 },
+  filterDismiss: { ...StyleSheet.absoluteFill },
   filterMenu: {
     position: 'absolute',
     top: 64,
@@ -892,9 +1032,7 @@ const styles = StyleSheet.create({
         shadowRadius: 16,
       },
       android: { elevation: 8 },
-      web: {
-        boxShadow: '0 10px 28px rgba(0,0,0,0.25)',
-      } as object,
+      web: { boxShadow: '0 10px 28px rgba(0,0,0,0.25)' } as object,
       default: {},
     }),
   },
@@ -907,35 +1045,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     paddingVertical: 6,
   },
-  filterScroll: {
-    maxHeight: 260,
-  },
-  filterOption: {
-    paddingVertical: 10,
-    paddingHorizontal: 10,
-    borderRadius: 10,
-  },
-  filterOptionActive: {
-    backgroundColor: 'rgba(123, 97, 255, 0.12)',
-  },
-  filterOptionText: {
-    fontSize: 15,
-    color: colors.textPrimary,
-    fontWeight: '500',
-  },
-  filterOptionTextActive: {
-    color: colors.accentPurple,
-    fontWeight: '700',
-  },
-  sheetRoot: {
-    ...StyleSheet.absoluteFill,
-    justifyContent: 'flex-end',
-    zIndex: 60,
-  },
-  sheetOverlay: {
-    ...StyleSheet.absoluteFill,
-    backgroundColor: colors.overlay,
-  },
+  filterScroll: { maxHeight: 260 },
+  filterOption: { paddingVertical: 10, paddingHorizontal: 10, borderRadius: 10 },
+  filterOptionActive: { backgroundColor: 'rgba(123, 97, 255, 0.12)' },
+  filterOptionText: { fontSize: 15, color: colors.textPrimary, fontWeight: '500' },
+  filterOptionTextActive: { color: colors.accentPurple, fontWeight: '700' },
+  sheetRoot: { ...StyleSheet.absoluteFill, justifyContent: 'flex-end', zIndex: 60 },
+  sheetOverlay: { ...StyleSheet.absoluteFill, backgroundColor: colors.overlay },
   sheetCard: {
     backgroundColor: colors.cardBg,
     borderTopLeftRadius: 20,
@@ -951,11 +1067,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     marginBottom: 12,
   },
-  sheetTitle: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: colors.textPrimary,
-  },
+  sheetTitle: { fontSize: 20, fontWeight: '700', color: colors.textPrimary },
   sheetClose: {
     width: 36,
     height: 36,
@@ -988,18 +1100,9 @@ const styles = StyleSheet.create({
     marginBottom: 4,
     letterSpacing: 0.3,
   },
-  sheetSectionHint: {
-    fontSize: 12,
-    color: colors.textMuted,
-    marginBottom: 8,
-  },
-  sheetList: {
-    flexGrow: 0,
-  },
-  sheetListContent: {
-    paddingBottom: 8,
-    gap: 4,
-  },
+  sheetSectionHint: { fontSize: 12, color: colors.textMuted, marginBottom: 8 },
+  sheetList: { flexGrow: 0 },
+  sheetListContent: { paddingBottom: 8, gap: 4 },
   sheetRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -1008,54 +1111,16 @@ const styles = StyleSheet.create({
     paddingHorizontal: 4,
     borderRadius: 12,
   },
-  sheetRowMeta: {
-    flex: 1,
-    minWidth: 0,
-  },
-  sheetRowName: {
-    fontSize: 15,
-    fontWeight: '700',
-    color: colors.textPrimary,
-  },
-  sheetRowSpecialty: {
-    fontSize: 13,
-    color: colors.accentPurple,
-    fontWeight: '600',
-    marginTop: 2,
-  },
-  sheetRowDistance: {
-    fontSize: 12,
-    color: colors.textMuted,
-    marginTop: 2,
-  },
-  sheetRowBadge: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: colors.textMuted,
-  },
-  sheetRowBadgeNew: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: colors.accentPurple,
-  },
-  sheetEmpty: {
-    textAlign: 'center',
-    color: colors.textMuted,
-    paddingVertical: 24,
-    fontSize: 14,
-  },
-  sheetSubtext: {
-    fontSize: 12,
-    color: colors.textMuted,
-    marginBottom: 8,
-  },
-  patientPickerList: {
-    maxHeight: 330,
-  },
-  patientPickerContent: {
-    paddingBottom: 6,
-    gap: 8,
-  },
+  sheetRowMeta: { flex: 1, minWidth: 0 },
+  sheetRowName: { fontSize: 15, fontWeight: '700', color: colors.textPrimary },
+  sheetRowSpecialty: { fontSize: 13, color: colors.accentPurple, fontWeight: '600', marginTop: 2 },
+  sheetRowDistance: { fontSize: 12, color: colors.textMuted, marginTop: 2 },
+  sheetRowBadge: { fontSize: 12, fontWeight: '600', color: colors.textMuted },
+  sheetRowBadgeNew: { fontSize: 12, fontWeight: '700', color: colors.accentPurple },
+  sheetEmpty: { textAlign: 'center', color: colors.textMuted, paddingVertical: 24, fontSize: 14 },
+  sheetSubtext: { fontSize: 12, color: colors.textMuted, marginBottom: 8 },
+  patientPickerList: { maxHeight: 330 },
+  patientPickerContent: { paddingBottom: 6, gap: 8 },
   patientSelectRow: {
     borderWidth: 1,
     borderColor: 'rgba(90,96,112,0.24)',
@@ -1068,37 +1133,13 @@ const styles = StyleSheet.create({
     gap: 10,
     backgroundColor: '#fff',
   },
-  patientSelectRowRelevant: {
-    borderColor: '#E04848',
-  },
-  patientSelectMeta: {
-    flex: 1,
-    minWidth: 0,
-  },
-  patientSelectName: {
-    color: colors.textPrimary,
-    fontSize: 14,
-    fontWeight: '700',
-  },
-  patientSelectDx: {
-    color: colors.textMuted,
-    fontSize: 12,
-    marginTop: 2,
-  },
-  relevantBadge: {
-    color: '#E04848',
-    fontSize: 11,
-    fontWeight: '700',
-  },
-  confirmRoot: {
-    ...StyleSheet.absoluteFill,
-    justifyContent: 'flex-end',
-    zIndex: 70,
-  },
-  confirmOverlay: {
-    ...StyleSheet.absoluteFill,
-    backgroundColor: 'rgba(0,0,0,0.45)',
-  },
+  patientSelectRowRelevant: { borderColor: '#E04848' },
+  patientSelectMeta: { flex: 1, minWidth: 0 },
+  patientSelectName: { color: colors.textPrimary, fontSize: 14, fontWeight: '700' },
+  patientSelectDx: { color: colors.textMuted, fontSize: 12, marginTop: 2 },
+  relevantBadge: { color: '#E04848', fontSize: 11, fontWeight: '700' },
+  confirmRoot: { ...StyleSheet.absoluteFill, justifyContent: 'flex-end', zIndex: 70 },
+  confirmOverlay: { ...StyleSheet.absoluteFill, backgroundColor: 'rgba(0,0,0,0.45)' },
   confirmCard: {
     backgroundColor: colors.cardBg,
     borderTopLeftRadius: 18,
@@ -1107,22 +1148,21 @@ const styles = StyleSheet.create({
     paddingTop: 14,
     paddingBottom: 18,
   },
-  confirmTitle: {
+  confirmTitle: { color: colors.textPrimary, fontSize: 19, fontWeight: '700' },
+  confirmText: { color: colors.textSecondary, fontSize: 14, lineHeight: 20, marginTop: 8 },
+  referralReasonInput: {
+    minHeight: 78,
+    marginTop: 12,
+    padding: 10,
+    borderWidth: 1,
+    borderColor: 'rgba(90,96,112,0.22)',
+    borderRadius: 10,
     color: colors.textPrimary,
-    fontSize: 19,
-    fontWeight: '700',
+    textAlignVertical: 'top',
+    backgroundColor: '#fff',
   },
-  confirmText: {
-    color: colors.textSecondary,
-    fontSize: 14,
-    lineHeight: 20,
-    marginTop: 8,
-  },
-  confirmActions: {
-    marginTop: 14,
-    flexDirection: 'row',
-    gap: 10,
-  },
+  referralError: { color: '#B42318', fontSize: 13, marginVertical: 8 },
+  confirmActions: { marginTop: 14, flexDirection: 'row', gap: 10 },
   cancelBtn: {
     flex: 1,
     minHeight: 44,
@@ -1133,11 +1173,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: '#fff',
   },
-  cancelBtnText: {
-    color: colors.textPrimary,
-    fontSize: 14,
-    fontWeight: '700',
-  },
+  cancelBtnText: { color: colors.textPrimary, fontSize: 14, fontWeight: '700' },
   referBtn: {
     flex: 1,
     minHeight: 44,
@@ -1146,9 +1182,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: colors.accentPurple,
   },
-  referBtnText: {
-    color: colors.white,
-    fontSize: 14,
-    fontWeight: '700',
-  },
+  referBtnDisabled: { opacity: 0.55 },
+  referBtnText: { color: colors.white, fontSize: 14, fontWeight: '700' },
 });

@@ -1,41 +1,49 @@
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
+import { Image, StyleSheet, Text, View } from 'react-native';
 import { colors } from '../theme/colors';
 
 type Props = {
   initials: string;
   color: string;
   size?: number;
-  gradient?: readonly [string, string];
+  imageUri?: string;
 };
 
-export function Avatar({ initials, color, size = 48, gradient }: Props) {
-  const initialsText = (
-    <Text style={[styles.initials, { fontSize: size * 0.34 }]}>{initials}</Text>
-  );
-  const frame = {
-    width: size,
-    height: size,
-    borderRadius: size / 2,
-  };
+export function cartoonAvatarUri(seed: string, backgroundColor?: string): string {
+  const params = new URLSearchParams({
+    seed,
+    size: '128',
+    radius: '50',
+    backgroundColor: backgroundColor?.replace('#', '') ?? 'ffd6c9',
+  });
+  return `https://api.dicebear.com/10.x/notionists/png?${params.toString()}`;
+}
 
-  if (gradient) {
-    return (
-      <LinearGradient
-        colors={[gradient[0], gradient[1]]}
-        start={{ x: 0.1, y: 0 }}
-        end={{ x: 0.9, y: 1 }}
-        style={[styles.avatar, frame]}
-      >
-        {initialsText}
-      </LinearGradient>
-    );
-  }
-
+export function Avatar({ initials, color, size = 48, imageUri }: Props) {
   return (
-    <View style={[styles.avatar, frame, { backgroundColor: color }]}>
-      {initialsText}
+    <View
+      style={[
+        styles.avatar,
+        {
+          width: size,
+          height: size,
+          borderRadius: size / 2,
+          backgroundColor: color,
+        },
+      ]}
+    >
+      {imageUri ? (
+        <Image
+          source={{ uri: imageUri }}
+          resizeMode="cover"
+          style={styles.image}
+          accessibilityIgnoresInvertColors
+        />
+      ) : (
+        <Text style={[styles.initials, { fontSize: size * 0.34 }]}>
+          {initials}
+        </Text>
+      )}
     </View>
   );
 }
@@ -49,5 +57,10 @@ const styles = StyleSheet.create({
     color: colors.white,
     fontWeight: '700',
     letterSpacing: 0.3,
+  },
+  image: {
+    width: '100%',
+    height: '100%',
+    borderRadius: 999,
   },
 });

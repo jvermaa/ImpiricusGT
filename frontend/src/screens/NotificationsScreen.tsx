@@ -521,6 +521,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   listHeader: {
+    backgroundColor: 'rgba(166, 91, 99, 0.96)',
     paddingHorizontal: 16,
     paddingBottom: 10,
   },
@@ -597,6 +598,7 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   detailHeader: {
+    backgroundColor: 'rgba(166, 91, 99, 0.96)',
     paddingHorizontal: 12,
     paddingBottom: 12,
     borderBottomWidth: StyleSheet.hairlineWidth,

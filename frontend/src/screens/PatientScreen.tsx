@@ -24,8 +24,9 @@ import {
   sendPromptEmail,
   type SimilarCase,
 } from '../api/clinic';
+import { createFormalReferral } from '../api/referrals';
 import { CURRENT_DOCTOR_KEY } from '../api/config';
-import { Avatar } from '../components/Avatar';
+import { Avatar, cartoonAvatarUri } from '../components/Avatar';
 import { DoctorProfileCard } from '../components/DoctorProfileCard';
 import { ChatThread } from '../components/ChatThread';
 import { ChevronLeftIcon, CloseIcon, NotificationIcon, SearchIcon, PdfIcon, EditIcon, AddVisitIcon, ReferHcpIcon } from '../components/NavIcons';
@@ -103,6 +104,34 @@ const SEND_NOTIFICATION_ACTION: (typeof ACTIONS)[number] = {
 };
 
 const HIGH_MATCH_SET = new Set<string>(HIGH_MATCH_PATIENT_IDS);
+const SYMPTOM_COLORS = [
+  { background: '#F0ECFF', border: '#E1D9FF', text: '#6852CC' },
+  { background: '#E5F7F4', border: '#CDEEE8', text: '#167C73' },
+  { background: '#FFF0EC', border: '#FFE0D8', text: '#C75F4D' },
+];
+
+function patientAccent(index: number, lightness = 48): string {
+  const hue = (index * 137.508 + 18) % 360;
+  const saturation = 0.68;
+  const normalizedLightness = lightness / 100;
+  const chroma = (1 - Math.abs(2 * normalizedLightness - 1)) * saturation;
+  const secondary = chroma * (1 - Math.abs(((hue / 60) % 2) - 1));
+  const offset = normalizedLightness - chroma / 2;
+  const [red, green, blue] = hue < 60
+    ? [chroma, secondary, 0]
+    : hue < 120
+      ? [secondary, chroma, 0]
+      : hue < 180
+        ? [0, chroma, secondary]
+        : hue < 240
+          ? [0, secondary, chroma]
+          : hue < 300
+            ? [secondary, 0, chroma]
+            : [chroma, 0, secondary];
+  return `#${[red, green, blue]
+    .map((channel) => Math.round((channel + offset) * 255).toString(16).padStart(2, '0'))
+    .join('')}`;
+}
 
 const EMPTY_SYMPTOM: SymptomDraft = {
   name: '',
@@ -140,6 +169,7 @@ export function PatientScreen({
 }) {
   const insets = useSafeAreaInsets();
   const [patients, setPatients] = useState<PatientProfile[]>([]);
+  const [doctorDirectory, setDoctorDirectory] = useState<DoctorProfile[]>([]);
   const [route, setRoute] = useState<RouteState>({ name: 'list' });
   const [query, setQuery] = useState('');
   const [selectedPatientId, setSelectedPatientId] = useState<string | null>(null);
@@ -147,6 +177,9 @@ export function PatientScreen({
   const [consultThreads, setConsultThreads] = useState<DoctorThread[]>([]);
   const [confirmReferralOpen, setConfirmReferralOpen] = useState(false);
   const [referralSuccessMessage, setReferralSuccessMessage] = useState<string | null>(null);
+  const [referralReason, setReferralReason] = useState('Please evaluate this patient.');
+  const [referralSubmitting, setReferralSubmitting] = useState(false);
+  const [referralError, setReferralError] = useState<string | null>(null);
   const [hcpSearchQuery, setHcpSearchQuery] = useState('');
   const [rankedHcps, setRankedHcps] = useState<DoctorProfile[] | null>(null);
   const [similarCases, setSimilarCases] = useState<SimilarCase[] | null>(null);
@@ -196,6 +229,20 @@ export function PatientScreen({
           setPatients(PATIENTS);
           setInfoMessage('Showing demo panel — API patient load failed.');
         }
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    loadConsultDirectory()
+      .then(({ directory }) => {
+        if (!cancelled) setDoctorDirectory(directory);
+      })
+      .catch(() => {
+        if (!cancelled) setInfoMessage('Could not load doctors from the API.');
       });
     return () => {
       cancelled = true;
@@ -389,6 +436,8 @@ export function PatientScreen({
     const patient = patients.find((entry) => entry.id === patientId) ?? null;
     setInfoMessage(null);
     setReferralSuccessMessage(null);
+    setReferralError(null);
+    setReferralReason('Please evaluate this patient.');
     setConfirmReferralOpen(false);
     setSelectedPatientId(null);
 
@@ -406,6 +455,7 @@ export function PatientScreen({
   const openDoctorProfile = (patientId: string, doctorId: string) => {
     setInfoMessage(null);
     setReferralSuccessMessage(null);
+    setReferralError(null);
     setConfirmReferralOpen(false);
     setRoute({ name: 'doctorProfile', patientId, doctorId });
   };
@@ -645,12 +695,34 @@ export function PatientScreen({
     setRoute({ name: 'edit', patientId: route.patientId });
   };
 
-  const confirmDoctorReferral = () => {
+  const confirmDoctorReferral = async () => {
     if (route.name !== 'doctorProfile' || !routedDoctor || !routedPatient) return;
-    setConfirmReferralOpen(false);
-    setReferralSuccessMessage(
-      `Referral sent to ${routedPatient.name}. Email delivered with ${routedDoctor.name}'s details and medical history shared immediately.`,
-    );
+    if (!/^P\d+$/i.test(routedPatient.id)) {
+      setReferralError('This demo patient is not in the backend. Select a patient from your live clinic panel.');
+      return;
+    }
+    if (referralReason.trim().length < 5) {
+      setReferralError('Enter a referral reason with at least 5 characters.');
+      return;
+    }
+    setReferralSubmitting(true);
+    setReferralError(null);
+    try {
+      const result = await createFormalReferral({
+        toDoctorKey: routedDoctor.id,
+        patientKey: routedPatient.id,
+        reason: referralReason.trim(),
+        urgency: 'routine',
+      });
+      setConfirmReferralOpen(false);
+      setReferralSuccessMessage(
+        `Referral ${result.referral.referral_key} created for ${routedPatient.name}. The receiving doctor can view the handoff after accepting.`,
+      );
+    } catch (error) {
+      setReferralError(error instanceof Error ? error.message : 'Could not create the referral.');
+    } finally {
+      setReferralSubmitting(false);
+    }
   };
   const showBack = route.name !== 'list' || suitableMode;
 
@@ -772,63 +844,135 @@ export function PatientScreen({
               ) : null}
 
               {filteredPatients.map((patient) => {
+                const stablePatientIndex = patients.findIndex((entry) => entry.id === patient.id);
+                const accent = patientAccent(stablePatientIndex);
                 const isHighMatch = suitableMode && HIGH_MATCH_SET.has(patient.id);
+                const initials = patient.name
+                  .split(/\s+/)
+                  .slice(0, 2)
+                  .map((part) => part[0])
+                  .join('')
+                  .toUpperCase();
                 return (
                   <Pressable
                     key={patient.id}
                     accessibilityRole="button"
                     accessibilityLabel={`Open actions for ${patient.name}`}
+                    accessibilityHint="Opens patient actions and details"
                     onPress={() => {
                       Keyboard.dismiss();
                       setSelectedPatientId(patient.id);
                     }}
-                    style={[
+                    style={({ pressed }) => [
                       styles.patientCard,
                       isHighMatch && styles.patientCardMatch,
+                      pressed && styles.patientCardPressed,
                     ]}
                   >
                     <View style={styles.patientCardHead}>
-                      <Text
-                        style={[
-                          styles.patientName,
-                          isHighMatch && styles.patientNameMatch,
-                        ]}
-                      >
-                        {patient.name}
-                      </Text>
+                      <View style={styles.patientIdentity}>
+                        <Avatar
+                          initials={initials}
+                          color={accent}
+                          size={38}
+                          imageUri={cartoonAvatarUri(
+                            `demo-patient-${stablePatientIndex + 1}`,
+                            patientAccent(stablePatientIndex, 89),
+                          )}
+                        />
+                        <View style={styles.patientIdentityCopy}>
+                          <Text
+                            style={[
+                              styles.patientName,
+                              isHighMatch && styles.patientNameMatch,
+                            ]}
+                            numberOfLines={1}
+                          >
+                            {patient.name}
+                          </Text>
+                          <Text style={styles.patientAge}>Age {patient.age}</Text>
+                        </View>
+                      </View>
                       <View style={styles.patientCardHeadRight}>
-                        <Text style={styles.patientAge}>Age {patient.age}</Text>
                         {isHighMatch ? (
                           <View style={styles.matchBadge}>
                             <Text style={styles.matchBadgeText}>MATCH</Text>
                           </View>
                         ) : null}
+                        <Text style={styles.patientChevron}>›</Text>
                       </View>
                     </View>
 
                     <View style={styles.symptomsRow}>
-                      {patient.symptoms.slice(0, 3).map((symptom) => (
+                      {patient.symptoms.slice(0, 3).map((symptom, index) => {
+                        const symptomColor =
+                          SYMPTOM_COLORS[(index + stablePatientIndex) % SYMPTOM_COLORS.length];
+                        return (
                         <View
                           key={symptom.id}
                           style={[
                             styles.symptomPill,
+                            { backgroundColor: symptomColor.background, borderColor: symptomColor.border },
                             isHighMatch && styles.symptomPillMatch,
                           ]}
                         >
                           <Text
                             style={[
                               styles.symptomPillText,
+                              { color: symptomColor.text },
                               isHighMatch && styles.symptomPillTextMatch,
                             ]}
                           >
                             {symptom.name}
                           </Text>
                         </View>
-                      ))}
+                        );
+                      })}
                     </View>
 
-                    <Text style={styles.metaText}>Dx: {patient.diagnosis}</Text>
-                    <Text style={styles.metaText}>Rx: {patient.prescription}</Text>
+                    <View style={styles.clinicalSummary}>
+                      <View style={styles.clinicalSummaryRow}>
+                        <View style={[styles.clinicalIllustration, styles.diagnosisIllustration]}>
+                          <Text style={styles.clinicalIllustrationEmoji}>🩺</Text>
+                        </View>
+                        <Text
+                          style={styles.clinicalSummaryLabel}
+                          numberOfLines={1}
+                          adjustsFontSizeToFit
+                          minimumFontScale={0.72}
+                        >
+                          DIAGNOSIS
+                        </Text>
+                        <Text
+                          style={[styles.clinicalSummaryValue, { color: accent }]}
+                          numberOfLines={1}
+                        >
+                          {patient.diagnosis}
+                        </Text>
+                      </View>
+                      <View style={styles.clinicalSummaryDivider} />
+                      <View style={styles.clinicalSummaryRow}>
+                        <View style={[styles.clinicalIllustration, styles.prescriptionIllustration]}>
+                          <Text style={styles.clinicalIllustrationEmoji}>💊</Text>
+                        </View>
+                        <Text
+                          style={styles.clinicalSummaryLabel}
+                          numberOfLines={1}
+                          adjustsFontSizeToFit
+                          minimumFontScale={0.72}
+                        >
+                          PRESCRIPTION
+                        </Text>
+                        <Text
+                          style={[styles.clinicalSummaryValue, styles.prescriptionSummaryValue]}
+                          numberOfLines={1}
+                          adjustsFontSizeToFit
+                          minimumFontScale={0.78}
+                        >
+                          {patient.prescription}
+                        </Text>
+                      </View>
+                    </View>
                   </Pressable>
                 );
               })}
@@ -1298,15 +1442,33 @@ export function PatientScreen({
           <View style={styles.confirmCard}>
             <Text style={styles.confirmTitle}>Confirm Referral</Text>
             <Text style={styles.confirmText}>
-              Refer {routedPatient.name} to {routedDoctor.name}? This sends the referral email to
-              the patient and immediately shares medical history with the doctor.
+              Create a formal referral for {routedPatient.name} to {routedDoctor.name}. The
+              receiving doctor can view the clinical handoff after accepting.
             </Text>
+            <TextInput
+              accessibilityLabel="Referral reason"
+              value={referralReason}
+              onChangeText={setReferralReason}
+              placeholder="Reason for referral"
+              multiline
+              maxLength={1000}
+              style={styles.referralReasonInput}
+            />
+            {referralError ? <Text style={styles.referralError}>{referralError}</Text> : null}
             <View style={styles.confirmActions}>
-              <Pressable onPress={() => setConfirmReferralOpen(false)} style={styles.cancelBtn}>
+              <Pressable
+                onPress={() => setConfirmReferralOpen(false)}
+                disabled={referralSubmitting}
+                style={styles.cancelBtn}
+              >
                 <Text style={styles.cancelBtnText}>Cancel</Text>
               </Pressable>
-              <Pressable onPress={confirmDoctorReferral} style={styles.referBtn}>
-                <Text style={styles.referBtnText}>Refer</Text>
+              <Pressable
+                onPress={confirmDoctorReferral}
+                disabled={referralSubmitting || referralReason.trim().length < 5}
+                style={[styles.referBtn, (referralSubmitting || referralReason.trim().length < 5) && styles.referBtnDisabled]}
+              >
+                <Text style={styles.referBtnText}>{referralSubmitting ? 'Sending…' : 'Refer'}</Text>
               </Pressable>
             </View>
           </View>
@@ -1488,15 +1650,16 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 12,
-    paddingBottom: 12,
+    backgroundColor: 'rgba(79, 61, 158, 0.96)',
+    paddingHorizontal: 16,
+    paddingBottom: 14,
     borderBottomWidth: StyleSheet.hairlineWidth,
     borderBottomColor: 'rgba(255,255,255,0.12)',
   },
   headerSuitable: {
-    backgroundColor: 'rgba(90, 200, 250, 0.22)',
-    borderBottomColor: colors.skyBlueBorder,
-    borderBottomWidth: 2,
+    backgroundColor: '#287C83',
+    borderBottomColor: 'rgba(255,255,255,0.25)',
+    borderBottomWidth: 1,
     gap: 8,
   },
   headerLeft: {
@@ -1514,11 +1677,12 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     color: colors.white,
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: '700',
+    letterSpacing: -0.35,
   },
   headerTitleSuitable: {
-    color: colors.skyBlue,
+    color: colors.white,
   },
   headerSubtitle: {
     color: 'rgba(255,255,255,0.65)',
@@ -1526,7 +1690,7 @@ const styles = StyleSheet.create({
     marginTop: 1,
   },
   headerSubtitleSuitable: {
-    color: 'rgba(90, 200, 250, 0.95)',
+    color: 'rgba(255,255,255,0.78)',
   },
   notifyAllBtn: {
     backgroundColor: colors.skyBlue,
@@ -1549,15 +1713,22 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   searchBar: {
-    marginTop: 14,
-    marginHorizontal: 16,
+    marginTop: 12,
+    marginHorizontal: 18,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 10,
-    backgroundColor: '#F2F3F7',
-    borderRadius: 22,
-    paddingHorizontal: 14,
-    paddingVertical: Platform.OS === 'web' ? 12 : 10,
+    backgroundColor: 'rgba(255,255,255,0.88)',
+    borderRadius: 16,
+    paddingHorizontal: 15,
+    paddingVertical: Platform.OS === 'web' ? 13 : 11,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.55)',
+    shadowColor: '#070B20',
+    shadowOffset: { width: 0, height: 5 },
+    shadowOpacity: 0.12,
+    shadowRadius: 12,
+    elevation: 3,
   },
   searchInput: {
     flex: 1,
@@ -1567,16 +1738,16 @@ const styles = StyleSheet.create({
     ...(Platform.OS === 'web' ? ({ outlineStyle: 'none' } as object) : null),
   },
   listContent: {
-    paddingHorizontal: 16,
-    paddingTop: 14,
+    paddingHorizontal: 18,
+    paddingTop: 10,
     paddingBottom: 96,
-    gap: 12,
+    gap: 10,
   },
   trialBlock: {
     gap: 8,
   },
   trialEyebrow: {
-    color: colors.skyBlue,
+    color: '#367E86',
     fontSize: 11,
     fontWeight: '800',
     letterSpacing: 0.8,
@@ -1617,7 +1788,7 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   cohortTitle: {
-    color: colors.white,
+    color: colors.navy,
     fontSize: 17,
     fontWeight: '800',
     flexShrink: 1,
@@ -1642,38 +1813,60 @@ const styles = StyleSheet.create({
     zIndex: 5,
   },
   infoBannerText: {
-    color: colors.white,
+    color: colors.navy,
     fontSize: 13,
     fontWeight: '600',
   },
   patientCard: {
-    backgroundColor: colors.cardBg,
-    borderRadius: 16,
-    paddingVertical: 14,
-    paddingHorizontal: 14,
-    gap: 10,
-    borderWidth: 1.5,
-    borderColor: 'rgba(90,96,112,0.12)',
+    backgroundColor: 'rgba(255,255,255,0.93)',
+    borderRadius: 18,
+    paddingVertical: 10,
+    paddingHorizontal: 15,
+    gap: 8,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.9)',
+    shadowColor: '#080D24',
+    shadowOffset: { width: 0, height: 7 },
+    shadowOpacity: 0.13,
+    shadowRadius: 15,
+    elevation: 4,
+  },
+  patientCardPressed: {
+    opacity: 0.92,
+    transform: [{ scale: 0.99 }],
   },
   patientCardMatch: {
+    borderWidth: 2,
     borderColor: colors.matchRed,
-    backgroundColor: colors.matchRedSoft,
+    backgroundColor: 'rgba(255,253,252,0.94)',
   },
   patientCardHead: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    gap: 12,
+  },
+  patientIdentity: {
+    flexDirection: 'row',
+    alignItems: 'center',
     gap: 10,
+    flex: 1,
+    minWidth: 0,
+  },
+  patientIdentityCopy: {
+    flex: 1,
+    minWidth: 0,
   },
   patientCardHeadRight: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: 7,
   },
   patientName: {
     color: colors.textPrimary,
-    fontSize: 16,
-    fontWeight: '700',
+    fontSize: 15,
+    fontWeight: '800',
+    letterSpacing: -0.25,
     flex: 1,
   },
   patientNameMatch: {
@@ -1681,8 +1874,16 @@ const styles = StyleSheet.create({
   },
   patientAge: {
     color: colors.textMuted,
-    fontSize: 13,
+    fontSize: 12,
     fontWeight: '600',
+    marginTop: 3,
+  },
+  patientChevron: {
+    color: '#A5A8B5',
+    fontSize: 25,
+    fontWeight: '400',
+    lineHeight: 27,
+    marginLeft: 1,
   },
   matchBadge: {
     backgroundColor: colors.matchRedSoft,
@@ -1701,28 +1902,75 @@ const styles = StyleSheet.create({
   symptomsRow: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 8,
+    gap: 6,
   },
   symptomPill: {
     backgroundColor: '#F2F3F7',
     borderRadius: 999,
-    paddingHorizontal: 10,
-    paddingVertical: 5,
+    borderWidth: 1,
+    paddingHorizontal: 9,
+    paddingVertical: 4,
   },
   symptomPillMatch: {
     backgroundColor: 'rgba(229, 57, 53, 0.08)',
   },
   symptomPillText: {
     color: colors.textSecondary,
-    fontSize: 12,
-    fontWeight: '600',
+    fontSize: 11,
+    fontWeight: '700',
+    letterSpacing: 0.05,
   },
   symptomPillTextMatch: {
     color: colors.textSecondary,
   },
-  metaText: {
-    color: colors.textSecondary,
-    fontSize: 13,
+  clinicalSummary: {
+    backgroundColor: 'rgba(248,248,252,0.86)',
+    borderRadius: 12,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    gap: 4,
+  },
+  clinicalSummaryRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  clinicalIllustration: {
+    width: 25,
+    height: 25,
+    borderRadius: 9,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  diagnosisIllustration: {
+    backgroundColor: '#E9E4FF',
+  },
+  prescriptionIllustration: {
+    backgroundColor: '#FFE5DF',
+  },
+  clinicalIllustrationEmoji: {
+    fontSize: 14,
+  },
+  clinicalSummaryLabel: {
+    width: 72,
+    color: '#8A8EA1',
+    fontSize: 8,
+    fontWeight: '800',
+    letterSpacing: 0.25,
+  },
+  clinicalSummaryValue: {
+    flex: 1,
+    minWidth: 0,
+    color: '#30364A',
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  prescriptionSummaryValue: {
+    fontSize: 11,
+  },
+  clinicalSummaryDivider: {
+    height: StyleSheet.hairlineWidth,
+    backgroundColor: '#E6E7EF',
   },
   detailsContent: {
     paddingHorizontal: 16,
@@ -2208,6 +2456,22 @@ const styles = StyleSheet.create({
     lineHeight: 20,
     marginTop: 8,
   },
+  referralReasonInput: {
+    minHeight: 72,
+    marginTop: 12,
+    padding: 10,
+    borderWidth: 1,
+    borderColor: 'rgba(90,96,112,0.22)',
+    borderRadius: 10,
+    color: colors.textPrimary,
+    textAlignVertical: 'top',
+    backgroundColor: '#fff',
+  },
+  referralError: {
+    color: '#B42318',
+    fontSize: 13,
+    marginTop: 8,
+  },
   confirmActions: {
     marginTop: 14,
     flexDirection: 'row',
@@ -2235,6 +2499,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: colors.accentPurple,
+  },
+  referBtnDisabled: {
+    opacity: 0.55,
   },
   referBtnText: {
     color: colors.white,

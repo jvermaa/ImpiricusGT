@@ -1,6 +1,5 @@
 import React from 'react';
 import { SymbolView } from 'expo-symbols';
-import type { SFSymbol } from 'expo-symbols';
 
 export type IconProps = {
   color: string;
@@ -8,24 +7,15 @@ export type IconProps = {
 };
 
 type SymbolNames = {
-  ios: SFSymbol;
+  ios: string;
   material: string;
 };
 
-function AppSymbol({
-  ios,
-  material,
-  color,
-  size = 24,
-}: SymbolNames & IconProps) {
+function AppSymbol({ ios, material, color, size = 24 }: SymbolNames & IconProps) {
   return (
     <SymbolView
       name={
-        {
-          ios,
-          android: material,
-          web: material,
-        } as React.ComponentProps<typeof SymbolView>['name']
+        { ios, android: material, web: material } as React.ComponentProps<typeof SymbolView>['name']
       }
       tintColor={color}
       size={size}
@@ -48,14 +38,7 @@ export function NotificationIcon({ color, size = 24 }: IconProps) {
 
 /** Chat bubbles — doctor-to-doctor. */
 export function ChatIcon({ color, size = 24 }: IconProps) {
-  return (
-    <AppSymbol
-      ios="bubble.left.and.bubble.right"
-      material="chat"
-      color={color}
-      size={size}
-    />
-  );
+  return <AppSymbol ios="bubble.left.and.bubble.right" material="chat" color={color} size={size} />;
 }
 
 /** Simple person silhouette. */
@@ -75,14 +58,7 @@ export function PlusIcon({ color, size = 24 }: IconProps) {
 
 /** Filter / funnel. */
 export function FilterIcon({ color, size = 22 }: IconProps) {
-  return (
-    <AppSymbol
-      ios="line.3.horizontal.decrease"
-      material="filter_list"
-      color={color}
-      size={size}
-    />
-  );
+  return <AppSymbol ios="line.3.horizontal.decrease" material="filter_list" color={color} size={size} />;
 }
 
 /** Magnifying glass. */
@@ -112,16 +88,12 @@ export function EditIcon({ color, size = 18 }: IconProps) {
 
 /** Calendar with plus for add visit. */
 export function AddVisitIcon({ color, size = 18 }: IconProps) {
-  return (
-    <AppSymbol ios="calendar.badge.plus" material="event" color={color} size={size} />
-  );
+  return <AppSymbol ios="calendar.badge.plus" material="event" color={color} size={size} />;
 }
 
 /** Person + arrow for ask/refer HCP. */
 export function ReferHcpIcon({ color, size = 18 }: IconProps) {
-  return (
-    <AppSymbol ios="person.badge.plus" material="person_add" color={color} size={size} />
-  );
+  return <AppSymbol ios="person.badge.plus" material="person_add" color={color} size={size} />;
 }
 
 /** Share / upload. */
