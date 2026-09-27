@@ -9,7 +9,7 @@ from sqlalchemy import func, or_, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
-from cohort_matcher import rank_cohort_matches
+from cohort_matcher import rank_cohort_matches, rank_relevant_patients
 from database import get_db
 from keys import next_key
 from models import (
@@ -193,6 +193,32 @@ class SimilarCohortAnalysisResponse(BaseModel):
     matches: list[CohortMatch]
 
 
+class RelevantPatientsRequest(BaseModel):
+    kind: Literal["drug", "notification"]
+    title: str = ""
+    summary: str = ""
+    details: list[str] = Field(default_factory=list)
+    age_min: int | None = Field(default=None, ge=0, le=120)
+    age_max: int | None = Field(default=None, ge=0, le=120)
+    required_symptoms: list[str] = Field(default_factory=list)
+    required_symptoms_mode: Literal["all", "any"] = "all"
+    required_symptoms_min_match: int = Field(default=1, ge=1, le=25)
+    limit: int = Field(default=10, ge=1, le=25)
+
+
+class RelevantPatientMatch(BaseModel):
+    patient_key: str
+    confidence_percent: int = Field(ge=0, le=100)
+    rationale: str
+
+
+class RelevantPatientsResponse(BaseModel):
+    title: str
+    explanation: str
+    source: Literal["gemini", "fallback"]
+    matches: list[RelevantPatientMatch]
+
+
 class ConsultOpen(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
@@ -367,11 +393,62 @@ def _cohort_snapshot(db: Session, patient: Patient, match_id: str) -> dict:
     }
 
 
+def _relevant_patient_snapshot(db: Session, patient: Patient) -> dict:
+    diagnosis = _patient_diagnosis(db, patient.patient_key)
+    symptoms = [_clean_symptom_entry(row) for row in _read_symptoms(patient.latest_visit_symptoms_json)[:4]]
+    symptom_labels = [entry["name"] for entry in symptoms if entry["name"]]
+    diagnosis_label = diagnosis.label if diagnosis else "Undifferentiated condition"
+    visits = db.scalars(
+        select(Encounter)
+        .where(Encounter.patient_key == patient.patient_key)
+        .order_by(Encounter.visit_date.desc(), Encounter.encounter_key.desc())
+    ).all()
+    recent_visit_summaries = [
+        " ".join(
+            part
+            for part in (
+                _clean_text(visit.visit_date, ""),
+                _clean_text(visit.diagnosis, ""),
+                _clean_text(visit.summary, ""),
+            )
+            if part
+        )[:220]
+        for visit in visits[:3]
+    ]
+    return {
+        "patient_key": patient.patient_key,
+        "display_label": patient.name,
+        "age": patient.age,
+        "sex_label": SEX_LABELS.get(patient.sex_for_clinical_context, "Unknown"),
+        "diagnosis_label": diagnosis_label,
+        "symptom_labels": symptom_labels,
+        "current_medications": _clean_text(patient.current_medications, "Medication list reconciled."),
+        "relevant_medical_history": _clean_text(patient.relevant_medical_history, "General history reviewed."),
+        "family_medical_history": _clean_text(patient.family_medical_history, "Family history reviewed."),
+        "lab_results": _clean_text(patient.lab_results, "Baseline labs reviewed."),
+        "recent_visit_summaries": recent_visit_summaries,
+    }
+
+
 def _cohort_explanation(query_age_group: str) -> str:
     return (
         "Clinical match based on symptom overlaps, age cohort "
         f"({query_age_group}), and diagnosis matches"
     )
+
+
+def _relevance_explanation(kind: Literal["drug", "notification"], title: str) -> str:
+    topic = "drug profile" if kind == "drug" else "notification context"
+    if title:
+        return (
+            f"Patient relevance ranked from the {topic} ({title}) against diagnosis, symptoms, "
+            "history, and recent visit context."
+        )
+    return f"Patient relevance ranked from the {topic} against diagnosis, symptoms, and history context."
+
+
+def _normalize_relevance_term(value: str) -> str:
+    return re.sub(r"[^a-z0-9 ]+", " ", value.lower()).strip()
 
 
 def doctor_payload(doctor: Doctor) -> dict:
@@ -695,6 +772,78 @@ def list_patients(doctor: str | None = None, db: Session = Depends(get_db)) -> l
         query = query.where(Patient.primary_doctor_key == doctor)
     rows = db.scalars(query).all()
     return [patient_card(db, row) for row in rows]
+
+
+@router.post("/patients/relevance/search", response_model=RelevantPatientsResponse)
+def find_relevant_patients(
+    body: RelevantPatientsRequest,
+    doctor: str = Query(...),
+    db: Session = Depends(get_db),
+) -> RelevantPatientsResponse:
+    _require_doctor(db, doctor)
+    patients = db.scalars(
+        select(Patient)
+        .where(Patient.primary_doctor_key == doctor)
+        .order_by(Patient.patient_key)
+    ).all()
+    candidates = [_relevant_patient_snapshot(db, patient) for patient in patients]
+    required_symptoms = [
+        cleaned
+        for cleaned in (_normalize_relevance_term(item) for item in body.required_symptoms)
+        if cleaned
+    ]
+    required_symptoms_mode = body.required_symptoms_mode
+    required_symptoms_min_match = max(1, body.required_symptoms_min_match)
+    age_min = body.age_min
+    age_max = body.age_max
+
+    base_explanation = _relevance_explanation(body.kind, body.title.strip())
+
+    context_details = [str(item).strip() for item in body.details if str(item).strip()]
+    if age_min is not None or age_max is not None:
+        context_details.append(
+            "Age relevance focus: "
+            f"{age_min if age_min is not None else 0}-{age_max if age_max is not None else 120}"
+        )
+    if required_symptoms:
+        if required_symptoms_mode == "all":
+            context_details.append(f"Symptom relevance focus (all): {', '.join(required_symptoms)}")
+        else:
+            context_details.append(
+                "Symptom relevance focus (any): "
+                f"{', '.join(required_symptoms)} | minimum matches: {required_symptoms_min_match}"
+            )
+    context = {
+        "kind": body.kind,
+        "title": body.title.strip(),
+        "summary": body.summary.strip(),
+        "details": context_details,
+    }
+    source, summary, ranked = rank_relevant_patients(context, candidates, limit=body.limit)
+    known_ids = {row["patient_key"] for row in candidates}
+    matches: list[RelevantPatientMatch] = []
+    for row in ranked:
+        patient_key = str(row.get("patient_key") or "").strip()
+        if not patient_key or patient_key not in known_ids:
+            continue
+        matches.append(
+            RelevantPatientMatch(
+                patient_key=patient_key,
+                confidence_percent=int(row.get("confidence_percent") or 0),
+                rationale=str(row.get("rationale") or "Patient relevance match."),
+            )
+        )
+        if len(matches) >= body.limit:
+            break
+
+    explanation = base_explanation if not summary else f"{base_explanation} {summary}"
+    context_title = body.title.strip() or ("Drug relevance" if body.kind == "drug" else "Notification relevance")
+    return RelevantPatientsResponse(
+        title=context_title,
+        explanation=explanation,
+        source=source,
+        matches=matches,
+    )
 
 
 @router.get("/patients/{patient_key}")

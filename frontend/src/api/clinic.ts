@@ -362,6 +362,46 @@ export async function loadMyPatients(): Promise<PatientProfile[]> {
   return rows.map(toPatient);
 }
 
+export type RelevantPatientsRequest = {
+  kind: 'drug' | 'notification';
+  title: string;
+  summary?: string;
+  details?: string[];
+  age_min?: number;
+  age_max?: number;
+  required_symptoms?: string[];
+  required_symptoms_mode?: 'all' | 'any';
+  required_symptoms_min_match?: number;
+  limit?: number;
+};
+
+export type RelevantPatientMatch = {
+  patient_key: string;
+  confidence_percent: number;
+  rationale: string;
+};
+
+export type RelevantPatientsResponse = {
+  title: string;
+  explanation: string;
+  source: 'gemini' | 'fallback';
+  matches: RelevantPatientMatch[];
+};
+
+export async function findRelevantPatients(
+  payload: RelevantPatientsRequest,
+): Promise<RelevantPatientsResponse> {
+  const response = await apiFetch(`/patients/relevance/search?doctor=${CURRENT_DOCTOR_KEY}`, {
+    method: 'POST',
+    headers: jsonHeaders(),
+    body: JSON.stringify(payload),
+  });
+  if (!response.ok) {
+    throw new Error(await readError(response));
+  }
+  return response.json() as Promise<RelevantPatientsResponse>;
+}
+
 export type PatientWritePayload = {
   name?: string;
   emailAddress?: string;

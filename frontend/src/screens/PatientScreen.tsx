@@ -23,6 +23,7 @@ import Animated, {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
   createPatient,
+  findRelevantPatients,
   loadCurrentDoctor,
   loadMyPatients,
   loadConsultDirectory,
@@ -64,8 +65,6 @@ import {
   searchDoctorsByNameOrSpecialization,
 } from '../data/doctorDiscovery';
 import {
-  HIGH_MATCH_PATIENT_IDS,
-  PATIENTS,
   type PastVisit,
   type PatientProfile,
   type SymptomEntry,
@@ -77,6 +76,7 @@ import {
   getStrengthOptions,
   groupDrugMatches,
   rankDrugsBySaltQuery,
+  type DrugProduct,
   type DrugMatchBucket,
   type RankedDrugMatch,
 } from '../data/drugCatalogMock';
@@ -171,8 +171,6 @@ const SEND_NOTIFICATION_ACTION: (typeof ACTIONS)[number] = {
   Icon: NotificationIcon,
 };
 
-const HIGH_MATCH_SET = new Set<string>(HIGH_MATCH_PATIENT_IDS);
-
 const EMPTY_SYMPTOM: SymptomDraft = {
   name: '',
   duration: '',
@@ -222,67 +220,131 @@ const METRIC_GLOSSARY: Record<string, string> = {
     'UPDRS is a Parkinson scale for symptoms and function; bigger improvement in score change is better.',
 };
 
-function getRelevantPatientsForInsight(
-  patients: PatientProfile[],
-  insight: WhatsNewInsight,
-): PatientProfile[] {
-  const keywordSet = new Set(insight.relevanceTags.map((tag) => tag.toLowerCase()));
-  return patients.filter((patient) => {
-    const searchableText = [
-      patient.diagnosis,
-      patient.relevantMedicalHistory,
-      patient.prescription,
-      patient.symptoms.map((symptom) => symptom.name).join(' '),
-      patient.pastVisits.map((visit) => `${visit.diagnosis} ${visit.summary}`).join(' '),
-    ]
-      .join(' ')
-      .toLowerCase();
-
-    return [...keywordSet].some((keyword) => searchableText.includes(keyword));
-  });
+function buildInsightRelevanceInput(insight: WhatsNewInsight) {
+  return {
+    kind: 'notification' as const,
+    title: insight.name,
+    summary: insight.summary,
+    details: [
+      `Category: ${insight.category}`,
+      `Therapeutic area: ${insight.therapeuticArea}`,
+      `Headline: ${insight.headline}`,
+      `Hook: ${insight.hook}`,
+      ...insight.benefits.slice(0, 4).map((item) => `Benefit: ${item}`),
+      ...insight.sideEffects.slice(0, 4).map((item) => `Side effect: ${item}`),
+      ...insight.evidence.slice(0, 4).map((row) => `Evidence (${row.source}): ${row.result}`),
+      ...insight.relevanceTags.map((tag) => `Tag: ${tag}`),
+      ...insight.performancePoints
+        .slice(0, 4)
+        .map((point) => `${point.label}: ${insight.treatmentLabel} ${point.treatmentValue}${point.unit}`),
+    ],
+    limit: 10,
+  };
 }
 
-function getRelevantPatientsForDrug(patients: PatientProfile[], drug: (typeof DRUG_CATALOG)[number]) {
-  const normalizedTerms = Array.from(
-    new Set(
-      [drug.productName, ...drug.salts.map((salt) => salt.name), ...drug.salts.map((salt) => salt.purpose)]
-        .flatMap((entry) => entry.split(/[\s,/+-]+/g))
-        .map((token) => token.trim().toLowerCase())
-        .filter((token) => token.length >= 4),
-    ),
-  );
+function buildDrugRelevanceInput(drug: DrugProduct) {
+  const combinedText = [
+    drug.productName,
+    drug.summary,
+    ...drug.salts.map((salt) => `${salt.name} ${salt.purpose}`),
+    ...drug.facts.uses,
+  ]
+    .join(' ')
+    .toLowerCase();
+  const requiredSymptoms: string[] = [];
+  const addRequiredSymptom = (value: string) => {
+    if (!requiredSymptoms.includes(value)) requiredSymptoms.push(value);
+  };
+  const hasRespiratoryProfile =
+    combinedText.includes('cold') ||
+    combinedText.includes('flu') ||
+    combinedText.includes('cough') ||
+    combinedText.includes('congestion') ||
+    combinedText.includes('runny nose') ||
+    combinedText.includes('sneezing');
+  if (combinedText.includes('cough')) addRequiredSymptom('cough');
+  if (combinedText.includes('congestion') || combinedText.includes('decongestant')) {
+    addRequiredSymptom('congestion');
+  }
+  if (combinedText.includes('runny nose')) addRequiredSymptom('runny nose');
+  if (combinedText.includes('sneezing')) addRequiredSymptom('sneezing');
+  if (combinedText.includes('sore throat')) addRequiredSymptom('sore throat');
+  if (combinedText.includes('sinus')) addRequiredSymptom('sinus pressure');
+  if (combinedText.includes('fever')) addRequiredSymptom('fever');
+  if (!hasRespiratoryProfile) {
+    if (combinedText.includes('pain') || combinedText.includes('ache')) addRequiredSymptom('pain');
+    if (combinedText.includes('headache')) addRequiredSymptom('headache');
+  }
 
-  return patients
-    .map((patient) => {
-      const patientText = [
-        patient.diagnosis,
-        patient.prescription,
-        patient.relevantMedicalHistory,
-        patient.symptoms.map((symptom) => symptom.name).join(' '),
-        patient.pastVisits
-          .map((visit) =>
-            [visit.diagnosis, visit.summary, visit.currentMedications]
-              .filter(Boolean)
-              .join(' '),
-          )
-          .join(' '),
-      ]
-        .join(' ')
-        .toLowerCase();
+  return {
+    kind: 'drug' as const,
+    title: drug.productName,
+    summary: drug.summary,
+    details: [
+      `Company: ${drug.companyName}`,
+      `Dosage form: ${drug.dosageForm}`,
+      `Active ingredients: ${drug.salts.map((salt) => `${salt.name} ${salt.strength}`).join(', ')}`,
+      ...drug.salts.map((salt) => `${salt.name}: ${salt.purpose}`),
+      ...drug.facts.uses.slice(0, 4).map((item) => `Use: ${item}`),
+      ...drug.facts.warnings.slice(0, 4).map((item) => `Warning: ${item}`),
+    ],
+    required_symptoms: requiredSymptoms,
+    required_symptoms_mode: 'any' as const,
+    required_symptoms_min_match: 1,
+    limit: 10,
+  };
+}
 
-      const score = normalizedTerms.reduce((total, term) => {
-        return patientText.includes(term) ? total + 1 : total;
-      }, 0);
+function parseAgeBand(text: string): { ageMin?: number; ageMax?: number } {
+  const normalized = text.replace(/[–—]/g, '-');
+  const rangeMatch = normalized.match(/(\d{1,3})\s*-\s*(\d{1,3})/);
+  if (rangeMatch) {
+    const ageMin = Number(rangeMatch[1]);
+    const ageMax = Number(rangeMatch[2]);
+    if (!Number.isNaN(ageMin) && !Number.isNaN(ageMax)) {
+      return { ageMin: Math.min(ageMin, ageMax), ageMax: Math.max(ageMin, ageMax) };
+    }
+  }
+  const plusMatch = normalized.match(/(\d{1,3})\s*\+/);
+  if (plusMatch) {
+    const ageMin = Number(plusMatch[1]);
+    if (!Number.isNaN(ageMin)) return { ageMin };
+  }
+  return {};
+}
 
-      if (score === 0) return null;
-      return { patient, score };
-    })
-    .filter((entry): entry is { patient: PatientProfile; score: number } => entry !== null)
-    .sort((left, right) => {
-      if (left.score !== right.score) return right.score - left.score;
-      return left.patient.name.localeCompare(right.patient.name);
-    })
-    .map((entry) => entry.patient);
+function parseSymptomList(text: string): string[] {
+  const terms = text
+    .split(/\/|,|;|\band\b/gi)
+    .map((part) => part.trim().toLowerCase())
+    .filter((part) => part.length >= 3);
+  return Array.from(new Set(terms));
+}
+
+function buildNotificationRelevanceInput(notification: AppNotification) {
+  const ageSection = notification.infoCard.sections.find((section) => /age/i.test(section.label));
+  const symptomSection = notification.infoCard.sections.find((section) => /symptom/i.test(section.label));
+  const ageBand = ageSection ? parseAgeBand(ageSection.value) : {};
+  const requiredSymptoms = symptomSection ? parseSymptomList(symptomSection.value) : [];
+  return {
+    kind: 'notification' as const,
+    title: notification.title,
+    summary: notification.preview || notification.body,
+    details: [
+      `Brand: ${notification.brand}`,
+      `Sender: ${notification.sender}`,
+      `Body: ${notification.body}`,
+      ...notification.infoCard.sections.map((section) => `${section.label}: ${section.value}`),
+      ...notification.actions.map((action) => `Action: ${action.label}`),
+      ...notification.messages.slice(-2).map((message) => `Message: ${message.text}`),
+    ],
+    age_min: ageBand.ageMin,
+    age_max: ageBand.ageMax,
+    required_symptoms: requiredSymptoms,
+    required_symptoms_mode: 'all' as const,
+    required_symptoms_min_match: Math.max(1, requiredSymptoms.length),
+    limit: 10,
+  };
 }
 
 function normalizeStoredField(value: string): string {
@@ -447,6 +509,8 @@ export function PatientScreen({
   const [selectedStrengths, setSelectedStrengths] = useState<string[]>([]);
   const [strengthFilterText, setStrengthFilterText] = useState('');
   const [selectedDrugId, setSelectedDrugId] = useState<string | null>(null);
+  const [relevantPatientsLoading, setRelevantPatientsLoading] = useState(false);
+  const [relevantPatientsSource, setRelevantPatientsSource] = useState<'gemini' | 'fallback' | null>(null);
   const drugSearchDelayRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const menuBackdropProgress = useSharedValue(0);
@@ -511,6 +575,7 @@ export function PatientScreen({
 
   useEffect(() => {
     if (!suitableMode) return;
+    let cancelled = false;
     clearDrugSearchDelay();
     setRoute({ name: 'list' });
     setSelectedPatientId(null);
@@ -530,12 +595,73 @@ export function PatientScreen({
     setInsightFocusLabel(null);
     setSimilarAnalysis(null);
     setSelectedSimilarMatchId(null);
-    // Hardcoded cohort panel for finder mode
-    setPatients(PATIENTS);
+    setRelevantPatientsSource(null);
     menuBackdropProgress.value = 0;
     menuDrugsPillProgress.value = 0;
     menuPatientsPillProgress.value = 0;
-  }, [clearDrugSearchDelay, suitableMode]);
+
+    const sourceTitle = suitableSource?.title.trim() || 'notification';
+    if (suitableSource) {
+      setRelevantPatientsLoading(true);
+      setInfoMessage(`Finding relevant patients for ${sourceTitle}...`);
+    } else {
+      setRelevantPatientsLoading(false);
+    }
+
+    loadMyPatients()
+      .then((rows) => {
+        if (cancelled) return;
+        setPatients(rows);
+        if (rows.length === 0) {
+          setRelevantPatientsLoading(false);
+          setInfoMessage('No patients found for this doctor in the backend.');
+          return;
+        }
+        if (!suitableSource) {
+          setRelevantPatientsLoading(false);
+          return;
+        }
+
+        findRelevantPatients(buildNotificationRelevanceInput(suitableSource))
+          .then((result) => {
+            if (cancelled) return;
+            const matchedPatientIds = result.matches.map((match) => match.patient_key);
+            setInsightFocusPatientIds(matchedPatientIds);
+            setRelevantPatientsSource(result.source);
+            if (matchedPatientIds.length === 0) {
+              setInfoMessage(`No relevant patients found for ${sourceTitle}.`);
+              return;
+            }
+            const matchedNames = matchedPatientIds
+              .map((patientId) => rows.find((patient) => patient.id === patientId)?.name)
+              .filter((name): name is string => Boolean(name));
+            const sourceLabel = result.source === 'gemini' ? 'Gemini' : 'fallback ranking';
+            setInfoMessage(
+              matchedNames.length > 0
+                ? `${sourceTitle} relevant patients (${sourceLabel}): ${matchedNames.join(', ')}.`
+                : `${sourceTitle} relevant patients (${sourceLabel}): ${matchedPatientIds.length} matches.`,
+            );
+          })
+          .catch(() => {
+            if (cancelled) return;
+            setInsightFocusPatientIds([]);
+            setInfoMessage(`Could not rank patients for ${sourceTitle}.`);
+          })
+          .finally(() => {
+            if (!cancelled) setRelevantPatientsLoading(false);
+          });
+      })
+      .catch(() => {
+        if (cancelled) return;
+        setPatients([]);
+        setRelevantPatientsLoading(false);
+        setInfoMessage('Could not load patients from backend. Check API connection.');
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [clearDrugSearchDelay, suitableMode, suitableSource]);
 
   const exitSuitableMode = () => {
     onExitSuitableMode?.();
@@ -667,28 +793,23 @@ export function PatientScreen({
     [selectedSimilarMatchId, similarAnalysis],
   );
 
-  const sortedPatients = useMemo(() => {
-    if (suitableMode) {
-      return [...patients].sort((a, b) => {
-        const aMatch = HIGH_MATCH_SET.has(a.id) ? 0 : 1;
-        const bMatch = HIGH_MATCH_SET.has(b.id) ? 0 : 1;
-        if (aMatch !== bMatch) return aMatch - bMatch;
-        return a.name.localeCompare(b.name);
-      });
-    }
+  const focusedPatientIdSet = useMemo(
+    () => new Set(insightFocusPatientIds),
+    [insightFocusPatientIds],
+  );
 
-    if (insightFocusPatientIds.length === 0) {
+  const sortedPatients = useMemo(() => {
+    if (focusedPatientIdSet.size === 0) {
       return [...patients].sort((a, b) => a.name.localeCompare(b.name));
     }
 
-    const focusSet = new Set(insightFocusPatientIds);
     return [...patients].sort((a, b) => {
-      const aFocus = focusSet.has(a.id) ? 0 : 1;
-      const bFocus = focusSet.has(b.id) ? 0 : 1;
+      const aFocus = focusedPatientIdSet.has(a.id) ? 0 : 1;
+      const bFocus = focusedPatientIdSet.has(b.id) ? 0 : 1;
       if (aFocus !== bFocus) return aFocus - bFocus;
       return a.name.localeCompare(b.name);
     });
-  }, [patients, suitableMode, insightFocusPatientIds]);
+  }, [focusedPatientIdSet, patients]);
 
   const filteredPatients = useMemo(() => {
     const normalized = query.trim().toLowerCase();
@@ -705,8 +826,8 @@ export function PatientScreen({
   }, [query, sortedPatients]);
 
   const highMatchPatients = useMemo(
-    () => patients.filter((patient) => HIGH_MATCH_SET.has(patient.id)),
-    [patients],
+    () => patients.filter((patient) => focusedPatientIdSet.has(patient.id)),
+    [focusedPatientIdSet, patients],
   );
 
   const rankedDrugMatches = useMemo(
@@ -788,9 +909,12 @@ export function PatientScreen({
 
   const headerSubtitle = (() => {
     if (suitableMode && route.name === 'list') {
+      const sourceSuffix = relevantPatientsSource
+        ? ` · ${relevantPatientsSource === 'gemini' ? 'Gemini' : 'Fallback'}`
+        : '';
       return suitableSource?.brand
-        ? `${suitableSource.brand} · ${highMatchPatients.length} high matches`
-        : `${highMatchPatients.length} high matches`;
+        ? `${suitableSource.brand} · ${highMatchPatients.length} high matches${sourceSuffix}`
+        : `${highMatchPatients.length} high matches${sourceSuffix}`;
     }
     if (route.name === 'list' && patientFocusSource === 'drug' && insightFocusLabel) {
       return `Relevant patients for ${insightFocusLabel}`;
@@ -947,35 +1071,54 @@ export function PatientScreen({
   };
 
   const openRelevantPatientsFromInsight = (insight: WhatsNewInsight) => {
-    const relevantPatients = getRelevantPatientsForInsight(patients, insight);
     setPatientFocusSource('insight');
+    setRelevantPatientsSource(null);
+    setRelevantPatientsLoading(true);
     setDrugFocusReturnState(null);
-    setInsightFocusPatientIds(relevantPatients.map((patient) => patient.id));
+    setInsightFocusPatientIds([]);
     setInsightFocusLabel(insight.name);
     setQuery('');
     setSearchInlineActive(true);
     setSearchMode('patients');
     setRoute({ name: 'list' });
+    setInfoMessage(`Finding relevant patients for ${insight.name}...`);
 
-    if (relevantPatients.length === 0) {
-      setInfoMessage(`No matching patients currently surfaced for ${insight.name}.`);
-      return;
-    }
-    setInfoMessage(
-      `${insight.name} relevant patients: ${relevantPatients.map((patient) => patient.name).join(', ')}.`,
-    );
+    findRelevantPatients(buildInsightRelevanceInput(insight))
+      .then((result) => {
+        const matchedPatientIds = result.matches.map((match) => match.patient_key);
+        setInsightFocusPatientIds(matchedPatientIds);
+        setRelevantPatientsSource(result.source);
+        if (matchedPatientIds.length === 0) {
+          setInfoMessage(`No relevant patients found for ${insight.name}.`);
+          return;
+        }
+        const matchedNames = matchedPatientIds
+          .map((patientId) => patients.find((patient) => patient.id === patientId)?.name)
+          .filter((name): name is string => Boolean(name));
+        const sourceLabel = result.source === 'gemini' ? 'Gemini' : 'fallback ranking';
+        setInfoMessage(
+          matchedNames.length > 0
+            ? `${insight.name} relevant patients (${sourceLabel}): ${matchedNames.join(', ')}.`
+            : `${insight.name} relevant patients (${sourceLabel}): ${matchedPatientIds.length} matches.`,
+        );
+      })
+      .catch(() => {
+        setInsightFocusPatientIds([]);
+        setRelevantPatientsSource(null);
+        setInfoMessage(`Could not rank patients for ${insight.name}.`);
+      })
+      .finally(() => setRelevantPatientsLoading(false));
   };
 
   const openRelevantPatientsFromDrug = useCallback(
     (drug: (typeof DRUG_CATALOG)[number]) => {
       clearDrugSearchDelay();
-      const relevantPatients = getRelevantPatientsForDrug(patients, drug);
       setPatientFocusSource('drug');
       setDrugFocusReturnState({
         draftQuery: drugSaltQuery,
         submittedQuery: drugSubmittedSaltQuery,
       });
-      setInsightFocusPatientIds(relevantPatients.map((patient) => patient.id));
+      setInsightFocusPatientIds([]);
       setInsightFocusLabel(drug.productName);
       setSearchMode('patients');
       setSearchInlineActive(true);
@@ -986,17 +1129,35 @@ export function PatientScreen({
       setSelectedDrugId(null);
       setQuery('');
       setRoute({ name: 'list' });
+      setRelevantPatientsSource(null);
+      setRelevantPatientsLoading(true);
+      setInfoMessage(`Finding relevant patients for ${drug.productName}...`);
 
-      if (relevantPatients.length === 0) {
-        setInfoMessage(`No relevant patients currently surfaced for ${drug.productName}.`);
-        return;
-      }
-
-      setInfoMessage(
-        `${drug.productName} relevant patients: ${relevantPatients
-          .map((patient) => patient.name)
-          .join(', ')}.`,
-      );
+      findRelevantPatients(buildDrugRelevanceInput(drug))
+        .then((result) => {
+          const matchedPatientIds = result.matches.map((match) => match.patient_key);
+          setInsightFocusPatientIds(matchedPatientIds);
+          setRelevantPatientsSource(result.source);
+          if (matchedPatientIds.length === 0) {
+            setInfoMessage(`No relevant patients found for ${drug.productName}.`);
+            return;
+          }
+          const matchedNames = matchedPatientIds
+            .map((patientId) => patients.find((patient) => patient.id === patientId)?.name)
+            .filter((name): name is string => Boolean(name));
+          const sourceLabel = result.source === 'gemini' ? 'Gemini' : 'fallback ranking';
+          setInfoMessage(
+            matchedNames.length > 0
+              ? `${drug.productName} relevant patients (${sourceLabel}): ${matchedNames.join(', ')}.`
+              : `${drug.productName} relevant patients (${sourceLabel}): ${matchedPatientIds.length} matches.`,
+          );
+        })
+        .catch(() => {
+          setInsightFocusPatientIds([]);
+          setRelevantPatientsSource(null);
+          setInfoMessage(`Could not rank patients for ${drug.productName}.`);
+        })
+        .finally(() => setRelevantPatientsLoading(false));
     },
     [clearDrugSearchDelay, drugSaltQuery, drugSubmittedSaltQuery, patients],
   );
@@ -1709,6 +1870,16 @@ export function PatientScreen({
                 </View>
               ) : null}
 
+              {relevantPatientsLoading ? (
+                <View style={styles.searchEmptyStateInline}>
+                  <ActivityIndicator size="small" color={colors.accentPurple} />
+                  <Text style={styles.searchEmptyStateTitle}>Finding relevant patients...</Text>
+                  <Text style={styles.searchEmptyStateText}>
+                    Ranking your panel with Gemini against the selected context.
+                  </Text>
+                </View>
+              ) : null}
+
               {!suitableMode &&
               searchMode === 'patients' &&
               insightFocusLabel &&
@@ -1761,9 +1932,7 @@ export function PatientScreen({
                 )
               ) : (
                 filteredPatients.map((patient) => {
-                  const isHighMatch = suitableMode
-                    ? HIGH_MATCH_SET.has(patient.id)
-                    : insightFocusPatientIds.includes(patient.id);
+                  const isHighMatch = focusedPatientIdSet.has(patient.id);
                   return (
                     <Pressable
                       key={patient.id}
