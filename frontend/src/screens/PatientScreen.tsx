@@ -10,13 +10,13 @@ import {
   View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { loadMyPatients } from '../api/clinic';
+import { loadConsultDirectory, loadMyPatients } from '../api/clinic';
+import { createFormalReferral } from '../api/referrals';
 import { Avatar } from '../components/Avatar';
 import { ChatThread } from '../components/ChatThread';
 import { ChevronLeftIcon, CloseIcon, NotificationIcon, SearchIcon } from '../components/NavIcons';
 import type { AppNotification } from '../data/notificationsMock';
 import {
-  DOCTOR_DIRECTORY,
   DOCTOR_THREADS,
   type ChatMessage,
   type DoctorProfile,
@@ -116,6 +116,7 @@ export function PatientScreen({
 }) {
   const insets = useSafeAreaInsets();
   const [patients, setPatients] = useState<PatientProfile[]>([]);
+  const [doctorDirectory, setDoctorDirectory] = useState<DoctorProfile[]>([]);
   const [route, setRoute] = useState<RouteState>({ name: 'list' });
   const [query, setQuery] = useState('');
   const [selectedPatientId, setSelectedPatientId] = useState<string | null>(null);
@@ -123,6 +124,9 @@ export function PatientScreen({
   const [consultThreads, setConsultThreads] = useState<DoctorThread[]>(DOCTOR_THREADS);
   const [confirmReferralOpen, setConfirmReferralOpen] = useState(false);
   const [referralSuccessMessage, setReferralSuccessMessage] = useState<string | null>(null);
+  const [referralReason, setReferralReason] = useState('Please evaluate this patient.');
+  const [referralSubmitting, setReferralSubmitting] = useState(false);
+  const [referralError, setReferralError] = useState<string | null>(null);
   const [hcpSearchQuery, setHcpSearchQuery] = useState('');
 
   const [visitForm, setVisitForm] = useState<VisitForm | null>(null);
@@ -140,6 +144,20 @@ export function PatientScreen({
           setPatients(PATIENTS);
           setInfoMessage('Showing demo panel — API patient load failed.');
         }
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    loadConsultDirectory()
+      .then(({ directory }) => {
+        if (!cancelled) setDoctorDirectory(directory);
+      })
+      .catch(() => {
+        if (!cancelled) setInfoMessage('Could not load doctors from the API.');
       });
     return () => {
       cancelled = true;
@@ -179,9 +197,9 @@ export function PatientScreen({
   const routedDoctor = useMemo(
     () =>
       routedDoctorId
-        ? DOCTOR_DIRECTORY.find((doctor) => doctor.id === routedDoctorId) ?? null
+        ? doctorDirectory.find((doctor) => doctor.id === routedDoctorId) ?? null
         : null,
-    [routedDoctorId],
+      [doctorDirectory, routedDoctorId],
   );
 
   const routedDoctorThread = useMemo(
@@ -200,8 +218,8 @@ export function PatientScreen({
   const defaultSpecializationQuery = inferredSpecializations[0] ?? '';
   const hcpSearchResults = useMemo(() => {
     const seedQuery = hcpSearchQuery.trim() || defaultSpecializationQuery;
-    return searchDoctorsByNameOrSpecialization(DOCTOR_DIRECTORY, seedQuery).slice(0, 10);
-  }, [hcpSearchQuery, defaultSpecializationQuery]);
+    return searchDoctorsByNameOrSpecialization(doctorDirectory, seedQuery).slice(0, 10);
+  }, [doctorDirectory, hcpSearchQuery, defaultSpecializationQuery]);
 
   const activeVisit = useMemo(() => {
     if (route.name !== 'visitDetails' || !routedPatient) return null;
@@ -326,6 +344,8 @@ export function PatientScreen({
     setHcpSearchQuery(inferred[0] ?? '');
     setInfoMessage(null);
     setReferralSuccessMessage(null);
+    setReferralError(null);
+    setReferralReason('Please evaluate this patient.');
     setConfirmReferralOpen(false);
     setRoute({ name: 'hcpList', patientId });
   };
@@ -333,12 +353,13 @@ export function PatientScreen({
   const openDoctorProfile = (patientId: string, doctorId: string) => {
     setInfoMessage(null);
     setReferralSuccessMessage(null);
+    setReferralError(null);
     setConfirmReferralOpen(false);
     setRoute({ name: 'doctorProfile', patientId, doctorId });
   };
 
   const openDoctorChat = (patientId: string, doctorId: string) => {
-    const doctor = DOCTOR_DIRECTORY.find((entry) => entry.id === doctorId);
+    const doctor = doctorDirectory.find((entry) => entry.id === doctorId);
     if (!doctor) return;
     setConsultThreads((current) => {
       const existing = current.find((thread) => thread.id === doctorId);
@@ -512,12 +533,34 @@ export function PatientScreen({
     setRoute({ name: 'edit', patientId: route.patientId });
   };
 
-  const confirmDoctorReferral = () => {
+  const confirmDoctorReferral = async () => {
     if (route.name !== 'doctorProfile' || !routedDoctor || !routedPatient) return;
-    setConfirmReferralOpen(false);
-    setReferralSuccessMessage(
-      `Referral sent to ${routedPatient.name}. Email delivered with ${routedDoctor.name}'s details and medical history shared immediately.`,
-    );
+    if (!/^P\d+$/i.test(routedPatient.id)) {
+      setReferralError('This demo patient is not in the backend. Select a patient from your live clinic panel.');
+      return;
+    }
+    if (referralReason.trim().length < 5) {
+      setReferralError('Enter a referral reason with at least 5 characters.');
+      return;
+    }
+    setReferralSubmitting(true);
+    setReferralError(null);
+    try {
+      const result = await createFormalReferral({
+        toDoctorKey: routedDoctor.id,
+        patientKey: routedPatient.id,
+        reason: referralReason.trim(),
+        urgency: 'routine',
+      });
+      setConfirmReferralOpen(false);
+      setReferralSuccessMessage(
+        `Referral ${result.referral.referral_key} created for ${routedPatient.name}. The receiving doctor can view the handoff after accepting.`,
+      );
+    } catch (error) {
+      setReferralError(error instanceof Error ? error.message : 'Could not create the referral.');
+    } finally {
+      setReferralSubmitting(false);
+    }
   };
   const showBack = route.name !== 'list' || suitableMode;
 
@@ -1158,15 +1201,33 @@ export function PatientScreen({
           <View style={styles.confirmCard}>
             <Text style={styles.confirmTitle}>Confirm Referral</Text>
             <Text style={styles.confirmText}>
-              Refer {routedPatient.name} to {routedDoctor.name}? This sends the referral email to
-              the patient and immediately shares medical history with the doctor.
+              Create a formal referral for {routedPatient.name} to {routedDoctor.name}. The
+              receiving doctor can view the clinical handoff after accepting.
             </Text>
+            <TextInput
+              accessibilityLabel="Referral reason"
+              value={referralReason}
+              onChangeText={setReferralReason}
+              placeholder="Reason for referral"
+              multiline
+              maxLength={1000}
+              style={styles.referralReasonInput}
+            />
+            {referralError ? <Text style={styles.referralError}>{referralError}</Text> : null}
             <View style={styles.confirmActions}>
-              <Pressable onPress={() => setConfirmReferralOpen(false)} style={styles.cancelBtn}>
+              <Pressable
+                onPress={() => setConfirmReferralOpen(false)}
+                disabled={referralSubmitting}
+                style={styles.cancelBtn}
+              >
                 <Text style={styles.cancelBtnText}>Cancel</Text>
               </Pressable>
-              <Pressable onPress={confirmDoctorReferral} style={styles.referBtn}>
-                <Text style={styles.referBtnText}>Refer</Text>
+              <Pressable
+                onPress={confirmDoctorReferral}
+                disabled={referralSubmitting || referralReason.trim().length < 5}
+                style={[styles.referBtn, (referralSubmitting || referralReason.trim().length < 5) && styles.referBtnDisabled]}
+              >
+                <Text style={styles.referBtnText}>{referralSubmitting ? 'Sending…' : 'Refer'}</Text>
               </Pressable>
             </View>
           </View>
@@ -2043,6 +2104,22 @@ const styles = StyleSheet.create({
     lineHeight: 20,
     marginTop: 8,
   },
+  referralReasonInput: {
+    minHeight: 72,
+    marginTop: 12,
+    padding: 10,
+    borderWidth: 1,
+    borderColor: 'rgba(90,96,112,0.22)',
+    borderRadius: 10,
+    color: colors.textPrimary,
+    textAlignVertical: 'top',
+    backgroundColor: '#fff',
+  },
+  referralError: {
+    color: '#B42318',
+    fontSize: 13,
+    marginTop: 8,
+  },
   confirmActions: {
     marginTop: 14,
     flexDirection: 'row',
@@ -2070,6 +2147,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: colors.accentPurple,
+  },
+  referBtnDisabled: {
+    opacity: 0.55,
   },
   referBtnText: {
     color: colors.white,

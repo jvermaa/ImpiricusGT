@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import {
+  ActivityIndicator,
   Keyboard,
   Platform,
   Pressable,
@@ -22,9 +23,11 @@ import {
 import {
   loadConsultDirectory,
   loadCurrentDoctor,
+  loadMyPatients,
   loadThreadMessages,
   sendConsultMessage,
 } from '../api/clinic';
+import { createFormalReferral } from '../api/referrals';
 import type {
   ChatMessage,
   CurrentDoctor,
@@ -32,7 +35,7 @@ import type {
   DoctorThread,
 } from '../types/chat';
 import { getPatientsRankedForDoctor, searchDoctorsByNameOrSpecialization } from '../data/doctorDiscovery';
-import { PATIENTS, type PatientProfile } from '../data/patientMock';
+import type { PatientProfile } from '../data/patientMock';
 import { colors } from '../theme/colors';
 
 export function ChatScreen() {
@@ -54,6 +57,11 @@ export function ChatScreen() {
   const [newChatOpen, setNewChatOpen] = useState(false);
   const [referralDoctorId, setReferralDoctorId] = useState<string | null>(null);
   const [referralPatientId, setReferralPatientId] = useState<string | null>(null);
+  const [referralPatients, setReferralPatients] = useState<PatientProfile[]>([]);
+  const [referralReason, setReferralReason] = useState('Please evaluate this patient.');
+  const [referralLoading, setReferralLoading] = useState(false);
+  const [referralSubmitting, setReferralSubmitting] = useState(false);
+  const [referralError, setReferralError] = useState<string | null>(null);
   const [referralSuccessMessage, setReferralSuccessMessage] = useState<string | null>(null);
 
   const activeDoctor = useMemo(
@@ -75,13 +83,13 @@ export function ChatScreen() {
     [directory, threads, referralDoctorId],
   );
   const selectedReferralPatient = useMemo(
-    () => PATIENTS.find((patient) => patient.id === referralPatientId) ?? null,
-    [referralPatientId],
+    () => referralPatients.find((patient) => patient.id === referralPatientId) ?? null,
+    [referralPatientId, referralPatients],
   );
   const patientsRankedForReferral = useMemo(
     () =>
-      referralDoctor ? getPatientsRankedForDoctor(referralDoctor, PATIENTS) : [],
-    [referralDoctor],
+      referralDoctor ? getPatientsRankedForDoctor(referralDoctor, referralPatients) : [],
+    [referralDoctor, referralPatients],
   );
 
   useEffect(() => {
@@ -196,23 +204,53 @@ export function ChatScreen() {
     setFilterOpen(false);
   };
 
-  const openReferralPicker = (doctorId: string) => {
+  const openReferralPicker = async (doctorId: string) => {
     setReferralDoctorId(doctorId);
     setReferralPatientId(null);
+    setReferralPatients([]);
+    setReferralReason('Please evaluate this patient.');
+    setReferralError(null);
     setReferralSuccessMessage(null);
+    setReferralLoading(true);
+    try {
+      const patients = await loadMyPatients();
+      setReferralPatients(patients);
+      if (patients.length === 0) {
+        setReferralError('No patients are available on your API-backed panel.');
+      }
+    } catch (error) {
+      setReferralError(error instanceof Error ? error.message : 'Could not load patients from the API.');
+    } finally {
+      setReferralLoading(false);
+    }
   };
 
   const closeReferralFlow = () => {
     setReferralDoctorId(null);
     setReferralPatientId(null);
+    setReferralError(null);
   };
 
-  const confirmReferral = () => {
-    if (!referralDoctor || !selectedReferralPatient) return;
-    setReferralSuccessMessage(
-      `Referral sent to ${selectedReferralPatient.name}. Email sent with ${referralDoctor.name}'s details and medical history shared with the doctor.`,
-    );
-    closeReferralFlow();
+  const confirmReferral = async () => {
+    if (!referralDoctor || !selectedReferralPatient || referralReason.trim().length < 5) return;
+    setReferralSubmitting(true);
+    setReferralError(null);
+    try {
+      const result = await createFormalReferral({
+        toDoctorKey: referralDoctor.id,
+        patientKey: selectedReferralPatient.id,
+        reason: referralReason.trim(),
+        urgency: 'routine',
+      });
+      setReferralSuccessMessage(
+        `Referral ${result.referral.referral_key} sent to ${referralDoctor.name}. Patient handoff is shared after the recipient accepts.`,
+      );
+      closeReferralFlow();
+    } catch (error) {
+      setReferralError(error instanceof Error ? error.message : 'Could not create the referral.');
+    } finally {
+      setReferralSubmitting(false);
+    }
   };
 
   return (
@@ -326,6 +364,12 @@ export function ChatScreen() {
         ) : null}
       </View>
 
+      {referralSuccessMessage && !showingProfile ? (
+        <View style={styles.successBanner}>
+          <Text style={styles.successBannerText}>{referralSuccessMessage}</Text>
+        </View>
+      ) : null}
+
       {newChatOpen ? (
         <NewChatSheet
           directory={directory}
@@ -339,6 +383,8 @@ export function ChatScreen() {
         <PatientPickerSheet
           doctor={referralDoctor}
           rankedPatients={patientsRankedForReferral}
+          loading={referralLoading}
+          error={referralError}
           onClose={closeReferralFlow}
           onSelectPatient={(patientId) => setReferralPatientId(patientId)}
         />
@@ -348,6 +394,10 @@ export function ChatScreen() {
         <ReferralConfirmSheet
           doctor={referralDoctor}
           patient={selectedReferralPatient}
+          reason={referralReason}
+          submitting={referralSubmitting}
+          error={referralError}
+          onReasonChange={setReferralReason}
           onClose={() => setReferralPatientId(null)}
           onConfirm={confirmReferral}
         />
@@ -652,11 +702,15 @@ function DoctorProfileView({
 function PatientPickerSheet({
   doctor,
   rankedPatients,
+  loading,
+  error,
   onClose,
   onSelectPatient,
 }: {
   doctor: DoctorProfile;
   rankedPatients: Array<{ patient: PatientProfile; relevant: boolean; score: number }>;
+  loading: boolean;
+  error: string | null;
   onClose: () => void;
   onSelectPatient: (patientId: string) => void;
 }) {
@@ -676,8 +730,10 @@ function PatientPickerSheet({
           </Pressable>
         </View>
         <Text style={styles.sheetSubtext}>
-          Select a patient. Relevant matches are highlighted with a red border.
+          Select a patient from your live clinic panel. Relevant matches are highlighted with a red border.
         </Text>
+        {loading ? <ActivityIndicator color={colors.accentPurple} /> : null}
+        {error ? <Text style={styles.referralError}>{error}</Text> : null}
         <ScrollView
           style={styles.patientPickerList}
           contentContainerStyle={styles.patientPickerContent}
@@ -700,6 +756,9 @@ function PatientPickerSheet({
               {relevant ? <Text style={styles.relevantBadge}>Relevant</Text> : null}
             </Pressable>
           ))}
+          {!loading && !error && rankedPatients.length === 0 ? (
+            <Text style={styles.sheetEmpty}>No API-backed patients were returned.</Text>
+          ) : null}
         </ScrollView>
       </View>
     </View>
@@ -709,11 +768,19 @@ function PatientPickerSheet({
 function ReferralConfirmSheet({
   doctor,
   patient,
+  reason,
+  submitting,
+  error,
+  onReasonChange,
   onClose,
   onConfirm,
 }: {
   doctor: DoctorProfile;
   patient: PatientProfile;
+  reason: string;
+  submitting: boolean;
+  error: string | null;
+  onReasonChange: (reason: string) => void;
   onClose: () => void;
   onConfirm: () => void;
 }) {
@@ -723,15 +790,29 @@ function ReferralConfirmSheet({
       <View style={styles.confirmCard}>
         <Text style={styles.confirmTitle}>Confirm Referral</Text>
         <Text style={styles.confirmText}>
-          Refer {patient.name} to {doctor.name}? This sends the referral email to the patient and
-          immediately shares medical history with the doctor.
+          Create a formal referral for {patient.name} to {doctor.name}. The receiving doctor can view
+          the clinical handoff after accepting.
         </Text>
+        <TextInput
+          accessibilityLabel="Referral reason"
+          value={reason}
+          onChangeText={onReasonChange}
+          placeholder="Reason for referral"
+          multiline
+          maxLength={1000}
+          style={styles.referralReasonInput}
+        />
+        {error ? <Text style={styles.referralError}>{error}</Text> : null}
         <View style={styles.confirmActions}>
-          <Pressable onPress={onClose} style={styles.cancelBtn}>
+          <Pressable onPress={onClose} disabled={submitting} style={styles.cancelBtn}>
             <Text style={styles.cancelBtnText}>Cancel</Text>
           </Pressable>
-          <Pressable onPress={onConfirm} style={styles.referBtn}>
-            <Text style={styles.referBtnText}>Refer</Text>
+          <Pressable
+            onPress={onConfirm}
+            disabled={submitting || reason.trim().length < 5}
+            style={[styles.referBtn, (submitting || reason.trim().length < 5) && styles.referBtnDisabled]}
+          >
+            {submitting ? <ActivityIndicator color={colors.white} /> : <Text style={styles.referBtnText}>Refer</Text>}
           </Pressable>
         </View>
       </View>
@@ -1259,6 +1340,22 @@ const styles = StyleSheet.create({
     lineHeight: 20,
     marginTop: 8,
   },
+  referralReasonInput: {
+    minHeight: 78,
+    marginTop: 12,
+    padding: 10,
+    borderWidth: 1,
+    borderColor: 'rgba(90,96,112,0.22)',
+    borderRadius: 10,
+    color: colors.textPrimary,
+    textAlignVertical: 'top',
+    backgroundColor: '#fff',
+  },
+  referralError: {
+    color: '#B42318',
+    fontSize: 13,
+    marginVertical: 8,
+  },
   confirmActions: {
     marginTop: 14,
     flexDirection: 'row',
@@ -1286,6 +1383,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: colors.accentPurple,
+  },
+  referBtnDisabled: {
+    opacity: 0.55,
   },
   referBtnText: {
     color: colors.white,

@@ -17,9 +17,9 @@ export type PastVisit = {
   symptoms: SymptomEntry[];
   currentMedications: string;
   alcoholUse: 'None' | 'Social' | 'Daily' | 'Not recorded';
-  smokingStatus: 'Never smoker' | 'Former smoker' | 'Current smoker';
+  smokingStatus: 'Never smoker' | 'Former smoker' | 'Current smoker' | 'Unknown';
   immuneStatus: 'Immunocompromised' | 'Immunocompetent' | 'Not recorded';
-  pregnancyStatus: 'Pregnant' | 'Not Pregnant' | 'N/A';
+  pregnancyStatus: 'Pregnant' | 'Not Pregnant' | 'N/A' | 'Not recorded';
   familyMedicalHistory: string;
   labResults: string;
 };
@@ -28,7 +28,7 @@ export type PatientProfile = {
   id: string;
   name: string;
   age: number;
-  sex: 'Male' | 'Female';
+  sex: 'Male' | 'Female' | 'Not recorded';
   ageGroup: string;
   diagnosis: string;
   prescription: string;
@@ -36,9 +36,9 @@ export type PatientProfile = {
   familyMedicalHistory: string;
   currentMedications: string;
   alcoholUse: 'None' | 'Social' | 'Daily' | 'Not recorded';
-  smokingStatus: 'Never smoker' | 'Former smoker' | 'Current smoker';
+  smokingStatus: 'Never smoker' | 'Former smoker' | 'Current smoker' | 'Unknown';
   immuneStatus: 'Immunocompromised' | 'Immunocompetent' | 'Not recorded';
-  pregnancyStatus: 'Pregnant' | 'Not Pregnant' | 'N/A';
+  pregnancyStatus: 'Pregnant' | 'Not Pregnant' | 'N/A' | 'Not recorded';
   labResults: string;
   symptoms: SymptomEntry[];
   pastVisits: PastVisit[];
