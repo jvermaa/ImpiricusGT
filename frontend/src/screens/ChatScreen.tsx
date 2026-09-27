@@ -20,12 +20,13 @@ import {
   PlusIcon,
   SearchIcon,
 } from '../components/NavIcons';
-import type { ChatMessage, DoctorProfile, DoctorThread } from '../types/chat';
+import type { ChatMessage, CurrentDoctor, DoctorProfile, DoctorThread } from '../types/chat';
 import { DEMO_CURRENT_DOCTOR, DEMO_THREADS, DOCTOR_DIRECTORY, SPECIALTIES } from '../data/chatMock';
-import { getPatientsRankedForDoctor, searchDoctorsByNameOrSpecialization } from '../data/doctorDiscovery';
-import { PATIENTS, type PatientProfile } from '../data/patientMock';
+import { searchDoctorsByNameOrSpecialization } from '../data/doctorDiscovery';
 import type { DirectoryFilter } from '../api/directory';
+import { loadConsultDirectory, loadCurrentDoctor } from '../api/clinic';
 import { colors } from '../theme/colors';
+import { ReferralWorkspace } from './ReferralWorkspace';
 
 type ChatLaunch = {
   peerKey: string | null;
@@ -49,17 +50,17 @@ export function ChatScreen({
   const [activeDoctorId, setActiveDoctorId] = useState<string | null>(null);
   const [profileDoctorId, setProfileDoctorId] = useState<string | null>(null);
   const [threads, setThreads] = useState<DoctorThread[]>(DEMO_THREADS);
-  const [directory] = useState<DoctorProfile[]>(DOCTOR_DIRECTORY);
-  const [specialties] = useState<string[]>(SPECIALTIES);
-  const [currentDoctor] = useState(DEMO_CURRENT_DOCTOR);
+  const [directory, setDirectory] = useState<DoctorProfile[]>(DOCTOR_DIRECTORY);
+  const [specialties, setSpecialties] = useState<string[]>(SPECIALTIES);
+  const [currentDoctor, setCurrentDoctor] = useState<CurrentDoctor>(DEMO_CURRENT_DOCTOR);
   const [specialtyFilter, setSpecialtyFilter] = useState('All');
   const [filterOpen, setFilterOpen] = useState(false);
   const [newChatOpen, setNewChatOpen] = useState(false);
   const [referralDoctorId, setReferralDoctorId] = useState<string | null>(null);
-  const [referralPatientId, setReferralPatientId] = useState<string | null>(null);
   const [referralSuccessMessage, setReferralSuccessMessage] = useState<string | null>(null);
-  const [directoryReady] = useState(true);
+  const [directoryReady, setDirectoryReady] = useState(false);
   const [threadReadOnly, setThreadReadOnly] = useState<string | undefined>();
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   const activeDoctor = useMemo(
     () => threads.find((t) => t.id === activeDoctorId) ?? null,
@@ -79,15 +80,28 @@ export function ChatScreen({
       null,
     [directory, threads, referralDoctorId],
   );
-  const selectedReferralPatient = useMemo(
-    () => PATIENTS.find((patient) => patient.id === referralPatientId) ?? null,
-    [referralPatientId],
-  );
-  const patientsRankedForReferral = useMemo(
-    () =>
-      referralDoctor ? getPatientsRankedForDoctor(referralDoctor, PATIENTS) : [],
-    [referralDoctor],
-  );
+
+  useEffect(() => {
+    let cancelled = false;
+    Promise.all([loadCurrentDoctor(), loadConsultDirectory()])
+      .then(([doctor, consultData]) => {
+        if (cancelled) return;
+        setCurrentDoctor(doctor);
+        setDirectory(consultData.directory);
+        setThreads(consultData.threads.length > 0 ? consultData.threads : DEMO_THREADS);
+        setSpecialties(consultData.specialties.length > 1 ? consultData.specialties : SPECIALTIES);
+        setLoadError(null);
+        setDirectoryReady(true);
+      })
+      .catch(() => {
+        if (cancelled) return;
+        setLoadError('Could not load consult directory — showing demo threads.');
+        setDirectoryReady(true);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const showingProfile = !!profileDoctor && !activeDoctor;
   const showingList = !activeDoctor && !showingProfile;
@@ -179,22 +193,20 @@ export function ChatScreen({
   };
 
   const openReferralPicker = (doctorId: string) => {
+    if (!/^D\d+/i.test(doctorId)) {
+      setLoadError('Formal referral needs an API doctor. Wait for the directory to load, then try again.');
+      return;
+    }
+    if (!/^D\d+/i.test(currentDoctor.id)) {
+      setLoadError('Could not load your doctor profile for referrals. Is the API running?');
+      return;
+    }
     setReferralDoctorId(doctorId);
-    setReferralPatientId(null);
     setReferralSuccessMessage(null);
   };
 
   const closeReferralFlow = () => {
     setReferralDoctorId(null);
-    setReferralPatientId(null);
-  };
-
-  const confirmReferral = () => {
-    if (!referralDoctor || !selectedReferralPatient) return;
-    setReferralSuccessMessage(
-      `Referral sent to ${selectedReferralPatient.name}. Email sent with ${referralDoctor.name}'s details and medical history shared with the doctor.`,
-    );
-    closeReferralFlow();
   };
 
   return (
@@ -282,7 +294,7 @@ export function ChatScreen({
           <DoctorList
             threads={threads}
             doctorName={currentDoctor.name}
-            statusMessage={null}
+            statusMessage={loadError}
             specialtyFilter={specialtyFilter}
             onSelect={(id) => {
               const doctor = threads.find((entry) => entry.id === id);
@@ -296,7 +308,7 @@ export function ChatScreen({
         ) : showingProfile && profileDoctor ? (
           <View style={styles.flex}>
             {referralSuccessMessage ? (
-              <View style={styles.successBanner}>
+              <View style={[styles.successBanner, styles.successBannerClear]}>
                 <Text style={styles.successBannerText}>{referralSuccessMessage}</Text>
               </View>
             ) : null}
@@ -339,20 +351,19 @@ export function ChatScreen({
       ) : null}
 
       {referralDoctor ? (
-        <PatientPickerSheet
-          doctor={referralDoctor}
-          rankedPatients={patientsRankedForReferral}
+        <ReferralWorkspace
+          currentDoctor={currentDoctor}
+          provider={referralDoctor}
           onClose={closeReferralFlow}
-          onSelectPatient={(patientId) => setReferralPatientId(patientId)}
-        />
-      ) : null}
-
-      {referralDoctor && selectedReferralPatient ? (
-        <ReferralConfirmSheet
-          doctor={referralDoctor}
-          patient={selectedReferralPatient}
-          onClose={() => setReferralPatientId(null)}
-          onConfirm={confirmReferral}
+          onMessageDoctor={(doctor) => {
+            closeReferralFlow();
+            startOrOpenChat(doctor);
+          }}
+          onSaved={() => {
+            setReferralSuccessMessage(
+              `Referral sent to ${referralDoctor.name}. Patient handoff packet shared with the receiving doctor.`,
+            );
+          }}
         />
       ) : null}
     </View>
@@ -581,96 +592,6 @@ function NewChatSheet({
   );
 }
 
-function PatientPickerSheet({
-  doctor,
-  rankedPatients,
-  onClose,
-  onSelectPatient,
-}: {
-  doctor: DoctorProfile;
-  rankedPatients: Array<{ patient: PatientProfile; relevant: boolean; score: number }>;
-  onClose: () => void;
-  onSelectPatient: (patientId: string) => void;
-}) {
-  return (
-    <View style={styles.sheetRoot}>
-      <Pressable style={styles.sheetOverlay} onPress={onClose} />
-      <View style={styles.sheetCard}>
-        <View style={styles.sheetHeader}>
-          <Text style={styles.sheetTitle}>Refer to {doctor.name}</Text>
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel="Close referral sheet"
-            onPress={onClose}
-            style={styles.sheetClose}
-          >
-            <CloseIcon color={colors.textMuted} size={18} />
-          </Pressable>
-        </View>
-        <Text style={styles.sheetSubtext}>
-          Select a patient. Relevant matches are highlighted with a red border.
-        </Text>
-        <ScrollView
-          style={styles.patientPickerList}
-          contentContainerStyle={styles.patientPickerContent}
-          showsVerticalScrollIndicator={false}
-        >
-          {rankedPatients.map(({ patient, relevant }) => (
-            <Pressable
-              key={patient.id}
-              accessibilityRole="button"
-              accessibilityLabel={`Select ${patient.name} for referral`}
-              onPress={() => onSelectPatient(patient.id)}
-              style={[styles.patientSelectRow, relevant && styles.patientSelectRowRelevant]}
-            >
-              <View style={styles.patientSelectMeta}>
-                <Text style={styles.patientSelectName}>
-                  {patient.name} · Age {patient.age}
-                </Text>
-                <Text style={styles.patientSelectDx}>Dx: {patient.diagnosis}</Text>
-              </View>
-              {relevant ? <Text style={styles.relevantBadge}>Relevant</Text> : null}
-            </Pressable>
-          ))}
-        </ScrollView>
-      </View>
-    </View>
-  );
-}
-
-function ReferralConfirmSheet({
-  doctor,
-  patient,
-  onClose,
-  onConfirm,
-}: {
-  doctor: DoctorProfile;
-  patient: PatientProfile;
-  onClose: () => void;
-  onConfirm: () => void;
-}) {
-  return (
-    <View style={styles.confirmRoot} pointerEvents="box-none">
-      <Pressable style={styles.confirmOverlay} onPress={onClose} />
-      <View style={styles.confirmCard}>
-        <Text style={styles.confirmTitle}>Confirm Referral</Text>
-        <Text style={styles.confirmText}>
-          Refer {patient.name} to {doctor.name}? This sends the referral email to the patient and
-          immediately shares medical history with the doctor.
-        </Text>
-        <View style={styles.confirmActions}>
-          <Pressable onPress={onClose} style={styles.cancelBtn}>
-            <Text style={styles.cancelBtnText}>Cancel</Text>
-          </Pressable>
-          <Pressable onPress={onConfirm} style={styles.referBtn}>
-            <Text style={styles.referBtnText}>Refer</Text>
-          </Pressable>
-        </View>
-      </View>
-    </View>
-  );
-}
-
 const styles = StyleSheet.create({
   root: {
     flex: 1,
@@ -760,6 +681,12 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     paddingHorizontal: 12,
     paddingVertical: 10,
+    marginHorizontal: 16,
+    marginTop: 12,
+  },
+  successBannerClear: {
+    marginBottom: 12,
+    zIndex: 5,
   },
   successBannerText: {
     color: colors.white,

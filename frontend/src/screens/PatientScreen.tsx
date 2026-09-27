@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
+  loadCurrentDoctor,
   loadMyPatients,
   loadConsultDirectory,
   loadRankedDoctors,
@@ -30,7 +31,7 @@ import { ChatThread } from '../components/ChatThread';
 import { ChevronLeftIcon, CloseIcon, NotificationIcon, SearchIcon } from '../components/NavIcons';
 import type { AppNotification } from '../data/notificationsMock';
 import { DOCTOR_DIRECTORY, type DoctorProfile } from '../data/chatMock';
-import type { ChatMessage, DoctorThread } from '../types/chat';
+import type { ChatMessage, CurrentDoctor, DoctorThread } from '../types/chat';
 import {
   formatDistance,
   inferSpecializationsFromSymptoms,
@@ -45,6 +46,7 @@ import {
   type SymptomOnset,
 } from '../data/patientMock';
 import { colors } from '../theme/colors';
+import { ReferralWorkspace } from './ReferralWorkspace';
 
 type RouteState =
   | { name: 'list' }
@@ -144,6 +146,8 @@ export function PatientScreen({
   const [emailOpen, setEmailOpen] = useState(false);
   const [emailBusy, setEmailBusy] = useState(false);
   const [apiDoctors, setApiDoctors] = useState<DoctorProfile[]>([]);
+  const [currentDoctor, setCurrentDoctor] = useState<CurrentDoctor | null>(null);
+  const [formalReferralPatient, setFormalReferralPatient] = useState<PatientProfile | null>(null);
 
   const [visitForm, setVisitForm] = useState<VisitForm | null>(null);
   const [addSymptomOpen, setAddSymptomOpen] = useState(false);
@@ -159,6 +163,13 @@ export function PatientScreen({
       })
       .catch(() => {
         if (!cancelled) setApiDoctors([]);
+      });
+    loadCurrentDoctor()
+      .then((doctor) => {
+        if (!cancelled) setCurrentDoctor(doctor);
+      })
+      .catch(() => {
+        /* Ask/Refer formal path stays gated on currentDoctor. */
       });
     return () => {
       cancelled = true;
@@ -360,15 +371,21 @@ export function PatientScreen({
   };
 
   const openHcpReferral = (patientId: string) => {
-    setHcpSearchQuery('');
-    setRankedHcps(null);
-    loadRankedDoctors(patientId)
-      .then(setRankedHcps)
-      .catch(() => setRankedHcps([]));
+    const patient = patients.find((entry) => entry.id === patientId) ?? null;
     setInfoMessage(null);
     setReferralSuccessMessage(null);
     setConfirmReferralOpen(false);
-    setRoute({ name: 'hcpList', patientId });
+    setSelectedPatientId(null);
+
+    if (!patient || !/^P\d+/i.test(patient.id)) {
+      setInfoMessage('Formal referral needs an API-backed patient on your panel.');
+      return;
+    }
+    if (!currentDoctor) {
+      setInfoMessage('Could not load your doctor profile for referrals. Is the API running?');
+      return;
+    }
+    setFormalReferralPatient(patient);
   };
 
   const openDoctorProfile = (patientId: string, doctorId: string) => {
@@ -1008,7 +1025,7 @@ export function PatientScreen({
         ) : route.name === 'doctorProfile' && routedPatient && routedDoctorId ? (
           <View style={styles.flex}>
             {referralSuccessMessage ? (
-              <View style={styles.infoBanner}>
+              <View style={[styles.infoBanner, styles.infoBannerClear]}>
                 <Text style={styles.infoBannerText}>{referralSuccessMessage}</Text>
               </View>
             ) : null}
@@ -1294,6 +1311,27 @@ export function PatientScreen({
             </View>
           </View>
         </View>
+      ) : null}
+
+      {formalReferralPatient && currentDoctor ? (
+        <ReferralWorkspace
+          currentDoctor={currentDoctor}
+          initialPatient={formalReferralPatient}
+          onClose={() => setFormalReferralPatient(null)}
+          onMessageDoctor={(doctor) => {
+            const patientId = formalReferralPatient.id;
+            setFormalReferralPatient(null);
+            openDoctorChat(patientId, doctor.id);
+          }}
+          onSaved={() => {
+            setReferralSuccessMessage(
+              `Referral sent for ${formalReferralPatient.name}. Handoff packet shared after the receiving clinician accepts.`,
+            );
+            setInfoMessage(
+              `Referral sent for ${formalReferralPatient.name}. Handoff packet shared after the receiving clinician accepts.`,
+            );
+          }}
+        />
       ) : null}
 
       {addSymptomOpen ? (
@@ -1598,6 +1636,10 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     paddingHorizontal: 12,
     paddingVertical: 10,
+  },
+  infoBannerClear: {
+    marginBottom: 12,
+    zIndex: 5,
   },
   infoBannerText: {
     color: colors.white,
