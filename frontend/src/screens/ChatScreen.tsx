@@ -831,6 +831,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    backgroundColor: 'rgba(65, 77, 154, 0.96)',
     paddingHorizontal: 12,
     paddingBottom: 12,
     borderBottomWidth: StyleSheet.hairlineWidth,
@@ -1011,7 +1012,7 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   listHint: {
-    color: 'rgba(255,255,255,0.7)',
+    color: 'rgba(26,26,46,0.68)',
     fontSize: 13,
     marginBottom: 12,
     paddingHorizontal: 2,

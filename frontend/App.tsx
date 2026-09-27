@@ -41,8 +41,8 @@ function AppShell() {
   };
 
   return (
-    <DottedGradientBackground>
-      <StatusBar style="light" />
+    <DottedGradientBackground variant={activeTab}>
+      <StatusBar style={activeTab === 'profile' ? 'dark' : 'light'} />
       <View style={[styles.shell, isWide && styles.shellCentered]}>
         <View style={[styles.phoneFrame, isWide && styles.phoneFrameWide]}>
           <View style={[styles.content, keyboardVisible && styles.contentWithKeyboard]}>
