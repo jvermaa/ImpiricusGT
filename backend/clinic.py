@@ -461,7 +461,7 @@ def list_consults(doctor: str = Query(...), db: Session = Depends(get_db)) -> li
             else thread.doctor_low_key
         )
         peer = db.get(Doctor, peer_key)
-        if peer is None:
+        if peer is None or not peer.accepts_peer_consults:
             continue
         message = db.scalar(
             select(Message)
@@ -514,11 +514,6 @@ def list_messages(
 def create_message(body: ConsultMessageCreate, db: Session = Depends(get_db)) -> dict:
     sender = _require_doctor(db, body.doctor_key)
     peer = _require_doctor(db, body.peer_doctor_key)
-    if not sender.accepts_peer_consults or not peer.accepts_peer_consults:
-        raise HTTPException(
-            status_code=403,
-            detail="Both doctors must accept peer consults before a message can be stored.",
-        )
     low, high = _ordered_pair(sender.doctor_key, peer.doctor_key)
     thread = db.scalar(
         select(ConsultThread).where(
@@ -526,6 +521,15 @@ def create_message(body: ConsultMessageCreate, db: Session = Depends(get_db)) ->
             ConsultThread.doctor_high_key == high,
         )
     )
+    if not peer.accepts_peer_consults or not sender.accepts_peer_consults:
+        if thread is None:
+            if not peer.accepts_peer_consults:
+                reason = "This doctor is not accepting peer consults."
+            else:
+                reason = "Turn on Accept peer consults before messaging another doctor."
+        else:
+            reason = "This consult is read-only because peer consults are turned off."
+        raise HTTPException(status_code=403, detail=reason)
     if thread is None:
         thread = ConsultThread(
             thread_key=next_key(db, ConsultThread.thread_key, "T"),

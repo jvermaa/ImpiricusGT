@@ -222,6 +222,8 @@ def referral_directory(
 
     results = []
     for provider in rows:
+        if not provider.accepts_peer_consults:
+            continue
         specialty_terms = SPECIALTY_TERMS.get(provider.specialty, set())
         focus_tokens = _tokens(f"{provider.specialty} {provider.subspecialty_focus}")
         matched = sorted(case_tokens & (specialty_terms | focus_tokens))

@@ -250,3 +250,70 @@ def test_opting_out_of_case_exchange_hides_matches_without_deleting_them(client:
     assert on.status_code == 200
     restored = client.get("/patients/P001/similar", params={"doctor": "D011"})
     assert [row["patient_key"] for row in restored.json()] == ["P002"]
+
+
+def test_consults_and_referral_suggestions_follow_the_accepts_flag(client: TestClient):
+    opened = client.post("/consults/messages", json={
+        "doctor_key": "D011",
+        "peer_doctor_key": "D012",
+        "text": "Starting a consult thread.",
+    })
+    assert opened.status_code == 201
+
+    listed = client.get("/consults", params={"doctor": "D011"})
+    assert any(row["doctor_key"] == "D012" for row in listed.json())
+    suggested = client.get("/referrals/directory", params={"doctor": "D011", "patient_key": "P001"})
+    assert any(row["provider"]["doctor_key"] == "D012" for row in suggested.json()["results"])
+
+    off = client.patch(
+        "/doctors/D012/settings",
+        params={"viewer": "D012"},
+        json={"accepts_peer_consults": False},
+    )
+    assert off.status_code == 200
+    assert off.json()["accepts_peer_consults"] is False
+
+    hidden = client.get("/consults", params={"doctor": "D011"})
+    assert all(row["doctor_key"] != "D012" for row in hidden.json())
+    history = client.get("/consults/D012/messages", params={"doctor": "D011"})
+    assert history.status_code == 200
+    assert history.json()[0]["text"] == "Starting a consult thread."
+    blocked = client.post("/consults/messages", json={
+        "doctor_key": "D011",
+        "peer_doctor_key": "D012",
+        "text": "This should stay read-only.",
+    })
+    assert blocked.status_code == 403
+    suggestions = client.get("/referrals/directory", params={"doctor": "D011", "patient_key": "P001"})
+    assert all(row["provider"]["doctor_key"] != "D012" for row in suggestions.json()["results"])
+
+    fresh = client.post("/consults/messages", json={
+        "doctor_key": "D011",
+        "peer_doctor_key": "D013",
+        "text": "Should not open.",
+    })
+    client.patch(
+        "/doctors/D013/settings",
+        params={"viewer": "D013"},
+        json={"accepts_peer_consults": False},
+    )
+    # The thread above was created while D013 still accepted consults. Close it, then prove a new pair is rejected.
+    denied = client.post("/consults/messages", json={
+        "doctor_key": "D012",
+        "peer_doctor_key": "D013",
+        "text": "New thread while consults are off.",
+    })
+    assert denied.status_code == 403
+    assert "not accepting peer consults" in denied.json()["detail"]
+
+    on = client.patch(
+        "/doctors/D012/settings",
+        params={"viewer": "D012"},
+        json={"accepts_peer_consults": True},
+    )
+    assert on.status_code == 200
+    restored = client.get("/consults", params={"doctor": "D011"})
+    assert any(row["doctor_key"] == "D012" for row in restored.json())
+    back = client.get("/referrals/directory", params={"doctor": "D011", "patient_key": "P001"})
+    assert any(row["provider"]["doctor_key"] == "D012" for row in back.json()["results"])
+    assert fresh.status_code == 201
