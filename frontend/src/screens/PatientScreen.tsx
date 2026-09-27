@@ -1641,7 +1641,7 @@ const styles = StyleSheet.create({
   },
   patientCardMatch: {
     borderColor: colors.matchRed,
-    backgroundColor: colors.matchRedSoft,
+    backgroundColor: colors.cardBg,
   },
   patientCardHead: {
     flexDirection: 'row',
