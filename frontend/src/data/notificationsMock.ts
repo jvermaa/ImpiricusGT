@@ -153,6 +153,8 @@ const samplesBase = {
   preview:
     'Free Cardivex 10mg samples ready to ship to your office. Tap to request.',
   body: 'Free Cardivex 10mg samples are ready to ship to your office. Choose a quantity and confirm shipping details to complete your request.',
+  findSuitablePatients: true,
+  opensChat: false,
   actions: [
     { id: 'req-2', label: 'Request 2 boxes', style: 'primary' as const },
     { id: 'req-4', label: 'Request 4 boxes', style: 'primary' as const },
@@ -172,13 +174,13 @@ const samplesBase = {
       senderId: 'desk' as const,
       senderName: 'Concierge',
       senderRole: 'Sample Desk',
-      text: 'Hi Dr. Hale — Cardivex 10mg samples are allocated for your office this week. Tap an option below to request, or reply with questions.',
+      text: 'Hi Dr. Hale — Cardivex 10mg samples are allocated for your office this week. Use Find suitable patients to review matches in your panel.',
       timestamp: '10:42 AM',
     },
   ],
 };
 
-export const NOTIFICATIONS: AppNotification[] = [
+const NOTIFICATIONS_RAW: AppNotification[] = [
   {
     ...samplesBase,
     id: 'n-samples',
@@ -487,3 +489,10 @@ export const NOTIFICATIONS: AppNotification[] = [
     ],
   },
 ];
+
+/** Every inbox card is cohort-style: Find suitable patients, never desk chat. */
+export const NOTIFICATIONS: AppNotification[] = NOTIFICATIONS_RAW.map((n) => ({
+  ...n,
+  findSuitablePatients: true,
+  opensChat: false,
+}));

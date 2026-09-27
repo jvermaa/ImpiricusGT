@@ -33,6 +33,8 @@ import { colors } from '../theme/colors';
 type Props = {
   currentDoctor: CurrentDoctor;
   provider?: DoctorProfile | null;
+  /** Patient already chosen (e.g. Patient tab → Ask/Refer) — skip patient picker. */
+  initialPatient?: PatientProfile | null;
   referralKey?: string | null;
   onClose: () => void;
   onMessageDoctor: (doctor: DoctorProfile) => void;
@@ -43,18 +45,36 @@ type Page = 'profile' | 'patients' | 'providers' | 'confirm' | 'thread';
 
 const URGENCIES: ReferralUrgency[] = ['routine', 'soon', 'urgent'];
 
+function initialPage(
+  referralKey: string | null | undefined,
+  providerLocked: boolean,
+  patientLocked: boolean,
+): Page {
+  if (referralKey) return 'thread';
+  if (providerLocked) return 'patients';
+  if (patientLocked) return 'providers';
+  return 'profile';
+}
+
 export function ReferralWorkspace({
   currentDoctor,
   provider = null,
+  initialPatient = null,
   referralKey = null,
   onClose,
   onMessageDoctor,
   onSaved,
 }: Props) {
   const insets = useSafeAreaInsets();
-  const [page, setPage] = useState<Page>(referralKey ? 'thread' : 'profile');
+  /** Doctor already chosen (e.g. Chat → Refer) — skip the ranked directory picker. */
+  const providerLocked = Boolean(provider) && !referralKey;
+  /** Patient already chosen (e.g. Patient → Ask/Refer) — skip patient picker. */
+  const patientLocked = Boolean(initialPatient) && !providerLocked && !referralKey;
+  const [page, setPage] = useState<Page>(
+    initialPage(referralKey, providerLocked, patientLocked),
+  );
   const [patients, setPatients] = useState<PatientProfile[]>([]);
-  const [patient, setPatient] = useState<PatientProfile | null>(null);
+  const [patient, setPatient] = useState<PatientProfile | null>(initialPatient);
   const [providerOptions, setProviderOptions] = useState<ReferralDirectoryEntry[]>([]);
   const [selectedProvider, setSelectedProvider] = useState<DoctorProfile | null>(provider);
   const [providerReasons, setProviderReasons] = useState<string[]>([]);
@@ -106,6 +126,59 @@ export function ReferralWorkspace({
       setBusy(false);
     }
   };
+
+  useEffect(() => {
+    if (!providerLocked) return;
+    let cancelled = false;
+    setError(null);
+    setBusy(true);
+    loadMyPatients()
+      .then((rows) => {
+        if (cancelled) return;
+        const realPatients = rows.filter((row) => /^P\d+/i.test(row.id));
+        setPatients(realPatients);
+        if (realPatients.length === 0) {
+          setError('No API-backed patients are available for referral.');
+        }
+      })
+      .catch((reasonValue: unknown) => {
+        if (!cancelled) setError(errorText(reasonValue));
+      })
+      .finally(() => {
+        if (!cancelled) setBusy(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [providerLocked]);
+
+  useEffect(() => {
+    if (!patientLocked || !initialPatient) return;
+    let cancelled = false;
+    setError(null);
+    setBusy(true);
+    setPatient(initialPatient);
+    loadReferralDirectory(initialPatient.id)
+      .then((entries) => {
+        if (cancelled) return;
+        setProviderOptions(entries);
+        if (entries.length === 0) {
+          setError('No other doctors are available in the directory.');
+          return;
+        }
+        setSelectedProvider(entries[0].provider);
+        setProviderReasons(entries[0].reasons);
+      })
+      .catch((reasonValue: unknown) => {
+        if (!cancelled) setError(errorText(reasonValue));
+      })
+      .finally(() => {
+        if (!cancelled) setBusy(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [patientLocked, initialPatient]);
 
   const filteredPatients = useMemo(() => {
     const needle = search.trim().toLowerCase();
@@ -193,11 +266,19 @@ export function ReferralWorkspace({
     } else if (page === 'thread') {
       onClose();
     } else if (page === 'confirm') {
-      setPage('providers');
+      setPage(providerLocked ? 'patients' : 'providers');
     } else if (page === 'providers') {
-      setPage('patients');
+      if (patientLocked) {
+        onClose();
+      } else {
+        setPage('patients');
+      }
     } else if (page === 'patients') {
-      setPage('profile');
+      if (providerLocked) {
+        onClose();
+      } else {
+        setPage('profile');
+      }
     }
   };
 
@@ -276,19 +357,25 @@ export function ReferralWorkspace({
                   setUrgency('routine');
                   setBusy(true);
                   setError(null);
+                  const lockedDoctor = providerLocked ? activeProvider : null;
                   loadReferralDirectory(row.id)
                     .then((entries) => {
                       setProviderOptions(entries);
+                      if (lockedDoctor) {
+                        const match = entries.find((entry) => entry.provider.id === lockedDoctor.id);
+                        setSelectedProvider(match?.provider ?? lockedDoctor);
+                        setProviderReasons(match?.reasons ?? []);
+                        setPage('confirm');
+                        return;
+                      }
                       const chosen = entries.find((entry) => entry.provider.id === activeProvider?.id)
                         ?? entries[0];
                       setSelectedProvider(chosen?.provider ?? null);
                       setProviderReasons(chosen?.reasons ?? []);
+                      setPage('providers');
                     })
                     .catch((reasonValue: unknown) => setError(errorText(reasonValue)))
-                    .finally(() => {
-                      setBusy(false);
-                      setPage('providers');
-                    });
+                    .finally(() => setBusy(false));
                 }}
                 style={styles.patientCard}
               >
