@@ -23,6 +23,7 @@ import Animated, {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
   createPatient,
+  loadCurrentDoctor,
   loadMyPatients,
   loadConsultDirectory,
   loadRankedDoctors,
@@ -46,10 +47,14 @@ import {
   FilterIcon,
   NotificationIcon,
   SearchIcon,
+  PdfIcon,
+  EditIcon,
+  AddVisitIcon,
+  ReferHcpIcon,
 } from '../components/NavIcons';
 import type { AppNotification } from '../data/notificationsMock';
 import { DOCTOR_DIRECTORY, type DoctorProfile } from '../data/chatMock';
-import type { ChatMessage, DoctorThread } from '../types/chat';
+import type { ChatMessage, CurrentDoctor, DoctorThread } from '../types/chat';
 import {
   formatDistance,
   inferSpecializationsFromSymptoms,
@@ -79,6 +84,7 @@ import {
   type WhatsNewInsight,
 } from '../data/whatsNewMock';
 import { colors } from '../theme/colors';
+import { ReferralWorkspace } from './ReferralWorkspace';
 
 type RouteState =
   | { name: 'list' }
@@ -143,14 +149,23 @@ type DrugListRow =
   | { id: string; type: 'header'; title: string; description: string }
   | { id: string; type: 'drug'; match: RankedDrugMatch };
 
-const ACTIONS: Array<{ key: ActionKey; label: string }> = [
-  { key: 'find-similar', label: 'Find Similar Patients' },
-  { key: 'generate-pdf', label: 'Generate Medical Record PDF' },
-  { key: 'send-notification', label: 'Send Notification' },
-  { key: 'edit-patient', label: 'Edit Patient Details' },
-  { key: 'add-visit', label: 'Add Visit' },
-  { key: 'ask-refer-hcp', label: 'Ask/Refer an HCP' },
+const ACTIONS: Array<{
+  key: ActionKey;
+  label: string;
+  Icon: (props: { color: string; size?: number }) => React.ReactElement;
+}> = [
+  { key: 'find-similar', label: 'Find Similar Patients', Icon: SearchIcon },
+  { key: 'generate-pdf', label: 'Generate Medical Record PDF', Icon: PdfIcon },
+  { key: 'edit-patient', label: 'Edit Patient Details', Icon: EditIcon },
+  { key: 'add-visit', label: 'Add Visit', Icon: AddVisitIcon },
+  { key: 'ask-refer-hcp', label: 'Ask/Refer an HCP', Icon: ReferHcpIcon },
 ];
+
+const SEND_NOTIFICATION_ACTION: (typeof ACTIONS)[number] = {
+  key: 'send-notification',
+  label: 'Send Notification',
+  Icon: NotificationIcon,
+};
 
 const HIGH_MATCH_SET = new Set<string>(HIGH_MATCH_PATIENT_IDS);
 
@@ -369,6 +384,8 @@ export function PatientScreen({
   const [emailOpen, setEmailOpen] = useState(false);
   const [emailBusy, setEmailBusy] = useState(false);
   const [apiDoctors, setApiDoctors] = useState<DoctorProfile[]>([]);
+  const [currentDoctor, setCurrentDoctor] = useState<CurrentDoctor | null>(null);
+  const [formalReferralPatient, setFormalReferralPatient] = useState<PatientProfile | null>(null);
 
   const [visitForm, setVisitForm] = useState<VisitForm | null>(null);
   const [patientForm, setPatientForm] = useState<PatientForm | null>(null);
@@ -425,6 +442,13 @@ export function PatientScreen({
       })
       .catch(() => {
         if (!cancelled) setApiDoctors([]);
+      });
+    loadCurrentDoctor()
+      .then((doctor) => {
+        if (!cancelled) setCurrentDoctor(doctor);
+      })
+      .catch(() => {
+        /* Ask/Refer formal path stays gated on currentDoctor. */
       });
     return () => {
       cancelled = true;
@@ -649,6 +673,12 @@ export function PatientScreen({
     [filteredDrugMatches],
   );
 
+  /** Send Notification only after Notification -> Find Suitable Patients. */
+  const sheetActions = useMemo(
+    () => (suitableMode ? [SEND_NOTIFICATION_ACTION, ...ACTIONS] : ACTIONS),
+    [suitableMode],
+  );
+
   const drugResultRows = useMemo<DrugListRow[]>(() => {
     const sectionMeta: Array<{ bucket: DrugMatchBucket; title: string; description: string }> = [
       {
@@ -788,15 +818,21 @@ export function PatientScreen({
   };
 
   const openHcpReferral = (patientId: string) => {
-    setHcpSearchQuery('');
-    setRankedHcps(null);
-    loadRankedDoctors(patientId)
-      .then(setRankedHcps)
-      .catch(() => setRankedHcps([]));
+    const patient = patients.find((entry) => entry.id === patientId) ?? null;
     setInfoMessage(null);
     setReferralSuccessMessage(null);
     setConfirmReferralOpen(false);
-    setRoute({ name: 'hcpList', patientId });
+    setSelectedPatientId(null);
+
+    if (!patient || !/^P\d+/i.test(patient.id)) {
+      setInfoMessage('Formal referral needs an API-backed patient on your panel.');
+      return;
+    }
+    if (!currentDoctor) {
+      setInfoMessage('Could not load your doctor profile for referrals. Is the API running?');
+      return;
+    }
+    setFormalReferralPatient(patient);
   };
 
   const openDoctorProfile = (patientId: string, doctorId: string) => {
@@ -1010,7 +1046,7 @@ export function PatientScreen({
       return;
     }
 
-    const label = ACTIONS.find((entry) => entry.key === action)?.label ?? 'Action';
+    const label = sheetActions.find((entry) => entry.key === action)?.label ?? 'Action';
     setInfoMessage(`${label} is ready for backend wiring.`);
     setSelectedPatientId(null);
   };
@@ -2604,7 +2640,7 @@ export function PatientScreen({
         ) : route.name === 'doctorProfile' && routedPatient && routedDoctorId ? (
           <View style={styles.flex}>
             {referralSuccessMessage ? (
-              <View style={styles.infoBanner}>
+              <View style={[styles.infoBanner, styles.infoBannerClear]}>
                 <Text style={styles.infoBannerText}>{referralSuccessMessage}</Text>
               </View>
             ) : null}
@@ -2778,34 +2814,19 @@ export function PatientScreen({
                   : selectedPatient.diagnosis}
               </Text>
             </View>
-            {ACTIONS.map((action) => {
-              const emphasized =
-                action.key === 'find-similar' || action.key === 'send-notification';
-              const iconColor = emphasized ? colors.skyBlue : colors.textMuted;
+            {sheetActions.map((action) => {
+              const Icon = action.Icon;
               return (
                 <Pressable
                   key={action.key}
                   accessibilityRole="button"
                   accessibilityLabel={action.label}
                   onPress={() => handleAction(action.key)}
-                  style={[styles.sheetAction, emphasized && styles.sheetActionPrimary]}
+                  style={styles.sheetAction}
                 >
                   <View style={styles.sheetActionInner}>
-                    {action.key === 'find-similar' ? (
-                      <SearchIcon color={iconColor} size={18} />
-                    ) : action.key === 'send-notification' ? (
-                      <NotificationIcon color={iconColor} size={18} />
-                    ) : (
-                      <View style={styles.sheetActionIconSpacer} />
-                    )}
-                    <Text
-                      style={[
-                        styles.sheetActionText,
-                        emphasized && styles.sheetActionTextPrimary,
-                      ]}
-                    >
-                      {action.label}
-                    </Text>
+                    <Icon color={colors.textMuted} size={18} />
+                    <Text style={styles.sheetActionText}>{action.label}</Text>
                   </View>
                 </Pressable>
               );
@@ -3009,6 +3030,27 @@ export function PatientScreen({
             </View>
           </View>
         </View>
+      ) : null}
+
+      {formalReferralPatient && currentDoctor ? (
+        <ReferralWorkspace
+          currentDoctor={currentDoctor}
+          initialPatient={formalReferralPatient}
+          onClose={() => setFormalReferralPatient(null)}
+          onMessageDoctor={(doctor) => {
+            const patientId = formalReferralPatient.id;
+            setFormalReferralPatient(null);
+            openDoctorChat(patientId, doctor.id);
+          }}
+          onSaved={() => {
+            setReferralSuccessMessage(
+              `Referral sent for ${formalReferralPatient.name}. Handoff packet shared after the receiving clinician accepts.`,
+            );
+            setInfoMessage(
+              `Referral sent for ${formalReferralPatient.name}. Handoff packet shared after the receiving clinician accepts.`,
+            );
+          }}
+        />
       ) : null}
 
       {addSymptomOpen ? (
@@ -4109,6 +4151,10 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     paddingHorizontal: 12,
     paddingVertical: 10,
+  },
+  infoBannerClear: {
+    marginBottom: 12,
+    zIndex: 5,
   },
   infoBannerText: {
     color: colors.white,

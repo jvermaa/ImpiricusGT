@@ -1,180 +1,180 @@
 import React from 'react';
-import Svg, { Circle, Path } from 'react-native-svg';
+import { SymbolView } from 'expo-symbols';
+import type { SFSymbol } from 'expo-symbols';
 
-type IconProps = {
+export type IconProps = {
   color: string;
   size?: number;
 };
 
+type SymbolNames = {
+  ios: SFSymbol;
+  material: string;
+};
+
+function AppSymbol({
+  ios,
+  material,
+  color,
+  size = 24,
+}: SymbolNames & IconProps) {
+  return (
+    <SymbolView
+      name={
+        {
+          ios,
+          android: material,
+          web: material,
+        } as React.ComponentProps<typeof SymbolView>['name']
+      }
+      tintColor={color}
+      size={size}
+      weight="regular"
+      resizeMode="scaleAspectFit"
+      style={{ width: size, height: size }}
+    />
+  );
+}
+
 /** Patient / clipboard document icon. */
 export function PatientIcon({ color, size = 24 }: IconProps) {
-  return (
-    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
-      <Path
-        d="M8 3.8h5.1L17.2 8v11.2A1.5 1.5 0 0 1 15.7 20.7H8A1.5 1.5 0 0 1 6.5 19.2V5.3A1.5 1.5 0 0 1 8 3.8Z"
-        stroke={color}
-        strokeWidth={1.6}
-        strokeLinejoin="round"
-      />
-      <Path
-        d="M13.1 3.9V7.5a.9.9 0 0 0 .9.9h3.2"
-        stroke={color}
-        strokeWidth={1.6}
-        strokeLinejoin="round"
-      />
-      <Path
-        d="M9.3 11.5h5.4M9.3 14.6h3.8"
-        stroke={color}
-        strokeWidth={1.55}
-        strokeLinecap="round"
-      />
-    </Svg>
-  );
+  return <AppSymbol ios="doc.text" material="description" color={color} size={size} />;
 }
 
 /** Bell for notifications. */
 export function NotificationIcon({ color, size = 24 }: IconProps) {
-  return (
-    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
-      <Path
-        d="M6.5 16.5h11V11.2c0-3-2.1-5.4-4.8-5.9V4.6a1.2 1.2 0 0 0-2.4 0v.7C7.6 5.8 6.5 8.2 6.5 11.2v5.3Z"
-        stroke={color}
-        strokeWidth={1.55}
-        strokeLinejoin="round"
-      />
-      <Path
-        d="M9.6 16.5a2.4 2.4 0 0 0 4.8 0"
-        stroke={color}
-        strokeWidth={1.55}
-        strokeLinecap="round"
-      />
-    </Svg>
-  );
+  return <AppSymbol ios="bell" material="notifications" color={color} size={size} />;
 }
 
 /** Chat bubbles — doctor-to-doctor. */
 export function ChatIcon({ color, size = 24 }: IconProps) {
   return (
-    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
-      <Path
-        d="M4.5 6.8c0-1.7 1.7-3.1 4.4-3.1h2.2c2.7 0 4.4 1.4 4.4 3.1v3.2c0 1.7-1.7 3.1-4.4 3.1H8.2L5.2 15.2V12.8C4.75 12.1 4.5 11.3 4.5 10.5V6.8Z"
-        stroke={color}
-        strokeWidth={1.55}
-        strokeLinejoin="round"
-      />
-      <Path
-        d="M11.8 10.8h2.4c2.5 0 4.1 1.25 4.1 2.85v2.4c0 .7-.2 1.35-.6 1.9v1.85l-2.5-1.55h-1c-2.5 0-4.1-1.25-4.1-2.85"
-        stroke={color}
-        strokeWidth={1.55}
-        strokeLinejoin="round"
-      />
-    </Svg>
+    <AppSymbol
+      ios="bubble.left.and.bubble.right"
+      material="chat"
+      color={color}
+      size={size}
+    />
   );
 }
 
 /** Simple person silhouette. */
 export function ProfileIcon({ color, size = 24 }: IconProps) {
-  return (
-    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
-      <Circle cx={12} cy={8.2} r={3.3} stroke={color} strokeWidth={1.7} />
-      <Path
-        d="M5.2 19.2c.7-3.2 3.2-5 6.8-5s6.1 1.8 6.8 5"
-        stroke={color}
-        strokeWidth={1.7}
-        strokeLinecap="round"
-      />
-    </Svg>
-  );
+  return <AppSymbol ios="person" material="person" color={color} size={size} />;
 }
 
 /** Back / chevron left. */
 export function ChevronLeftIcon({ color, size = 22 }: IconProps) {
-  return (
-    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
-      <Path
-        d="M15 5.5 8.5 12 15 18.5"
-        stroke={color}
-        strokeWidth={2}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </Svg>
-  );
+  return <AppSymbol ios="chevron.left" material="chevron_left" color={color} size={size} />;
 }
 
 /** Plus for new chat FAB. */
 export function PlusIcon({ color, size = 24 }: IconProps) {
-  return (
-    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
-      <Path
-        d="M12 5v14M5 12h14"
-        stroke={color}
-        strokeWidth={2.2}
-        strokeLinecap="round"
-      />
-    </Svg>
-  );
+  return <AppSymbol ios="plus" material="add" color={color} size={size} />;
 }
 
 /** Filter / funnel. */
 export function FilterIcon({ color, size = 22 }: IconProps) {
   return (
-    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
-      <Path
-        d="M4 6h16M7 12h10M10 18h4"
-        stroke={color}
-        strokeWidth={1.8}
-        strokeLinecap="round"
-      />
-    </Svg>
+    <AppSymbol
+      ios="line.3.horizontal.decrease"
+      material="filter_list"
+      color={color}
+      size={size}
+    />
   );
 }
 
 /** Magnifying glass. */
 export function SearchIcon({ color, size = 18 }: IconProps) {
-  return (
-    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
-      <Circle cx={11} cy={11} r={6.5} stroke={color} strokeWidth={1.7} />
-      <Path
-        d="M16.2 16.2 20 20"
-        stroke={color}
-        strokeWidth={1.7}
-        strokeLinecap="round"
-      />
-    </Svg>
-  );
+  return <AppSymbol ios="magnifyingglass" material="search" color={color} size={size} />;
 }
 
 /** Close X. */
 export function CloseIcon({ color, size = 20 }: IconProps) {
-  return (
-    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
-      <Path
-        d="M6.5 6.5 17.5 17.5M17.5 6.5 6.5 17.5"
-        stroke={color}
-        strokeWidth={1.8}
-        strokeLinecap="round"
-      />
-    </Svg>
-  );
+  return <AppSymbol ios="xmark" material="close" color={color} size={size} />;
 }
 
 /** Send arrow for composer. */
 export function SendIcon({ color, size = 20 }: IconProps) {
+  return <AppSymbol ios="paperplane.fill" material="send" color={color} size={size} />;
+}
+
+/** Document / PDF export. */
+export function PdfIcon({ color, size = 18 }: IconProps) {
+  return <AppSymbol ios="doc.richtext" material="picture_as_pdf" color={color} size={size} />;
+}
+
+/** Pencil for edit. */
+export function EditIcon({ color, size = 18 }: IconProps) {
+  return <AppSymbol ios="pencil" material="edit" color={color} size={size} />;
+}
+
+/** Calendar with plus for add visit. */
+export function AddVisitIcon({ color, size = 18 }: IconProps) {
   return (
-    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
-      <Path
-        d="M4.2 11.2 19.5 4.5 12.8 19.8l-1.5-6.4-7.1-2.2Z"
-        stroke={color}
-        strokeWidth={1.6}
-        strokeLinejoin="round"
-      />
-      <Path
-        d="M11.3 13.4 19.5 4.5"
-        stroke={color}
-        strokeWidth={1.6}
-        strokeLinecap="round"
-      />
-    </Svg>
+    <AppSymbol ios="calendar.badge.plus" material="event" color={color} size={size} />
   );
+}
+
+/** Person + arrow for ask/refer HCP. */
+export function ReferHcpIcon({ color, size = 18 }: IconProps) {
+  return (
+    <AppSymbol ios="person.badge.plus" material="person_add" color={color} size={size} />
+  );
+}
+
+/** Share / upload. */
+export function ShareIcon({ color, size = 20 }: IconProps) {
+  return <AppSymbol ios="square.and.arrow.up" material="ios_share" color={color} size={size} />;
+}
+
+/** Sliders / tune. */
+export function SlidersIcon({ color, size = 20 }: IconProps) {
+  return <AppSymbol ios="slider.horizontal.3" material="tune" color={color} size={size} />;
+}
+
+/** Specialty: heart. */
+export function HeartIcon({ color, size = 22 }: IconProps) {
+  return <AppSymbol ios="heart.fill" material="favorite" color={color} size={size} />;
+}
+
+/** Specialty: brain. */
+export function BrainIcon({ color, size = 22 }: IconProps) {
+  return <AppSymbol ios="brain.head.profile" material="psychology" color={color} size={size} />;
+}
+
+/** Specialty: lungs. */
+export function LungsIcon({ color, size = 22 }: IconProps) {
+  return <AppSymbol ios="lungs.fill" material="air" color={color} size={size} />;
+}
+
+/** Specialty: droplet. */
+export function DropletIcon({ color, size = 22 }: IconProps) {
+  return <AppSymbol ios="drop.fill" material="water_drop" color={color} size={size} />;
+}
+
+/** Specialty: hand. */
+export function HandIcon({ color, size = 22 }: IconProps) {
+  return <AppSymbol ios="hand.raised.fill" material="back_hand" color={color} size={size} />;
+}
+
+/** Specialty: joint / bone. */
+export function JointIcon({ color, size = 22 }: IconProps) {
+  return <AppSymbol ios="figure.walk" material="accessibility" color={color} size={size} />;
+}
+
+/** Specialty: stomach / digestion. */
+export function StomachIcon({ color, size = 22 }: IconProps) {
+  return <AppSymbol ios="fork.knife" material="restaurant" color={color} size={size} />;
+}
+
+/** Specialty: stethoscope. */
+export function StethoscopeIcon({ color, size = 22 }: IconProps) {
+  return <AppSymbol ios="stethoscope" material="health_and_safety" color={color} size={size} />;
+}
+
+/** Specialty: medical cross. */
+export function MedicalCrossIcon({ color, size = 22 }: IconProps) {
+  return <AppSymbol ios="cross.case.fill" material="medical_services" color={color} size={size} />;
 }

@@ -14,6 +14,7 @@ from models import (
     ConsultThread,
     Diagnosis,
     Doctor,
+    DoctorNotification,
     Encounter,
     Followup,
     Lab,
@@ -246,6 +247,7 @@ def seed() -> None:
             )
 
         _seed_consults(db)
+        _seed_notifications(db)
         db.commit()
         errors, warnings = run_checks(db)
         doctor_count = len(db.scalars(select(Doctor)).all())
@@ -297,6 +299,53 @@ def _seed_consults(db) -> None:
             )
         )
 
+
+
+def _seed_notifications(db) -> None:
+    """Load in-app doctor inbox items from fixtures."""
+    rows = _load("notifications")
+    for row in rows:
+        _require(
+            row,
+            {
+                "notification_key",
+                "doctor_key",
+                "type",
+                "title",
+                "sender",
+                "brand",
+                "preview",
+                "body",
+                "thread_id",
+                "find_suitable_patients",
+                "opens_chat",
+                "unread_count",
+                "created_at",
+                "payload",
+            },
+            row.get("notification_key", "notification"),
+        )
+        db.add(
+            DoctorNotification(
+                notification_key=row["notification_key"],
+                doctor_key=row["doctor_key"],
+                type=row["type"],
+                title=row["title"],
+                sender=row["sender"],
+                brand=row["brand"],
+                preview=row["preview"],
+                body=row["body"],
+                thread_id=row["thread_id"],
+                link_url=row.get("link_url"),
+                link_button_label=row.get("link_button_label"),
+                find_suitable_patients=bool(row["find_suitable_patients"]),
+                opens_chat=bool(row["opens_chat"]),
+                unread_count=int(row["unread_count"]),
+                payload_json=json.dumps(row["payload"]),
+                created_at=datetime.fromisoformat(row["created_at"]),
+                read_at=None,
+            )
+        )
 
 
 if __name__ == "__main__":

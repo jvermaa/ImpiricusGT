@@ -1,0 +1,358 @@
+[
+  {
+    "notification_key": "N001",
+    "doctor_key": "D031",
+    "type": "samples",
+    "title": "Samples Available",
+    "sender": "Concierge",
+    "brand": "Cardivex",
+    "preview": "Free Cardivex 10mg samples ready to ship to your office. Tap to request.",
+    "body": "Free Cardivex 10mg samples are ready to ship to your office. Choose a quantity and confirm shipping details to complete your request.",
+    "thread_id": "thread-samples",
+    "link_url": null,
+    "link_button_label": null,
+    "find_suitable_patients": true,
+    "opens_chat": false,
+    "unread_count": 2,
+    "created_at": "2026-09-27T03:50:00",
+    "payload": {
+      "actions": [
+        {
+          "id": "req-2",
+          "label": "Request 2 boxes",
+          "style": "primary"
+        },
+        {
+          "id": "req-4",
+          "label": "Request 4 boxes",
+          "style": "primary"
+        },
+        {
+          "id": "not-now",
+          "label": "Not now",
+          "style": "ghost"
+        }
+      ],
+      "infoCard": {
+        "title": "Cardivex 10mg \u2014 Sample Request",
+        "sections": [
+          {
+            "label": "Quantity",
+            "value": "2 or 4 boxes available"
+          },
+          {
+            "label": "Ship to",
+            "value": "Office \u00b7 1200 Peachtree St NE, Atlanta, GA"
+          },
+          {
+            "label": "Signature",
+            "value": "E-signature required before ship"
+          }
+        ]
+      },
+      "messages": [
+        {
+          "id": "m1",
+          "senderId": "desk",
+          "senderName": "Concierge",
+          "senderRole": "Sample Desk",
+          "text": "Hi Dr. Reed \u2014 Cardivex 10mg samples are allocated for your office this week. Tap an option below to request, or reply with questions.",
+          "timestamp": "10:42 AM"
+        }
+      ]
+    }
+  },
+  {
+    "notification_key": "N002",
+    "doctor_key": "D031",
+    "type": "clinical_update",
+    "title": "Clinical Trial: Patients Needed",
+    "sender": "Trial Desk",
+    "brand": "Novartis",
+    "preview": "Novartis \u2022 45-54 Cohort \u2022 Dyspnea / Fatigue",
+    "body": "Enrollment open for a Novartis heart-failure cohort (ages 45\u201354) with dyspnea and fatigue. Review your panel for high-match patients and notify candidates.",
+    "thread_id": "thread-samples-match",
+    "link_url": "https://clinicaltrials.gov/study/NCT00000000",
+    "link_button_label": "View trial details",
+    "find_suitable_patients": true,
+    "opens_chat": false,
+    "unread_count": 1,
+    "created_at": "2026-09-27T03:35:00",
+    "payload": {
+      "actions": [
+        {
+          "id": "affected",
+          "label": "Review cohort",
+          "style": "primary"
+        },
+        {
+          "id": "got-it",
+          "label": "Got it",
+          "style": "ghost"
+        }
+      ],
+      "infoCard": {
+        "title": "Novartis HF Cohort \u2014 Enrollment",
+        "sections": [
+          {
+            "label": "Age band",
+            "value": "45\u201354"
+          },
+          {
+            "label": "Key symptoms",
+            "value": "Dyspnea / Fatigue"
+          },
+          {
+            "label": "Sponsor",
+            "value": "Novartis"
+          }
+        ]
+      },
+      "messages": [
+        {
+          "id": "m1",
+          "senderId": "desk",
+          "senderName": "Trial Desk",
+          "senderRole": "Clinical Ops",
+          "text": "Hi Dr. Reed \u2014 we need patients for a Novartis 45\u201354 dyspnea/fatigue cohort. Use Find suitable patients to review matches in your panel.",
+          "timestamp": "10:28 AM"
+        }
+      ]
+    }
+  },
+  {
+    "notification_key": "N003",
+    "doctor_key": "D031",
+    "type": "rx_alert",
+    "title": "Rx Not Picked Up",
+    "sender": "Concierge",
+    "brand": "Glucora",
+    "preview": "Your Rx for patient J.M. (Glucora) hasn't been filled in 5 days. Likely cost barrier.",
+    "body": "Patient J.M.'s Glucora Rx hasn't been filled in 5 days. Likely cause: $85 copay or prior authorization pending.",
+    "thread_id": "thread-rx",
+    "link_url": null,
+    "link_button_label": null,
+    "find_suitable_patients": true,
+    "opens_chat": false,
+    "unread_count": 3,
+    "created_at": "2026-09-27T02:50:00",
+    "payload": {
+      "patientLink": {
+        "initials": "J.M.",
+        "label": "Open in Patient"
+      },
+      "actions": [
+        {
+          "id": "copay",
+          "label": "Send copay card to patient",
+          "style": "primary"
+        },
+        {
+          "id": "pa",
+          "label": "Start PA",
+          "style": "primary"
+        },
+        {
+          "id": "dismiss",
+          "label": "Dismiss",
+          "style": "ghost"
+        }
+      ],
+      "infoCard": {
+        "title": "Glucora \u2014 Fill Delay",
+        "sections": [
+          {
+            "label": "Patient",
+            "value": "J.M. (initials only)"
+          },
+          {
+            "label": "Likely reason",
+            "value": "$85 copay \u00b7 or PA pending"
+          },
+          {
+            "label": "Days unfilled",
+            "value": "5 days"
+          }
+        ]
+      },
+      "messages": [
+        {
+          "id": "m1",
+          "senderId": "desk",
+          "senderName": "Concierge",
+          "senderRole": "Rx Alerts",
+          "text": "Pharmacy reports Glucora for J.M. still unfilled after 5 days. Most common blockers: high copay ($85) or PA not started. Want me to send a copay card or kick off PA?",
+          "timestamp": "9:18 AM"
+        }
+      ]
+    }
+  },
+  {
+    "notification_key": "N004",
+    "doctor_key": "D031",
+    "type": "coverage",
+    "title": "Coverage Update",
+    "sender": "Access & Coverage",
+    "brand": "Cardivex",
+    "preview": "Cardivex is now preferred on BlueCross GA commercial. No PA needed.",
+    "body": "Cardivex is now preferred on BlueCross GA commercial plans. No prior authorization required.",
+    "thread_id": "thread-coverage",
+    "link_url": null,
+    "link_button_label": null,
+    "find_suitable_patients": true,
+    "opens_chat": false,
+    "unread_count": 1,
+    "created_at": "2026-09-26T14:00:00",
+    "payload": {
+      "actions": [
+        {
+          "id": "affected",
+          "label": "Show my affected patients",
+          "style": "primary"
+        },
+        {
+          "id": "got-it",
+          "label": "Got it",
+          "style": "ghost"
+        }
+      ],
+      "infoCard": {
+        "title": "BlueCross GA \u00b7 Commercial",
+        "sections": [
+          {
+            "label": "Payer",
+            "value": "BlueCross BlueShield of Georgia"
+          },
+          {
+            "label": "Tier",
+            "value": "Preferred brand"
+          },
+          {
+            "label": "Effective",
+            "value": "March 1, 2026"
+          },
+          {
+            "label": "Copay range",
+            "value": "$10\u2013$35 typical"
+          }
+        ]
+      },
+      "messages": [
+        {
+          "id": "m1",
+          "senderId": "desk",
+          "senderName": "Access Desk",
+          "senderRole": "Coverage",
+          "text": "Good news \u2014 Cardivex moved to preferred on BlueCross GA commercial. No PA needed going forward. I can surface which of your patients this may help.",
+          "timestamp": "Yesterday"
+        }
+      ]
+    }
+  },
+  {
+    "notification_key": "N005",
+    "doctor_key": "D031",
+    "type": "access_update",
+    "title": "Access update",
+    "sender": "Access Desk",
+    "brand": "Cardivex",
+    "preview": "91% of Medicare Part D patients have coverage for CARDIVEX\u00ae. Check local coverage.",
+    "body": "Hi Dr. Reed, 91% of Medicare Part D patients have coverage for CARDIVEX\u00ae. Check local coverage.",
+    "thread_id": "thread-access",
+    "link_url": "https://www.medicare.gov/",
+    "link_button_label": "Check local coverage",
+    "find_suitable_patients": true,
+    "opens_chat": false,
+    "unread_count": 1,
+    "created_at": "2026-09-23T12:00:00",
+    "payload": {
+      "actions": [],
+      "campaignChips": [
+        {
+          "id": "rep",
+          "label": "REP"
+        },
+        {
+          "id": "samples",
+          "label": "SAMPLES"
+        }
+      ],
+      "infoCard": {
+        "title": "CARDIVEX\u00ae \u00b7 Medicare Part D",
+        "sections": [
+          {
+            "label": "Coverage",
+            "value": "91% of Part D patients"
+          },
+          {
+            "label": "Action",
+            "value": "Review local formulary status"
+          }
+        ]
+      },
+      "messages": [
+        {
+          "id": "m1",
+          "senderId": "desk",
+          "senderName": "Access Desk",
+          "senderRole": "Coverage",
+          "text": "Hi Dr. Reed, 91% of Medicare Part D patients have coverage for CARDIVEX\u00ae. Tap below to check local coverage.",
+          "timestamp": "4d ago"
+        }
+      ]
+    }
+  },
+  {
+    "notification_key": "N006",
+    "doctor_key": "D031",
+    "type": "launch_campaign",
+    "title": "Launch campaign",
+    "sender": "Brand Desk",
+    "brand": "Glucora",
+    "preview": "GLUCORA\u00ae is now FDA-approved for adults with T2D and CKD. View prescribing info.",
+    "body": "Hi Dr. Reed, GLUCORA\u00ae is now FDA-approved for adults with T2D and CKD. View prescribing info.",
+    "thread_id": "thread-launch",
+    "link_url": "https://www.fda.gov/",
+    "link_button_label": "View prescribing info",
+    "find_suitable_patients": true,
+    "opens_chat": false,
+    "unread_count": 1,
+    "created_at": "2026-09-22T12:00:00",
+    "payload": {
+      "actions": [],
+      "campaignChips": [
+        {
+          "id": "info",
+          "label": "INFO"
+        },
+        {
+          "id": "rep",
+          "label": "REP"
+        }
+      ],
+      "infoCard": {
+        "title": "GLUCORA\u00ae \u00b7 New Indication",
+        "sections": [
+          {
+            "label": "Indication",
+            "value": "Adults with T2D and CKD"
+          },
+          {
+            "label": "Status",
+            "value": "FDA-approved"
+          }
+        ]
+      },
+      "messages": [
+        {
+          "id": "m1",
+          "senderId": "desk",
+          "senderName": "Brand Desk",
+          "senderRole": "Launch",
+          "text": "Hi Dr. Reed, GLUCORA\u00ae is now FDA-approved for adults with T2D and CKD. View prescribing info below.",
+          "timestamp": "5d ago"
+        }
+      ]
+    }
+  }
+]
