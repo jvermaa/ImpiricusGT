@@ -250,7 +250,7 @@ def referral_directory(
     case_scores: dict[str, float] = {}
     if patient is not None:
         diagnoses = [item.label for item in patient.diagnoses]
-        case_text = " ".join([*diagnoses, *json_list(patient.symptoms_json)])
+        case_text = " ".join([*diagnoses, *json_list(patient.latest_visit_symptoms_json)])
         case_scores = _similar_doctor_scores(db, patient.patient_key)
     if query:
         case_text = f"{case_text} {query}".strip()
@@ -294,7 +294,18 @@ def json_list(value: str) -> list[str]:
         decoded = json.loads(value)
     except (TypeError, ValueError):
         return []
-    return decoded if isinstance(decoded, list) else []
+    if not isinstance(decoded, list):
+        return []
+    flattened: list[str] = []
+    for item in decoded:
+        if isinstance(item, str):
+            flattened.append(item)
+        elif isinstance(item, dict):
+            for key in ("name", "duration", "frequency", "trigger", "onset"):
+                token = item.get(key)
+                if isinstance(token, str) and token.strip():
+                    flattened.append(token.strip())
+    return flattened
 
 
 @router.get("/specialties")

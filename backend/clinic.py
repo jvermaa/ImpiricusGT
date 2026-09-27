@@ -1,5 +1,7 @@
 import json
+import re
 from datetime import datetime
+from typing import Literal
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Response
 from pydantic import BaseModel, ConfigDict, Field, field_validator
@@ -7,6 +9,7 @@ from sqlalchemy import func, or_, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
+from cohort_matcher import rank_cohort_matches, rank_relevant_patients
 from database import get_db
 from keys import next_key
 from models import (
@@ -40,14 +43,12 @@ SPECIALTY_TITLES = {
 SEX_LABELS = {
     "female": "Female",
     "male": "Male",
-    "not recorded": "Not recorded",
-}
-
-SMOKING_LABELS = {
-    "never": "Never smoker",
-    "former": "Former smoker",
+    "other": "Other",
     "unknown": "Unknown",
 }
+
+DEFAULT_PATIENT_EMAIL = "harisamser27@gmail.com"
+EMAIL_PATTERN = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 
 
 class DoctorCreate(BaseModel):
@@ -77,26 +78,145 @@ class DiagnosisIn(BaseModel):
     first_recorded_year: int
 
 
-class PatientCreate(BaseModel):
+class SymptomIn(BaseModel):
     name: str
-    age_group: str
-    state: str
-    sex_for_clinical_context: str
-    preferred_language: str
-    primary_doctor_key: str
-    allergy_status: str = "none reported"
-    symptoms: list[str] = Field(default_factory=list)
-    tobacco_use: str = "unknown"
-    surgery_history: str = "not recorded"
-    family_history: str = "not recorded"
-    pregnancy_status: str = "not recorded"
+    duration: str
+    frequency: str
+    trigger: str
+    onset: str
+
+
+class PatientCreate(BaseModel):
+    name: str | None = None
+    email_address: str | None = None
+    age: int | None = None
+    state: str | None = None
+    sex_for_clinical_context: str | None = None
+    preferred_language: str | None = None
+    primary_doctor_key: str | None = None
+    allergy_status: str | None = None
+    relevant_medical_history: str | None = None
+    family_medical_history: str | None = None
+    current_medications: str | None = None
+    alcohol_use: str | None = None
+    smoking_status: str | None = None
+    lab_results: str | None = None
+    pregnancy_status: str | None = None
+    immune_status: str | None = None
+    latest_visit_symptoms: list[SymptomIn] = Field(default_factory=list)
     portal_access: bool = False
     email_contact_available: bool = False
-    messaging_preference: str = "unavailable"
-    patient_education_language: str = "English"
-    sharing_preference_for_peer_cases: str = "not documented"
-    clinical_trial_outreach_preference: str = "not documented"
+    messaging_preference: str | None = None
+    patient_education_language: str | None = None
+    sharing_preference_for_peer_cases: str | None = None
+    clinical_trial_outreach_preference: str | None = None
+    primary_diagnosis: str | None = None
     diagnoses: list[DiagnosisIn] = Field(default_factory=list)
+
+
+class VisitWrite(BaseModel):
+    visit_date: str | None = None
+    diagnosis: str = ""
+    summary: str = ""
+    symptoms: list[SymptomIn] = Field(default_factory=list)
+    current_medications: str = ""
+    alcohol_use: str = ""
+    smoking_status: str = ""
+    pregnancy_status: str = ""
+    immune_status: str = ""
+    lab_results: str = ""
+
+
+class PatientUpdate(BaseModel):
+    name: str | None = None
+    email_address: str | None = None
+    age: int | None = None
+    state: str | None = None
+    sex_for_clinical_context: str | None = None
+    preferred_language: str | None = None
+    allergy_status: str | None = None
+    relevant_medical_history: str | None = None
+    family_medical_history: str | None = None
+    current_medications: str | None = None
+    alcohol_use: str | None = None
+    smoking_status: str | None = None
+    lab_results: str | None = None
+    pregnancy_status: str | None = None
+    immune_status: str | None = None
+    latest_visit_symptoms: list[SymptomIn] | None = None
+    primary_diagnosis: str | None = None
+
+
+class CohortSymptom(BaseModel):
+    name: str
+    duration: str
+    frequency: str
+    trigger: str
+    onset: str
+
+
+class CohortMatchPreview(BaseModel):
+    age_group: str
+    diagnosis_label: str
+    symptom_labels: list[str]
+
+
+class CohortMatchDetails(BaseModel):
+    age_group: str
+    sex_label: str
+    diagnosis_label: str
+    prescription_label: str
+    symptom_labels: list[str]
+    symptoms: list[CohortSymptom]
+    relevant_medical_history: str
+    family_medical_history: str
+    current_medications: str
+    alcohol_use: str
+    smoking_status: str
+    immune_status: str
+    pregnancy_status: str
+    lab_results: str
+
+
+class CohortMatch(BaseModel):
+    match_id: str
+    confidence_percent: int = Field(ge=0, le=100)
+    rationale: str
+    preview: CohortMatchPreview
+    details: CohortMatchDetails
+
+
+class SimilarCohortAnalysisResponse(BaseModel):
+    title: str
+    explanation: str
+    source: Literal["gemini", "fallback"]
+    matches: list[CohortMatch]
+
+
+class RelevantPatientsRequest(BaseModel):
+    kind: Literal["drug", "notification"]
+    title: str = ""
+    summary: str = ""
+    details: list[str] = Field(default_factory=list)
+    age_min: int | None = Field(default=None, ge=0, le=120)
+    age_max: int | None = Field(default=None, ge=0, le=120)
+    required_symptoms: list[str] = Field(default_factory=list)
+    required_symptoms_mode: Literal["all", "any"] = "all"
+    required_symptoms_min_match: int = Field(default=1, ge=1, le=25)
+    limit: int = Field(default=10, ge=1, le=25)
+
+
+class RelevantPatientMatch(BaseModel):
+    patient_key: str
+    confidence_percent: int = Field(ge=0, le=100)
+    rationale: str
+
+
+class RelevantPatientsResponse(BaseModel):
+    title: str
+    explanation: str
+    source: Literal["gemini", "fallback"]
+    matches: list[RelevantPatientMatch]
 
 
 class ConsultOpen(BaseModel):
@@ -153,11 +273,182 @@ def _specialty_title(specialty: str) -> str:
     return SPECIALTY_TITLES.get(specialty, specialty)
 
 
-def _age_years(age_group: str) -> int | None:
-    piece = age_group.split("-")[0]
-    if piece.isdigit():
-        return int(piece) + 5
-    return None
+def _symptom_dict(symptom: SymptomIn) -> dict:
+    return {
+        "name": symptom.name.strip(),
+        "duration": symptom.duration.strip(),
+        "frequency": symptom.frequency.strip(),
+        "trigger": symptom.trigger.strip(),
+        "onset": symptom.onset.strip(),
+    }
+
+
+def _read_symptoms(raw: str) -> list[dict]:
+    try:
+        payload = json.loads(raw)
+    except (TypeError, ValueError):
+        return []
+    return payload if isinstance(payload, list) else []
+
+
+def _clean_text(value: str | None, fallback: str) -> str:
+    cleaned = (value or "").strip()
+    return cleaned or fallback
+
+
+def _clean_email(value: str | None) -> str:
+    cleaned = (value or "").strip().lower()
+    return cleaned if EMAIL_PATTERN.match(cleaned) else DEFAULT_PATIENT_EMAIL
+
+
+def _anonymize_email(value: str) -> str:
+    local_part, _, domain = value.partition("@")
+    if not domain:
+        return "hidden@example.com"
+    if len(local_part) <= 1:
+        return f"*@" + domain
+    return f"{local_part[0]}***@{domain}"
+
+
+def _clean_age(value: int | None) -> int:
+    if isinstance(value, int) and value >= 0:
+        return value
+    return 0
+
+
+def _clean_sex(value: str | None) -> str:
+    lowered = (value or "").strip().lower()
+    if lowered in {"female", "male", "other", "unknown"}:
+        return lowered
+    return "unknown"
+
+
+def _age_group(age: int) -> str:
+    if age < 0:
+        return "Unknown"
+    if age < 5:
+        return "0-4"
+    lower = ((age - 5) // 10) * 10 + 5
+    upper = lower + 9
+    if lower >= 95:
+        return "95+"
+    return f"{lower}-{upper}"
+
+
+def _clean_symptom_entry(raw: dict) -> dict:
+    source = raw if isinstance(raw, dict) else {}
+    return {
+        "name": _clean_text(source.get("name"), "Symptom"),
+        "duration": _clean_text(source.get("duration"), "Not specified"),
+        "frequency": _clean_text(source.get("frequency"), "Not specified"),
+        "trigger": _clean_text(source.get("trigger"), "Not specified"),
+        "onset": _clean_text(source.get("onset"), "Not specified"),
+    }
+
+
+def _patient_diagnosis(db: Session, patient_key: str) -> Diagnosis | None:
+    return db.scalar(select(Diagnosis).where(Diagnosis.patient_key == patient_key).order_by(Diagnosis.id))
+
+
+def _prescription_label(db: Session, patient_key: str, fallback: str) -> str:
+    active = db.scalar(
+        select(Prescription)
+        .where(Prescription.patient_key == patient_key, Prescription.status == "active")
+        .order_by(Prescription.start_year.desc(), Prescription.prescription_key.desc())
+    )
+    if active is None:
+        return _clean_text(fallback, "Medication list reconciled.")
+    return " ".join(
+        part
+        for part in (
+            active.generic_medication.strip(),
+            active.strength.strip(),
+            active.frequency.strip(),
+        )
+        if part
+    ) or _clean_text(fallback, "Medication list reconciled.")
+
+
+def _cohort_snapshot(db: Session, patient: Patient, match_id: str) -> dict:
+    diagnosis = _patient_diagnosis(db, patient.patient_key)
+    symptoms = [_clean_symptom_entry(row) for row in _read_symptoms(patient.latest_visit_symptoms_json)[:3]]
+    symptom_labels = [entry["name"] for entry in symptoms if entry["name"]]
+    diagnosis_label = diagnosis.label if diagnosis else "Undifferentiated condition"
+    return {
+        "match_id": match_id,
+        "age_group": _age_group(patient.age),
+        "sex_label": SEX_LABELS.get(patient.sex_for_clinical_context, "Unknown"),
+        "diagnosis_label": diagnosis_label,
+        "prescription_label": _prescription_label(db, patient.patient_key, patient.current_medications),
+        "symptom_labels": symptom_labels,
+        "symptoms": symptoms,
+        "relevant_medical_history": _clean_text(patient.relevant_medical_history, "General history reviewed."),
+        "family_medical_history": _clean_text(patient.family_medical_history, "Family history reviewed."),
+        "current_medications": _clean_text(patient.current_medications, "Medication list reconciled."),
+        "alcohol_use": _clean_text(patient.alcohol_use, "None"),
+        "smoking_status": _clean_text(patient.smoking_status, "Never smoker"),
+        "immune_status": _clean_text(patient.immune_status, "Immunocompetent"),
+        "pregnancy_status": _clean_text(patient.pregnancy_status, "N/A"),
+        "lab_results": _clean_text(patient.lab_results, "Baseline labs reviewed."),
+    }
+
+
+def _relevant_patient_snapshot(db: Session, patient: Patient) -> dict:
+    diagnosis = _patient_diagnosis(db, patient.patient_key)
+    symptoms = [_clean_symptom_entry(row) for row in _read_symptoms(patient.latest_visit_symptoms_json)[:4]]
+    symptom_labels = [entry["name"] for entry in symptoms if entry["name"]]
+    diagnosis_label = diagnosis.label if diagnosis else "Undifferentiated condition"
+    visits = db.scalars(
+        select(Encounter)
+        .where(Encounter.patient_key == patient.patient_key)
+        .order_by(Encounter.visit_date.desc(), Encounter.encounter_key.desc())
+    ).all()
+    recent_visit_summaries = [
+        " ".join(
+            part
+            for part in (
+                _clean_text(visit.visit_date, ""),
+                _clean_text(visit.diagnosis, ""),
+                _clean_text(visit.summary, ""),
+            )
+            if part
+        )[:220]
+        for visit in visits[:3]
+    ]
+    return {
+        "patient_key": patient.patient_key,
+        "display_label": patient.name,
+        "age": patient.age,
+        "sex_label": SEX_LABELS.get(patient.sex_for_clinical_context, "Unknown"),
+        "diagnosis_label": diagnosis_label,
+        "symptom_labels": symptom_labels,
+        "current_medications": _clean_text(patient.current_medications, "Medication list reconciled."),
+        "relevant_medical_history": _clean_text(patient.relevant_medical_history, "General history reviewed."),
+        "family_medical_history": _clean_text(patient.family_medical_history, "Family history reviewed."),
+        "lab_results": _clean_text(patient.lab_results, "Baseline labs reviewed."),
+        "recent_visit_summaries": recent_visit_summaries,
+    }
+
+
+def _cohort_explanation(query_age_group: str) -> str:
+    return (
+        "Clinical match based on symptom overlaps, age cohort "
+        f"({query_age_group}), and diagnosis matches"
+    )
+
+
+def _relevance_explanation(kind: Literal["drug", "notification"], title: str) -> str:
+    topic = "drug profile" if kind == "drug" else "notification context"
+    if title:
+        return (
+            f"Patient relevance ranked from the {topic} ({title}) against diagnosis, symptoms, "
+            "history, and recent visit context."
+        )
+    return f"Patient relevance ranked from the {topic} against diagnosis, symptoms, and history context."
+
+
+def _normalize_relevance_term(value: str) -> str:
+    return re.sub(r"[^a-z0-9 ]+", " ", value.lower()).strip()
 
 
 def doctor_payload(doctor: Doctor) -> dict:
@@ -206,55 +497,67 @@ def patient_card(db: Session, patient: Patient) -> dict:
     diagnoses = db.scalars(
         select(Diagnosis).where(Diagnosis.patient_key == patient.patient_key)
     ).all()
-    prescriptions = db.scalars(
-        select(Prescription).where(Prescription.patient_key == patient.patient_key)
-    ).all()
-    labs = db.scalars(select(Lab).where(Lab.patient_key == patient.patient_key)).all()
     encounters = db.scalars(
         select(Encounter)
         .where(Encounter.patient_key == patient.patient_key)
-        .order_by(Encounter.year.desc())
+        .order_by(Encounter.visit_date.desc(), Encounter.encounter_key.desc())
     ).all()
-    active = [row for row in prescriptions if row.status == "active"] or list(prescriptions)
-    medication_summary = (
-        "; ".join(f"{row.generic_medication} {row.strength}" for row in active) or "None recorded"
-    )
-    lab_summary = (
-        "; ".join(f"{row.test_name} {row.value} {row.unit} ({row.result_year})" for row in labs)
-        or "None recorded"
-    )
+    latest_visit = encounters[0] if encounters else None
     return {
         "patient_key": patient.patient_key,
         "display_label": patient.name,
-        "age_group": patient.age_group,
-        "age_years": _age_years(patient.age_group),
-        "sex_label": SEX_LABELS.get(patient.sex_for_clinical_context, "Not recorded"),
-        "primary_diagnosis": diagnoses[0].label if diagnoses else "Not recorded",
-        "symptom_labels": json.loads(patient.symptoms_json),
-        "active_medication_summary": medication_summary,
-        "tobacco_label": SMOKING_LABELS.get(patient.tobacco_use, "Unknown"),
-        "pregnancy_label": "Not recorded"
-        if patient.pregnancy_status == "not recorded"
-        else patient.pregnancy_status,
-        "family_history": patient.family_history,
-        "surgery_history": patient.surgery_history,
-        "lab_summary": lab_summary,
+        "email_address": patient.email_address,
+        "anonymized_email": _anonymize_email(patient.email_address),
+        "age": patient.age,
+        "sex_label": SEX_LABELS.get(patient.sex_for_clinical_context, "Unknown"),
+        "primary_diagnosis": diagnoses[0].label if diagnoses else "Undifferentiated condition",
+        "relevant_medical_history": patient.relevant_medical_history,
+        "family_medical_history": patient.family_medical_history,
+        "current_medications": patient.current_medications,
+        "alcohol_use": patient.alcohol_use,
+        "smoking_status": patient.smoking_status,
+        "pregnancy_status": patient.pregnancy_status,
+        "immune_status": patient.immune_status,
+        "lab_results": patient.lab_results,
+        "latest_visit_symptoms": _read_symptoms(patient.latest_visit_symptoms_json),
+        "latest_visit_lab_results": latest_visit.lab_results if latest_visit else patient.lab_results,
         "allergy_status": patient.allergy_status,
         "sharing_preference_for_peer_cases": patient.sharing_preference_for_peer_cases,
         "source": patient.source,
         "encounters": [
             {
                 "encounter_key": row.encounter_key,
-                "year": row.year,
-                "setting": row.setting,
-                "reason": row.reason,
-                "assessment": row.assessment,
-                "plan": row.plan,
-                "handoff_summary_status": row.handoff_summary_status,
+                "visit_date": row.visit_date,
+                "diagnosis": row.diagnosis,
+                "summary": row.summary,
+                "symptoms": _read_symptoms(row.symptoms_json),
+                "current_medications": row.current_medications,
+                "alcohol_use": row.alcohol_use,
+                "smoking_status": row.smoking_status,
+                "pregnancy_status": row.pregnancy_status,
+                "immune_status": row.immune_status,
+                "lab_results": row.lab_results,
             }
             for row in encounters
         ],
     }
+
+
+def _sync_patient_from_latest_visit(db: Session, patient: Patient) -> None:
+    latest = db.scalar(
+        select(Encounter)
+        .where(Encounter.patient_key == patient.patient_key)
+        .order_by(Encounter.visit_date.desc(), Encounter.encounter_key.desc())
+    )
+    if latest is None:
+        return
+    patient.latest_visit_symptoms_json = latest.symptoms_json
+    patient.current_medications = latest.current_medications
+    patient.alcohol_use = latest.alcohol_use
+    patient.smoking_status = latest.smoking_status
+    patient.pregnancy_status = latest.pregnancy_status
+    patient.immune_status = latest.immune_status
+    patient.lab_results = latest.lab_results
 
 
 @router.get("/doctors")
@@ -471,40 +774,298 @@ def list_patients(doctor: str | None = None, db: Session = Depends(get_db)) -> l
     return [patient_card(db, row) for row in rows]
 
 
+@router.post("/patients/relevance/search", response_model=RelevantPatientsResponse)
+def find_relevant_patients(
+    body: RelevantPatientsRequest,
+    doctor: str = Query(...),
+    db: Session = Depends(get_db),
+) -> RelevantPatientsResponse:
+    _require_doctor(db, doctor)
+    patients = db.scalars(
+        select(Patient)
+        .where(Patient.primary_doctor_key == doctor)
+        .order_by(Patient.patient_key)
+    ).all()
+    candidates = [_relevant_patient_snapshot(db, patient) for patient in patients]
+    required_symptoms = [
+        cleaned
+        for cleaned in (_normalize_relevance_term(item) for item in body.required_symptoms)
+        if cleaned
+    ]
+    required_symptoms_mode = body.required_symptoms_mode
+    required_symptoms_min_match = max(1, body.required_symptoms_min_match)
+    age_min = body.age_min
+    age_max = body.age_max
+
+    base_explanation = _relevance_explanation(body.kind, body.title.strip())
+
+    context_details = [str(item).strip() for item in body.details if str(item).strip()]
+    if age_min is not None or age_max is not None:
+        context_details.append(
+            "Age relevance focus: "
+            f"{age_min if age_min is not None else 0}-{age_max if age_max is not None else 120}"
+        )
+    if required_symptoms:
+        if required_symptoms_mode == "all":
+            context_details.append(f"Symptom relevance focus (all): {', '.join(required_symptoms)}")
+        else:
+            context_details.append(
+                "Symptom relevance focus (any): "
+                f"{', '.join(required_symptoms)} | minimum matches: {required_symptoms_min_match}"
+            )
+    context = {
+        "kind": body.kind,
+        "title": body.title.strip(),
+        "summary": body.summary.strip(),
+        "details": context_details,
+    }
+    source, summary, ranked = rank_relevant_patients(context, candidates, limit=body.limit)
+    known_ids = {row["patient_key"] for row in candidates}
+    matches: list[RelevantPatientMatch] = []
+    for row in ranked:
+        patient_key = str(row.get("patient_key") or "").strip()
+        if not patient_key or patient_key not in known_ids:
+            continue
+        matches.append(
+            RelevantPatientMatch(
+                patient_key=patient_key,
+                confidence_percent=int(row.get("confidence_percent") or 0),
+                rationale=str(row.get("rationale") or "Patient relevance match."),
+            )
+        )
+        if len(matches) >= body.limit:
+            break
+
+    explanation = base_explanation if not summary else f"{base_explanation} {summary}"
+    context_title = body.title.strip() or ("Drug relevance" if body.kind == "drug" else "Notification relevance")
+    return RelevantPatientsResponse(
+        title=context_title,
+        explanation=explanation,
+        source=source,
+        matches=matches,
+    )
+
+
 @router.get("/patients/{patient_key}")
 def get_patient(patient_key: str, doctor: str = Query(...), db: Session = Depends(get_db)) -> dict:
     return patient_card(db, _panel_patient(db, patient_key, doctor))
 
 
 @router.post("/patients", status_code=201)
-def create_patient(body: PatientCreate, db: Session = Depends(get_db)) -> dict:
-    _require_doctor(db, body.primary_doctor_key)
+def create_patient(
+    body: PatientCreate,
+    doctor: str | None = Query(None),
+    db: Session = Depends(get_db),
+) -> dict:
+    doctor_key = body.primary_doctor_key or doctor
+    if doctor_key is None:
+        raise HTTPException(status_code=422, detail="A doctor key is required to create a patient.")
+    _require_doctor(db, doctor_key)
+    diagnosis_label = (body.primary_diagnosis or "").strip()
     patient = Patient(
         patient_key=next_key(db, Patient.patient_key, "P"),
-        name=body.name,
-        age_group=body.age_group,
-        state=body.state,
-        sex_for_clinical_context=body.sex_for_clinical_context,
-        preferred_language=body.preferred_language,
-        primary_doctor_key=body.primary_doctor_key,
-        allergy_status=body.allergy_status,
-        symptoms_json=json.dumps(body.symptoms),
-        tobacco_use=body.tobacco_use,
-        surgery_history=body.surgery_history,
-        family_history=body.family_history,
-        pregnancy_status=body.pregnancy_status,
+        name=_clean_text(body.name, "New patient"),
+        email_address=_clean_email(body.email_address),
+        age=_clean_age(body.age),
+        state=_clean_text(body.state, "GA"),
+        sex_for_clinical_context=_clean_sex(body.sex_for_clinical_context),
+        preferred_language=_clean_text(body.preferred_language, "English"),
+        primary_doctor_key=doctor_key,
+        allergy_status=_clean_text(body.allergy_status, "none reported"),
+        relevant_medical_history=_clean_text(
+            body.relevant_medical_history,
+            "General history reviewed.",
+        ),
+        family_medical_history=_clean_text(
+            body.family_medical_history,
+            "Family history reviewed.",
+        ),
+        current_medications=_clean_text(
+            body.current_medications,
+            "Medication list reconciled.",
+        ),
+        alcohol_use=_clean_text(body.alcohol_use, "None"),
+        smoking_status=_clean_text(body.smoking_status, "Never smoker"),
+        lab_results=_clean_text(body.lab_results, "Baseline labs reviewed."),
+        pregnancy_status=_clean_text(body.pregnancy_status, "N/A"),
+        immune_status=_clean_text(body.immune_status, "Immunocompetent"),
+        latest_visit_symptoms_json=json.dumps([_symptom_dict(item) for item in body.latest_visit_symptoms]),
         portal_access=body.portal_access,
         email_contact_available=body.email_contact_available,
-        messaging_preference=body.messaging_preference,
-        patient_education_language=body.patient_education_language,
-        sharing_preference_for_peer_cases=body.sharing_preference_for_peer_cases,
-        clinical_trial_outreach_preference=body.clinical_trial_outreach_preference,
+        messaging_preference=_clean_text(body.messaging_preference, "unavailable"),
+        patient_education_language=_clean_text(body.patient_education_language, "English"),
+        sharing_preference_for_peer_cases=_clean_text(
+            body.sharing_preference_for_peer_cases,
+            "not documented",
+        ),
+        clinical_trial_outreach_preference=_clean_text(
+            body.clinical_trial_outreach_preference,
+            "not documented",
+        ),
         source="fully synthetic fixture",
     )
     db.add(patient)
     db.flush()
     for diagnosis in body.diagnoses:
         db.add(Diagnosis(patient_key=patient.patient_key, **diagnosis.model_dump()))
+    if not body.diagnoses and diagnosis_label:
+        db.add(
+            Diagnosis(
+                patient_key=patient.patient_key,
+                label=diagnosis_label,
+                code_system="ICD-10-CM",
+                code="R69",
+                status="active",
+                first_recorded_year=datetime.utcnow().year,
+            )
+        )
+    _commit(db)
+    db.refresh(patient)
+    return patient_card(db, patient)
+
+
+@router.patch("/patients/{patient_key}")
+def update_patient(
+    patient_key: str,
+    body: PatientUpdate,
+    doctor: str = Query(...),
+    db: Session = Depends(get_db),
+) -> dict:
+    patient = _panel_patient(db, patient_key, doctor)
+    if body.name is not None:
+        patient.name = _clean_text(body.name, "New patient")
+    if body.email_address is not None:
+        patient.email_address = _clean_email(body.email_address)
+    if body.age is not None:
+        patient.age = _clean_age(body.age)
+    if body.state is not None:
+        patient.state = _clean_text(body.state, "GA")
+    if body.sex_for_clinical_context is not None:
+        patient.sex_for_clinical_context = _clean_sex(body.sex_for_clinical_context)
+    if body.preferred_language is not None:
+        patient.preferred_language = _clean_text(body.preferred_language, "English")
+    if body.allergy_status is not None:
+        patient.allergy_status = _clean_text(body.allergy_status, "none reported")
+    if body.relevant_medical_history is not None:
+        patient.relevant_medical_history = _clean_text(
+            body.relevant_medical_history,
+            "General history reviewed.",
+        )
+    if body.family_medical_history is not None:
+        patient.family_medical_history = _clean_text(
+            body.family_medical_history,
+            "Family history reviewed.",
+        )
+    if body.current_medications is not None:
+        patient.current_medications = _clean_text(
+            body.current_medications,
+            "Medication list reconciled.",
+        )
+    if body.alcohol_use is not None:
+        patient.alcohol_use = _clean_text(body.alcohol_use, "None")
+    if body.smoking_status is not None:
+        patient.smoking_status = _clean_text(body.smoking_status, "Never smoker")
+    if body.lab_results is not None:
+        patient.lab_results = _clean_text(body.lab_results, "Baseline labs reviewed.")
+    if body.pregnancy_status is not None:
+        patient.pregnancy_status = _clean_text(body.pregnancy_status, "N/A")
+    if body.immune_status is not None:
+        patient.immune_status = _clean_text(body.immune_status, "Immunocompetent")
+    if body.latest_visit_symptoms is not None:
+        patient.latest_visit_symptoms_json = json.dumps(
+            [_symptom_dict(item) for item in body.latest_visit_symptoms]
+        )
+
+    if body.primary_diagnosis is not None:
+        cleaned_diagnosis = body.primary_diagnosis.strip()
+        current = db.scalar(
+            select(Diagnosis)
+            .where(Diagnosis.patient_key == patient.patient_key)
+            .order_by(Diagnosis.id)
+        )
+        if cleaned_diagnosis:
+            if current is None:
+                db.add(
+                    Diagnosis(
+                        patient_key=patient.patient_key,
+                        label=cleaned_diagnosis,
+                        code_system="ICD-10-CM",
+                        code="R69",
+                        status="active",
+                        first_recorded_year=datetime.utcnow().year,
+                    )
+                )
+            else:
+                current.label = cleaned_diagnosis
+        elif current is not None:
+            db.delete(current)
+
+    _commit(db)
+    db.refresh(patient)
+    return patient_card(db, patient)
+
+
+def _visit_date(value: str | None) -> str:
+    cleaned = (value or "").strip()
+    if cleaned:
+        return cleaned
+    return datetime.utcnow().date().isoformat()
+
+
+@router.post("/patients/{patient_key}/visits", status_code=201)
+def add_visit(
+    patient_key: str,
+    body: VisitWrite,
+    doctor: str = Query(...),
+    db: Session = Depends(get_db),
+) -> dict:
+    patient = _panel_patient(db, patient_key, doctor)
+    encounter = Encounter(
+        encounter_key=next_key(db, Encounter.encounter_key, "E"),
+        patient_key=patient.patient_key,
+        doctor_key=doctor,
+        visit_date=_visit_date(body.visit_date),
+        diagnosis=body.diagnosis.strip() or "Follow-up assessment",
+        summary=body.summary.strip() or "Visit updated from structured intake.",
+        symptoms_json=json.dumps([_symptom_dict(item) for item in body.symptoms]),
+        current_medications=body.current_medications.strip(),
+        alcohol_use=body.alcohol_use.strip(),
+        smoking_status=body.smoking_status.strip(),
+        pregnancy_status=body.pregnancy_status.strip(),
+        immune_status=body.immune_status.strip(),
+        lab_results=body.lab_results.strip(),
+    )
+    db.add(encounter)
+    db.flush()
+    _sync_patient_from_latest_visit(db, patient)
+    _commit(db)
+    db.refresh(patient)
+    return patient_card(db, patient)
+
+
+@router.patch("/patients/{patient_key}/visits/{encounter_key}")
+def update_visit(
+    patient_key: str,
+    encounter_key: str,
+    body: VisitWrite,
+    doctor: str = Query(...),
+    db: Session = Depends(get_db),
+) -> dict:
+    patient = _panel_patient(db, patient_key, doctor)
+    encounter = db.get(Encounter, encounter_key)
+    if encounter is None or encounter.patient_key != patient.patient_key:
+        raise HTTPException(status_code=404, detail=f"Visit {encounter_key} was not found.")
+    encounter.visit_date = _visit_date(body.visit_date)
+    encounter.diagnosis = body.diagnosis.strip() or encounter.diagnosis
+    encounter.summary = body.summary.strip() or encounter.summary
+    encounter.symptoms_json = json.dumps([_symptom_dict(item) for item in body.symptoms])
+    encounter.current_medications = body.current_medications.strip()
+    encounter.alcohol_use = body.alcohol_use.strip()
+    encounter.smoking_status = body.smoking_status.strip()
+    encounter.pregnancy_status = body.pregnancy_status.strip()
+    encounter.immune_status = body.immune_status.strip()
+    encounter.lab_results = body.lab_results.strip()
+    _sync_patient_from_latest_visit(db, patient)
     _commit(db)
     db.refresh(patient)
     return patient_card(db, patient)
@@ -700,12 +1261,12 @@ def _remember_similar_cases(db: Session, patient: Patient, doctor: Doctor) -> No
     _commit(db)
 
 
-@router.get("/patients/{patient_key}/similar")
+@router.get("/patients/{patient_key}/similar", response_model=SimilarCohortAnalysisResponse)
 def similar_cases(
     patient_key: str,
     doctor: str = Query(...),
     db: Session = Depends(get_db),
-) -> list[dict]:
+) -> SimilarCohortAnalysisResponse:
     patient = _panel_patient(db, patient_key, doctor)
     doctor_row = _require_doctor(db, doctor)
     rows = db.scalars(
@@ -726,40 +1287,77 @@ def similar_cases(
                 )
             )
         ).all()
-    payload = []
-    for row in rows:
-        if row.query_patient_key == patient_key:
-            other_patient_key = row.candidate_patient_key
-            other_doctor_key = row.candidate_doctor_key
-        else:
-            other_patient_key = row.query_patient_key
-            other_doctor_key = row.query_doctor_key
-        other_patient = db.get(Patient, other_patient_key)
-        other_doctor = db.get(Doctor, other_doctor_key)
-        if other_patient is None or other_doctor is None:
+    query_snapshot = _cohort_snapshot(db, patient, "query")
+    peer_patients = db.scalars(
+        select(Patient).where(
+            Patient.patient_key != patient.patient_key,
+            Patient.primary_doctor_key != patient.primary_doctor_key,
+        )
+    ).all()
+
+    candidates: list[dict] = []
+    for index, other_patient in enumerate(peer_patients, start=1):
+        other_doctor = db.get(Doctor, other_patient.primary_doctor_key)
+        if other_doctor is None:
             continue
         if other_patient.sharing_preference_for_peer_cases != "de-identified case only":
             continue
         if not other_doctor.case_exchange_opt_in:
             continue
-        diagnosis = db.scalar(
-            select(Diagnosis).where(Diagnosis.patient_key == other_patient.patient_key)
+        candidates.append(_cohort_snapshot(db, other_patient, f"match-{index:03d}"))
+
+    if not candidates:
+        return SimilarCohortAnalysisResponse(
+            title="Similar Cohort Analysis",
+            explanation=_cohort_explanation(query_snapshot["age_group"]),
+            source="fallback",
+            matches=[],
         )
-        payload.append(
-            {
-                "patient_key": other_patient.patient_key,
-                "age_group": other_patient.age_group,
-                "sex_label": SEX_LABELS.get(other_patient.sex_for_clinical_context, "Not recorded"),
-                "diagnosis_label": diagnosis.label if diagnosis else "Not recorded",
-                "diagnosis_code": diagnosis.code if diagnosis else None,
-                "matching_feature": row.matching_feature,
-                "score": row.score,
-                "review_status": row.review_status,
-                "candidate_doctor_key": other_doctor.doctor_key,
-                "candidate_accepts_peer_consults": other_doctor.accepts_peer_consults,
-            }
+
+    source, summary, ranked = rank_cohort_matches(query_snapshot, candidates, limit=10)
+    by_id = {row["match_id"]: row for row in candidates}
+    matches: list[CohortMatch] = []
+    for row in ranked[:10]:
+        candidate = by_id.get(row.get("match_id"))
+        if candidate is None:
+            continue
+        matches.append(
+            CohortMatch(
+                match_id=candidate["match_id"],
+                confidence_percent=int(row["confidence_percent"]),
+                rationale=str(row.get("rationale") or "Cohort-level similarity match."),
+                preview=CohortMatchPreview(
+                    age_group=candidate["age_group"],
+                    diagnosis_label=candidate["diagnosis_label"],
+                    symptom_labels=candidate["symptom_labels"][:3],
+                ),
+                details=CohortMatchDetails(
+                    age_group=candidate["age_group"],
+                    sex_label=candidate["sex_label"],
+                    diagnosis_label=candidate["diagnosis_label"],
+                    prescription_label=candidate["prescription_label"],
+                    symptom_labels=candidate["symptom_labels"][:3],
+                    symptoms=[CohortSymptom(**symptom) for symptom in candidate["symptoms"][:3]],
+                    relevant_medical_history=candidate["relevant_medical_history"],
+                    family_medical_history=candidate["family_medical_history"],
+                    current_medications=candidate["current_medications"],
+                    alcohol_use=candidate["alcohol_use"],
+                    smoking_status=candidate["smoking_status"],
+                    immune_status=candidate["immune_status"],
+                    pregnancy_status=candidate["pregnancy_status"],
+                    lab_results=candidate["lab_results"],
+                ),
+            )
         )
-    return payload
+
+    base_explanation = _cohort_explanation(query_snapshot["age_group"])
+    explanation = base_explanation if not summary else f"{base_explanation}. {summary}"
+    return SimilarCohortAnalysisResponse(
+        title="Similar Cohort Analysis",
+        explanation=explanation,
+        source=source,
+        matches=matches[:10],
+    )
 
 
 @router.get("/patients/{patient_key}/handoff")
@@ -785,26 +1383,28 @@ def build_handoff_summary(db: Session, patient: Patient, doctor: str) -> dict:
     encounters = db.scalars(
         select(Encounter)
         .where(Encounter.patient_key == patient.patient_key)
-        .order_by(Encounter.year.desc())
+        .order_by(Encounter.visit_date.desc(), Encounter.encounter_key.desc())
     ).all()
     followups = db.scalars(select(Followup).where(Followup.patient_key == patient.patient_key)).all()
     return {
         "patient_key": patient.patient_key,
         "patient_display_label": patient.name,
-        "age_group": patient.age_group,
-        "sex_for_clinical_context": SEX_LABELS.get(
-            patient.sex_for_clinical_context, "Not recorded"
-        ),
+        "age": patient.age,
+        "sex_for_clinical_context": SEX_LABELS.get(patient.sex_for_clinical_context, "Unknown"),
         "state": patient.state,
         "preferred_language": patient.preferred_language,
         "doctor_key": doctor,
         "status": "draft not clinically verified",
         "source": patient.source,
-        "symptoms": json.loads(patient.symptoms_json),
-        "tobacco_use": patient.tobacco_use,
+        "symptoms": _read_symptoms(patient.latest_visit_symptoms_json),
+        "alcohol_use": patient.alcohol_use,
+        "smoking_status": patient.smoking_status,
         "pregnancy_status": patient.pregnancy_status,
-        "surgery_history": patient.surgery_history,
-        "family_history": patient.family_history,
+        "immune_status": patient.immune_status,
+        "relevant_medical_history": patient.relevant_medical_history,
+        "family_medical_history": patient.family_medical_history,
+        "current_medications": patient.current_medications,
+        "lab_results": patient.lab_results,
         "allergy_status": patient.allergy_status,
         "diagnoses": [
             {"label": row.label, "code": row.code, "status": row.status} for row in diagnoses
@@ -834,10 +1434,16 @@ def build_handoff_summary(db: Session, patient: Patient, doctor: str) -> dict:
         "encounters": [
             {
                 "encounter_key": row.encounter_key,
-                "year": row.year,
-                "reason": row.reason,
-                "assessment": row.assessment,
-                "plan": row.plan,
+                "visit_date": row.visit_date,
+                "diagnosis": row.diagnosis,
+                "summary": row.summary,
+                "symptoms": _read_symptoms(row.symptoms_json),
+                "current_medications": row.current_medications,
+                "alcohol_use": row.alcohol_use,
+                "smoking_status": row.smoking_status,
+                "pregnancy_status": row.pregnancy_status,
+                "immune_status": row.immune_status,
+                "lab_results": row.lab_results,
             }
             for row in encounters
         ],

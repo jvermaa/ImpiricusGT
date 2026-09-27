@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import {
+  KeyboardAvoidingView,
   Keyboard,
   Platform,
   Pressable,
@@ -508,7 +509,11 @@ function NewChatSheet({
   }, [directory, query]);
 
   return (
-    <View style={styles.sheetRoot}>
+    <KeyboardAvoidingView
+      style={styles.sheetRoot}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 8 : 0}
+    >
       <Pressable style={styles.sheetOverlay} onPress={onClose} />
       <View style={styles.sheetCard}>
         <View style={styles.sheetHeader}>
@@ -588,7 +593,7 @@ function NewChatSheet({
           ) : null}
         </ScrollView>
       </View>
-    </View>
+    </KeyboardAvoidingView>
   );
 }
 

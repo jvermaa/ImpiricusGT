@@ -20,7 +20,7 @@ type TabDef = {
 const TABS: TabDef[] = [
   { key: 'patient', label: 'Patient', Icon: PatientIcon },
   { key: 'chat', label: 'Chat', Icon: ChatIcon },
-  { key: 'notification', label: 'Notification', Icon: NotificationIcon },
+  { key: 'notification', label: 'Feeds', Icon: NotificationIcon },
   { key: 'profile', label: 'Profile', Icon: ProfileIcon },
 ];
 

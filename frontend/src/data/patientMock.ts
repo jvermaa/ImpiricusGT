@@ -16,28 +16,28 @@ export type PastVisit = {
   summary: string;
   symptoms: SymptomEntry[];
   currentMedications: string;
-  alcoholUse: 'None' | 'Social' | 'Daily' | 'Not recorded';
+  alcoholUse: 'None' | 'Social' | 'Daily';
   smokingStatus: 'Never smoker' | 'Former smoker' | 'Current smoker';
-  immuneStatus: 'Immunocompromised' | 'Immunocompetent' | 'Not recorded';
+  immuneStatus: 'Immunocompromised' | 'Immunocompetent';
   pregnancyStatus: 'Pregnant' | 'Not Pregnant' | 'N/A';
-  familyMedicalHistory: string;
   labResults: string;
 };
 
 export type PatientProfile = {
   id: string;
   name: string;
+  email: string;
+  anonymizedEmail?: string;
   age: number;
   sex: 'Male' | 'Female';
-  ageGroup: string;
   diagnosis: string;
   prescription: string;
   relevantMedicalHistory: string;
   familyMedicalHistory: string;
   currentMedications: string;
-  alcoholUse: 'None' | 'Social' | 'Daily' | 'Not recorded';
+  alcoholUse: 'None' | 'Social' | 'Daily';
   smokingStatus: 'Never smoker' | 'Former smoker' | 'Current smoker';
-  immuneStatus: 'Immunocompromised' | 'Immunocompetent' | 'Not recorded';
+  immuneStatus: 'Immunocompromised' | 'Immunocompetent';
   pregnancyStatus: 'Pregnant' | 'Not Pregnant' | 'N/A';
   labResults: string;
   symptoms: SymptomEntry[];
@@ -51,9 +51,9 @@ export const PATIENTS: PatientProfile[] = [
   {
     id: 'pat-1',
     name: 'Arthur Pendelton',
+    email: 'harisamser27@gmail.com',
     age: 51,
     sex: 'Male',
-    ageGroup: '45-54',
     diagnosis: 'Chronic Heart Failure',
     prescription: 'Lisinopril 10mg',
     relevantMedicalHistory:
@@ -125,8 +125,6 @@ export const PATIENTS: PatientProfile[] = [
         smokingStatus: 'Former smoker',
         immuneStatus: 'Immunocompetent',
         pregnancyStatus: 'N/A',
-        familyMedicalHistory:
-          'Father with CHF, maternal stroke at 62, sibling with hypertension.',
         labResults:
           'BNP elevated; stable creatinine; mild eosinophilia; CXR with mild pulmonary congestion.',
       },
@@ -150,8 +148,6 @@ export const PATIENTS: PatientProfile[] = [
         smokingStatus: 'Former smoker',
         immuneStatus: 'Immunocompetent',
         pregnancyStatus: 'N/A',
-        familyMedicalHistory:
-          'Father with CHF, maternal stroke at 62, sibling with hypertension.',
         labResults: 'Mild BNP elevation; edema improved with diuretic use.',
       },
     ],
@@ -159,9 +155,9 @@ export const PATIENTS: PatientProfile[] = [
   {
     id: 'pat-2',
     name: 'Sonia Kowalski',
+    email: 'harisamser27@gmail.com',
     age: 68,
     sex: 'Female',
-    ageGroup: '65-74',
     diagnosis: "Parkinson's Disease",
     prescription: 'Levodopa 100mg',
     relevantMedicalHistory:
@@ -228,7 +224,6 @@ export const PATIENTS: PatientProfile[] = [
         smokingStatus: 'Never smoker',
         immuneStatus: 'Immunocompetent',
         pregnancyStatus: 'N/A',
-        familyMedicalHistory: 'No known family history of Parkinsonism or tremor disorders.',
         labResults: 'Routine metabolic panel within range; MRI without acute lesions.',
       },
     ],
@@ -236,9 +231,9 @@ export const PATIENTS: PatientProfile[] = [
   {
     id: 'pat-3',
     name: 'James Carter',
+    email: 'harisamser27@gmail.com',
     age: 49,
     sex: 'Male',
-    ageGroup: '45-54',
     diagnosis: 'Essential Hypertension',
     prescription: 'Amlodipine 5mg',
     relevantMedicalHistory:
@@ -306,8 +301,6 @@ export const PATIENTS: PatientProfile[] = [
         smokingStatus: 'Current smoker',
         immuneStatus: 'Immunocompetent',
         pregnancyStatus: 'N/A',
-        familyMedicalHistory:
-          'Mother with uncontrolled HTN; paternal history of ischemic heart disease.',
         labResults: 'Mild LDL elevation; renal profile stable.',
       },
     ],
@@ -315,9 +308,9 @@ export const PATIENTS: PatientProfile[] = [
   {
     id: 'pat-4',
     name: 'Meera Patel',
+    email: 'harisamser27@gmail.com',
     age: 34,
     sex: 'Female',
-    ageGroup: '25-34',
     diagnosis: 'Mild Asthma',
     prescription: 'Albuterol inhaler',
     relevantMedicalHistory:
@@ -386,7 +379,6 @@ export const PATIENTS: PatientProfile[] = [
         smokingStatus: 'Never smoker',
         immuneStatus: 'Immunocompetent',
         pregnancyStatus: 'Not Pregnant',
-        familyMedicalHistory: 'Maternal history of atopy and allergic rhinitis.',
         labResults: 'Mild eosinophilia; spirometry with reversible obstruction.',
       },
     ],
