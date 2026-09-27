@@ -305,12 +305,29 @@ def create_referral(body: ReferralCreate, db: Session = Depends(get_db)) -> dict
 
 
 @router.get("")
-def list_referrals(doctor: str = Query(...), db: Session = Depends(get_db)) -> list[dict]:
+def list_referrals(
+    doctor: str = Query(...),
+    direction: Literal["in", "out"] | None = None,
+    peer: str | None = Query(None, alias="with"),
+    db: Session = Depends(get_db),
+) -> list[dict]:
     _require_doctor(db, doctor)
+    if peer:
+        _require_doctor(db, peer)
+    if direction == "in":
+        query = select(ReferralRequest).where(ReferralRequest.to_doctor_key == doctor)
+    elif direction == "out":
+        query = select(ReferralRequest).where(ReferralRequest.from_doctor_key == doctor)
+    else:
+        query = select(ReferralRequest).where(
+            or_(ReferralRequest.from_doctor_key == doctor, ReferralRequest.to_doctor_key == doctor)
+        )
+    if peer:
+        query = query.where(
+            or_(ReferralRequest.from_doctor_key == peer, ReferralRequest.to_doctor_key == peer)
+        )
     rows = db.scalars(
-        select(ReferralRequest)
-        .where(or_(ReferralRequest.from_doctor_key == doctor, ReferralRequest.to_doctor_key == doctor))
-        .order_by(ReferralRequest.updated_at.desc(), ReferralRequest.referral_key)
+        query.order_by(ReferralRequest.updated_at.desc(), ReferralRequest.referral_key)
     ).all()
     return [_referral_summary(db, row, doctor) for row in rows]
 

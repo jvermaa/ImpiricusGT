@@ -150,20 +150,26 @@ def test_profile_stats_match_the_database(client: TestClient):
     profile = client.get("/doctors/D011/profile", params={"viewer": "D011"})
     assert profile.status_code == 200
     body = profile.json()
-    assert body["stats"] == {
-        "patient_count": 2,
-        "peer_consult_threads": 1,
-        "referrals_received": 1,
-        "referrals_sent": 1,
-        "case_polls_answered": 0,
-    }
-    assert body["verification"] == "demo"
+    assert body["patient_count"] == 2
+    assert body["consult_thread_count"] == 1
+    assert body["referrals_in"] == 1
+    assert body["referrals_out"] == 1
     assert body["is_self"] is True
-    assert body["identity"]["display_name"] == "Dr. Aisha Ali"
-    assert body["identity"]["specialty_title"] == "Primary Care Physician"
+    assert body["display_name"] == "Dr. Aisha Ali"
+    assert body["specialty_title"] == "Primary Care Physician"
+    assert "professional_email" not in body
+    assert "npi" not in body
     assert "P001" not in profile.text
     assert "P002" not in profile.text
     assert "Synthetic P001" not in profile.text
+
+    outgoing = client.get("/referrals", params={"doctor": "D011", "direction": "out"})
+    assert [row["to_doctor_key"] for row in outgoing.json()] == ["D012"]
+    incoming_rows = client.get(
+        "/referrals",
+        params={"doctor": "D011", "direction": "in", "with": "D012"},
+    )
+    assert [row["from_doctor_key"] for row in incoming_rows.json()] == ["D012"]
 
 
 def test_cannot_edit_another_doctors_settings(client: TestClient):
@@ -175,7 +181,7 @@ def test_cannot_edit_another_doctors_settings(client: TestClient):
     assert denied.status_code == 403
 
     unchanged = client.get("/doctors/D012/profile", params={"viewer": "D012"})
-    assert unchanged.json()["settings"]["accepts_peer_consults"] is True
+    assert unchanged.json()["accepts_peer_consults"] is True
 
     updated = client.patch(
         "/doctors/D011/settings",
@@ -188,16 +194,31 @@ def test_cannot_edit_another_doctors_settings(client: TestClient):
         "case_exchange_opt_in": True,
     }
     again = client.get("/doctors/D011/profile", params={"viewer": "D011"})
-    assert again.json()["settings"]["accepts_peer_consults"] is False
+    assert again.json()["accepts_peer_consults"] is False
+    assert again.json()["can_message"] is False
 
 
-def test_email_hidden_until_there_is_a_consult_thread(client: TestClient):
+def test_profile_hides_private_fields_and_reports_the_mutual_thread(client: TestClient):
+    directory = client.get("/doctors")
+    assert directory.status_code == 200
+    for row in directory.json():
+        assert "professional_email" not in row
+        assert "professional_phone" not in row
+        assert "npi" not in row
+        assert "license_number" not in row
+        assert "patient_count" not in row
+
+    own = client.get("/doctors/D011/profile", params={"viewer": "D011"})
+    assert own.json()["is_self"] is True
+    assert own.json()["can_message"] is False
+    assert "patient_count" in own.json()
+
     stranger = client.get("/doctors/D013/profile", params={"viewer": "D011"})
     assert stranger.status_code == 200
     assert "professional_email" not in stranger.json()
-
-    own = client.get("/doctors/D011/profile", params={"viewer": "D011"})
-    assert own.json()["professional_email"] == "aisha@example.invalid"
+    assert "patient_count" not in stranger.json()
+    assert stranger.json()["can_message"] is True
+    assert "mutual_thread_id" not in stranger.json()
 
     sent = client.post("/consults/messages", json={
         "doctor_key": "D011",
@@ -208,8 +229,9 @@ def test_email_hidden_until_there_is_a_consult_thread(client: TestClient):
 
     peer = client.get("/doctors/D013/profile", params={"viewer": "D011"})
     body = peer.json()
-    assert body["has_consult_thread"] is True
-    assert body["professional_email"] == "leena@example.invalid"
+    assert body["mutual_thread_id"]
+    assert body["mutual_last_message"] == "Opening a consult thread."
+    assert body["consult_thread_count"] == 1
     assert body["is_self"] is False
 
 

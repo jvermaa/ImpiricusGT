@@ -287,67 +287,93 @@ def _consult_between(db: Session, left: str, right: str) -> ConsultThread | None
     )
 
 
-def doctor_profile_payload(db: Session, doctor: Doctor, viewer_key: str) -> dict:
-    """Professional card only. Patient rows never appear on this payload."""
-    is_self = viewer_key == doctor.doctor_key
-    has_consult_thread = _consult_between(db, viewer_key, doctor.doctor_key) is not None
-    languages = json.loads(doctor.languages_json)
+def _thread_count(db: Session, doctor_key: str) -> int:
+    return _count(
+        db,
+        select(func.count())
+        .select_from(ConsultThread)
+        .where(
+            or_(
+                ConsultThread.doctor_low_key == doctor_key,
+                ConsultThread.doctor_high_key == doctor_key,
+            )
+        ),
+    )
+
+
+def _referral_count(db: Session, *, doctor_key: str, incoming: bool, peer_key: str | None = None) -> int:
+    column = ReferralRequest.to_doctor_key if incoming else ReferralRequest.from_doctor_key
+    other = ReferralRequest.from_doctor_key if incoming else ReferralRequest.to_doctor_key
+    statement = select(func.count()).select_from(ReferralRequest).where(column == doctor_key)
+    if peer_key is not None:
+        statement = statement.where(other == peer_key)
+    return _count(db, statement)
+
+
+def doctor_profile_payload(db: Session, doctor: Doctor, viewer: Doctor) -> dict:
+    """Professional card only. Patient rows and contact fields never appear here."""
+    is_self = viewer.doctor_key == doctor.doctor_key
+    thread = _consult_between(db, viewer.doctor_key, doctor.doctor_key)
+    last_message = None
+    if thread is not None:
+        last_message = db.scalar(
+            select(Message.text)
+            .where(Message.thread_key == thread.thread_key)
+            .order_by(Message.created_at.desc())
+        )
+    if is_self:
+        consult_thread_count = _thread_count(db, doctor.doctor_key)
+        referrals_in = _referral_count(db, doctor_key=doctor.doctor_key, incoming=True)
+        referrals_out = _referral_count(db, doctor_key=doctor.doctor_key, incoming=False)
+    else:
+        consult_thread_count = 1 if thread is not None else 0
+        referrals_out = _referral_count(
+            db, doctor_key=viewer.doctor_key, incoming=False, peer_key=doctor.doctor_key
+        )
+        referrals_in = _referral_count(
+            db, doctor_key=viewer.doctor_key, incoming=True, peer_key=doctor.doctor_key
+        )
+    can_message = (not is_self) and doctor.accepts_peer_consults and viewer.accepts_peer_consults
+    can_refer = (not is_self) and doctor.accepts_peer_consults
     payload = {
-        "identity": {
-            "doctor_key": doctor.doctor_key,
-            "display_name": doctor.display_name,
-            "credentials": doctor.credentials,
-            "initials": _initials(doctor.display_name),
-            "specialty": doctor.specialty,
-            "specialty_title": _specialty_title(doctor.specialty),
-            "subspecialty_focus": doctor.subspecialty_focus,
-            "practice_type": doctor.practice_type,
-            "organization": doctor.organization,
-            "state": doctor.state,
-            "years_in_practice": doctor.years_in_practice,
-            "languages": languages,
-        },
-        "settings": _settings_payload(doctor),
-        "stats": {
-            "patient_count": _count(
-                db,
-                select(func.count())
-                .select_from(Patient)
-                .where(Patient.primary_doctor_key == doctor.doctor_key),
-            ),
-            "peer_consult_threads": _count(
-                db,
-                select(func.count())
-                .select_from(ConsultThread)
-                .where(
-                    or_(
-                        ConsultThread.doctor_low_key == doctor.doctor_key,
-                        ConsultThread.doctor_high_key == doctor.doctor_key,
-                    )
-                ),
-            ),
-            "referrals_received": _count(
-                db,
-                select(func.count())
-                .select_from(ReferralRequest)
-                .where(ReferralRequest.to_doctor_key == doctor.doctor_key),
-            ),
-            "referrals_sent": _count(
-                db,
-                select(func.count())
-                .select_from(ReferralRequest)
-                .where(ReferralRequest.from_doctor_key == doctor.doctor_key),
-            ),
-            # No case-poll table exists yet.
-            "case_polls_answered": 0,
-        },
-        "verification": "demo",
-        "is_self": is_self,
-        "has_consult_thread": has_consult_thread,
+        "doctor_key": doctor.doctor_key,
+        "display_name": doctor.display_name,
+        "credentials": doctor.credentials,
+        "initials": _initials(doctor.display_name),
+        "specialty": doctor.specialty,
+        "specialty_title": _specialty_title(doctor.specialty),
+        "subspecialty_focus": doctor.subspecialty_focus,
+        "practice_type": doctor.practice_type,
+        "organization": doctor.organization,
+        "state": doctor.state,
+        "years_in_practice": doctor.years_in_practice,
+        "languages": json.loads(doctor.languages_json),
         "bio": doctor.bio,
+        "accepts_peer_consults": doctor.accepts_peer_consults,
+        "case_exchange_opt_in": doctor.case_exchange_opt_in,
+        "is_self": is_self,
+        "can_message": can_message,
+        "can_refer": can_refer,
+        "consult_thread_count": consult_thread_count,
+        "referrals_in": referrals_in,
+        "referrals_out": referrals_out,
     }
-    if is_self or has_consult_thread:
-        payload["professional_email"] = doctor.professional_email
+    if is_self:
+        payload["patient_count"] = _count(
+            db,
+            select(func.count()).select_from(Patient).where(Patient.primary_doctor_key == doctor.doctor_key),
+        )
+    if not can_message and not is_self:
+        if not doctor.accepts_peer_consults:
+            payload["message_block_reason"] = "This doctor is not accepting peer consults."
+        else:
+            payload["message_block_reason"] = "Turn on Accept peer consults to message other doctors."
+    if not can_refer and not is_self:
+        payload["refer_block_reason"] = "This doctor is not accepting referrals."
+    if thread is not None:
+        payload["mutual_thread_id"] = thread.thread_key
+        if last_message:
+            payload["mutual_last_message"] = last_message
     return payload
 
 
@@ -358,8 +384,8 @@ def get_doctor_profile(
     db: Session = Depends(get_db),
 ) -> dict:
     doctor = _require_doctor(db, doctor_key)
-    _require_doctor(db, viewer)
-    return doctor_profile_payload(db, doctor, viewer)
+    viewer_doctor = _require_doctor(db, viewer)
+    return doctor_profile_payload(db, doctor, viewer_doctor)
 
 
 @router.patch("/doctors/{doctor_key}/settings")
