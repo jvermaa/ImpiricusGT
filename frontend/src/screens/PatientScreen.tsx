@@ -10,8 +10,9 @@ import {
   View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { loadMyPatients } from '../api/clinic';
+import { loadMyPatients, loadConsultDirectory } from '../api/clinic';
 import { Avatar } from '../components/Avatar';
+import { DoctorProfileCard } from '../components/DoctorProfileCard';
 import { ChatThread } from '../components/ChatThread';
 import { ChevronLeftIcon, CloseIcon, NotificationIcon, SearchIcon } from '../components/NavIcons';
 import type { AppNotification } from '../data/notificationsMock';
@@ -124,10 +125,25 @@ export function PatientScreen({
   const [confirmReferralOpen, setConfirmReferralOpen] = useState(false);
   const [referralSuccessMessage, setReferralSuccessMessage] = useState<string | null>(null);
   const [hcpSearchQuery, setHcpSearchQuery] = useState('');
+  const [apiDoctors, setApiDoctors] = useState<DoctorProfile[]>([]);
 
   const [visitForm, setVisitForm] = useState<VisitForm | null>(null);
   const [addSymptomOpen, setAddSymptomOpen] = useState(false);
   const [symptomDraft, setSymptomDraft] = useState<SymptomDraft>(EMPTY_SYMPTOM);
+
+  useEffect(() => {
+    let cancelled = false;
+    loadConsultDirectory()
+      .then((consults) => {
+        if (!cancelled) setApiDoctors(consults.directory);
+      })
+      .catch(() => {
+        if (!cancelled) setApiDoctors([]);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -174,14 +190,15 @@ export function PatientScreen({
     [patients, routedPatientId],
   );
 
+  const hcpCatalog = apiDoctors.length > 0 ? apiDoctors : DOCTOR_DIRECTORY;
   const routedDoctorId =
     route.name === 'doctorProfile' || route.name === 'doctorChat' ? route.doctorId : null;
   const routedDoctor = useMemo(
     () =>
       routedDoctorId
-        ? DOCTOR_DIRECTORY.find((doctor) => doctor.id === routedDoctorId) ?? null
+        ? hcpCatalog.find((doctor) => doctor.id === routedDoctorId) ?? null
         : null,
-    [routedDoctorId],
+    [hcpCatalog, routedDoctorId],
   );
 
   const routedDoctorThread = useMemo(
@@ -200,8 +217,8 @@ export function PatientScreen({
   const defaultSpecializationQuery = inferredSpecializations[0] ?? '';
   const hcpSearchResults = useMemo(() => {
     const seedQuery = hcpSearchQuery.trim() || defaultSpecializationQuery;
-    return searchDoctorsByNameOrSpecialization(DOCTOR_DIRECTORY, seedQuery).slice(0, 10);
-  }, [hcpSearchQuery, defaultSpecializationQuery]);
+    return searchDoctorsByNameOrSpecialization(hcpCatalog, seedQuery).slice(0, 10);
+  }, [hcpCatalog, hcpSearchQuery, defaultSpecializationQuery]);
 
   const activeVisit = useMemo(() => {
     if (route.name !== 'visitDetails' || !routedPatient) return null;
@@ -338,7 +355,7 @@ export function PatientScreen({
   };
 
   const openDoctorChat = (patientId: string, doctorId: string) => {
-    const doctor = DOCTOR_DIRECTORY.find((entry) => entry.id === doctorId);
+    const doctor = hcpCatalog.find((entry) => entry.id === doctorId);
     if (!doctor) return;
     setConsultThreads((current) => {
       const existing = current.find((thread) => thread.id === doctorId);
@@ -900,69 +917,19 @@ export function PatientScreen({
               ) : null}
             </View>
           </ScrollView>
-        ) : route.name === 'doctorProfile' && routedPatient && routedDoctor ? (
-          <ScrollView
-            style={styles.flex}
-            contentContainerStyle={styles.detailsContent}
-            showsVerticalScrollIndicator={false}
-          >
+        ) : route.name === 'doctorProfile' && routedPatient && routedDoctorId ? (
+          <View style={styles.flex}>
             {referralSuccessMessage ? (
               <View style={styles.infoBanner}>
                 <Text style={styles.infoBannerText}>{referralSuccessMessage}</Text>
               </View>
             ) : null}
-            <View style={styles.profileHeroCard}>
-              <View style={styles.profileAvatarWrap}>
-                <Avatar
-                  initials={routedDoctor.initials}
-                  color={routedDoctor.avatarColor}
-                  size={144}
-                />
-              </View>
-
-              <Text style={styles.profileHeroName}>{routedDoctor.name}</Text>
-              <Text style={styles.profileHeroMeta}>
-                {routedDoctor.specialty} | {routedDoctor.degrees.join(', ')}
-              </Text>
-
-              <View style={styles.profileDivider} />
-
-              <Text style={styles.profileSectionTitle}>Medical Profile</Text>
-              <Text style={styles.profileDescription}>
-                {routedDoctor.name} specializes in comprehensive {routedDoctor.specialty.toLowerCase()} care with
-                a focus on long-term outcomes and peer collaboration.
-              </Text>
-              <Text style={styles.profileDescription}>
-                {routedDoctor.name} is board certified and available for rapid consults and referrals.
-              </Text>
-
-              <Text style={styles.profileAddressLabel}>Address</Text>
-              <Text style={styles.profileAddressValue}>{routedDoctor.address}</Text>
-              <Text style={styles.profileDistanceNote}>
-                {formatDistance(routedDoctor.distanceKm)}
-              </Text>
-            </View>
-
-            <View style={styles.profileActionRow}>
-              <Pressable
-                accessibilityRole="button"
-                accessibilityLabel={`Open chat with ${routedDoctor.name}`}
-                onPress={() => openDoctorChat(routedPatient.id, routedDoctor.id)}
-                style={styles.profileActionPrimary}
-              >
-                <Text style={styles.profileActionPrimaryText}>Chat</Text>
-              </Pressable>
-
-              <Pressable
-                accessibilityRole="button"
-                accessibilityLabel={`Refer ${routedPatient.name} to ${routedDoctor.name}`}
-                onPress={() => setConfirmReferralOpen(true)}
-                style={styles.profileActionSecondary}
-              >
-                <Text style={styles.profileActionSecondaryText}>Refer</Text>
-              </Pressable>
-            </View>
-          </ScrollView>
+            <DoctorProfileCard
+              doctorKey={routedDoctorId}
+              onMessage={() => openDoctorChat(routedPatient.id, routedDoctorId)}
+              onRefer={() => setConfirmReferralOpen(true)}
+            />
+          </View>
         ) : route.name === 'doctorChat' && routedPatient && routedDoctor ? (
           <View style={styles.flex}>
             {referralSuccessMessage ? (

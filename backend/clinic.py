@@ -2,8 +2,8 @@ import json
 from datetime import datetime
 
 from fastapi import APIRouter, Depends, HTTPException, Query
-from pydantic import BaseModel, Field
-from sqlalchemy import or_, select
+from pydantic import BaseModel, ConfigDict, Field
+from sqlalchemy import func, or_, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
@@ -21,6 +21,7 @@ from models import (
     Message,
     Patient,
     Prescription,
+    ReferralRequest,
 )
 
 router = APIRouter()
@@ -102,6 +103,13 @@ class ConsultMessageCreate(BaseModel):
     doctor_key: str
     peer_doctor_key: str
     text: str = Field(min_length=1, max_length=2000)
+
+
+class DoctorSettingsUpdate(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    accepts_peer_consults: bool | None = None
+    case_exchange_opt_in: bool | None = None
 
 
 def _commit(db: Session) -> None:
@@ -236,6 +244,126 @@ def list_doctors(specialty: str | None = None, db: Session = Depends(get_db)) ->
 @router.get("/doctors/{doctor_key}")
 def get_doctor(doctor_key: str, db: Session = Depends(get_db)) -> dict:
     return doctor_payload(_require_doctor(db, doctor_key))
+
+
+def _settings_payload(doctor: Doctor) -> dict:
+    return {
+        "accepts_peer_consults": doctor.accepts_peer_consults,
+        "case_exchange_opt_in": doctor.case_exchange_opt_in,
+    }
+
+
+def _count(db: Session, statement) -> int:
+    return int(db.scalar(statement) or 0)
+
+
+def _consult_between(db: Session, left: str, right: str) -> ConsultThread | None:
+    if left == right:
+        return None
+    low, high = (left, right) if left < right else (right, left)
+    return db.scalar(
+        select(ConsultThread).where(
+            ConsultThread.doctor_low_key == low,
+            ConsultThread.doctor_high_key == high,
+        )
+    )
+
+
+def doctor_profile_payload(db: Session, doctor: Doctor, viewer_key: str) -> dict:
+    """Professional card only. Patient rows never appear on this payload."""
+    is_self = viewer_key == doctor.doctor_key
+    has_consult_thread = _consult_between(db, viewer_key, doctor.doctor_key) is not None
+    languages = json.loads(doctor.languages_json)
+    payload = {
+        "identity": {
+            "doctor_key": doctor.doctor_key,
+            "display_name": doctor.display_name,
+            "credentials": doctor.credentials,
+            "initials": _initials(doctor.display_name),
+            "specialty": doctor.specialty,
+            "specialty_title": _specialty_title(doctor.specialty),
+            "subspecialty_focus": doctor.subspecialty_focus,
+            "practice_type": doctor.practice_type,
+            "organization": doctor.organization,
+            "state": doctor.state,
+            "years_in_practice": doctor.years_in_practice,
+            "languages": languages,
+        },
+        "settings": _settings_payload(doctor),
+        "stats": {
+            "patient_count": _count(
+                db,
+                select(func.count())
+                .select_from(Patient)
+                .where(Patient.primary_doctor_key == doctor.doctor_key),
+            ),
+            "peer_consult_threads": _count(
+                db,
+                select(func.count())
+                .select_from(ConsultThread)
+                .where(
+                    or_(
+                        ConsultThread.doctor_low_key == doctor.doctor_key,
+                        ConsultThread.doctor_high_key == doctor.doctor_key,
+                    )
+                ),
+            ),
+            "referrals_received": _count(
+                db,
+                select(func.count())
+                .select_from(ReferralRequest)
+                .where(ReferralRequest.to_doctor_key == doctor.doctor_key),
+            ),
+            "referrals_sent": _count(
+                db,
+                select(func.count())
+                .select_from(ReferralRequest)
+                .where(ReferralRequest.from_doctor_key == doctor.doctor_key),
+            ),
+            # No case-poll table exists yet.
+            "case_polls_answered": 0,
+        },
+        "verification": "demo",
+        "is_self": is_self,
+        "has_consult_thread": has_consult_thread,
+    }
+    if is_self or has_consult_thread:
+        payload["professional_email"] = doctor.professional_email
+    return payload
+
+
+@router.get("/doctors/{doctor_key}/profile")
+def get_doctor_profile(
+    doctor_key: str,
+    viewer: str = Query(...),
+    db: Session = Depends(get_db),
+) -> dict:
+    doctor = _require_doctor(db, doctor_key)
+    _require_doctor(db, viewer)
+    return doctor_profile_payload(db, doctor, viewer)
+
+
+@router.patch("/doctors/{doctor_key}/settings")
+def update_doctor_settings(
+    doctor_key: str,
+    body: DoctorSettingsUpdate,
+    viewer: str = Query(...),
+    db: Session = Depends(get_db),
+) -> dict:
+    doctor = _require_doctor(db, doctor_key)
+    _require_doctor(db, viewer)
+    if viewer != doctor_key:
+        raise HTTPException(
+            status_code=403,
+            detail="Only this doctor can update these settings.",
+        )
+    if body.accepts_peer_consults is not None:
+        doctor.accepts_peer_consults = body.accepts_peer_consults
+    if body.case_exchange_opt_in is not None:
+        doctor.case_exchange_opt_in = body.case_exchange_opt_in
+    _commit(db)
+    db.refresh(doctor)
+    return _settings_payload(doctor)
 
 
 @router.post("/doctors", status_code=201)

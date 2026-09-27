@@ -8,7 +8,7 @@ import type { AppNotification } from './src/data/notificationsMock';
 import { ChatScreen } from './src/screens/ChatScreen';
 import { NotificationsScreen } from './src/screens/NotificationsScreen';
 import { PatientScreen } from './src/screens/PatientScreen';
-import { PlaceholderScreen } from './src/screens/PlaceholderScreen';
+import { ProfileScreen } from './src/screens/ProfileScreen';
 
 function AppShell() {
   const [activeTab, setActiveTab] = useState<TabKey>('notification');
@@ -66,7 +66,7 @@ function AppShell() {
                 onExitSuitableMode={exitSuitableMode}
               />
             ) : (
-              <PlaceholderScreen title="Profile" />
+              <ProfileScreen />
             )}
           </View>
           {!keyboardVisible ? (

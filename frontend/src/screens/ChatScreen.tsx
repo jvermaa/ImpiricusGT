@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Avatar } from '../components/Avatar';
+import { DoctorProfileCard } from '../components/DoctorProfileCard';
 import { ChatThread } from '../components/ChatThread';
 import {
   ChevronLeftIcon,
@@ -137,12 +138,12 @@ export function ChatScreen() {
   const headerTitle = activeDoctor
     ? activeDoctor.name
     : profileDoctor
-      ? profileDoctor.name
+      ? 'Profile'
       : 'Doctors';
   const headerSubtitle = activeDoctor
     ? activeDoctor.designation
     : profileDoctor
-      ? profileDoctor.specializations.slice(0, 2).join(' · ')
+      ? profileDoctor.designation
       : specialtyFilter === 'All'
         ? 'Peer consults'
         : specialtyFilter;
@@ -302,19 +303,28 @@ export function ChatScreen() {
             doctorName={currentDoctor.name}
             statusMessage={loadError}
             specialtyFilter={specialtyFilter}
-            onSelect={(id) => setActiveDoctorId(id)}
+            onSelect={(id) => {
+              const doctor = threads.find((entry) => entry.id === id);
+              if (doctor) openDoctorProfile(doctor);
+            }}
             onNewChat={() => {
               setFilterOpen(false);
               setNewChatOpen(true);
             }}
           />
         ) : showingProfile && profileDoctor ? (
-          <DoctorProfileView
-            doctor={profileDoctor}
-            onChat={() => startOrOpenChat(profileDoctor)}
-            onRefer={() => openReferralPicker(profileDoctor.id)}
-            successMessage={referralSuccessMessage}
-          />
+          <View style={styles.flex}>
+            {referralSuccessMessage ? (
+              <View style={styles.successBanner}>
+                <Text style={styles.successBannerText}>{referralSuccessMessage}</Text>
+              </View>
+            ) : null}
+            <DoctorProfileCard
+              doctorKey={profileDoctor.id}
+              onMessage={() => startOrOpenChat(profileDoctor)}
+              onRefer={() => openReferralPicker(profileDoctor.id)}
+            />
+          </View>
         ) : activeDoctor ? (
           <ChatThread
             messages={activeDoctor.messages}
@@ -444,7 +454,7 @@ function DoctorList({
             <Pressable
               key={doc.id}
               accessibilityRole="button"
-              accessibilityLabel={`Chat with ${doc.name}`}
+              accessibilityLabel={`Open profile for ${doc.name}`}
               onPress={() => {
                 Keyboard.dismiss();
                 onSelect(doc.id);
@@ -575,77 +585,6 @@ function NewChatSheet({
         </ScrollView>
       </View>
     </View>
-  );
-}
-
-function DoctorProfileView({
-  doctor,
-  onChat,
-  onRefer,
-  successMessage,
-}: {
-  doctor: DoctorProfile;
-  onChat: () => void;
-  onRefer: () => void;
-  successMessage: string | null;
-}) {
-  return (
-    <ScrollView
-      style={styles.flex}
-      contentContainerStyle={styles.profileContent}
-      showsVerticalScrollIndicator={false}
-    >
-      {successMessage ? (
-        <View style={styles.successBanner}>
-          <Text style={styles.successBannerText}>{successMessage}</Text>
-        </View>
-      ) : null}
-
-      <View style={styles.profileHeroCard}>
-        <View style={styles.profileAvatarWrap}>
-          <Avatar initials={doctor.initials} color={doctor.avatarColor} size={144} />
-        </View>
-        <Text style={styles.profileHeroName}>{doctor.name}</Text>
-        <Text style={styles.profileHeroMeta}>
-          {doctor.specialty} | {doctor.degrees.join(', ')}
-        </Text>
-
-        <View style={styles.profileDivider} />
-
-        <Text style={styles.profileSectionTitle}>Medical Profile</Text>
-        <Text style={styles.profileDescription}>
-          {doctor.name} specializes in comprehensive {doctor.specialty.toLowerCase()} care with a
-          strong focus on long-term outcomes and collaborative treatment planning.
-        </Text>
-        <Text style={styles.profileDescription}>
-          Board certified and available for rapid peer consults and patient referrals.
-        </Text>
-
-        <Text style={styles.profileAddressLabel}>Address</Text>
-        <Text style={styles.profileAddressValue}>{doctor.address}</Text>
-        <Text style={styles.profileDistanceNote}>{doctor.distanceKm.toFixed(1)} km away</Text>
-      </View>
-
-      <View style={styles.profileActionRow}>
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel={`Chat with ${doctor.name}`}
-          onPress={onChat}
-          style={styles.profileActionPrimary}
-        >
-          <Text style={styles.profileActionPrimaryText}>Chat</Text>
-        </Pressable>
-
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel={`Refer patient to ${doctor.name}`}
-          onPress={onRefer}
-          style={styles.profileActionSecondary}
-        >
-          <Text style={styles.profileActionSecondaryText}>Refer</Text>
-        </Pressable>
-      </View>
-    </ScrollView>
   );
 }
 
