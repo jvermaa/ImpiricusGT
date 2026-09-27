@@ -16,9 +16,9 @@ export type PastVisit = {
   summary: string;
   symptoms: SymptomEntry[];
   currentMedications: string;
-  alcoholUse: 'None' | 'Social' | 'Daily';
+  alcoholUse: 'None' | 'Social' | 'Daily' | 'Not recorded';
   smokingStatus: 'Never smoker' | 'Former smoker' | 'Current smoker';
-  immuneStatus: 'Immunocompromised' | 'Immunocompetent';
+  immuneStatus: 'Immunocompromised' | 'Immunocompetent' | 'Not recorded';
   pregnancyStatus: 'Pregnant' | 'Not Pregnant' | 'N/A';
   familyMedicalHistory: string;
   labResults: string;
@@ -35,9 +35,9 @@ export type PatientProfile = {
   relevantMedicalHistory: string;
   familyMedicalHistory: string;
   currentMedications: string;
-  alcoholUse: 'None' | 'Social' | 'Daily';
+  alcoholUse: 'None' | 'Social' | 'Daily' | 'Not recorded';
   smokingStatus: 'Never smoker' | 'Former smoker' | 'Current smoker';
-  immuneStatus: 'Immunocompromised' | 'Immunocompetent';
+  immuneStatus: 'Immunocompromised' | 'Immunocompetent' | 'Not recorded';
   pregnancyStatus: 'Pregnant' | 'Not Pregnant' | 'N/A';
   labResults: string;
   symptoms: SymptomEntry[];

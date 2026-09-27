@@ -3,6 +3,10 @@ export type DoctorProfile = {
   name: string;
   designation: string;
   specialty: string;
+  specializations: string[];
+  degrees: string[];
+  address: string;
+  distanceKm: number;
   initials: string;
   avatarColor: string;
 };
