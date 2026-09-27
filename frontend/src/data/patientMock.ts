@@ -45,7 +45,7 @@ export type PatientProfile = {
 };
 
 /** Hardcoded high-relevance matches for suitable-patient / cohort analyzer mode. */
-export const HIGH_MATCH_PATIENT_IDS = ['pat-1', 'pat-3'] as const;
+export const HIGH_MATCH_PATIENT_IDS = ['P031'] as const;
 
 export const PATIENTS: PatientProfile[] = [
   {
