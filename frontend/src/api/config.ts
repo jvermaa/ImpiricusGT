@@ -27,5 +27,5 @@ function inferApiBaseUrl(): string {
 
 export const API_BASE_URL = inferApiBaseUrl();
 
-/** Signed-in HCP: Dr. Aisha Ali in data/doctors.json. */
-export const CURRENT_DOCTOR_KEY = 'D011';
+/** Signed-in HCP: Dr. Aisha Reed in data/doctors.json. */
+export const CURRENT_DOCTOR_KEY = 'D031';
