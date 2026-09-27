@@ -317,29 +317,31 @@ def create_patient(body: PatientCreate, db: Session = Depends(get_db)) -> dict:
 @router.get("/consults")
 def list_consults(doctor: str = Query(...), db: Session = Depends(get_db)) -> list[dict]:
     requester = _require_doctor(db, doctor)
-    peers = db.scalars(
-        select(Doctor)
-        .where(Doctor.doctor_key != requester.doctor_key)
-        .order_by(Doctor.display_name)
-    ).all()
-    payload = []
-    for peer in peers:
-        low, high = _ordered_pair(requester.doctor_key, peer.doctor_key)
-        thread = db.scalar(
-            select(ConsultThread).where(
-                ConsultThread.doctor_low_key == low,
-                ConsultThread.doctor_high_key == high,
+    threads = db.scalars(
+        select(ConsultThread).where(
+            or_(
+                ConsultThread.doctor_low_key == requester.doctor_key,
+                ConsultThread.doctor_high_key == requester.doctor_key,
             )
         )
-        last_message = ""
-        if thread is not None:
-            message = db.scalar(
-                select(Message)
-                .where(Message.thread_key == thread.thread_key)
-                .order_by(Message.created_at.desc())
-            )
-            if message is not None:
-                last_message = message.text
+    ).all()
+    payload = []
+    for thread in threads:
+        peer_key = (
+            thread.doctor_high_key
+            if thread.doctor_low_key == requester.doctor_key
+            else thread.doctor_low_key
+        )
+        peer = db.get(Doctor, peer_key)
+        if peer is None:
+            continue
+        message = db.scalar(
+            select(Message)
+            .where(Message.thread_key == thread.thread_key)
+            .order_by(Message.created_at.desc())
+        )
+        if message is None:
+            continue
         payload.append(
             {
                 "doctor_key": peer.doctor_key,
@@ -347,9 +349,13 @@ def list_consults(doctor: str = Query(...), db: Session = Depends(get_db)) -> li
                 "initials": _initials(peer.display_name),
                 "specialty": peer.specialty,
                 "specialty_title": _specialty_title(peer.specialty),
-                "last_message": last_message,
+                "last_message": message.text,
+                "_sort": message.created_at,
             }
         )
+    payload.sort(key=lambda row: row["_sort"], reverse=True)
+    for row in payload:
+        row.pop("_sort")
     return payload
 
 

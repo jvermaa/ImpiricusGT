@@ -11,13 +11,6 @@ type DoctorDTO = {
   specialty: string;
   specialty_title: string;
   accepts_peer_consults: boolean;
-  credentials: string;
-  subspecialty_focus: string;
-  practice_type: string;
-  state: string;
-  years_in_practice: number;
-  languages: string[];
-  organization: string;
 };
 
 type ConsultDTO = {
@@ -74,22 +67,53 @@ function colorFor(key: string): string {
   return PALETTE[index % PALETTE.length];
 }
 
+function distanceFor(key: string): number {
+  const hash = key.split('').reduce((sum, char) => sum + char.charCodeAt(0), 0);
+  return Number((1 + (hash % 100) / 10).toFixed(1));
+}
+
+function titleCase(value: string): string {
+  return value
+    .replace(/[_-]+/g, ' ')
+    .split(' ')
+    .filter(Boolean)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(' ');
+}
+
+function defaultSpecializations(specialty: string, specialtyTitle: string): string[] {
+  const readable = titleCase(specialty);
+  const base = specialtyTitle || readable;
+  if (base.toLowerCase().includes('cardio')) return [base, 'Heart Failure'];
+  if (base.toLowerCase().includes('pulmo')) return [base, 'Critical Care'];
+  if (base.toLowerCase().includes('neuro')) return [base, 'Movement Disorders'];
+  if (base.toLowerCase().includes('rheum')) return [base, 'Autoimmune Disease'];
+  if (base.toLowerCase().includes('endo')) return [base, 'Diabetes Care'];
+  return [base, readable].filter((entry, index, arr) => arr.indexOf(entry) === index);
+}
+
+function addressFor(key: string): string {
+  const suffix = key
+    .split('')
+    .reduce((sum, char) => sum + char.charCodeAt(0), 0)
+    .toString()
+    .slice(-3);
+  return `${100 + Number(suffix || 0)} Peachtree St NE, Atlanta, GA`;
+}
+
 function toProfile(doctor: DoctorDTO | ConsultDTO): DoctorProfile {
-  const detail = doctor as DoctorDTO;
+  const specializations = defaultSpecializations(doctor.specialty, doctor.specialty_title);
   return {
     id: doctor.doctor_key,
     name: doctor.display_name,
     designation: doctor.specialty_title,
     specialty: doctor.specialty,
+    specializations,
+    degrees: ['MD'],
+    address: addressFor(doctor.doctor_key),
+    distanceKm: distanceFor(doctor.doctor_key),
     initials: doctor.initials,
     avatarColor: colorFor(doctor.doctor_key),
-    credentials: detail.credentials,
-    subspecialtyFocus: detail.subspecialty_focus,
-    practiceType: detail.practice_type,
-    state: detail.state,
-    yearsInPractice: detail.years_in_practice,
-    languages: detail.languages,
-    organization: detail.organization,
   };
 }
 

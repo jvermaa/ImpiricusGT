@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import {
+  Keyboard,
   Platform,
   Pressable,
   ScrollView,
@@ -24,20 +25,20 @@ import {
   loadThreadMessages,
   sendConsultMessage,
 } from '../api/clinic';
-import { loadMyReferrals } from '../api/referrals';
-import { ReferralWorkspace } from './ReferralWorkspace';
 import type {
   ChatMessage,
   CurrentDoctor,
   DoctorProfile,
   DoctorThread,
 } from '../types/chat';
-import type { ReferralSummary } from '../types/referrals';
+import { getPatientsRankedForDoctor, searchDoctorsByNameOrSpecialization } from '../data/doctorDiscovery';
+import { PATIENTS, type PatientProfile } from '../data/patientMock';
 import { colors } from '../theme/colors';
 
 export function ChatScreen() {
   const insets = useSafeAreaInsets();
   const [activeDoctorId, setActiveDoctorId] = useState<string | null>(null);
+  const [profileDoctorId, setProfileDoctorId] = useState<string | null>(null);
   const [threads, setThreads] = useState<DoctorThread[]>([]);
   const [directory, setDirectory] = useState<DoctorProfile[]>([]);
   const [specialties, setSpecialties] = useState<string[]>(['All']);
@@ -51,43 +52,55 @@ export function ChatScreen() {
   const [specialtyFilter, setSpecialtyFilter] = useState('All');
   const [filterOpen, setFilterOpen] = useState(false);
   const [newChatOpen, setNewChatOpen] = useState(false);
-  const [listMode, setListMode] = useState<'chats' | 'referrals'>('chats');
-  const [referrals, setReferrals] = useState<ReferralSummary[]>([]);
-  const [referralProvider, setReferralProvider] = useState<DoctorProfile | null>(null);
-  const [activeReferralKey, setActiveReferralKey] = useState<string | null>(null);
+  const [referralDoctorId, setReferralDoctorId] = useState<string | null>(null);
+  const [referralPatientId, setReferralPatientId] = useState<string | null>(null);
+  const [referralSuccessMessage, setReferralSuccessMessage] = useState<string | null>(null);
 
-  const refreshReferrals = () => {
-    loadMyReferrals()
-      .then(setReferrals)
-      .catch(() => setLoadError('Could not load referrals from the API.'));
-  };
+  const activeDoctor = useMemo(
+    () => threads.find((t) => t.id === activeDoctorId) ?? null,
+    [threads, activeDoctorId],
+  );
+  const profileDoctor = useMemo(
+    () =>
+      directory.find((doctor) => doctor.id === profileDoctorId) ??
+      threads.find((doctor) => doctor.id === profileDoctorId) ??
+      null,
+    [directory, threads, profileDoctorId],
+  );
+  const referralDoctor = useMemo(
+    () =>
+      directory.find((doctor) => doctor.id === referralDoctorId) ??
+      threads.find((doctor) => doctor.id === referralDoctorId) ??
+      null,
+    [directory, threads, referralDoctorId],
+  );
+  const selectedReferralPatient = useMemo(
+    () => PATIENTS.find((patient) => patient.id === referralPatientId) ?? null,
+    [referralPatientId],
+  );
+  const patientsRankedForReferral = useMemo(
+    () =>
+      referralDoctor ? getPatientsRankedForDoctor(referralDoctor, PATIENTS) : [],
+    [referralDoctor],
+  );
 
   useEffect(() => {
     let cancelled = false;
-    loadCurrentDoctor()
-      .then((doctor) => {
-        if (!cancelled) setCurrentDoctor(doctor);
-      })
-      .catch(() => {
-        if (!cancelled) setLoadError('Could not load the signed-in doctor from the API.');
-      });
-    loadConsultDirectory()
-      .then((data) => {
+
+    Promise.all([loadCurrentDoctor(), loadConsultDirectory()])
+      .then(([doctor, consultData]) => {
         if (cancelled) return;
-        setDirectory(data.directory);
-        setThreads(data.threads);
-        setSpecialties(data.specialties);
+        setCurrentDoctor(doctor);
+        setDirectory(consultData.directory);
+        setThreads(consultData.threads);
+        setSpecialties(consultData.specialties);
+        setLoadError(null);
       })
       .catch(() => {
-        if (!cancelled) setLoadError('Could not load peer consults from the API.');
+        if (cancelled) return;
+        setLoadError('Could not load consult directory.');
       });
-    loadMyReferrals()
-      .then((rows) => {
-        if (!cancelled) setReferrals(rows);
-      })
-      .catch(() => {
-        if (!cancelled) setLoadError('Could not load referrals from the API.');
-      });
+
     return () => {
       cancelled = true;
     };
@@ -95,37 +108,44 @@ export function ChatScreen() {
 
   useEffect(() => {
     if (!activeDoctorId) return;
+    const thread = threads.find((entry) => entry.id === activeDoctorId);
+    if (!thread || thread.messages.length > 0) return;
+
     let cancelled = false;
     loadThreadMessages(activeDoctorId)
       .then((messages) => {
         if (cancelled) return;
-        setThreads((prev) =>
-          prev.map((thread) =>
-            thread.id === activeDoctorId ? { ...thread, messages } : thread,
+        setThreads((current) =>
+          current.map((entry) =>
+            entry.id === activeDoctorId ? { ...entry, messages } : entry,
           ),
         );
       })
       .catch(() => {
-        if (!cancelled) setLoadError('Could not load this consult thread.');
+        if (cancelled) return;
+        setLoadError('Could not load this consult thread.');
       });
+
     return () => {
       cancelled = true;
     };
-  }, [activeDoctorId]);
+  }, [activeDoctorId, threads]);
 
-  const activeDoctor = useMemo(
-    () => threads.find((t) => t.id === activeDoctorId) ?? null,
-    [threads, activeDoctorId],
-  );
+  const showingProfile = !!profileDoctor && !activeDoctor;
+  const showingList = !activeDoctor && !showingProfile;
 
-  const showingList = !activeDoctor;
-
-  const headerTitle = activeDoctor ? activeDoctor.name : 'Doctors';
+  const headerTitle = activeDoctor
+    ? activeDoctor.name
+    : profileDoctor
+      ? profileDoctor.name
+      : 'Doctors';
   const headerSubtitle = activeDoctor
     ? activeDoctor.designation
-    : specialtyFilter === 'All'
-      ? 'Peer consults'
-      : specialtyFilter;
+    : profileDoctor
+      ? profileDoctor.specializations.slice(0, 2).join(' · ')
+      : specialtyFilter === 'All'
+        ? 'Peer consults'
+        : specialtyFilter;
 
   const startOrOpenChat = (doctor: DoctorProfile) => {
     setThreads((prev) => {
@@ -139,8 +159,18 @@ export function ChatScreen() {
       return [fresh, ...prev];
     });
     setActiveDoctorId(doctor.id);
+    setProfileDoctorId(null);
     setNewChatOpen(false);
     setFilterOpen(false);
+    setReferralSuccessMessage(null);
+  };
+
+  const openDoctorProfile = (doctor: DoctorProfile) => {
+    setProfileDoctorId(doctor.id);
+    setActiveDoctorId(null);
+    setNewChatOpen(false);
+    setFilterOpen(false);
+    setReferralSuccessMessage(null);
   };
 
   const sendDoctor = (text: string) => {
@@ -162,7 +192,27 @@ export function ChatScreen() {
 
   const goBackToList = () => {
     setActiveDoctorId(null);
+    setProfileDoctorId(null);
     setFilterOpen(false);
+  };
+
+  const openReferralPicker = (doctorId: string) => {
+    setReferralDoctorId(doctorId);
+    setReferralPatientId(null);
+    setReferralSuccessMessage(null);
+  };
+
+  const closeReferralFlow = () => {
+    setReferralDoctorId(null);
+    setReferralPatientId(null);
+  };
+
+  const confirmReferral = () => {
+    if (!referralDoctor || !selectedReferralPatient) return;
+    setReferralSuccessMessage(
+      `Referral sent to ${selectedReferralPatient.name}. Email sent with ${referralDoctor.name}'s details and medical history shared with the doctor.`,
+    );
+    closeReferralFlow();
   };
 
   return (
@@ -171,13 +221,13 @@ export function ChatScreen() {
         <Pressable
           accessibilityRole="button"
           accessibilityLabel={
-            activeDoctor ? 'Back to doctor list' : 'Doctors'
+            activeDoctor || showingProfile ? 'Back to doctor list' : 'Doctors'
           }
-          onPress={activeDoctor ? goBackToList : undefined}
-          disabled={!activeDoctor}
+          onPress={activeDoctor || showingProfile ? goBackToList : undefined}
+          disabled={!activeDoctor && !showingProfile}
           style={styles.headerLeft}
         >
-          {activeDoctor ? (
+          {activeDoctor || showingProfile ? (
             <ChevronLeftIcon color={colors.white} size={22} />
           ) : null}
           <View style={styles.headerTitles}>
@@ -190,7 +240,7 @@ export function ChatScreen() {
           </View>
         </Pressable>
 
-        {showingList && listMode === 'chats' ? (
+        {showingList ? (
           <Pressable
             accessibilityRole="button"
             accessibilityLabel="Filter by specialty"
@@ -208,11 +258,28 @@ export function ChatScreen() {
             />
           </Pressable>
         ) : activeDoctor ? (
-          <Avatar
-            initials={activeDoctor.initials}
-            color={activeDoctor.avatarColor}
-            size={36}
-          />
+          <View style={styles.chatHeaderActions}>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={`Refer from chat with ${activeDoctor.name}`}
+              onPress={() => openReferralPicker(activeDoctor.id)}
+              style={styles.chatReferBtn}
+            >
+              <Text style={styles.chatReferText}>Refer</Text>
+            </Pressable>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={`Open ${activeDoctor.name} profile`}
+              onPress={() => openDoctorProfile(activeDoctor)}
+              style={styles.chatAvatarButton}
+            >
+              <Avatar
+                initials={activeDoctor.initials}
+                color={activeDoctor.avatarColor}
+                size={36}
+              />
+            </Pressable>
+          </View>
         ) : null}
       </View>
 
@@ -230,52 +297,24 @@ export function ChatScreen() {
 
       <View style={styles.body}>
         {showingList ? (
-          <View style={styles.flex}>
-            <View style={styles.listTabs}>
-              <Pressable
-                accessibilityRole="button"
-                accessibilityState={{ selected: listMode === 'chats' }}
-                onPress={() => setListMode('chats')}
-                style={[styles.listTab, listMode === 'chats' && styles.listTabActive]}
-              >
-                <Text style={[styles.listTabText, listMode === 'chats' && styles.listTabTextActive]}>Doctors</Text>
-              </Pressable>
-              <Pressable
-                accessibilityRole="button"
-                accessibilityState={{ selected: listMode === 'referrals' }}
-                onPress={() => {
-                  setFilterOpen(false);
-                  setListMode('referrals');
-                }}
-                style={[styles.listTab, listMode === 'referrals' && styles.listTabActive]}
-              >
-                <Text style={[styles.listTabText, listMode === 'referrals' && styles.listTabTextActive]}>
-                  Referrals{referrals.length ? ` · ${referrals.length}` : ''}
-                </Text>
-              </Pressable>
-            </View>
-            {listMode === 'chats' ? (
-              <DoctorList
-                threads={threads}
-                doctorName={currentDoctor.name}
-                statusMessage={loadError}
-                specialtyFilter={specialtyFilter}
-                onSelect={(id) => setActiveDoctorId(id)}
-                onNewChat={() => {
-                  setFilterOpen(false);
-                  setNewChatOpen(true);
-                }}
-              />
-            ) : (
-              <ReferralList
-                rows={referrals}
-                currentDoctorKey={currentDoctor.id}
-                statusMessage={loadError}
-                onRefresh={refreshReferrals}
-                onSelect={(key) => setActiveReferralKey(key)}
-              />
-            )}
-          </View>
+          <DoctorList
+            threads={threads}
+            doctorName={currentDoctor.name}
+            statusMessage={loadError}
+            specialtyFilter={specialtyFilter}
+            onSelect={(id) => setActiveDoctorId(id)}
+            onNewChat={() => {
+              setFilterOpen(false);
+              setNewChatOpen(true);
+            }}
+          />
+        ) : showingProfile && profileDoctor ? (
+          <DoctorProfileView
+            doctor={profileDoctor}
+            onChat={() => startOrOpenChat(profileDoctor)}
+            onRefer={() => openReferralPicker(profileDoctor.id)}
+            successMessage={referralSuccessMessage}
+          />
         ) : activeDoctor ? (
           <ChatThread
             messages={activeDoctor.messages}
@@ -290,86 +329,30 @@ export function ChatScreen() {
       {newChatOpen ? (
         <NewChatSheet
           directory={directory}
+          existingIds={new Set(threads.map((t) => t.id))}
           onClose={() => setNewChatOpen(false)}
-          onSelectDoctor={(doctor) => setReferralProvider(doctor)}
+          onSelectDoctor={openDoctorProfile}
         />
       ) : null}
-      {referralProvider || activeReferralKey ? (
-        <ReferralWorkspace
-          currentDoctor={currentDoctor}
-          provider={referralProvider}
-          referralKey={activeReferralKey}
-          onClose={() => {
-            setReferralProvider(null);
-            setActiveReferralKey(null);
-            refreshReferrals();
-          }}
-          onMessageDoctor={(doctor) => {
-            setReferralProvider(null);
-            startOrOpenChat(doctor);
-          }}
-          onSaved={refreshReferrals}
+
+      {referralDoctor ? (
+        <PatientPickerSheet
+          doctor={referralDoctor}
+          rankedPatients={patientsRankedForReferral}
+          onClose={closeReferralFlow}
+          onSelectPatient={(patientId) => setReferralPatientId(patientId)}
+        />
+      ) : null}
+
+      {referralDoctor && selectedReferralPatient ? (
+        <ReferralConfirmSheet
+          doctor={referralDoctor}
+          patient={selectedReferralPatient}
+          onClose={() => setReferralPatientId(null)}
+          onConfirm={confirmReferral}
         />
       ) : null}
     </View>
-  );
-}
-
-function ReferralList({
-  rows,
-  currentDoctorKey,
-  statusMessage,
-  onRefresh,
-  onSelect,
-}: {
-  rows: ReferralSummary[];
-  currentDoctorKey: string;
-  statusMessage: string | null;
-  onRefresh: () => void;
-  onSelect: (referralKey: string) => void;
-}) {
-  return (
-    <ScrollView contentContainerStyle={styles.referralList} showsVerticalScrollIndicator={false}>
-      <View style={styles.referralListHeading}>
-        <View>
-          <Text style={styles.listHint}>Formal patient referrals</Text>
-          {statusMessage ? <Text style={styles.referralError}>{statusMessage}</Text> : null}
-        </View>
-        <Pressable accessibilityRole="button" onPress={onRefresh} style={styles.refreshButton}>
-          <Text style={styles.refreshText}>Refresh</Text>
-        </Pressable>
-      </View>
-      {rows.map((row) => {
-        const incoming = row.to_doctor_key === currentDoctorKey;
-        return (
-          <Pressable
-            key={row.referral_key}
-            accessibilityRole="button"
-            accessibilityLabel={`Open referral ${row.referral_key}`}
-            onPress={() => onSelect(row.referral_key)}
-            style={styles.referralCard}
-          >
-            <View style={styles.referralCardTop}>
-              <Text style={styles.referralPatient} numberOfLines={1}>
-                {row.patient_label ?? 'Patient details after acceptance'}
-              </Text>
-              <Text style={styles.referralStatus}>{row.status.toUpperCase()}</Text>
-            </View>
-            <Text style={styles.referralDirection}>
-              {incoming ? 'Received referral' : 'Sent referral'} · {row.urgency}
-            </Text>
-            <Text style={styles.referralReason} numberOfLines={2}>{row.reason}</Text>
-            {row.last_message ? <Text style={styles.referralLastMessage} numberOfLines={1}>{row.last_message}</Text> : null}
-          </Pressable>
-        );
-      })}
-      {rows.length === 0 ? (
-        <View style={styles.emptyCard}>
-          <Text style={styles.emptyTitle}>No referrals yet</Text>
-          <Text style={styles.emptySub}>Choose a doctor from the Doctors tab and select “Refer a patient.”</Text>
-        </View>
-      ) : null}
-    </ScrollView>
   );
 }
 
@@ -443,6 +426,7 @@ function DoctorList({
         style={styles.flex}
         contentContainerStyle={styles.doctorList}
         showsVerticalScrollIndicator={false}
+        onScrollBeginDrag={Keyboard.dismiss}
       >
         <Text style={styles.listHint}>
           Doctor-to-doctor consults · {doctorName}
@@ -461,7 +445,10 @@ function DoctorList({
               key={doc.id}
               accessibilityRole="button"
               accessibilityLabel={`Chat with ${doc.name}`}
-              onPress={() => onSelect(doc.id)}
+              onPress={() => {
+                Keyboard.dismiss();
+                onSelect(doc.id);
+              }}
               style={styles.doctorCard}
             >
               <Avatar initials={doc.initials} color={doc.avatarColor} size={52} />
@@ -491,25 +478,19 @@ function DoctorList({
 
 function NewChatSheet({
   directory,
+  existingIds,
   onClose,
   onSelectDoctor,
 }: {
   directory: DoctorProfile[];
+  existingIds: Set<string>;
   onClose: () => void;
   onSelectDoctor: (doctor: DoctorProfile) => void;
 }) {
   const [query, setQuery] = useState('');
 
   const results = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    return directory.filter((d) => {
-      if (!q) return true;
-      return (
-        d.name.toLowerCase().includes(q) ||
-        d.specialty.toLowerCase().includes(q) ||
-        d.designation.toLowerCase().includes(q)
-      );
-    });
+    return searchDoctorsByNameOrSpecialization(directory, query);
   }, [directory, query]);
 
   return (
@@ -517,7 +498,7 @@ function NewChatSheet({
       <Pressable style={styles.sheetOverlay} onPress={onClose} />
       <View style={styles.sheetCard}>
         <View style={styles.sheetHeader}>
-          <Text style={styles.sheetTitle}>Find a doctor</Text>
+          <Text style={styles.sheetTitle}>New chat</Text>
           <Pressable
             accessibilityRole="button"
             accessibilityLabel="Close"
@@ -534,27 +515,36 @@ function NewChatSheet({
             style={styles.searchInput}
             value={query}
             onChangeText={setQuery}
-            placeholder="Search doctors"
+            placeholder="Search by name or specialization"
             placeholderTextColor={colors.searchPlaceholder}
+            onSubmitEditing={Keyboard.dismiss}
             autoFocus
           />
         </View>
 
         <Text style={styles.sheetSection}>Doctors</Text>
+        <Text style={styles.sheetSectionHint}>
+          Search by doctor name or specialization. Nearest doctors are shown first.
+        </Text>
 
         <ScrollView
           style={styles.sheetList}
           contentContainerStyle={styles.sheetListContent}
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
+          onScrollBeginDrag={Keyboard.dismiss}
         >
           {results.map((doc) => {
+            const hasChat = existingIds.has(doc.id);
             return (
               <Pressable
                 key={doc.id}
                 accessibilityRole="button"
-                accessibilityLabel={`View profile for ${doc.name}`}
-                onPress={() => onSelectDoctor(doc)}
+                accessibilityLabel={`Start chat with ${doc.name}`}
+                onPress={() => {
+                  Keyboard.dismiss();
+                  onSelectDoctor(doc);
+                }}
                 style={styles.sheetRow}
               >
                 <Avatar
@@ -564,9 +554,18 @@ function NewChatSheet({
                 />
                 <View style={styles.sheetRowMeta}>
                   <Text style={styles.sheetRowName}>{doc.name}</Text>
-                  <Text style={styles.sheetRowSpecialty}>{doc.specialty}</Text>
+                  <Text style={styles.sheetRowSpecialty}>
+                    {doc.specializations.join(' · ')}
+                  </Text>
+                  <Text style={styles.sheetRowDistance}>
+                    {doc.distanceKm.toFixed(1)} km away · {doc.designation}
+                  </Text>
                 </View>
-                <Text style={styles.sheetRowBadgeNew}>Profile</Text>
+                {hasChat ? (
+                  <Text style={styles.sheetRowBadge}>Open</Text>
+                ) : (
+                  <Text style={styles.sheetRowBadgeNew}>New</Text>
+                )}
               </Pressable>
             );
           })}
@@ -574,6 +573,167 @@ function NewChatSheet({
             <Text style={styles.sheetEmpty}>No doctors match that search.</Text>
           ) : null}
         </ScrollView>
+      </View>
+    </View>
+  );
+}
+
+function DoctorProfileView({
+  doctor,
+  onChat,
+  onRefer,
+  successMessage,
+}: {
+  doctor: DoctorProfile;
+  onChat: () => void;
+  onRefer: () => void;
+  successMessage: string | null;
+}) {
+  return (
+    <ScrollView
+      style={styles.flex}
+      contentContainerStyle={styles.profileContent}
+      showsVerticalScrollIndicator={false}
+    >
+      {successMessage ? (
+        <View style={styles.successBanner}>
+          <Text style={styles.successBannerText}>{successMessage}</Text>
+        </View>
+      ) : null}
+
+      <View style={styles.profileHeroCard}>
+        <View style={styles.profileAvatarWrap}>
+          <Avatar initials={doctor.initials} color={doctor.avatarColor} size={144} />
+        </View>
+        <Text style={styles.profileHeroName}>{doctor.name}</Text>
+        <Text style={styles.profileHeroMeta}>
+          {doctor.specialty} | {doctor.degrees.join(', ')}
+        </Text>
+
+        <View style={styles.profileDivider} />
+
+        <Text style={styles.profileSectionTitle}>Medical Profile</Text>
+        <Text style={styles.profileDescription}>
+          {doctor.name} specializes in comprehensive {doctor.specialty.toLowerCase()} care with a
+          strong focus on long-term outcomes and collaborative treatment planning.
+        </Text>
+        <Text style={styles.profileDescription}>
+          Board certified and available for rapid peer consults and patient referrals.
+        </Text>
+
+        <Text style={styles.profileAddressLabel}>Address</Text>
+        <Text style={styles.profileAddressValue}>{doctor.address}</Text>
+        <Text style={styles.profileDistanceNote}>{doctor.distanceKm.toFixed(1)} km away</Text>
+      </View>
+
+      <View style={styles.profileActionRow}>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={`Chat with ${doctor.name}`}
+          onPress={onChat}
+          style={styles.profileActionPrimary}
+        >
+          <Text style={styles.profileActionPrimaryText}>Chat</Text>
+        </Pressable>
+
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={`Refer patient to ${doctor.name}`}
+          onPress={onRefer}
+          style={styles.profileActionSecondary}
+        >
+          <Text style={styles.profileActionSecondaryText}>Refer</Text>
+        </Pressable>
+      </View>
+    </ScrollView>
+  );
+}
+
+function PatientPickerSheet({
+  doctor,
+  rankedPatients,
+  onClose,
+  onSelectPatient,
+}: {
+  doctor: DoctorProfile;
+  rankedPatients: Array<{ patient: PatientProfile; relevant: boolean; score: number }>;
+  onClose: () => void;
+  onSelectPatient: (patientId: string) => void;
+}) {
+  return (
+    <View style={styles.sheetRoot}>
+      <Pressable style={styles.sheetOverlay} onPress={onClose} />
+      <View style={styles.sheetCard}>
+        <View style={styles.sheetHeader}>
+          <Text style={styles.sheetTitle}>Refer to {doctor.name}</Text>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Close referral sheet"
+            onPress={onClose}
+            style={styles.sheetClose}
+          >
+            <CloseIcon color={colors.textMuted} size={18} />
+          </Pressable>
+        </View>
+        <Text style={styles.sheetSubtext}>
+          Select a patient. Relevant matches are highlighted with a red border.
+        </Text>
+        <ScrollView
+          style={styles.patientPickerList}
+          contentContainerStyle={styles.patientPickerContent}
+          showsVerticalScrollIndicator={false}
+        >
+          {rankedPatients.map(({ patient, relevant }) => (
+            <Pressable
+              key={patient.id}
+              accessibilityRole="button"
+              accessibilityLabel={`Select ${patient.name} for referral`}
+              onPress={() => onSelectPatient(patient.id)}
+              style={[styles.patientSelectRow, relevant && styles.patientSelectRowRelevant]}
+            >
+              <View style={styles.patientSelectMeta}>
+                <Text style={styles.patientSelectName}>
+                  {patient.name} · Age {patient.age}
+                </Text>
+                <Text style={styles.patientSelectDx}>Dx: {patient.diagnosis}</Text>
+              </View>
+              {relevant ? <Text style={styles.relevantBadge}>Relevant</Text> : null}
+            </Pressable>
+          ))}
+        </ScrollView>
+      </View>
+    </View>
+  );
+}
+
+function ReferralConfirmSheet({
+  doctor,
+  patient,
+  onClose,
+  onConfirm,
+}: {
+  doctor: DoctorProfile;
+  patient: PatientProfile;
+  onClose: () => void;
+  onConfirm: () => void;
+}) {
+  return (
+    <View style={styles.confirmRoot} pointerEvents="box-none">
+      <Pressable style={styles.confirmOverlay} onPress={onClose} />
+      <View style={styles.confirmCard}>
+        <Text style={styles.confirmTitle}>Confirm Referral</Text>
+        <Text style={styles.confirmText}>
+          Refer {patient.name} to {doctor.name}? This sends the referral email to the patient and
+          immediately shares medical history with the doctor.
+        </Text>
+        <View style={styles.confirmActions}>
+          <Pressable onPress={onClose} style={styles.cancelBtn}>
+            <Text style={styles.cancelBtnText}>Cancel</Text>
+          </Pressable>
+          <Pressable onPress={onConfirm} style={styles.referBtn}>
+            <Text style={styles.referBtnText}>Refer</Text>
+          </Pressable>
+        </View>
       </View>
     </View>
   );
@@ -617,6 +777,30 @@ const styles = StyleSheet.create({
     fontSize: 12,
     marginTop: 1,
   },
+  chatHeaderActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  chatReferBtn: {
+    minHeight: 34,
+    paddingHorizontal: 12,
+    borderRadius: 10,
+    backgroundColor: 'rgba(123, 97, 255, 0.22)',
+    borderWidth: 1,
+    borderColor: 'rgba(123, 97, 255, 0.5)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  chatReferText: {
+    color: colors.white,
+    fontSize: 12,
+    fontWeight: '700',
+  },
+  chatAvatarButton: {
+    borderRadius: 20,
+    overflow: 'hidden',
+  },
   filterBtn: {
     width: 40,
     height: 40,
@@ -631,30 +815,118 @@ const styles = StyleSheet.create({
   body: {
     flex: 1,
   },
-  listTabs: {
-    flexDirection: 'row',
-    gap: 8,
+  profileContent: {
     paddingHorizontal: 16,
-    paddingTop: 12,
+    paddingTop: 78,
+    paddingBottom: 96,
+    gap: 12,
   },
-  listTab: {
-    flex: 1,
-    minHeight: 38,
-    alignItems: 'center',
-    justifyContent: 'center',
+  successBanner: {
+    backgroundColor: 'rgba(93, 200, 129, 0.2)',
+    borderColor: 'rgba(93, 200, 129, 0.42)',
+    borderWidth: 1,
     borderRadius: 12,
-    backgroundColor: 'rgba(255,255,255,0.08)',
+    paddingHorizontal: 12,
+    paddingVertical: 10,
   },
-  listTabActive: {
-    backgroundColor: 'rgba(123,97,255,0.28)',
-  },
-  listTabText: {
-    color: 'rgba(255,255,255,0.7)',
+  successBannerText: {
+    color: colors.white,
     fontSize: 13,
     fontWeight: '600',
   },
-  listTabTextActive: {
+  profileHeroCard: {
+    backgroundColor: colors.cardBg,
+    borderRadius: 18,
+    paddingHorizontal: 16,
+    paddingTop: 88,
+    paddingBottom: 16,
+    position: 'relative',
+  },
+  profileAvatarWrap: {
+    position: 'absolute',
+    top: -64,
+    left: 0,
+    right: 0,
+    alignItems: 'center',
+  },
+  profileHeroName: {
+    color: colors.textPrimary,
+    fontSize: 20,
+    fontWeight: '800',
+    textAlign: 'center',
+  },
+  profileHeroMeta: {
+    color: colors.accentPurple,
+    fontSize: 16,
+    fontWeight: '600',
+    textAlign: 'center',
+    marginTop: 4,
+  },
+  profileDivider: {
+    height: StyleSheet.hairlineWidth,
+    backgroundColor: 'rgba(90,96,112,0.24)',
+    marginTop: 14,
+    marginBottom: 12,
+  },
+  profileSectionTitle: {
+    color: colors.textPrimary,
+    fontSize: 18,
+    fontWeight: '800',
+  },
+  profileDescription: {
+    color: colors.textSecondary,
+    fontSize: 14,
+    lineHeight: 22,
+    marginTop: 6,
+  },
+  profileAddressLabel: {
+    color: colors.textMuted,
+    fontSize: 12,
+    fontWeight: '700',
+    textTransform: 'uppercase',
+    letterSpacing: 0.4,
+    marginTop: 10,
+  },
+  profileAddressValue: {
+    color: colors.textPrimary,
+    fontSize: 14,
+    fontWeight: '600',
+    marginTop: 4,
+  },
+  profileDistanceNote: {
+    color: colors.textMuted,
+    fontSize: 12,
+    marginTop: 4,
+  },
+  profileActionRow: {
+    flexDirection: 'row',
+    gap: 10,
+    marginTop: 2,
+  },
+  profileActionPrimary: {
+    flex: 1,
+    minHeight: 50,
+    borderRadius: 14,
+    backgroundColor: '#4A36A8',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  profileActionPrimaryText: {
     color: colors.white,
+    fontSize: 14,
+    fontWeight: '700',
+  },
+  profileActionSecondary: {
+    flex: 1,
+    minHeight: 50,
+    borderRadius: 14,
+    backgroundColor: '#5C8A90',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  profileActionSecondaryText: {
+    color: colors.white,
+    fontSize: 14,
     fontWeight: '700',
   },
   listHint: {
@@ -668,72 +940,6 @@ const styles = StyleSheet.create({
     paddingTop: 14,
     paddingBottom: 96,
     gap: 12,
-  },
-  referralList: {
-    paddingHorizontal: 16,
-    paddingTop: 14,
-    paddingBottom: 28,
-    gap: 10,
-  },
-  referralListHeading: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: 2,
-  },
-  refreshButton: {
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 10,
-    backgroundColor: 'rgba(255,255,255,0.1)',
-  },
-  refreshText: {
-    color: colors.skyBlue,
-    fontSize: 12,
-    fontWeight: '700',
-  },
-  referralError: {
-    color: '#FFD1D1',
-    fontSize: 11,
-    marginTop: 3,
-  },
-  referralCard: {
-    backgroundColor: colors.cardBg,
-    borderRadius: 16,
-    padding: 14,
-    gap: 5,
-  },
-  referralCardTop: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: 8,
-  },
-  referralPatient: {
-    flex: 1,
-    color: colors.textPrimary,
-    fontSize: 15,
-    fontWeight: '700',
-  },
-  referralStatus: {
-    color: colors.accentPurple,
-    fontSize: 10,
-    fontWeight: '800',
-    letterSpacing: 0.5,
-  },
-  referralDirection: {
-    color: colors.textSecondary,
-    fontSize: 12,
-    textTransform: 'capitalize',
-  },
-  referralReason: {
-    color: colors.textPrimary,
-    fontSize: 13,
-    lineHeight: 18,
-  },
-  referralLastMessage: {
-    color: colors.textMuted,
-    fontSize: 12,
   },
   doctorCard: {
     flexDirection: 'row',
@@ -920,8 +1126,13 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: '700',
     color: colors.textMuted,
-    marginBottom: 8,
+    marginBottom: 4,
     letterSpacing: 0.3,
+  },
+  sheetSectionHint: {
+    fontSize: 12,
+    color: colors.textMuted,
+    marginBottom: 8,
   },
   sheetList: {
     flexGrow: 0,
@@ -953,6 +1164,11 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     marginTop: 2,
   },
+  sheetRowDistance: {
+    fontSize: 12,
+    color: colors.textMuted,
+    marginTop: 2,
+  },
   sheetRowBadge: {
     fontSize: 12,
     fontWeight: '600',
@@ -968,5 +1184,112 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
     paddingVertical: 24,
     fontSize: 14,
+  },
+  sheetSubtext: {
+    fontSize: 12,
+    color: colors.textMuted,
+    marginBottom: 8,
+  },
+  patientPickerList: {
+    maxHeight: 330,
+  },
+  patientPickerContent: {
+    paddingBottom: 6,
+    gap: 8,
+  },
+  patientSelectRow: {
+    borderWidth: 1,
+    borderColor: 'rgba(90,96,112,0.24)',
+    borderRadius: 12,
+    paddingHorizontal: 10,
+    paddingVertical: 10,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    gap: 10,
+    backgroundColor: '#fff',
+  },
+  patientSelectRowRelevant: {
+    borderColor: '#E04848',
+  },
+  patientSelectMeta: {
+    flex: 1,
+    minWidth: 0,
+  },
+  patientSelectName: {
+    color: colors.textPrimary,
+    fontSize: 14,
+    fontWeight: '700',
+  },
+  patientSelectDx: {
+    color: colors.textMuted,
+    fontSize: 12,
+    marginTop: 2,
+  },
+  relevantBadge: {
+    color: '#E04848',
+    fontSize: 11,
+    fontWeight: '700',
+  },
+  confirmRoot: {
+    ...StyleSheet.absoluteFill,
+    justifyContent: 'flex-end',
+    zIndex: 70,
+  },
+  confirmOverlay: {
+    ...StyleSheet.absoluteFill,
+    backgroundColor: 'rgba(0,0,0,0.45)',
+  },
+  confirmCard: {
+    backgroundColor: colors.cardBg,
+    borderTopLeftRadius: 18,
+    borderTopRightRadius: 18,
+    paddingHorizontal: 16,
+    paddingTop: 14,
+    paddingBottom: 18,
+  },
+  confirmTitle: {
+    color: colors.textPrimary,
+    fontSize: 19,
+    fontWeight: '700',
+  },
+  confirmText: {
+    color: colors.textSecondary,
+    fontSize: 14,
+    lineHeight: 20,
+    marginTop: 8,
+  },
+  confirmActions: {
+    marginTop: 14,
+    flexDirection: 'row',
+    gap: 10,
+  },
+  cancelBtn: {
+    flex: 1,
+    minHeight: 44,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: 'rgba(90,96,112,0.22)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#fff',
+  },
+  cancelBtnText: {
+    color: colors.textPrimary,
+    fontSize: 14,
+    fontWeight: '700',
+  },
+  referBtn: {
+    flex: 1,
+    minHeight: 44,
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: colors.accentPurple,
+  },
+  referBtnText: {
+    color: colors.white,
+    fontSize: 14,
+    fontWeight: '700',
   },
 });
