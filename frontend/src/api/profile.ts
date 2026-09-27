@@ -1,5 +1,7 @@
 import { API_BASE_URL, CURRENT_DOCTOR_KEY } from './config';
 
+const NGROK_HEADER = 'ngrok-skip-browser-warning';
+
 export type DoctorProfileDTO = {
   doctor_key: string;
   display_name: string;
@@ -70,6 +72,29 @@ export type PanelPatient = {
   detail: string;
 };
 
+function headers(jsonBody: boolean): Record<string, string> {
+  const value: Record<string, string> = {
+    [NGROK_HEADER]: 'true',
+    Accept: 'application/json',
+  };
+  if (jsonBody) value['Content-Type'] = 'application/json';
+  return value;
+}
+
+async function readError(response: Response): Promise<string> {
+  try {
+    const payload = (await response.json()) as { detail?: unknown };
+    if (typeof payload.detail === 'string' && payload.detail) return payload.detail;
+    if (Array.isArray(payload.detail) && payload.detail.length > 0) {
+      const first = payload.detail[0] as { msg?: string };
+      if (first?.msg) return first.msg;
+    }
+  } catch {
+    // Non-JSON bodies stay as the status line.
+  }
+  return `API ${response.status}`;
+}
+
 export function toDoctorCard(dto: DoctorProfileDTO): DoctorCardModel {
   return {
     doctorKey: dto.doctor_key,
@@ -102,125 +127,61 @@ export function toDoctorCard(dto: DoctorProfileDTO): DoctorCardModel {
   };
 }
 
-const DEMO_PROFILES: Record<string, DoctorCardModel> = {
-  D031: {
-    doctorKey: 'D031',
-    displayName: 'Dr. Aisha Reed',
-    credentials: 'DO',
-    headline: 'Dr. Aisha Reed, DO',
-    initials: 'AR',
-    specialty: 'Neurology',
-    specialtyTitle: 'Neurologist',
-    subspecialtyFocus: 'Migraine',
-    practiceType: 'academic',
-    organization: 'Fictional Care Group 3',
-    state: 'AL',
-    yearsInPractice: 5,
-    languages: ['English', 'Spanish'],
-    bio: 'Neurologist focused on practical, collaborative care for people living with migraine.',
-    acceptsPeerConsults: true,
-    caseExchangeOptIn: false,
-    isSelf: true,
-    canMessage: false,
-    canRefer: false,
-    messageBlockReason: null,
-    referBlockReason: null,
-    mutualThreadId: null,
-    mutualLastMessage: null,
-    patientCount: 3,
-    consultThreadCount: 3,
-    referralsIn: 0,
-    referralsOut: 0,
-  },
-};
-
-function fallbackProfile(doctorKey: string): DoctorCardModel {
-  const isSelf = doctorKey === CURRENT_DOCTOR_KEY;
-  const suffix = doctorKey.replace(/\D/g, '') || '1';
-  return {
-    doctorKey,
-    displayName: `Dr. Demo Colleague ${suffix}`,
-    credentials: 'MD',
-    headline: `Dr. Demo Colleague ${suffix}, MD`,
-    initials: 'DC',
-    specialty: 'Internal Medicine',
-    specialtyTitle: 'Internal Medicine',
-    subspecialtyFocus: 'Complex Care',
-    practiceType: 'group practice',
-    organization: 'Impiricus Demo Network',
-    state: 'GA',
-    yearsInPractice: 8,
-    languages: ['English'],
-    bio: 'This is a synthetic demo profile for peer collaboration.',
-    acceptsPeerConsults: true,
-    caseExchangeOptIn: true,
-    isSelf,
-    canMessage: !isSelf,
-    canRefer: !isSelf,
-    messageBlockReason: null,
-    referBlockReason: null,
-    mutualThreadId: null,
-    mutualLastMessage: null,
-    patientCount: isSelf ? 3 : null,
-    consultThreadCount: isSelf ? 3 : 0,
-    referralsIn: 0,
-    referralsOut: 0,
-  };
-}
-
-const profileStore = new Map<string, DoctorCardModel>(
-  Object.entries(DEMO_PROFILES).map(([key, profile]) => [key, { ...profile }]),
-);
-
-function savedProfile(doctorKey: string): DoctorCardModel {
-  const existing = profileStore.get(doctorKey);
-  if (existing) return existing;
-  const created = fallbackProfile(doctorKey);
-  profileStore.set(doctorKey, created);
-  return created;
-}
-
-/** Profile data is deliberately local and deterministic for the hackathon demo. */
 export async function loadDoctorProfile(doctorKey: string): Promise<DoctorCardModel> {
-  const profile = savedProfile(doctorKey);
-  return { ...profile, languages: [...profile.languages] };
+  const params = new URLSearchParams({ viewer: CURRENT_DOCTOR_KEY });
+  const response = await fetch(
+    `${API_BASE_URL}/doctors/${encodeURIComponent(doctorKey)}/profile?${params.toString()}`,
+    { headers: headers(false) },
+  );
+  if (!response.ok) throw new Error(await readError(response));
+  return toDoctorCard((await response.json()) as DoctorProfileDTO);
 }
 
 export async function updateDoctorSettings(
   doctorKey: string,
   patch: Partial<DoctorSettingsDTO>,
 ): Promise<DoctorSettingsDTO> {
-  const profile = savedProfile(doctorKey);
-  if (patch.accepts_peer_consults !== undefined) profile.acceptsPeerConsults = patch.accepts_peer_consults;
-  if (patch.case_exchange_opt_in !== undefined) profile.caseExchangeOptIn = patch.case_exchange_opt_in;
-  return {
-    accepts_peer_consults: profile.acceptsPeerConsults,
-    case_exchange_opt_in: profile.caseExchangeOptIn,
-  };
+  const params = new URLSearchParams({ viewer: CURRENT_DOCTOR_KEY });
+  const response = await fetch(
+    `${API_BASE_URL}/doctors/${encodeURIComponent(doctorKey)}/settings?${params.toString()}`,
+    {
+      method: 'PATCH',
+      headers: headers(true),
+      body: JSON.stringify(patch),
+    },
+  );
+  if (!response.ok) throw new Error(await readError(response));
+  return (await response.json()) as DoctorSettingsDTO;
 }
 
 export async function updateDoctorBio(doctorKey: string, bio: string): Promise<string | null> {
-  const profile = savedProfile(doctorKey);
-  profile.bio = bio.trim() || null;
-  return profile.bio;
+  const params = new URLSearchParams({ viewer: CURRENT_DOCTOR_KEY });
+  const response = await fetch(
+    `${API_BASE_URL}/doctors/${encodeURIComponent(doctorKey)}/profile?${params.toString()}`,
+    {
+      method: 'PATCH',
+      headers: headers(true),
+      body: JSON.stringify({ bio }),
+    },
+  );
+  if (!response.ok) throw new Error(await readError(response));
+  const saved = (await response.json()) as { bio: string | null };
+  return saved.bio;
 }
+
+type PatientRow = {
+  patient_key: string;
+  display_label: string;
+  age_group?: string;
+  primary_diagnosis?: string;
+};
 
 export async function loadPanelPatients(): Promise<PanelPatient[]> {
   const response = await fetch(`${API_BASE_URL}/patients?doctor=${CURRENT_DOCTOR_KEY}`, {
-    headers: {
-      'ngrok-skip-browser-warning': 'true',
-      Accept: 'application/json',
-    },
+    headers: headers(false),
   });
-  if (!response.ok) {
-    throw new Error(`Could not load patients (${response.status}).`);
-  }
-  const rows = (await response.json()) as Array<{
-    patient_key: string;
-    display_label: string;
-    age_group?: string;
-    primary_diagnosis?: string;
-  }>;
+  if (!response.ok) throw new Error(await readError(response));
+  const rows = (await response.json()) as PatientRow[];
   return rows.map((row) => ({
     patientKey: row.patient_key,
     label: row.display_label,
