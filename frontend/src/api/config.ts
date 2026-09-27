@@ -27,5 +27,5 @@ function inferApiBaseUrl(): string {
 
 export const API_BASE_URL = inferApiBaseUrl();
 
-/** Dr. Jordan Morgan in data/doctors.json. This doctor accepts peer consults. */
-export const CURRENT_DOCTOR_KEY = 'D002';
+/** Signed-in HCP: Dr. Aisha Ali in data/doctors.json. */
+export const CURRENT_DOCTOR_KEY = 'D011';

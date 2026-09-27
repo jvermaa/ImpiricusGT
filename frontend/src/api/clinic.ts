@@ -156,7 +156,7 @@ export async function loadConsultDirectory(): Promise<{
     getJson<ConsultDTO[]>(`/consults?doctor=${CURRENT_DOCTOR_KEY}`),
   ]);
   const directory = doctors
-    .filter((doctor) => doctor.accepts_peer_consults && doctor.doctor_key !== CURRENT_DOCTOR_KEY)
+    .filter((doctor) => doctor.doctor_key !== CURRENT_DOCTOR_KEY)
     .map(toProfile);
   const threads = consults.map((consult) => ({
     ...toProfile(consult),
@@ -191,6 +191,6 @@ export async function sendConsultMessage(peerDoctorKey: string, text: string): P
 }
 
 export async function loadMyPatients(): Promise<PatientProfile[]> {
-  const rows = await getJson<PatientDTO[]>('/patients');
+  const rows = await getJson<PatientDTO[]>(`/patients?doctor=${CURRENT_DOCTOR_KEY}`);
   return rows.map(toPatient);
 }

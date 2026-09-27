@@ -44,6 +44,7 @@ class Patient(Base):
     __tablename__ = "patients"
 
     patient_key: Mapped[str] = mapped_column(String, primary_key=True)
+    name: Mapped[str] = mapped_column(String, nullable=False)
     age_group: Mapped[str] = mapped_column(String, nullable=False)
     state: Mapped[str] = mapped_column(String, nullable=False)
     sex_for_clinical_context: Mapped[str] = mapped_column(String, nullable=False)

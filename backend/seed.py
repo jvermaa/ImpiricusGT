@@ -103,6 +103,7 @@ def seed() -> None:
                 row,
                 {
                     "patient_key",
+                    "name",
                     "age_group",
                     "state",
                     "sex_for_clinical_context",
@@ -127,6 +128,7 @@ def seed() -> None:
             db.add(
                 Patient(
                     patient_key=row["patient_key"],
+                    name=row["name"],
                     age_group=row["age_group"],
                     state=row["state"],
                     sex_for_clinical_context=row["sex_for_clinical_context"],

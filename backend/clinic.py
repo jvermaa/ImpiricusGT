@@ -77,6 +77,7 @@ class DiagnosisIn(BaseModel):
 
 
 class PatientCreate(BaseModel):
+    name: str
     age_group: str
     state: str
     sex_for_clinical_context: str
@@ -186,7 +187,7 @@ def patient_card(db: Session, patient: Patient) -> dict:
     )
     return {
         "patient_key": patient.patient_key,
-        "display_label": patient.patient_key,
+        "display_label": patient.name,
         "age_group": patient.age_group,
         "age_years": _age_years(patient.age_group),
         "sex_label": SEX_LABELS.get(patient.sex_for_clinical_context, "Not recorded"),
@@ -278,6 +279,7 @@ def create_patient(body: PatientCreate, db: Session = Depends(get_db)) -> dict:
     _require_doctor(db, body.primary_doctor_key)
     patient = Patient(
         patient_key=next_key(db, Patient.patient_key, "P"),
+        name=body.name,
         age_group=body.age_group,
         state=body.state,
         sex_for_clinical_context=body.sex_for_clinical_context,
@@ -311,7 +313,7 @@ def list_consults(doctor: str = Query(...), db: Session = Depends(get_db)) -> li
     requester = _require_doctor(db, doctor)
     peers = db.scalars(
         select(Doctor)
-        .where(Doctor.accepts_peer_consults.is_(True), Doctor.doctor_key != requester.doctor_key)
+        .where(Doctor.doctor_key != requester.doctor_key)
         .order_by(Doctor.display_name)
     ).all()
     payload = []
