@@ -12,6 +12,7 @@ from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
 import clinic
+import patient_email
 import referral_match
 import referrals
 from database import Base, SessionLocal, engine, get_db
@@ -27,6 +28,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 app.include_router(clinic.router)
+app.include_router(patient_email.router)
 app.include_router(referral_match.router)
 app.include_router(referrals.router)
 Base.metadata.create_all(bind=engine)
