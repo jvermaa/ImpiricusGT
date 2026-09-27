@@ -361,7 +361,7 @@ export function ChatScreen({
           }}
           onSaved={() => {
             setReferralSuccessMessage(
-              `Referral sent to ${referralDoctor.name}. Patient handoff packet shared with the receiving doctor.`,
+              `Consent email sent for referral to ${referralDoctor.name}. Waiting for the patient to approve or decline.`,
             );
           }}
         />

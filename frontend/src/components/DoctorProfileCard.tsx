@@ -23,6 +23,7 @@ import {
   type DoctorCardModel,
   type PanelPatient,
 } from '../api/profile';
+import { createQuickReferral } from '../api/referrals';
 import type { DirectoryFilter } from '../api/directory';
 import { colors } from '../theme/colors';
 import { profileCopy } from '../theme/profileCopy';
@@ -37,6 +38,10 @@ export type ProfileActions = {
   onOpenConsults?: (peerKey: string | null, readOnlyReason?: string) => void;
   onOpenReferrals?: (direction: 'in' | 'out', withDoctor?: string) => void;
   onOpenDirectory?: (filter: DirectoryFilter) => void;
+  /** When set (e.g. patient portal), Refer sends immediately for this patient. */
+  patientKey?: string;
+  patientName?: string;
+  onReferralSent?: (message: string) => void;
 };
 
 type Props = ProfileActions & {
@@ -91,6 +96,9 @@ export function DoctorProfileCard({
   onOpenConsults,
   onOpenReferrals,
   onOpenDirectory,
+  patientKey: lockedPatientKey,
+  patientName: lockedPatientName,
+  onReferralSent,
 }: Props) {
   const [profile, setProfile] = useState<DoctorCardModel | null>(null);
   const [status, setStatus] = useState<'loading' | 'ready' | 'error'>('loading');
@@ -105,7 +113,6 @@ export function DoctorProfileCard({
   const [bioSaving, setBioSaving] = useState(false);
   const [referOpen, setReferOpen] = useState(false);
   const [patients, setPatients] = useState<PanelPatient[]>([]);
-  const [patientKey, setPatientKey] = useState<string | null>(null);
   const [referError, setReferError] = useState<string | null>(null);
   const [referSaving, setReferSaving] = useState(false);
   const [savingKey, setSavingKey] = useState<'consults' | 'cases' | null>(null);
@@ -214,33 +221,46 @@ export function DoctorProfileCard({
     }
   };
 
-  const openRefer = () => {
+  const sendReferral = async (patientKey: string, patientName?: string) => {
     if (!profile?.canRefer) return;
+    setReferSaving(true);
     setReferError(null);
-    setPatientKey(null);
+    try {
+      await createQuickReferral({
+        toDoctorKey: profile.doctorKey,
+        patientKey,
+        patientName,
+        doctorName: profile.displayName,
+      });
+      setProfile((current) =>
+        current ? { ...current, referralsIn: current.referralsIn + 1 } : current,
+      );
+      setReferOpen(false);
+      const message = `Consent email sent for ${patientName ?? patientKey}. Waiting for the patient to approve or decline the referral to ${profile.displayName}.`;
+      setToast(message);
+      onReferralSent?.(message);
+    } catch (reason: unknown) {
+      const message = reason instanceof Error ? reason.message : 'Could not send the referral.';
+      setReferError(message);
+      setToast(message);
+    } finally {
+      setReferSaving(false);
+    }
+  };
+
+  const openRefer = () => {
+    if (!profile?.canRefer || referSaving) return;
+    setReferError(null);
+    if (lockedPatientKey) {
+      void sendReferral(lockedPatientKey, lockedPatientName);
+      return;
+    }
     setReferOpen(true);
     loadPanelPatients()
       .then(setPatients)
       .catch((reason: unknown) => {
         setReferError(reason instanceof Error ? reason.message : 'Could not load patients.');
       });
-  };
-
-  const confirmRefer = async () => {
-    if (!profile || !patientKey) return;
-    setReferSaving(true);
-    setReferError(null);
-    try {
-      // The profile demo is intentionally local: this confirms the interaction
-      // without requiring a running API or sending any real referral.
-      setProfile((current) =>
-        current ? { ...current, referralsIn: current.referralsIn + 1 } : current,
-      );
-      setReferOpen(false);
-      setToast('Demo referral confirmed.');
-    } finally {
-      setReferSaving(false);
-    }
   };
 
   const scrollToAvailability = () => {
@@ -320,9 +340,17 @@ export function DoctorProfileCard({
                     />
                     <RoundAction
                       title="Refer"
-                      label={profile.canRefer ? `Refer a patient to ${profile.displayName}` : profile.referBlockReason ?? 'Refer unavailable'}
+                      label={
+                        referSaving
+                          ? 'Sending referral'
+                          : profile.canRefer
+                            ? lockedPatientKey
+                              ? `Refer ${lockedPatientName ?? 'patient'} to ${profile.displayName}`
+                              : `Refer a patient to ${profile.displayName}`
+                            : profile.referBlockReason ?? 'Refer unavailable'
+                      }
                       accent={theme.accent}
-                      disabled={!profile.canRefer}
+                      disabled={!profile.canRefer || referSaving}
                       onPress={openRefer}
                       icon={<ReferHcpIcon color={profile.canRefer ? theme.accent : colors.textMuted} size={20} />}
                     />
@@ -503,33 +531,27 @@ export function DoctorProfileCard({
       </Sheet>
 
       <Sheet visible={referOpen} onClose={() => setReferOpen(false)} title={`Refer to ${profile?.displayName ?? 'doctor'}`}>
+        <Text style={styles.sheetBody}>
+          Tap a patient to send the referral and email immediately.
+        </Text>
         <ScrollView style={styles.patientList}>
-          {patients.map((patient) => {
-            const selected = patient.patientKey === patientKey;
-            return (
-              <Pressable
-                key={patient.patientKey}
-                accessibilityRole="button"
-                accessibilityState={{ selected }}
-                accessibilityLabel={`Select ${patient.label}`}
-                onPress={() => setPatientKey(patient.patientKey)}
-                style={({ pressed }) => [styles.patientRow, selected && styles.patientRowSelected, pointer, pressed && styles.pressed]}
-              >
-                <Text style={styles.patientName}>{patient.label}</Text>
-                <Text style={styles.plain}>{patient.detail}</Text>
-              </Pressable>
-            );
-          })}
+          {patients.map((patient) => (
+            <Pressable
+              key={patient.patientKey}
+              accessibilityRole="button"
+              accessibilityLabel={`Refer ${patient.label}`}
+              disabled={referSaving}
+              onPress={() => void sendReferral(patient.patientKey, patient.label)}
+              style={({ pressed }) => [styles.patientRow, pointer, pressed && styles.pressed]}
+            >
+              <Text style={styles.patientName}>{patient.label}</Text>
+              <Text style={styles.plain}>{patient.detail}</Text>
+            </Pressable>
+          ))}
           {patients.length === 0 ? <Text style={styles.body}>{profileCopy.noPatients}</Text> : null}
         </ScrollView>
         {referError ? <Text style={styles.errorText}>{referError}</Text> : null}
-        <ActionButton
-          label="Confirm referral"
-          title={referSaving ? 'Sending' : 'Confirm referral'}
-          accent={theme.accent}
-          disabled={!patientKey || referSaving}
-          onPress={confirmRefer}
-        />
+        {referSaving ? <Text style={styles.plain}>Sending referral…</Text> : null}
       </Sheet>
     </View>
   );

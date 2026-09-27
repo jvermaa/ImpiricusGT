@@ -1,4 +1,4 @@
-import { CURRENT_DOCTOR_KEY } from './config';
+import { API_BASE_URL, CURRENT_DOCTOR_KEY } from './config';
 
 export type DoctorProfileDTO = {
   doctor_key: string;
@@ -206,9 +206,24 @@ export async function updateDoctorBio(doctorKey: string, bio: string): Promise<s
 }
 
 export async function loadPanelPatients(): Promise<PanelPatient[]> {
-  return [
-    { patientKey: 'P-DEMO-1', label: 'Synthetic patient A', detail: 'Adult · Migraine' },
-    { patientKey: 'P-DEMO-2', label: 'Synthetic patient B', detail: 'Older adult · Hypertension' },
-    { patientKey: 'P-DEMO-3', label: 'Synthetic patient C', detail: 'Adult · Neuropathic pain' },
-  ];
+  const response = await fetch(`${API_BASE_URL}/patients?doctor=${CURRENT_DOCTOR_KEY}`, {
+    headers: {
+      'ngrok-skip-browser-warning': 'true',
+      Accept: 'application/json',
+    },
+  });
+  if (!response.ok) {
+    throw new Error(`Could not load patients (${response.status}).`);
+  }
+  const rows = (await response.json()) as Array<{
+    patient_key: string;
+    display_label: string;
+    age_group?: string;
+    primary_diagnosis?: string;
+  }>;
+  return rows.map((row) => ({
+    patientKey: row.patient_key,
+    label: row.display_label,
+    detail: `${row.age_group ?? 'Age n/a'} · ${row.primary_diagnosis ?? 'No diagnosis'}`,
+  }));
 }

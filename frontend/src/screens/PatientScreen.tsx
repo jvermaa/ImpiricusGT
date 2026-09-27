@@ -1046,9 +1046,12 @@ export function PatientScreen({
             ) : null}
             <DoctorProfileCard
               doctorKey={routedDoctorId}
+              patientKey={routedPatient.id}
+              patientName={routedPatient.name}
               onOpenConsults={() => openDoctorChat(routedPatient.id, routedDoctorId)}
               onOpenDirectory={onOpenDirectory}
               onOpenReferrals={onOpenReferrals}
+              onReferralSent={(message) => setReferralSuccessMessage(message)}
             />
           </View>
         ) : route.name === 'doctorChat' && routedPatient && routedDoctor ? (
@@ -1325,10 +1328,10 @@ export function PatientScreen({
           }}
           onSaved={() => {
             setReferralSuccessMessage(
-              `Referral sent for ${formalReferralPatient.name}. Handoff packet shared after the receiving clinician accepts.`,
+              `Consent email sent for ${formalReferralPatient.name}. Waiting for the patient to approve or decline before sharing the handoff.`,
             );
             setInfoMessage(
-              `Referral sent for ${formalReferralPatient.name}. Handoff packet shared after the receiving clinician accepts.`,
+              `Consent email sent for ${formalReferralPatient.name}. Waiting for the patient to approve or decline before sharing the handoff.`,
             );
           }}
         />

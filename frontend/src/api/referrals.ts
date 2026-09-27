@@ -113,7 +113,11 @@ export function createFormalReferral(input: {
   patientKey: string;
   reason: string;
   urgency: ReferralUrgency;
-}): Promise<{ referral: ReferralSummary; messages: ReferralMessage[] }> {
+}): Promise<{
+  referral: ReferralSummary;
+  messages: ReferralMessage[];
+  email?: { status: string; detail?: string; recipient?: string };
+}> {
   return requestJson('/referrals', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -124,6 +128,27 @@ export function createFormalReferral(input: {
       reason: input.reason,
       urgency: input.urgency,
     }),
+  });
+}
+
+/** One-tap referral with a generic reason; backend emails patient + handoff. */
+export function createQuickReferral(input: {
+  toDoctorKey: string;
+  patientKey: string;
+  patientName?: string;
+  doctorName?: string;
+}): Promise<{
+  referral: ReferralSummary;
+  messages: ReferralMessage[];
+  email?: { status: string; detail?: string; recipient?: string };
+}> {
+  const patientLabel = input.patientName?.trim() || input.patientKey;
+  const doctorLabel = input.doctorName?.trim() || input.toDoctorKey;
+  return createFormalReferral({
+    toDoctorKey: input.toDoctorKey,
+    patientKey: input.patientKey,
+    reason: `Clinical referral for ${patientLabel} to ${doctorLabel}.`,
+    urgency: 'routine',
   });
 }
 
