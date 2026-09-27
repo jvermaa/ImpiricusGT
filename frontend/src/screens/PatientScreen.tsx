@@ -1,5 +1,6 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
+  ActivityIndicator,
   BackHandler,
   Image,
   KeyboardAvoidingView,
@@ -21,6 +22,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
+  createPatient,
   loadMyPatients,
   loadConsultDirectory,
   loadRankedDoctors,
@@ -28,6 +30,8 @@ import {
   loadThreadMessages,
   openConsultThread,
   recordPdfUrl,
+  savePatientVisit,
+  savePatientDetails,
   sendConsultMessage,
   sendPromptEmail,
   type SimilarCase,
@@ -78,6 +82,7 @@ import { colors } from '../theme/colors';
 
 type RouteState =
   | { name: 'list' }
+  | { name: 'addPatient' }
   | { name: 'whatsNew' }
   | { name: 'whatsNewDetail'; insightId: string }
   | { name: 'edit'; patientId: string }
@@ -96,13 +101,29 @@ type ActionKey =
   | 'ask-refer-hcp';
 
 type VisitForm = {
+  diagnosis: string;
+  notes: string;
   symptoms: SymptomEntry[];
   currentMedications: string;
   alcoholUse: 'None' | 'Social' | 'Daily';
   smokingStatus: 'Never smoker' | 'Former smoker' | 'Current smoker';
   immuneStatus: 'Immunocompromised' | 'Immunocompetent';
   pregnancyStatus: 'Pregnant' | 'Not Pregnant' | 'N/A';
+  labResults: string;
+};
+
+type PatientForm = {
+  name: string;
+  age: string;
+  sex: PatientProfile['sex'];
+  diagnosis: string;
+  relevantMedicalHistory: string;
   familyMedicalHistory: string;
+  currentMedications: string;
+  alcoholUse: PatientProfile['alcoholUse'];
+  smokingStatus: PatientProfile['smokingStatus'];
+  immuneStatus: PatientProfile['immuneStatus'];
+  pregnancyStatus: PatientProfile['pregnancyStatus'];
   labResults: string;
 };
 
@@ -141,6 +162,22 @@ const EMPTY_SYMPTOM: SymptomDraft = {
   onset: 'Gradual',
 };
 
+const FOLLOW_UP_FREQUENCY_OPTIONS = [
+  '1 day',
+  '2 days',
+  '3 days',
+  '4 days',
+  '5 days',
+  '6 days',
+  '1 week',
+  '2 weeks',
+  '3 weeks',
+  '4 weeks',
+] as const;
+
+const FOLLOW_UP_PROMPT_PLACEHOLDER =
+  'What do you want to follow up about? "Check if their symptoms are improving, if there were any side effects...".';
+
 const INSIGHT_FILTERS: Array<'All' | InsightCategory> = [
   'All',
   'FDA Approval',
@@ -153,6 +190,8 @@ const INSIGHT_ACCENT_BY_CATEGORY: Record<InsightCategory, string> = {
   'Market Launch': '#8B5CF6',
   'Guideline Update': '#00A8A8',
 };
+
+const WHATS_NEW_BUTTON_IMAGE = require('../../assets/new-removebg-preview.png');
 
 const PERFORMANCE_GRAPH_HELP_TEXT =
   'Each row compares the study drug against its trial comparator using reported study values.';
@@ -184,41 +223,119 @@ function getRelevantPatientsForInsight(
   });
 }
 
+function getRelevantPatientsForDrug(patients: PatientProfile[], drug: (typeof DRUG_CATALOG)[number]) {
+  const normalizedTerms = Array.from(
+    new Set(
+      [drug.productName, ...drug.salts.map((salt) => salt.name), ...drug.salts.map((salt) => salt.purpose)]
+        .flatMap((entry) => entry.split(/[\s,/+-]+/g))
+        .map((token) => token.trim().toLowerCase())
+        .filter((token) => token.length >= 4),
+    ),
+  );
+
+  return patients
+    .map((patient) => {
+      const patientText = [
+        patient.diagnosis,
+        patient.prescription,
+        patient.relevantMedicalHistory,
+        patient.symptoms.map((symptom) => symptom.name).join(' '),
+        patient.pastVisits
+          .map((visit) =>
+            [visit.diagnosis, visit.summary, visit.currentMedications]
+              .filter(Boolean)
+              .join(' '),
+          )
+          .join(' '),
+      ]
+        .join(' ')
+        .toLowerCase();
+
+      const score = normalizedTerms.reduce((total, term) => {
+        return patientText.includes(term) ? total + 1 : total;
+      }, 0);
+
+      if (score === 0) return null;
+      return { patient, score };
+    })
+    .filter((entry): entry is { patient: PatientProfile; score: number } => entry !== null)
+    .sort((left, right) => {
+      if (left.score !== right.score) return right.score - left.score;
+      return left.patient.name.localeCompare(right.patient.name);
+    })
+    .map((entry) => entry.patient);
+}
+
 function normalizeStoredField(value: string): string {
   return value === 'Not provided' ? '' : value;
 }
 
 function normalizeAlcoholUse(value: PastVisit['alcoholUse']): VisitForm['alcoholUse'] {
-  return value === 'Not recorded' ? 'None' : value;
+  return value;
 }
 
 function normalizeImmuneStatus(value: PastVisit['immuneStatus']): VisitForm['immuneStatus'] {
-  return value === 'Not recorded' ? 'Immunocompetent' : value;
+  return value;
 }
 
 function makeVisitForm(patient: PatientProfile, visit?: PastVisit): VisitForm {
   if (visit) {
     return {
+      diagnosis: visit.diagnosis,
+      notes: visit.summary,
       symptoms: visit.symptoms.map((symptom) => ({ ...symptom })),
       currentMedications: normalizeStoredField(visit.currentMedications),
       alcoholUse: normalizeAlcoholUse(visit.alcoholUse),
       smokingStatus: visit.smokingStatus,
       immuneStatus: normalizeImmuneStatus(visit.immuneStatus),
       pregnancyStatus: visit.pregnancyStatus,
-      familyMedicalHistory: normalizeStoredField(visit.familyMedicalHistory),
       labResults: normalizeStoredField(visit.labResults),
     };
   }
 
   return {
+    diagnosis: patient.diagnosis,
+    notes: '',
     symptoms: [],
     currentMedications: '',
     alcoholUse: 'None',
     smokingStatus: 'Never smoker',
     immuneStatus: 'Immunocompetent',
     pregnancyStatus: patient.sex === 'Female' ? 'Not Pregnant' : 'N/A',
-    familyMedicalHistory: '',
     labResults: '',
+  };
+}
+
+function makePatientForm(patient?: PatientProfile): PatientForm {
+  if (!patient) {
+    return {
+      name: '',
+      age: '',
+      sex: 'Female',
+      diagnosis: '',
+      relevantMedicalHistory: '',
+      familyMedicalHistory: '',
+      currentMedications: '',
+      alcoholUse: 'None',
+      smokingStatus: 'Never smoker',
+      immuneStatus: 'Immunocompetent',
+      pregnancyStatus: 'N/A',
+      labResults: '',
+    };
+  }
+  return {
+    name: patient.name,
+    age: String(patient.age || ''),
+    sex: patient.sex,
+    diagnosis: patient.diagnosis,
+    relevantMedicalHistory: patient.relevantMedicalHistory,
+    familyMedicalHistory: patient.familyMedicalHistory,
+    currentMedications: patient.currentMedications,
+    alcoholUse: patient.alcoholUse,
+    smokingStatus: patient.smokingStatus,
+    immuneStatus: patient.immuneStatus,
+    pregnancyStatus: patient.pregnancyStatus,
+    labResults: patient.labResults,
   };
 }
 
@@ -254,24 +371,49 @@ export function PatientScreen({
   const [apiDoctors, setApiDoctors] = useState<DoctorProfile[]>([]);
 
   const [visitForm, setVisitForm] = useState<VisitForm | null>(null);
+  const [patientForm, setPatientForm] = useState<PatientForm | null>(null);
   const [addSymptomOpen, setAddSymptomOpen] = useState(false);
   const [symptomDraft, setSymptomDraft] = useState<SymptomDraft>(EMPTY_SYMPTOM);
+  const [followUpPromptOpen, setFollowUpPromptOpen] = useState(false);
+  const [followUpFrequencyIndex, setFollowUpFrequencyIndex] = useState(0);
+  const [followUpTopic, setFollowUpTopic] = useState('');
+  const [visitSaveBusy, setVisitSaveBusy] = useState(false);
   const [insightFilter, setInsightFilter] = useState<'All' | InsightCategory>('All');
   const [insightFocusPatientIds, setInsightFocusPatientIds] = useState<string[]>([]);
   const [insightFocusLabel, setInsightFocusLabel] = useState<string | null>(null);
+  const [patientFocusSource, setPatientFocusSource] = useState<'insight' | 'drug' | null>(null);
+  const [drugFocusReturnState, setDrugFocusReturnState] = useState<{
+    draftQuery: string;
+    submittedQuery: string;
+  } | null>(null);
   const [searchMode, setSearchMode] = useState<SearchMode>('patients');
   const [searchOverlayState, setSearchOverlayState] = useState<SearchOverlayState>('idle');
   const [searchInlineActive, setSearchInlineActive] = useState(false);
   const [searchLayerVisible, setSearchLayerVisible] = useState(false);
   const [drugSaltQuery, setDrugSaltQuery] = useState('');
+  const [drugSubmittedSaltQuery, setDrugSubmittedSaltQuery] = useState('');
+  const [drugSearchLoading, setDrugSearchLoading] = useState(false);
   const [strengthFilterOpen, setStrengthFilterOpen] = useState(false);
   const [selectedStrengths, setSelectedStrengths] = useState<string[]>([]);
   const [strengthFilterText, setStrengthFilterText] = useState('');
   const [selectedDrugId, setSelectedDrugId] = useState<string | null>(null);
+  const drugSearchDelayRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const menuBackdropProgress = useSharedValue(0);
   const menuDrugsPillProgress = useSharedValue(0);
   const menuPatientsPillProgress = useSharedValue(0);
+
+  const clearDrugSearchDelay = useCallback(() => {
+    if (!drugSearchDelayRef.current) return;
+    clearTimeout(drugSearchDelayRef.current);
+    drugSearchDelayRef.current = null;
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      clearDrugSearchDelay();
+    };
+  }, [clearDrugSearchDelay]);
 
   useEffect(() => {
     let cancelled = false;
@@ -293,11 +435,16 @@ export function PatientScreen({
     let cancelled = false;
     loadMyPatients()
       .then((rows) => {
-        if (!cancelled) setPatients(rows.length > 0 ? rows : PATIENTS);
+        if (cancelled) return;
+        setPatients(rows);
+        if (rows.length === 0) {
+          setInfoMessage('No patients found for this doctor in the backend.');
+        }
       })
       .catch(() => {
         if (!cancelled) {
-          setPatients(PATIENTS);
+          setPatients([]);
+          setInfoMessage('Could not load patients from backend. Check API connection.');
         }
       });
     return () => {
@@ -307,28 +454,43 @@ export function PatientScreen({
 
   useEffect(() => {
     if (!suitableMode) return;
+    clearDrugSearchDelay();
     setRoute({ name: 'list' });
     setSelectedPatientId(null);
     setInfoMessage(null);
     setQuery('');
     setDrugSaltQuery('');
+    setDrugSubmittedSaltQuery('');
+    setDrugSearchLoading(false);
     setSearchLayerVisible(false);
     setSearchOverlayState('idle');
     setSearchInlineActive(false);
     setSelectedDrugId(null);
     setStrengthFilterOpen(false);
+    setPatientFocusSource(null);
+    setDrugFocusReturnState(null);
+    setInsightFocusPatientIds([]);
+    setInsightFocusLabel(null);
     // Hardcoded cohort panel for finder mode
     setPatients(PATIENTS);
     menuBackdropProgress.value = 0;
     menuDrugsPillProgress.value = 0;
     menuPatientsPillProgress.value = 0;
-  }, [suitableMode]);
+  }, [clearDrugSearchDelay, suitableMode]);
 
   const exitSuitableMode = () => {
     onExitSuitableMode?.();
     loadMyPatients()
-      .then((rows) => setPatients(rows.length > 0 ? rows : PATIENTS))
-      .catch(() => setPatients(PATIENTS));
+      .then((rows) => {
+        setPatients(rows);
+        if (rows.length === 0) {
+          setInfoMessage('No patients found for this doctor in the backend.');
+        }
+      })
+      .catch(() => {
+        setPatients([]);
+        setInfoMessage('Could not load patients from backend. Check API connection.');
+      });
   };
 
   const routedPatientId =
@@ -410,6 +572,15 @@ export function PatientScreen({
     return routedPatient.pastVisits.find((visit) => visit.id === route.visitId) ?? null;
   }, [route, routedPatient]);
 
+  useEffect(() => {
+    if (route.name === 'edit' && routedPatient && !patientForm) {
+      setPatientForm(makePatientForm(routedPatient));
+    }
+    if (route.name === 'addPatient' && !patientForm) {
+      setPatientForm(makePatientForm());
+    }
+  }, [route, routedPatient, patientForm]);
+
   const selectedPatient = useMemo(
     () =>
       selectedPatientId
@@ -460,7 +631,10 @@ export function PatientScreen({
     [patients],
   );
 
-  const rankedDrugMatches = useMemo(() => rankDrugsBySaltQuery(drugSaltQuery), [drugSaltQuery]);
+  const rankedDrugMatches = useMemo(
+    () => rankDrugsBySaltQuery(drugSubmittedSaltQuery),
+    [drugSubmittedSaltQuery],
+  );
   const strengthOptions = useMemo(() => getStrengthOptions(DRUG_CATALOG), []);
   const filteredDrugMatches = useMemo(
     () =>
@@ -513,6 +687,7 @@ export function PatientScreen({
 
   const headerTitle = (() => {
     if (route.name === 'list') return suitableMode ? 'Patient Cohort' : 'Patients';
+    if (route.name === 'addPatient') return 'Add Patient';
     if (route.name === 'whatsNew') return "What's New";
     if (route.name === 'whatsNewDetail') return selectedInsight?.name ?? "What's New";
     if (route.name === 'edit') return routedPatient?.name ?? 'Patient Details';
@@ -529,7 +704,11 @@ export function PatientScreen({
         ? `${suitableSource.brand} · ${highMatchPatients.length} high matches`
         : `${highMatchPatients.length} high matches`;
     }
+    if (route.name === 'list' && patientFocusSource === 'drug' && insightFocusLabel) {
+      return `Relevant patients for ${insightFocusLabel}`;
+    }
     if (route.name === 'list') return `${patients.length} patients`;
+    if (route.name === 'addPatient') return 'All fields are optional';
     if (route.name === 'whatsNew') {
       return `${filteredInsights.length} evidence-backed updates`;
     }
@@ -575,6 +754,9 @@ export function PatientScreen({
     setVisitForm(makeVisitForm(patient, visitToEdit));
     setSymptomDraft(EMPTY_SYMPTOM);
     setAddSymptomOpen(false);
+    setFollowUpPromptOpen(false);
+    setFollowUpFrequencyIndex(0);
+    setFollowUpTopic('');
     setInfoMessage(null);
     setSelectedPatientId(null);
     if (visitToEdit) {
@@ -584,9 +766,19 @@ export function PatientScreen({
     setRoute({ name: 'addVisit', patientId });
   };
 
-  const openEdit = (patientId: string) => {
+  const openAddPatient = () => {
     setInfoMessage(null);
     setSelectedPatientId(null);
+    setPatientForm(makePatientForm());
+    setRoute({ name: 'addPatient' });
+  };
+
+  const openEdit = (patientId: string) => {
+    const patient = patients.find((entry) => entry.id === patientId);
+    if (!patient) return;
+    setInfoMessage(null);
+    setSelectedPatientId(null);
+    setPatientForm(makePatientForm(patient));
     setRoute({ name: 'edit', patientId });
   };
 
@@ -662,9 +854,13 @@ export function PatientScreen({
 
   const openRelevantPatientsFromInsight = (insight: WhatsNewInsight) => {
     const relevantPatients = getRelevantPatientsForInsight(patients, insight);
+    setPatientFocusSource('insight');
+    setDrugFocusReturnState(null);
     setInsightFocusPatientIds(relevantPatients.map((patient) => patient.id));
     setInsightFocusLabel(insight.name);
     setQuery('');
+    setSearchInlineActive(true);
+    setSearchMode('patients');
     setRoute({ name: 'list' });
 
     if (relevantPatients.length === 0) {
@@ -675,6 +871,54 @@ export function PatientScreen({
       `${insight.name} relevant patients: ${relevantPatients.map((patient) => patient.name).join(', ')}.`,
     );
   };
+
+  const openRelevantPatientsFromDrug = useCallback(
+    (drug: (typeof DRUG_CATALOG)[number]) => {
+      clearDrugSearchDelay();
+      const relevantPatients = getRelevantPatientsForDrug(patients, drug);
+      setPatientFocusSource('drug');
+      setDrugFocusReturnState({
+        draftQuery: drugSaltQuery,
+        submittedQuery: drugSubmittedSaltQuery,
+      });
+      setInsightFocusPatientIds(relevantPatients.map((patient) => patient.id));
+      setInsightFocusLabel(drug.productName);
+      setSearchMode('patients');
+      setSearchInlineActive(true);
+      setSearchLayerVisible(false);
+      setSearchOverlayState('idle');
+      setStrengthFilterOpen(false);
+      setDrugSearchLoading(false);
+      setSelectedDrugId(null);
+      setQuery('');
+      setRoute({ name: 'list' });
+
+      if (relevantPatients.length === 0) {
+        setInfoMessage(`No relevant patients currently surfaced for ${drug.productName}.`);
+        return;
+      }
+
+      setInfoMessage(
+        `${drug.productName} relevant patients: ${relevantPatients
+          .map((patient) => patient.name)
+          .join(', ')}.`,
+      );
+    },
+    [clearDrugSearchDelay, drugSaltQuery, drugSubmittedSaltQuery, patients],
+  );
+
+  const runDrugSearch = useCallback(() => {
+    clearDrugSearchDelay();
+    Keyboard.dismiss();
+    setDrugSearchLoading(true);
+    setSelectedDrugId(null);
+    const submittedQuery = drugSaltQuery.trim();
+    drugSearchDelayRef.current = setTimeout(() => {
+      setDrugSubmittedSaltQuery(submittedQuery);
+      setDrugSearchLoading(false);
+      drugSearchDelayRef.current = null;
+    }, 1000);
+  }, [clearDrugSearchDelay, drugSaltQuery]);
 
   const sendDoctorMessage = (text: string) => {
     if (route.name !== 'doctorChat') return;
@@ -773,6 +1017,24 @@ export function PatientScreen({
 
   const goBack = () => {
     if (route.name === 'list') {
+      if (patientFocusSource === 'drug') {
+        clearDrugSearchDelay();
+        setPatientFocusSource(null);
+        setInsightFocusPatientIds([]);
+        setInsightFocusLabel(null);
+        setSearchInlineActive(true);
+        setSearchMode('drugs');
+        setQuery('');
+        setStrengthFilterOpen(false);
+        setSelectedDrugId(null);
+        setDrugSearchLoading(false);
+        if (drugFocusReturnState) {
+          setDrugSaltQuery(drugFocusReturnState.draftQuery);
+          setDrugSubmittedSaltQuery(drugFocusReturnState.submittedQuery);
+        }
+        setDrugFocusReturnState(null);
+        return;
+      }
       if (suitableMode) exitSuitableMode();
       return;
     }
@@ -784,8 +1046,15 @@ export function PatientScreen({
       setRoute({ name: 'whatsNew' });
       return;
     }
+    if (route.name === 'addPatient') {
+      setPatientForm(null);
+      setRoute({ name: 'list' });
+      return;
+    }
     if (route.name === 'addVisit' || route.name === 'visitDetails') {
       setAddSymptomOpen(false);
+      setFollowUpPromptOpen(false);
+      setVisitSaveBusy(false);
       setRoute({ name: 'edit', patientId: route.patientId });
       return;
     }
@@ -812,6 +1081,31 @@ export function PatientScreen({
     setVisitForm((current) => (current ? { ...current, [key]: value } : current));
   };
 
+  const updatePatientForm = <K extends keyof PatientForm>(
+    key: K,
+    value: PatientForm[K],
+  ) => {
+    setPatientForm((current) => (current ? { ...current, [key]: value } : current));
+  };
+
+  const patientPayloadFromForm = (form: PatientForm) => {
+    const ageNumber = Number.parseInt(form.age.trim(), 10);
+    return {
+      name: form.name,
+      age: Number.isFinite(ageNumber) ? ageNumber : undefined,
+      sex: form.sex,
+      diagnosis: form.diagnosis,
+      relevantMedicalHistory: form.relevantMedicalHistory,
+      familyMedicalHistory: form.familyMedicalHistory,
+      currentMedications: form.currentMedications,
+      alcoholUse: form.alcoholUse,
+      smokingStatus: form.smokingStatus,
+      immuneStatus: form.immuneStatus,
+      pregnancyStatus: form.pregnancyStatus,
+      labResults: form.labResults,
+    };
+  };
+
   const addSymptom = () => {
     const name = symptomDraft.name.trim();
     if (!name) return;
@@ -831,98 +1125,114 @@ export function PatientScreen({
     setAddSymptomOpen(false);
   };
 
-  const saveVisit = () => {
+  const saveVisit = (sendFollowUpEmails: boolean) => {
     if (route.name !== 'addVisit' || !visitForm) return;
+    if (visitSaveBusy) return;
     const isEditingPastVisit = Boolean(route.visitId);
     const enteredSymptoms = visitForm.symptoms;
+    const diagnosis = visitForm.diagnosis.trim();
+    const notes = visitForm.notes.trim();
     const medications = visitForm.currentMedications.trim();
-    const familyHistory = visitForm.familyMedicalHistory.trim();
     const labs = visitForm.labResults.trim();
+    const selectedFollowUpFrequency =
+      FOLLOW_UP_FREQUENCY_OPTIONS[followUpFrequencyIndex] ?? FOLLOW_UP_FREQUENCY_OPTIONS[0];
+    const followUpTopicText = followUpTopic.trim();
     const firstSymptoms = visitForm.symptoms
       .slice(0, 2)
       .map((symptom) => symptom.name)
       .join(', ');
+    const existingVisit =
+      route.visitId && routedPatient
+        ? routedPatient.pastVisits.find((visit) => visit.id === route.visitId) ?? null
+        : null;
+    const visitSummary =
+      notes ||
+      (firstSymptoms.length > 0
+        ? `Symptoms tracked: ${firstSymptoms}. Intake fields updated.`
+        : existingVisit?.summary ?? 'Visit details updated from latest intake.');
 
-    setPatients((current) =>
-      current.map((patient) =>
-        patient.id !== route.patientId
-          ? patient
-          : (() => {
-              const visitBeingEdited =
-                route.visitId
-                  ? patient.pastVisits.find((visit) => visit.id === route.visitId)
-                  : null;
-              const nextVisit: PastVisit = visitBeingEdited
-                ? {
-                    ...visitBeingEdited,
-                    summary:
-                      firstSymptoms.length > 0
-                        ? `Symptoms tracked: ${firstSymptoms}. Intake fields updated.`
-                        : visitBeingEdited.summary,
-                    symptoms: enteredSymptoms.map((symptom) => ({ ...symptom })),
-                    currentMedications: medications || 'Not provided',
-                    alcoholUse: visitForm.alcoholUse,
-                    smokingStatus: visitForm.smokingStatus,
-                    immuneStatus: visitForm.immuneStatus,
-                    pregnancyStatus: visitForm.pregnancyStatus,
-                    familyMedicalHistory: familyHistory || 'Not provided',
-                    labResults: labs || 'Not provided',
-                  }
-                : {
-                    id: `visit-${Date.now()}`,
-                    date: new Date().toLocaleDateString('en-US', {
-                      month: 'short',
-                      day: '2-digit',
-                      year: 'numeric',
-                    }),
-                    diagnosis: patient.diagnosis ?? 'Follow-up Assessment',
-                    summary:
-                      firstSymptoms.length > 0
-                        ? `Symptoms tracked: ${firstSymptoms}. Intake fields updated.`
-                        : 'Visit details updated from latest intake.',
-                    symptoms: enteredSymptoms.map((symptom) => ({ ...symptom })),
-                    currentMedications: medications || 'Not provided',
-                    alcoholUse: visitForm.alcoholUse,
-                    smokingStatus: visitForm.smokingStatus,
-                    immuneStatus: visitForm.immuneStatus,
-                    pregnancyStatus: visitForm.pregnancyStatus,
-                    familyMedicalHistory: familyHistory || 'Not provided',
-                    labResults: labs || 'Not provided',
-                  };
+    setVisitSaveBusy(true);
+    savePatientVisit(
+      route.patientId,
+      {
+        diagnosis:
+          diagnosis ||
+          existingVisit?.diagnosis ||
+          routedPatient?.diagnosis ||
+          'Follow-up assessment',
+        summary: visitSummary,
+        symptoms: enteredSymptoms.map((symptom) => ({ ...symptom })),
+        currentMedications: medications || routedPatient?.currentMedications || 'Medication list reconciled.',
+        alcoholUse: visitForm.alcoholUse,
+        smokingStatus: visitForm.smokingStatus,
+        immuneStatus: visitForm.immuneStatus,
+        pregnancyStatus: visitForm.pregnancyStatus,
+        labResults: labs || routedPatient?.labResults || 'Labs reviewed.',
+      },
+      route.visitId,
+    )
+      .then((updatedPatient) => {
+        const baseMessage = isEditingPastVisit
+          ? 'Past visit updated successfully.'
+          : 'Visit saved and appended to past visit details.';
+        setPatients((current) =>
+          current.map((patient) => (patient.id === updatedPatient.id ? updatedPatient : patient)),
+        );
+        if (sendFollowUpEmails) {
+          const followUpMessage = followUpTopicText
+            ? ` Follow-up emails scheduled every ${selectedFollowUpFrequency} about: ${followUpTopicText}`
+            : ` Follow-up emails scheduled every ${selectedFollowUpFrequency}.`;
+          setInfoMessage(`${baseMessage}${followUpMessage}`);
+        } else {
+          setInfoMessage(baseMessage);
+        }
+        setAddSymptomOpen(false);
+        setFollowUpPromptOpen(false);
+        setFollowUpFrequencyIndex(0);
+        setFollowUpTopic('');
+        setRoute({ name: 'edit', patientId: route.patientId });
+      })
+      .catch((error) => {
+        setInfoMessage(error instanceof Error ? error.message : 'Could not save visit.');
+      })
+      .finally(() => {
+        setVisitSaveBusy(false);
+      });
+  };
 
-              if (visitBeingEdited) {
-                return {
-                  ...patient,
-                  pastVisits: patient.pastVisits.map((visit) =>
-                    visit.id === visitBeingEdited.id ? nextVisit : visit,
-                  ),
-                };
-              }
+  const openVisitSavePrompt = () => {
+    if (route.name !== 'addVisit' || !visitForm) return;
+    if (visitSaveBusy) return;
+    setFollowUpPromptOpen(true);
+  };
 
-              return {
-                ...patient,
-                currentMedications: medications || patient.currentMedications,
-                alcoholUse: visitForm.alcoholUse,
-                smokingStatus: visitForm.smokingStatus,
-                immuneStatus: visitForm.immuneStatus,
-                pregnancyStatus: visitForm.pregnancyStatus,
-                familyMedicalHistory: familyHistory || patient.familyMedicalHistory,
-                labResults: labs || patient.labResults,
-                symptoms:
-                  enteredSymptoms.length > 0 ? enteredSymptoms : patient.symptoms,
-                pastVisits: [nextVisit, ...patient.pastVisits],
-              };
-            })(),
-      ),
-    );
+  const saveEditedPatient = () => {
+    if (route.name !== 'edit' || !routedPatient || !patientForm) return;
+    savePatientDetails(routedPatient.id, patientPayloadFromForm(patientForm))
+      .then((updatedPatient) => {
+        setPatients((current) =>
+          current.map((patient) => (patient.id === updatedPatient.id ? updatedPatient : patient)),
+        );
+        setPatientForm(makePatientForm(updatedPatient));
+        setInfoMessage('Patient details updated successfully.');
+      })
+      .catch((error) => {
+        setInfoMessage(error instanceof Error ? error.message : 'Could not update patient details.');
+      });
+  };
 
-    setInfoMessage(
-      isEditingPastVisit
-        ? 'Past visit updated successfully.'
-        : 'Visit saved and appended to past visit details.',
-    );
-    setAddSymptomOpen(false);
-    setRoute({ name: 'edit', patientId: route.patientId });
+  const saveNewPatient = () => {
+    if (route.name !== 'addPatient' || !patientForm) return;
+    createPatient(patientPayloadFromForm(patientForm))
+      .then((createdPatient) => {
+        setPatients((current) => [createdPatient, ...current]);
+        setPatientForm(makePatientForm(createdPatient));
+        setRoute({ name: 'edit', patientId: createdPatient.id });
+        setInfoMessage('Patient created successfully.');
+      })
+      .catch((error) => {
+        setInfoMessage(error instanceof Error ? error.message : 'Could not create patient.');
+      });
   };
 
   const confirmDoctorReferral = () => {
@@ -970,41 +1280,61 @@ export function PatientScreen({
 
   const activateInlineSearch = useCallback(
     (mode: SearchMode) => {
+      clearDrugSearchDelay();
       setSearchMode(mode);
       setSearchInlineActive(true);
       setStrengthFilterOpen(false);
       setSelectedDrugId(null);
+      setDrugSearchLoading(false);
       setSearchLayerVisible(false);
       setSearchOverlayState('idle');
+      setPatientFocusSource(null);
+      setDrugFocusReturnState(null);
+      setInsightFocusPatientIds([]);
+      setInsightFocusLabel(null);
       if (mode === 'patients') {
         setDrugSaltQuery('');
+        setDrugSubmittedSaltQuery('');
       } else {
         setQuery('');
+        setDrugSaltQuery('');
+        setDrugSubmittedSaltQuery('');
       }
       menuBackdropProgress.value = withTiming(0, { duration: 120 });
       menuDrugsPillProgress.value = withTiming(0, { duration: 120 });
       menuPatientsPillProgress.value = withTiming(0, { duration: 120 });
     },
-    [menuBackdropProgress, menuDrugsPillProgress, menuPatientsPillProgress],
+    [clearDrugSearchDelay, menuBackdropProgress, menuDrugsPillProgress, menuPatientsPillProgress],
   );
 
   const dismissInlineSearch = useCallback(() => {
+    clearDrugSearchDelay();
     setSearchInlineActive(false);
     setSearchMode('patients');
     setQuery('');
     setDrugSaltQuery('');
+    setDrugSubmittedSaltQuery('');
+    setDrugSearchLoading(false);
     setStrengthFilterOpen(false);
     setSelectedStrengths([]);
     setStrengthFilterText('');
     setSelectedDrugId(null);
-  }, []);
+    setPatientFocusSource(null);
+    setDrugFocusReturnState(null);
+    setInsightFocusPatientIds([]);
+    setInsightFocusLabel(null);
+  }, [clearDrugSearchDelay]);
 
   useEffect(() => {
-    if (route.name !== 'list' || suitableMode || !searchLayerVisible) return;
+    if (route.name !== 'list' || suitableMode) return;
 
     const subscription = BackHandler.addEventListener('hardwareBackPress', () => {
-      if (searchOverlayState === 'menu') {
+      if (searchLayerVisible && searchOverlayState === 'menu') {
         hideSearchLayer();
+        return true;
+      }
+      if (patientFocusSource === 'drug') {
+        goBack();
         return true;
       }
       return false;
@@ -1015,6 +1345,8 @@ export function PatientScreen({
     };
   }, [
     hideSearchLayer,
+    goBack,
+    patientFocusSource,
     route.name,
     searchLayerVisible,
     searchOverlayState,
@@ -1066,29 +1398,41 @@ export function PatientScreen({
 
     const { drug } = item.match;
     return (
-      <Pressable
-        accessibilityRole="button"
-        accessibilityLabel={`Open details for ${drug.productName}`}
-        onPress={() => {
-          Keyboard.dismiss();
-          setSelectedDrugId(drug.id);
-        }}
-        style={styles.drugResultCard}
-      >
-        <Image source={drug.image} style={styles.drugResultImage} resizeMode="cover" />
-        <View style={styles.drugResultBody}>
-          <Text style={styles.drugResultName}>{drug.productName}</Text>
-          <Text style={styles.drugResultCompany}>{drug.companyName}</Text>
-          <Text style={styles.drugResultSummary}>{drug.summary}</Text>
-          <Text style={styles.drugResultSalts}>
-            {drug.salts.map((salt) => `${salt.name} ${salt.strength}`).join(' + ')}
-          </Text>
+      <View style={styles.drugResultCard}>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={`Open details for ${drug.productName}`}
+          onPress={() => {
+            Keyboard.dismiss();
+            setSelectedDrugId(drug.id);
+          }}
+        >
+          <Image source={drug.image} style={styles.drugResultImage} resizeMode="cover" />
+          <View style={styles.drugResultBody}>
+            <Text style={styles.drugResultName}>{drug.productName}</Text>
+            <Text style={styles.drugResultCompany}>{drug.companyName}</Text>
+            <Text style={styles.drugResultSummary}>{drug.summary}</Text>
+            <Text style={styles.drugResultSalts}>
+              {drug.salts.map((salt) => `${salt.name} ${salt.strength}`).join(' + ')}
+            </Text>
+          </View>
+        </Pressable>
+        <View style={styles.drugResultLinksWrap}>
           <View style={styles.drugResultLinks}>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={`Find relevant patients for ${drug.productName}`}
+              onPress={() => {
+                openRelevantPatientsFromDrug(drug);
+              }}
+              style={styles.drugFindPatientsButton}
+            >
+              <Text style={styles.drugFindPatientsButtonText}>Find relevant patients</Text>
+            </Pressable>
             <Pressable
               accessibilityRole="link"
               accessibilityLabel={`Open website for ${drug.productName}`}
-              onPress={(event) => {
-                event.stopPropagation();
+              onPress={() => {
                 openExternalLink(
                   drug.websiteUrl,
                   `Could not open ${drug.productName} website on this device.`,
@@ -1100,12 +1444,18 @@ export function PatientScreen({
             </Pressable>
           </View>
         </View>
-      </Pressable>
+      </View>
     );
   };
 
-  const showBack = route.name !== 'list' || suitableMode;
+  const showBack = route.name !== 'list' || suitableMode || patientFocusSource === 'drug';
   const boxNonePointerEvents: 'box-none' = 'box-none';
+  const selectedFollowUpFrequency =
+    FOLLOW_UP_FREQUENCY_OPTIONS[followUpFrequencyIndex] ?? FOLLOW_UP_FREQUENCY_OPTIONS[0];
+  const followUpProgressPercent =
+    FOLLOW_UP_FREQUENCY_OPTIONS.length > 1
+      ? (followUpFrequencyIndex / (FOLLOW_UP_FREQUENCY_OPTIONS.length - 1)) * 100
+      : 0;
 
   return (
     <View style={styles.root}>
@@ -1121,6 +1471,8 @@ export function PatientScreen({
           accessibilityLabel={
             suitableMode && route.name === 'list'
               ? 'Exit cohort analyzer'
+              : patientFocusSource === 'drug' && route.name === 'list'
+                ? 'Go back to drug results'
               : route.name === 'list'
                 ? 'Patients'
                 : 'Go back'
@@ -1166,14 +1518,14 @@ export function PatientScreen({
           >
             <Text style={styles.notifyAllBtnText}>Notify all suitable</Text>
           </Pressable>
-        ) : !suitableMode && route.name === 'list' ? (
+        ) : !suitableMode && route.name === 'list' && patientFocusSource !== 'drug' ? (
           <Pressable
             accessibilityRole="button"
             accessibilityLabel="Open what's new feed"
             onPress={openWhatsNewFeed}
             style={({ pressed }) => [styles.whatsNewBtn, pressed && styles.whatsNewBtnPressed]}
           >
-            <Text style={styles.whatsNewBtnText}>What&apos;s New</Text>
+            <Image source={WHATS_NEW_BUTTON_IMAGE} style={styles.whatsNewBtnImage} resizeMode="contain" />
           </Pressable>
         ) : null}
       </View>
@@ -1226,11 +1578,15 @@ export function PatientScreen({
               {!suitableMode &&
               searchMode === 'patients' &&
               insightFocusLabel &&
-              insightFocusPatientIds.length > 0 ? (
+              (insightFocusPatientIds.length > 0 || patientFocusSource === 'drug') ? (
                 <View style={styles.focusBanner}>
-                  <Text style={styles.focusBannerEyebrow}>WHAT&apos;S NEW MATCH</Text>
+                  <Text style={styles.focusBannerEyebrow}>
+                    {patientFocusSource === 'drug' ? 'DRUG MATCH' : "WHAT'S NEW MATCH"}
+                  </Text>
                   <Text style={styles.focusBannerText}>
-                    Prioritizing patients relevant to {insightFocusLabel}.
+                    {patientFocusSource === 'drug'
+                      ? `Prioritizing patients relevant to ${insightFocusLabel}.`
+                      : `Prioritizing patients relevant to ${insightFocusLabel}.`}
                   </Text>
                 </View>
               ) : null}
@@ -1242,11 +1598,19 @@ export function PatientScreen({
               ) : null}
 
               {!suitableMode && searchInlineActive && searchMode === 'drugs' ? (
-                drugSaltQuery.trim().length === 0 ? (
+                drugSearchLoading ? (
+                  <View style={styles.searchEmptyStateInline}>
+                    <ActivityIndicator size="small" color={colors.accentPurple} />
+                    <Text style={styles.searchEmptyStateTitle}>Searching drugs...</Text>
+                    <Text style={styles.searchEmptyStateText}>
+                      Matching active ingredients across the catalog.
+                    </Text>
+                  </View>
+                ) : drugSubmittedSaltQuery.trim().length === 0 ? (
                   <View style={styles.searchEmptyStateInline}>
                     <Text style={styles.searchEmptyStateTitle}>Search Active Ingredient</Text>
                     <Text style={styles.searchEmptyStateText}>
-                      Add one or more salts (comma-separated) to show matching drugs.
+                      Add one or more salts (comma-separated), then tap Search.
                     </Text>
                   </View>
                 ) : drugResultRows.length === 0 ? (
@@ -1263,7 +1627,9 @@ export function PatientScreen({
                 )
               ) : (
                 filteredPatients.map((patient) => {
-                  const isHighMatch = suitableMode && HIGH_MATCH_SET.has(patient.id);
+                  const isHighMatch = suitableMode
+                    ? HIGH_MATCH_SET.has(patient.id)
+                    : insightFocusPatientIds.includes(patient.id);
                   return (
                     <Pressable
                       key={patient.id}
@@ -1357,6 +1723,8 @@ export function PatientScreen({
                           }
                           setQuery(value);
                           if (value.trim().length > 0) {
+                            setPatientFocusSource(null);
+                            setDrugFocusReturnState(null);
                             setInsightFocusPatientIds([]);
                             setInsightFocusLabel(null);
                           }
@@ -1368,8 +1736,27 @@ export function PatientScreen({
                         }
                         placeholderTextColor={colors.searchPlaceholder}
                         style={styles.searchInlineInput}
-                        onSubmitEditing={Keyboard.dismiss}
+                        onSubmitEditing={() => {
+                          if (searchMode === 'drugs') {
+                            runDrugSearch();
+                            return;
+                          }
+                          Keyboard.dismiss();
+                        }}
                       />
+                      {searchMode === 'drugs' ? (
+                        <Pressable
+                          accessibilityRole="button"
+                          accessibilityLabel="Run drug active ingredient search"
+                          onPress={runDrugSearch}
+                          style={[
+                            styles.searchPanelFilterBtn,
+                            drugSaltQuery.trim().length > 0 && styles.searchPanelFilterBtnActive,
+                          ]}
+                        >
+                          <SearchIcon color={colors.accentPurple} size={18} />
+                        </Pressable>
+                      ) : null}
                       {searchMode === 'drugs' ? (
                         <Pressable
                           accessibilityRole="button"
@@ -1599,6 +1986,15 @@ export function PatientScreen({
                         </View>
 
                         <Pressable
+                          accessibilityRole="button"
+                          accessibilityLabel={`Find relevant patients for ${selectedDrug.productName}`}
+                          onPress={() => openRelevantPatientsFromDrug(selectedDrug)}
+                          style={styles.secondaryButton}
+                        >
+                          <Text style={styles.secondaryButtonText}>Find Relevant Patients</Text>
+                        </Pressable>
+
+                        <Pressable
                           accessibilityRole="link"
                           accessibilityLabel={`Open ${selectedDrug.productName} website`}
                           onPress={(event) => {
@@ -1616,6 +2012,18 @@ export function PatientScreen({
                     </View>
                   </View>
                 ) : null}
+
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel="Add a new patient"
+                  onPress={openAddPatient}
+                  style={({ pressed }) => [
+                    styles.addPatientFab,
+                    pressed && styles.addPatientFabPressed,
+                  ]}
+                >
+                  <Text style={styles.addPatientFabText}>+</Text>
+                </Pressable>
               </View>
             ) : null}
           </KeyboardAvoidingView>
@@ -1785,7 +2193,124 @@ export function PatientScreen({
               <Text style={styles.primaryButtonText}>Relevant Patients</Text>
             </Pressable>
           </ScrollView>
-        ) : route.name === 'edit' && routedPatient ? (
+        ) : route.name === 'addPatient' && patientForm ? (
+          <ScrollView
+            style={styles.flex}
+            contentContainerStyle={styles.detailsContent}
+            showsVerticalScrollIndicator={false}
+            keyboardShouldPersistTaps="handled"
+          >
+            {infoMessage ? (
+              <View style={styles.infoBanner}>
+                <Text style={styles.infoBannerText}>{infoMessage}</Text>
+              </View>
+            ) : null}
+            <View style={styles.sectionCard}>
+              <Text style={styles.sectionTitle}>New Patient Details</Text>
+              <Text style={styles.sectionHint}>All fields are optional.</Text>
+              <Text style={styles.fieldLabel}>Name</Text>
+              <TextInput
+                value={patientForm.name}
+                onChangeText={(value) => updatePatientForm('name', value)}
+                style={styles.input}
+                placeholder="Patient name"
+                placeholderTextColor={colors.searchPlaceholder}
+              />
+              <Text style={styles.fieldLabel}>Age</Text>
+              <TextInput
+                value={patientForm.age}
+                onChangeText={(value) => updatePatientForm('age', value)}
+                keyboardType="numeric"
+                style={styles.input}
+                placeholder="Age"
+                placeholderTextColor={colors.searchPlaceholder}
+              />
+              <ChoiceField
+                label="Sex"
+                value={patientForm.sex}
+                options={['Female', 'Male']}
+                onChange={(value) => updatePatientForm('sex', value)}
+              />
+              <Text style={styles.fieldLabel}>Diagnosis</Text>
+              <TextInput
+                value={patientForm.diagnosis}
+                onChangeText={(value) => updatePatientForm('diagnosis', value)}
+                style={[styles.textArea, styles.input]}
+                multiline
+                placeholder="Primary diagnosis or condition"
+                placeholderTextColor={colors.searchPlaceholder}
+              />
+              <Text style={styles.fieldLabel}>Relevant Medical History</Text>
+              <TextInput
+                value={patientForm.relevantMedicalHistory}
+                onChangeText={(value) => updatePatientForm('relevantMedicalHistory', value)}
+                style={[styles.textArea, styles.input]}
+                multiline
+                placeholder="Relevant medical history"
+                placeholderTextColor={colors.searchPlaceholder}
+              />
+              <Text style={styles.fieldLabel}>Family Medical History</Text>
+              <TextInput
+                value={patientForm.familyMedicalHistory}
+                onChangeText={(value) => updatePatientForm('familyMedicalHistory', value)}
+                style={[styles.textArea, styles.input]}
+                multiline
+                placeholder="Family medical history"
+                placeholderTextColor={colors.searchPlaceholder}
+              />
+              <Text style={styles.fieldLabel}>Current Medications</Text>
+              <TextInput
+                value={patientForm.currentMedications}
+                onChangeText={(value) => updatePatientForm('currentMedications', value)}
+                style={[styles.textArea, styles.input]}
+                multiline
+                placeholder="Current medicines"
+                placeholderTextColor={colors.searchPlaceholder}
+              />
+              <ChoiceField
+                label="Alcohol"
+                value={patientForm.alcoholUse}
+                options={['None', 'Social', 'Daily']}
+                onChange={(value) => updatePatientForm('alcoholUse', value)}
+              />
+              <ChoiceField
+                label="Smoking"
+                value={patientForm.smokingStatus}
+                options={['Never smoker', 'Former smoker', 'Current smoker']}
+                onChange={(value) => updatePatientForm('smokingStatus', value)}
+              />
+              <ChoiceField
+                label="Immune Status"
+                value={patientForm.immuneStatus}
+                options={['Immunocompromised', 'Immunocompetent']}
+                onChange={(value) => updatePatientForm('immuneStatus', value)}
+              />
+              <ChoiceField
+                label="Pregnancy"
+                value={patientForm.pregnancyStatus}
+                options={['Pregnant', 'Not Pregnant', 'N/A']}
+                onChange={(value) => updatePatientForm('pregnancyStatus', value)}
+              />
+              <Text style={styles.fieldLabel}>Lab Results</Text>
+              <TextInput
+                value={patientForm.labResults}
+                onChangeText={(value) => updatePatientForm('labResults', value)}
+                style={[styles.textArea, styles.input]}
+                multiline
+                placeholder="Lab results"
+                placeholderTextColor={colors.searchPlaceholder}
+              />
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel="Create patient"
+                onPress={saveNewPatient}
+                style={styles.primaryButton}
+              >
+                <Text style={styles.primaryButtonText}>Create Patient</Text>
+              </Pressable>
+            </View>
+          </ScrollView>
+        ) : route.name === 'edit' && routedPatient && patientForm ? (
           <ScrollView
             style={styles.flex}
             contentContainerStyle={styles.detailsContent}
@@ -1799,28 +2324,106 @@ export function PatientScreen({
 
             <View style={styles.sectionCard}>
               <Text style={styles.sectionTitle}>Patient Details</Text>
-              <DetailRow label="Age Group" value={routedPatient.ageGroup} />
-              <DetailRow label="Sex" value={routedPatient.sex} />
-              <DetailRow
-                label="Relevant Medical History"
-                value={routedPatient.relevantMedicalHistory}
-                multiline
+              <Text style={styles.fieldLabel}>Name</Text>
+              <TextInput
+                value={patientForm.name}
+                onChangeText={(value) => updatePatientForm('name', value)}
+                style={styles.input}
+                placeholder="Patient name"
+                placeholderTextColor={colors.searchPlaceholder}
               />
-              <DetailRow
-                label="Family Medical History"
-                value={routedPatient.familyMedicalHistory}
-                multiline
+              <Text style={styles.fieldLabel}>Age</Text>
+              <TextInput
+                value={patientForm.age}
+                onChangeText={(value) => updatePatientForm('age', value)}
+                keyboardType="numeric"
+                style={styles.input}
+                placeholder="Age"
+                placeholderTextColor={colors.searchPlaceholder}
               />
-              <DetailRow
-                label="Current Medications"
-                value={routedPatient.currentMedications}
-                multiline
+              <ChoiceField
+                label="Sex"
+                value={patientForm.sex}
+                options={['Female', 'Male']}
+                onChange={(value) => updatePatientForm('sex', value)}
               />
-              <DetailRow label="Alcohol" value={routedPatient.alcoholUse} />
-              <DetailRow label="Smoking" value={routedPatient.smokingStatus} />
-              <DetailRow label="Immune Status" value={routedPatient.immuneStatus} />
-              <DetailRow label="Pregnancy" value={routedPatient.pregnancyStatus} />
-              <DetailRow label="Lab Results" value={routedPatient.labResults} multiline />
+              <Text style={styles.fieldLabel}>Diagnosis</Text>
+              <TextInput
+                value={patientForm.diagnosis}
+                onChangeText={(value) => updatePatientForm('diagnosis', value)}
+                style={[styles.textArea, styles.input]}
+                multiline
+                placeholder="Primary diagnosis or condition"
+                placeholderTextColor={colors.searchPlaceholder}
+              />
+              <Text style={styles.fieldLabel}>Relevant Medical History</Text>
+              <TextInput
+                value={patientForm.relevantMedicalHistory}
+                onChangeText={(value) => updatePatientForm('relevantMedicalHistory', value)}
+                style={[styles.textArea, styles.input]}
+                multiline
+                placeholder="Relevant medical history"
+                placeholderTextColor={colors.searchPlaceholder}
+              />
+              <Text style={styles.fieldLabel}>Family Medical History</Text>
+              <TextInput
+                value={patientForm.familyMedicalHistory}
+                onChangeText={(value) => updatePatientForm('familyMedicalHistory', value)}
+                style={[styles.textArea, styles.input]}
+                multiline
+                placeholder="Family medical history"
+                placeholderTextColor={colors.searchPlaceholder}
+              />
+              <Text style={styles.fieldLabel}>Current Medications</Text>
+              <TextInput
+                value={patientForm.currentMedications}
+                onChangeText={(value) => updatePatientForm('currentMedications', value)}
+                style={[styles.textArea, styles.input]}
+                multiline
+                placeholder="Current medicines"
+                placeholderTextColor={colors.searchPlaceholder}
+              />
+              <ChoiceField
+                label="Alcohol"
+                value={patientForm.alcoholUse}
+                options={['None', 'Social', 'Daily']}
+                onChange={(value) => updatePatientForm('alcoholUse', value)}
+              />
+              <ChoiceField
+                label="Smoking"
+                value={patientForm.smokingStatus}
+                options={['Never smoker', 'Former smoker', 'Current smoker']}
+                onChange={(value) => updatePatientForm('smokingStatus', value)}
+              />
+              <ChoiceField
+                label="Immune Status"
+                value={patientForm.immuneStatus}
+                options={['Immunocompromised', 'Immunocompetent']}
+                onChange={(value) => updatePatientForm('immuneStatus', value)}
+              />
+              <ChoiceField
+                label="Pregnancy"
+                value={patientForm.pregnancyStatus}
+                options={['Pregnant', 'Not Pregnant', 'N/A']}
+                onChange={(value) => updatePatientForm('pregnancyStatus', value)}
+              />
+              <Text style={styles.fieldLabel}>Lab Results</Text>
+              <TextInput
+                value={patientForm.labResults}
+                onChangeText={(value) => updatePatientForm('labResults', value)}
+                style={[styles.textArea, styles.input]}
+                multiline
+                placeholder="Lab results"
+                placeholderTextColor={colors.searchPlaceholder}
+              />
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel="Save patient details"
+                onPress={saveEditedPatient}
+                style={styles.primaryButton}
+              >
+                <Text style={styles.primaryButtonText}>Save Patient Details</Text>
+              </Pressable>
             </View>
 
             <View style={styles.sectionCard}>
@@ -1912,12 +2515,7 @@ export function PatientScreen({
             </View>
 
             <View style={styles.sectionCard}>
-              <Text style={styles.sectionTitle}>Family History + Labs Snapshot</Text>
-              <DetailRow
-                label="Family Medical History"
-                value={activeVisit.familyMedicalHistory}
-                multiline
-              />
+              <Text style={styles.sectionTitle}>Labs Snapshot</Text>
               <DetailRow label="Lab Results" value={activeVisit.labResults} multiline />
             </View>
 
@@ -2040,6 +2638,28 @@ export function PatientScreen({
             keyboardShouldPersistTaps="handled"
           >
             <View style={styles.sectionCard}>
+              <Text style={styles.sectionTitle}>Visit Summary</Text>
+              <Text style={styles.sectionHint}>Diagnosis and notes are optional.</Text>
+              <Text style={styles.fieldLabel}>Diagnosis</Text>
+              <TextInput
+                value={visitForm.diagnosis}
+                onChangeText={(value) => updateVisitForm('diagnosis', value)}
+                style={styles.input}
+                placeholder="Diagnosis"
+                placeholderTextColor={colors.searchPlaceholder}
+              />
+              <Text style={styles.fieldLabel}>Notes</Text>
+              <TextInput
+                value={visitForm.notes}
+                onChangeText={(value) => updateVisitForm('notes', value)}
+                multiline
+                style={[styles.textArea, styles.input]}
+                placeholder="Notes"
+                placeholderTextColor={colors.searchPlaceholder}
+              />
+            </View>
+
+            <View style={styles.sectionCard}>
               <Text style={styles.sectionTitle}>Symptoms</Text>
               <Text style={styles.sectionHint}>
                 Add symptoms with duration, frequency, trigger, and onset.
@@ -2113,17 +2733,7 @@ export function PatientScreen({
             </View>
 
             <View style={styles.sectionCard}>
-              <Text style={styles.sectionTitle}>Family History + Labs</Text>
-              <Text style={styles.fieldLabel}>Family Medical History</Text>
-              <TextInput
-                value={visitForm.familyMedicalHistory}
-                onChangeText={(value) => updateVisitForm('familyMedicalHistory', value)}
-                multiline
-                style={[styles.textArea, styles.input]}
-                placeholder="Include relevant hereditary conditions"
-                placeholderTextColor={colors.searchPlaceholder}
-              />
-
+              <Text style={styles.sectionTitle}>Labs</Text>
               <Text style={styles.fieldLabel}>Lab Results</Text>
               <TextInput
                 value={visitForm.labResults}
@@ -2138,8 +2748,9 @@ export function PatientScreen({
             <Pressable
               accessibilityRole="button"
               accessibilityLabel="Save visit"
-              onPress={saveVisit}
-              style={styles.primaryButton}
+              onPress={openVisitSavePrompt}
+              style={[styles.primaryButton, visitSaveBusy && styles.primaryButtonDisabled]}
+              disabled={visitSaveBusy}
             >
               <Text style={styles.primaryButtonText}>
                 {route.visitId ? 'Save Visit Changes' : 'Save Visit'}
@@ -2257,7 +2868,7 @@ export function PatientScreen({
                 similarCases.map((match) => (
                   <View key={match.patient_key} style={styles.similarRow}>
                     <Text style={styles.similarTitle}>
-                      {match.age_group} · {match.sex_label}
+                      Age {match.age} · {match.sex_label}
                     </Text>
                     <Text style={styles.similarMeta}>{match.diagnosis_label}</Text>
                     <Text style={styles.similarMeta}>{match.matching_feature}</Text>
@@ -2290,6 +2901,110 @@ export function PatientScreen({
               </Pressable>
               <Pressable onPress={confirmDoctorReferral} style={styles.referBtn}>
                 <Text style={styles.referBtnText}>Refer</Text>
+              </Pressable>
+            </View>
+          </View>
+        </View>
+      ) : null}
+
+      {followUpPromptOpen && route.name === 'addVisit' ? (
+        <View pointerEvents={boxNonePointerEvents} style={styles.followUpRoot}>
+          <Pressable
+            style={styles.confirmOverlay}
+            onPress={() => {
+              if (visitSaveBusy) return;
+              setFollowUpPromptOpen(false);
+            }}
+          />
+          <View style={styles.followUpCard}>
+            <Text style={styles.confirmTitle}>Send follow-up emails?</Text>
+            <Text style={styles.confirmText}>
+              Do you want to send follow-up emails after this visit is saved?
+            </Text>
+
+            <Text style={styles.fieldLabel}>Frequency Slider</Text>
+            <Text style={styles.followUpFrequencyValue}>{selectedFollowUpFrequency}</Text>
+            <View style={styles.followUpSliderTrack}>
+              <View style={[styles.followUpSliderFill, { width: `${followUpProgressPercent}%` }]} />
+              <View style={styles.followUpSliderSteps}>
+                {FOLLOW_UP_FREQUENCY_OPTIONS.map((option, index) => {
+                  const active = index === followUpFrequencyIndex;
+                  const passed = index < followUpFrequencyIndex;
+                  return (
+                    <Pressable
+                      key={option}
+                      accessibilityRole="button"
+                      accessibilityLabel={`Set follow-up frequency to ${option}`}
+                      onPress={() => setFollowUpFrequencyIndex(index)}
+                      style={styles.followUpSliderStep}
+                    >
+                      <View
+                        style={[
+                          styles.followUpSliderDot,
+                          (active || passed) && styles.followUpSliderDotPassed,
+                          active && styles.followUpSliderDotActive,
+                        ]}
+                      />
+                    </Pressable>
+                  );
+                })}
+              </View>
+            </View>
+            <View style={styles.followUpSliderLegend}>
+              <Text style={styles.followUpSliderLegendText}>1 day</Text>
+              <Text style={styles.followUpSliderLegendText}>4 weeks</Text>
+            </View>
+            <View style={styles.followUpOptionGrid}>
+              {FOLLOW_UP_FREQUENCY_OPTIONS.map((option, index) => {
+                const active = index === followUpFrequencyIndex;
+                return (
+                  <Pressable
+                    key={`pill-${option}`}
+                    accessibilityRole="button"
+                    accessibilityState={{ selected: active }}
+                    onPress={() => setFollowUpFrequencyIndex(index)}
+                    style={[styles.followUpOptionPill, active && styles.followUpOptionPillActive]}
+                  >
+                    <Text
+                      style={[styles.followUpOptionPillText, active && styles.followUpOptionPillTextActive]}
+                    >
+                      {option}
+                    </Text>
+                  </Pressable>
+                );
+              })}
+            </View>
+
+            <Text style={styles.fieldLabel}>Follow-up Topic</Text>
+            <TextInput
+              value={followUpTopic}
+              onChangeText={setFollowUpTopic}
+              multiline
+              style={[styles.textArea, styles.input, styles.followUpTextArea]}
+              placeholder={FOLLOW_UP_PROMPT_PLACEHOLDER}
+              placeholderTextColor={colors.searchPlaceholder}
+            />
+
+            <View style={styles.confirmActions}>
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel="Save visit without follow-up emails"
+                onPress={() => saveVisit(false)}
+                style={[styles.cancelBtn, visitSaveBusy && styles.primaryButtonDisabled]}
+                disabled={visitSaveBusy}
+              >
+                <Text style={styles.cancelBtnText}>
+                  {visitSaveBusy ? 'Saving...' : 'No, just save visit'}
+                </Text>
+              </Pressable>
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel="Save visit and schedule follow-up emails"
+                onPress={() => saveVisit(true)}
+                style={[styles.referBtn, visitSaveBusy && styles.primaryButtonDisabled]}
+                disabled={visitSaveBusy}
+              >
+                <Text style={styles.referBtnText}>Save + follow-up emails</Text>
               </Pressable>
             </View>
           </View>
@@ -2581,20 +3296,17 @@ const styles = StyleSheet.create({
     lineHeight: 14,
   },
   whatsNewBtn: {
-    backgroundColor: 'rgba(123, 97, 255, 0.24)',
-    borderColor: 'rgba(196, 181, 253, 0.8)',
-    borderWidth: 1,
-    borderRadius: 10,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
+    width: 104,
+    height: 56,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   whatsNewBtnPressed: {
-    opacity: 0.82,
+    opacity: 0.78,
   },
-  whatsNewBtnText: {
-    color: colors.white,
-    fontSize: 12,
-    fontWeight: '800',
+  whatsNewBtnImage: {
+    width: '100%',
+    height: '100%',
   },
   body: {
     flex: 1,
@@ -2658,6 +3370,36 @@ const styles = StyleSheet.create({
   },
   searchLauncherBtnPressed: {
     opacity: 0.88,
+  },
+  addPatientFab: {
+    position: 'absolute',
+    right: 18,
+    bottom: 26,
+    width: 54,
+    height: 54,
+    borderRadius: 27,
+    backgroundColor: colors.accentPurple,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.35)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 132,
+    elevation: 8,
+    shadowColor: '#000',
+    shadowOpacity: 0.18,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 4 },
+  },
+  addPatientFabPressed: {
+    opacity: 0.88,
+    transform: [{ scale: 0.98 }],
+  },
+  addPatientFabText: {
+    color: colors.white,
+    fontSize: 30,
+    lineHeight: 32,
+    fontWeight: '700',
+    marginTop: -2,
   },
   searchInlineBar: {
     flex: 1,
@@ -2969,8 +3711,12 @@ const styles = StyleSheet.create({
   },
   drugResultBody: {
     paddingHorizontal: 12,
-    paddingVertical: 10,
+    paddingTop: 10,
     gap: 5,
+  },
+  drugResultLinksWrap: {
+    paddingHorizontal: 12,
+    paddingBottom: 10,
   },
   drugResultName: {
     color: colors.textPrimary,
@@ -2996,9 +3742,23 @@ const styles = StyleSheet.create({
     marginTop: 4,
     flexDirection: 'row',
     justifyContent: 'flex-end',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  drugFindPatientsButton: {
+    borderRadius: 999,
+    paddingHorizontal: 11,
+    paddingVertical: 6,
+    backgroundColor: 'rgba(58,122,254,0.12)',
+    borderWidth: 1,
+    borderColor: 'rgba(58,122,254,0.38)',
+  },
+  drugFindPatientsButtonText: {
+    color: colors.accentPurple,
+    fontSize: 12,
+    fontWeight: '700',
   },
   drugWebsiteButton: {
-    marginLeft: 'auto',
     borderRadius: 999,
     paddingHorizontal: 11,
     paddingVertical: 6,
@@ -4040,6 +4800,11 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
     zIndex: 90,
   },
+  followUpRoot: {
+    ...StyleSheet.absoluteFill,
+    justifyContent: 'flex-end',
+    zIndex: 95,
+  },
   confirmOverlay: {
     ...StyleSheet.absoluteFill,
     backgroundColor: 'rgba(0,0,0,0.45)',
@@ -4095,6 +4860,98 @@ const styles = StyleSheet.create({
     color: colors.white,
     fontSize: 14,
     fontWeight: '700',
+  },
+  followUpCard: {
+    backgroundColor: colors.cardBg,
+    borderTopLeftRadius: 18,
+    borderTopRightRadius: 18,
+    paddingHorizontal: 16,
+    paddingTop: 14,
+    paddingBottom: 18,
+    maxHeight: '85%',
+  },
+  followUpFrequencyValue: {
+    color: colors.textPrimary,
+    fontSize: 18,
+    fontWeight: '700',
+    marginBottom: 10,
+  },
+  followUpSliderTrack: {
+    position: 'relative',
+    height: 22,
+    justifyContent: 'center',
+    marginBottom: 6,
+  },
+  followUpSliderFill: {
+    position: 'absolute',
+    left: 0,
+    top: 9,
+    height: 4,
+    borderRadius: 999,
+    backgroundColor: colors.accentPurple,
+  },
+  followUpSliderSteps: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 0,
+  },
+  followUpSliderStep: {
+    flex: 1,
+    alignItems: 'center',
+  },
+  followUpSliderDot: {
+    width: 12,
+    height: 12,
+    borderRadius: 999,
+    borderWidth: 2,
+    borderColor: 'rgba(90,96,112,0.35)',
+    backgroundColor: '#fff',
+  },
+  followUpSliderDotPassed: {
+    borderColor: colors.accentPurple,
+    backgroundColor: 'rgba(123,97,255,0.16)',
+  },
+  followUpSliderDotActive: {
+    backgroundColor: colors.accentPurple,
+  },
+  followUpSliderLegend: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 10,
+  },
+  followUpSliderLegendText: {
+    color: colors.textMuted,
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  followUpOptionGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  followUpOptionPill: {
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: 'rgba(90,96,112,0.24)',
+    backgroundColor: '#FFFFFF',
+    paddingHorizontal: 12,
+    paddingVertical: 7,
+  },
+  followUpOptionPillActive: {
+    backgroundColor: 'rgba(123,97,255,0.12)',
+    borderColor: 'rgba(123,97,255,0.42)',
+  },
+  followUpOptionPillText: {
+    color: colors.textSecondary,
+    fontSize: 13,
+    fontWeight: '600',
+  },
+  followUpOptionPillTextActive: {
+    color: colors.accentPurple,
+    fontWeight: '700',
+  },
+  followUpTextArea: {
+    minHeight: 96,
   },
   emailBox: {
     marginTop: 12,

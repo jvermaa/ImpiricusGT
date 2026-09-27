@@ -291,7 +291,7 @@ export const DRUG_CATALOG: DrugProduct[] = [
     productName: 'CardioPress Trio',
     companyName: 'Apex Cardio Sciences',
     websiteUrl: 'https://www.drugs.com/mtm/amlodipine-hydrochlorothiazide-and-valsartan.html',
-    image: require('../../assets/drugs/cardiopress-trio.jpg'),
+    image: require('../../assets/drugs/cardiopress-duo.jpg'),
     summary: 'Three-salt antihypertensive tablet with diuretic component.',
     salts: [
       { name: 'Amlodipine', strength: '5 mg', purpose: 'Calcium channel blocker' },
@@ -317,7 +317,7 @@ export const DRUG_CATALOG: DrugProduct[] = [
     productName: 'GlycoBoost XR',
     companyName: 'EndoBridge Bio',
     websiteUrl: 'https://www.drugs.com/metformin.html',
-    image: require('../../assets/drugs/glycoboost-xr.jpg'),
+    image: require('../../assets/drugs/thyrobalance.jpg'),
     summary: 'Extended-release metformin for glycemic control.',
     salts: [{ name: 'Metformin Hydrochloride', strength: '500 mg', purpose: 'Biguanide antihyperglycemic' }],
     dosageForm: 'Extended-release tablet, once to twice daily',

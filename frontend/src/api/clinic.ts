@@ -1,6 +1,6 @@
 import type { ChatMessage, CurrentDoctor, DoctorProfile, DoctorThread } from '../types/chat';
-import type { PastVisit, PatientProfile, SymptomEntry } from '../data/patientMock';
-import { API_BASE_URL, CURRENT_DOCTOR_KEY } from './config';
+import type { PastVisit, PatientProfile, SymptomEntry, SymptomOnset } from '../data/patientMock';
+import { API_BASE_URL, CURRENT_DOCTOR_KEY, FALLBACK_API_BASE_URL } from './config';
 
 const PALETTE = ['#7B61FF', '#4A90A4', '#C45B7A', '#5B8C5A', '#6B7FD7', '#D4A017', '#9B59B6', '#2E8B7A'];
 
@@ -33,30 +33,84 @@ type MessageDTO = {
 
 type EncounterDTO = {
   encounter_key: string;
-  year: number;
-  reason: string;
-  assessment: string;
-  plan: string;
+  visit_date: string;
+  diagnosis: string;
+  summary: string;
+  symptoms: Array<{
+    name: string;
+    duration: string;
+    frequency: string;
+    trigger: string;
+    onset: SymptomOnset;
+  }>;
+  current_medications: string;
+  alcohol_use: PastVisit['alcoholUse'];
+  smoking_status: PastVisit['smokingStatus'];
+  immune_status: PastVisit['immuneStatus'];
+  pregnancy_status: PastVisit['pregnancyStatus'];
+  lab_results: string;
 };
 
 type PatientDTO = {
   patient_key: string;
   display_label: string;
-  age_group: string;
-  age_years: number | null;
-  sex_label: PatientProfile['sex'];
+  age: number;
+  sex_label: string;
   primary_diagnosis: string;
-  symptom_labels: string[];
-  active_medication_summary: string;
-  tobacco_label: PatientProfile['smokingStatus'];
-  pregnancy_label: PatientProfile['pregnancyStatus'];
-  family_history: string;
-  surgery_history: string;
-  lab_summary: string;
+  relevant_medical_history: string;
+  family_medical_history: string;
+  current_medications: string;
+  alcohol_use: PatientProfile['alcoholUse'];
+  smoking_status: PatientProfile['smokingStatus'];
+  pregnancy_status: PatientProfile['pregnancyStatus'];
+  immune_status: PatientProfile['immuneStatus'];
+  lab_results: string;
+  latest_visit_symptoms: EncounterDTO['symptoms'];
   encounters: EncounterDTO[];
 };
 
 const NGROK_HEADER = 'ngrok-skip-browser-warning';
+let activeApiBaseUrl = API_BASE_URL;
+
+function apiUrl(baseUrl: string, path: string): string {
+  return `${baseUrl}${path}`;
+}
+
+function canFallback(baseUrl: string): boolean {
+  return Boolean(FALLBACK_API_BASE_URL && FALLBACK_API_BASE_URL !== baseUrl);
+}
+
+async function apiFetch(
+  path: string,
+  init?: RequestInit,
+  options?: { retryOnNotFound?: boolean },
+): Promise<Response> {
+  const primaryBase = activeApiBaseUrl;
+  const fallbackBase = FALLBACK_API_BASE_URL;
+  try {
+    const response = await fetch(apiUrl(primaryBase, path), init);
+    if (
+      response.status === 404 &&
+      options?.retryOnNotFound &&
+      fallbackBase &&
+      fallbackBase !== primaryBase
+    ) {
+      const fallbackResponse = await fetch(apiUrl(fallbackBase, path), init);
+      if (fallbackResponse.ok) {
+        activeApiBaseUrl = fallbackBase;
+      }
+      return fallbackResponse;
+    }
+    return response;
+  } catch (error) {
+    if (!canFallback(primaryBase) || !fallbackBase) {
+      throw error;
+    }
+    const fallbackResponse = await fetch(apiUrl(fallbackBase, path), init);
+    activeApiBaseUrl = fallbackBase;
+    return fallbackResponse;
+  }
+}
 
 async function readError(response: Response): Promise<string> {
   try {
@@ -77,7 +131,7 @@ function jsonHeaders(): Record<string, string> {
 }
 
 async function getJson<T>(path: string): Promise<T> {
-  const response = await fetch(`${API_BASE_URL}${path}`, {
+  const response = await apiFetch(path, {
     headers: { Accept: 'application/json', [NGROK_HEADER]: 'true' },
   });
   if (!response.ok) {
@@ -172,50 +226,59 @@ function toThread(consult: ConsultDTO): DoctorThread {
   };
 }
 
-function toSymptom(patientKey: string, label: string, index: number): SymptomEntry {
+function toSymptom(
+  patientKey: string,
+  symptom: { name: string; duration: string; frequency: string; trigger: string; onset: SymptomOnset },
+  index: number,
+  suffix = 'latest',
+): SymptomEntry {
   return {
-    id: `${patientKey}-symptom-${index}`,
-    name: label,
-    duration: 'Not recorded',
-    frequency: 'Not recorded',
-    trigger: 'Not recorded',
-    onset: 'Gradual',
+    id: `${patientKey}-${suffix}-symptom-${index}`,
+    name: symptom.name,
+    duration: symptom.duration,
+    frequency: symptom.frequency,
+    trigger: symptom.trigger,
+    onset: symptom.onset,
   };
 }
 
 function toPatient(row: PatientDTO): PatientProfile {
-  const symptoms = row.symptom_labels.map((label, index) => toSymptom(row.patient_key, label, index));
   const pastVisits: PastVisit[] = row.encounters.map((encounter) => ({
     id: encounter.encounter_key,
-    date: String(encounter.year),
-    diagnosis: row.primary_diagnosis,
-    summary: `${encounter.reason}. ${encounter.assessment} ${encounter.plan}`,
-    symptoms,
-    currentMedications: row.active_medication_summary,
-    alcoholUse: 'Not recorded',
-    smokingStatus: row.tobacco_label,
-    immuneStatus: 'Not recorded',
-    pregnancyStatus: row.pregnancy_label,
-    familyMedicalHistory: row.family_history,
-    labResults: row.lab_summary,
+    date: encounter.visit_date,
+    diagnosis: encounter.diagnosis,
+    summary: encounter.summary,
+    symptoms: encounter.symptoms.map((symptom, index) =>
+      toSymptom(row.patient_key, symptom, index, encounter.encounter_key),
+    ),
+    currentMedications: encounter.current_medications,
+    alcoholUse: encounter.alcohol_use,
+    smokingStatus: encounter.smoking_status,
+    immuneStatus: encounter.immune_status,
+    pregnancyStatus: encounter.pregnancy_status,
+    labResults: encounter.lab_results,
   }));
+  const latestSymptomsRaw = row.latest_visit_symptoms ?? [];
+  const latestSymptoms =
+    latestSymptomsRaw.length > 0 ? latestSymptomsRaw : row.encounters[0]?.symptoms ?? [];
+  const symptoms = latestSymptoms.map((symptom, index) => toSymptom(row.patient_key, symptom, index));
+  const sex: PatientProfile['sex'] = row.sex_label === 'Female' ? 'Female' : 'Male';
 
   return {
     id: row.patient_key,
     name: row.display_label,
-    age: row.age_years ?? 0,
-    sex: row.sex_label,
-    ageGroup: row.age_group,
+    age: row.age,
+    sex,
     diagnosis: row.primary_diagnosis,
-    prescription: row.active_medication_summary,
-    relevantMedicalHistory: row.surgery_history,
-    familyMedicalHistory: row.family_history,
-    currentMedications: row.active_medication_summary,
-    alcoholUse: 'Not recorded',
-    smokingStatus: row.tobacco_label,
-    immuneStatus: 'Not recorded',
-    pregnancyStatus: row.pregnancy_label,
-    labResults: row.lab_summary,
+    prescription: row.current_medications,
+    relevantMedicalHistory: row.relevant_medical_history,
+    familyMedicalHistory: row.family_medical_history,
+    currentMedications: row.current_medications,
+    alcoholUse: row.alcohol_use,
+    smokingStatus: row.smoking_status,
+    immuneStatus: row.immune_status,
+    pregnancyStatus: row.pregnancy_status,
+    labResults: row.lab_results,
     symptoms,
     pastVisits,
   };
@@ -256,7 +319,7 @@ export async function loadThreadMessages(threadId: string): Promise<ChatMessage[
 }
 
 export async function openConsultThread(peerDoctorKey: string): Promise<DoctorThread> {
-  const response = await fetch(`${API_BASE_URL}/consults?doctor=${CURRENT_DOCTOR_KEY}`, {
+  const response = await apiFetch(`/consults?doctor=${CURRENT_DOCTOR_KEY}`, {
     method: 'POST',
     headers: jsonHeaders(),
     body: JSON.stringify({ peer_doctor_key: peerDoctorKey }),
@@ -268,8 +331,8 @@ export async function openConsultThread(peerDoctorKey: string): Promise<DoctorTh
 }
 
 export async function sendConsultMessage(threadId: string, text: string): Promise<ChatMessage> {
-  const response = await fetch(
-    `${API_BASE_URL}/consults/${encodeURIComponent(threadId)}/messages?doctor=${CURRENT_DOCTOR_KEY}`,
+  const response = await apiFetch(
+    `/consults/${encodeURIComponent(threadId)}/messages?doctor=${CURRENT_DOCTOR_KEY}`,
     {
       method: 'POST',
       headers: jsonHeaders(),
@@ -287,9 +350,79 @@ export async function loadMyPatients(): Promise<PatientProfile[]> {
   return rows.map(toPatient);
 }
 
+export type PatientWritePayload = {
+  name?: string;
+  age?: number;
+  sex?: PatientProfile['sex'];
+  diagnosis?: string;
+  relevantMedicalHistory?: string;
+  familyMedicalHistory?: string;
+  currentMedications?: string;
+  alcoholUse?: PatientProfile['alcoholUse'];
+  smokingStatus?: PatientProfile['smokingStatus'];
+  immuneStatus?: PatientProfile['immuneStatus'];
+  pregnancyStatus?: PatientProfile['pregnancyStatus'];
+  labResults?: string;
+};
+
+function toPatientRequest(payload: PatientWritePayload): Record<string, unknown> {
+  const sex =
+    payload.sex === 'Female'
+      ? 'female'
+      : payload.sex === 'Male'
+        ? 'male'
+        : undefined;
+  return {
+    name: payload.name,
+    age: payload.age,
+    sex_for_clinical_context: sex,
+    primary_diagnosis: payload.diagnosis,
+    relevant_medical_history: payload.relevantMedicalHistory,
+    family_medical_history: payload.familyMedicalHistory,
+    current_medications: payload.currentMedications,
+    alcohol_use: payload.alcoholUse,
+    smoking_status: payload.smokingStatus,
+    immune_status: payload.immuneStatus,
+    pregnancy_status: payload.pregnancyStatus,
+    lab_results: payload.labResults,
+  };
+}
+
+export async function createPatient(payload: PatientWritePayload): Promise<PatientProfile> {
+  const response = await apiFetch(`/patients?doctor=${CURRENT_DOCTOR_KEY}`, {
+    method: 'POST',
+    headers: jsonHeaders(),
+    body: JSON.stringify(toPatientRequest(payload)),
+  });
+  if (!response.ok) {
+    throw new Error(await readError(response));
+  }
+  const row = (await response.json()) as PatientDTO;
+  return toPatient(row);
+}
+
+export async function savePatientDetails(
+  patientKey: string,
+  payload: PatientWritePayload,
+): Promise<PatientProfile> {
+  const response = await apiFetch(
+    `/patients/${encodeURIComponent(patientKey)}?doctor=${CURRENT_DOCTOR_KEY}`,
+    {
+      method: 'PATCH',
+      headers: jsonHeaders(),
+      body: JSON.stringify(toPatientRequest(payload)),
+    },
+  );
+  if (!response.ok) {
+    throw new Error(await readError(response));
+  }
+  const row = (await response.json()) as PatientDTO;
+  return toPatient(row);
+}
+
 export type SimilarCase = {
   patient_key: string;
-  age_group: string;
+  age: number;
   sex_label: string;
   diagnosis_label: string;
   matching_feature: string;
@@ -303,15 +436,15 @@ export async function loadSimilarCases(patientKey: string): Promise<SimilarCase[
 }
 
 export function recordPdfUrl(patientKey: string): string {
-  return `${API_BASE_URL}/patients/${encodeURIComponent(patientKey)}/record.pdf?doctor=${CURRENT_DOCTOR_KEY}`;
+  return `${activeApiBaseUrl}/patients/${encodeURIComponent(patientKey)}/record.pdf?doctor=${CURRENT_DOCTOR_KEY}`;
 }
 
 export async function sendPromptEmail(
   patientKey: string,
   prompt: string,
 ): Promise<{ subject: string; body: string; source: string; status: string; detail: string }> {
-  const response = await fetch(
-    `${API_BASE_URL}/patients/${encodeURIComponent(patientKey)}/prompt-email?doctor=${CURRENT_DOCTOR_KEY}`,
+  const response = await apiFetch(
+    `/patients/${encodeURIComponent(patientKey)}/prompt-email?doctor=${CURRENT_DOCTOR_KEY}`,
     {
       method: 'POST',
       headers: jsonHeaders(),
@@ -335,4 +468,62 @@ export async function loadRankedDoctors(patientKey: string): Promise<DoctorProfi
     distanceKm: index,
     subspecialtyFocus: row.reasons[0] ?? `Match score ${row.score}`,
   }));
+}
+
+export type VisitWritePayload = {
+  visitDate?: string;
+  diagnosis: string;
+  summary: string;
+  symptoms: Array<{
+    name: string;
+    duration: string;
+    frequency: string;
+    trigger: string;
+    onset: SymptomOnset;
+  }>;
+  currentMedications: string;
+  alcoholUse: PastVisit['alcoholUse'];
+  smokingStatus: PastVisit['smokingStatus'];
+  immuneStatus: PastVisit['immuneStatus'];
+  pregnancyStatus: PastVisit['pregnancyStatus'];
+  labResults: string;
+};
+
+function toVisitRequest(payload: VisitWritePayload): Record<string, unknown> {
+  return {
+    visit_date: payload.visitDate ?? null,
+    diagnosis: payload.diagnosis,
+    summary: payload.summary,
+    symptoms: payload.symptoms,
+    current_medications: payload.currentMedications,
+    alcohol_use: payload.alcoholUse,
+    smoking_status: payload.smokingStatus,
+    immune_status: payload.immuneStatus,
+    pregnancy_status: payload.pregnancyStatus,
+    lab_results: payload.labResults,
+  };
+}
+
+export async function savePatientVisit(
+  patientKey: string,
+  payload: VisitWritePayload,
+  visitId?: string,
+): Promise<PatientProfile> {
+  const path = visitId
+    ? `/patients/${encodeURIComponent(patientKey)}/visits/${encodeURIComponent(visitId)}`
+    : `/patients/${encodeURIComponent(patientKey)}/visits`;
+  const response = await apiFetch(
+    `${path}?doctor=${CURRENT_DOCTOR_KEY}`,
+    {
+      method: visitId ? 'PATCH' : 'POST',
+      headers: jsonHeaders(),
+      body: JSON.stringify(toVisitRequest(payload)),
+    },
+    { retryOnNotFound: true },
+  );
+  if (!response.ok) {
+    throw new Error(await readError(response));
+  }
+  const row = (await response.json()) as PatientDTO;
+  return toPatient(row);
 }

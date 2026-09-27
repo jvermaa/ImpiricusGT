@@ -143,7 +143,7 @@ def record_pdf(
     patient = _panel_patient(db, patient_key, doctor)
     summary = build_handoff_summary(db, patient, doctor)
     facts = [
-        f"Patient: {summary['patient_display_label']} ({summary['age_group']})",
+        f"Patient: {summary['patient_display_label']} (Age {summary['age']})",
         f"Symptoms: {_plain(summary['symptoms'])}"[:400],
         f"Diagnoses: {_plain(summary['diagnoses'])}"[:400],
         f"Allergies: {_plain(summary['allergies'])}"[:300],

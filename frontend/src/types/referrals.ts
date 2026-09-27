@@ -31,24 +31,40 @@ export type ReferralSummary = {
 export type HandoffSummary = {
   patient_key: string;
   patient_display_label: string;
-  age_group: string;
+  age: number;
   sex_for_clinical_context: string;
   state: string;
   preferred_language: string;
   doctor_key: string;
   status: string;
   source: string;
-  symptoms: string[];
-  tobacco_use: string;
+  symptoms: Array<{ name: string; duration: string; frequency: string; trigger: string; onset: string }>;
+  alcohol_use: string;
+  smoking_status: string;
   pregnancy_status: string;
-  surgery_history: string;
-  family_history: string;
+  immune_status: string;
+  relevant_medical_history: string;
+  family_medical_history: string;
+  current_medications: string;
+  lab_results: string;
   allergy_status: string;
   diagnoses: Array<{ label: string; code: string; status: string }>;
   allergies: Array<{ substance: string; reaction: string; status: string }>;
   active_prescriptions: Array<{ generic_medication: string; strength: string; status: string }>;
   labs: Array<{ test_name: string; value: number; unit: string; result_year: number; flag: string }>;
-  encounters: Array<{ encounter_key: string; year: number; reason: string; assessment: string; plan: string }>;
+  encounters: Array<{
+    encounter_key: string;
+    visit_date: string;
+    diagnosis: string;
+    summary: string;
+    symptoms: Array<{ name: string; duration: string; frequency: string; trigger: string; onset: string }>;
+    current_medications: string;
+    alcohol_use: string;
+    smoking_status: string;
+    pregnancy_status: string;
+    immune_status: string;
+    lab_results: string;
+  }>;
   followups_pending_approval: string[];
 };
 

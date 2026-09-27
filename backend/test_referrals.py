@@ -52,17 +52,21 @@ def client():
         db.add(Patient(
             patient_key="P001",
             name="Synthetic Patient",
-            age_group="45-54",
+            age=49,
             state="GA",
             sex_for_clinical_context="female",
             preferred_language="English",
             primary_doctor_key="D011",
             allergy_status="none reported",
-            symptoms_json='["dyspnea", "fatigue"]',
-            tobacco_use="never",
-            surgery_history="not recorded",
-            family_history="not recorded",
-            pregnancy_status="not recorded",
+            relevant_medical_history="Chronic exertional dyspnea under active monitoring.",
+            family_medical_history="Family history reviewed with mild cardiometabolic risk.",
+            current_medications="Lisinopril 10mg daily; carvedilol 6.25mg twice daily.",
+            alcohol_use="Social",
+            smoking_status="Never smoker",
+            lab_results="BNP mildly elevated with stable renal profile.",
+            pregnancy_status="Not Pregnant",
+            immune_status="Immunocompetent",
+            latest_visit_symptoms_json='[{"name":"dyspnea","duration":"3 weeks","frequency":"Daily","trigger":"Exertion","onset":"Gradual"},{"name":"fatigue","duration":"2 weeks","frequency":"Daily","trigger":"Late afternoon","onset":"Gradual"}]',
             portal_access=False,
             email_contact_available=False,
             messaging_preference="unavailable",
@@ -131,7 +135,7 @@ def test_patient_handoff_is_hidden_until_acceptance_and_messages_work(client: Te
     })
     assert accepted.status_code == 200
     assert accepted.json()["patient_handoff"]["patient_display_label"] == "Synthetic Patient"
-    assert accepted.json()["patient_handoff"]["symptoms"] == ["dyspnea", "fatigue"]
+    assert accepted.json()["patient_handoff"]["symptoms"][0]["name"] == "dyspnea"
 
     sent = client.post(f"/referrals/{key}/messages", json={
         "sender_doctor_key": "D012",

@@ -293,7 +293,7 @@ export function ReferralWorkspace({
                 style={styles.patientCard}
               >
                 <Text style={styles.patientName}>{row.name}</Text>
-                <Text style={styles.patientMeta}>Age {row.ageGroup} · {row.diagnosis}</Text>
+                <Text style={styles.patientMeta}>Age {row.age} · {row.diagnosis}</Text>
                 <Text style={styles.patientMeta} numberOfLines={1}>{row.symptoms.map((symptom) => symptom.name).slice(0, 3).join(' · ')}</Text>
               </Pressable>
             ))}
@@ -351,7 +351,7 @@ export function ReferralWorkspace({
         <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
           <View style={styles.patientCard}>
             <Text style={styles.patientName}>{patient.name}</Text>
-            <Text style={styles.patientMeta}>{patient.ageGroup} · {patient.diagnosis}</Text>
+            <Text style={styles.patientMeta}>Age {patient.age} · {patient.diagnosis}</Text>
             <Text style={styles.patientMeta}>To: {activeProvider.name} · {activeProvider.specialty}</Text>
             {providerReasons.map((item) => <Text key={item} style={styles.patientMeta}>Case-match signal: {item}</Text>)}
             {providerReasons.length === 0 ? (
@@ -472,21 +472,33 @@ function HandoffCard({ handoff }: { handoff: HandoffSummary }) {
     <View style={styles.handoffCard}>
       <Text style={styles.handoffTitle}>{handoff.patient_display_label} · Patient handoff</Text>
       <Text style={styles.handoffStatus}>{handoff.status}</Text>
-      <Text style={styles.handoffRow}>Age group: {handoff.age_group} · {handoff.sex_for_clinical_context} · {handoff.state}</Text>
+      <Text style={styles.handoffRow}>Age: {handoff.age} · {handoff.sex_for_clinical_context} · {handoff.state}</Text>
       <Text style={styles.handoffRow}>Preferred language: {handoff.preferred_language}</Text>
-      <HandoffSection title="Current symptoms" rows={handoff.symptoms} />
+      <HandoffSection
+        title="Current symptoms"
+        rows={handoff.symptoms.map(
+          (row) => `${row.name} · ${row.duration} · ${row.frequency} · ${row.trigger} · ${row.onset}`,
+        )}
+      />
       <HandoffSection title="Relevant history" rows={[
-        `Surgery: ${handoff.surgery_history}`,
-        `Family: ${handoff.family_history}`,
+        `Medical: ${handoff.relevant_medical_history}`,
+        `Family: ${handoff.family_medical_history}`,
         `Allergy status: ${handoff.allergy_status}`,
-        `Tobacco: ${handoff.tobacco_use}`,
+        `Alcohol: ${handoff.alcohol_use}`,
+        `Smoking: ${handoff.smoking_status}`,
         `Pregnancy: ${handoff.pregnancy_status}`,
+        `Immune: ${handoff.immune_status}`,
+        `Current medications: ${handoff.current_medications}`,
+        `Lab summary: ${handoff.lab_results}`,
       ]} />
       <HandoffSection title="Diagnoses" rows={handoff.diagnoses.map((row) => `${row.label} · ${row.code} · ${row.status}`)} />
       <HandoffSection title="Allergies" rows={handoff.allergies.map((row) => `${row.substance}: ${row.reaction} · ${row.status}`)} />
       <HandoffSection title="Active medications" rows={handoff.active_prescriptions.map((row) => `${row.generic_medication} ${row.strength} · ${row.status}`)} />
       <HandoffSection title="Labs" rows={handoff.labs.map((row) => `${row.test_name}: ${row.value} ${row.unit} (${row.result_year}) · ${row.flag}`)} />
-      <HandoffSection title="Recent encounters" rows={handoff.encounters.map((row) => `${row.year}: ${row.reason}. ${row.assessment} Plan: ${row.plan}`)} />
+      <HandoffSection
+        title="Recent encounters"
+        rows={handoff.encounters.map((row) => `${row.visit_date}: ${row.diagnosis}. ${row.summary}`)}
+      />
       {handoff.followups_pending_approval.length ? (
         <HandoffSection title="Follow-ups pending approval" rows={handoff.followups_pending_approval} />
       ) : null}
