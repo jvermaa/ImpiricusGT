@@ -24,12 +24,15 @@ import {
   loadThreadMessages,
   sendConsultMessage,
 } from '../api/clinic';
+import { loadMyReferrals } from '../api/referrals';
+import { ReferralWorkspace } from './ReferralWorkspace';
 import type {
   ChatMessage,
   CurrentDoctor,
   DoctorProfile,
   DoctorThread,
 } from '../types/chat';
+import type { ReferralSummary } from '../types/referrals';
 import { colors } from '../theme/colors';
 
 export function ChatScreen() {
@@ -48,6 +51,16 @@ export function ChatScreen() {
   const [specialtyFilter, setSpecialtyFilter] = useState('All');
   const [filterOpen, setFilterOpen] = useState(false);
   const [newChatOpen, setNewChatOpen] = useState(false);
+  const [listMode, setListMode] = useState<'chats' | 'referrals'>('chats');
+  const [referrals, setReferrals] = useState<ReferralSummary[]>([]);
+  const [referralProvider, setReferralProvider] = useState<DoctorProfile | null>(null);
+  const [activeReferralKey, setActiveReferralKey] = useState<string | null>(null);
+
+  const refreshReferrals = () => {
+    loadMyReferrals()
+      .then(setReferrals)
+      .catch(() => setLoadError('Could not load referrals from the API.'));
+  };
 
   useEffect(() => {
     let cancelled = false;
@@ -67,6 +80,13 @@ export function ChatScreen() {
       })
       .catch(() => {
         if (!cancelled) setLoadError('Could not load peer consults from the API.');
+      });
+    loadMyReferrals()
+      .then((rows) => {
+        if (!cancelled) setReferrals(rows);
+      })
+      .catch(() => {
+        if (!cancelled) setLoadError('Could not load referrals from the API.');
       });
     return () => {
       cancelled = true;
@@ -170,7 +190,7 @@ export function ChatScreen() {
           </View>
         </Pressable>
 
-        {showingList ? (
+        {showingList && listMode === 'chats' ? (
           <Pressable
             accessibilityRole="button"
             accessibilityLabel="Filter by specialty"
@@ -210,17 +230,52 @@ export function ChatScreen() {
 
       <View style={styles.body}>
         {showingList ? (
-          <DoctorList
-            threads={threads}
-            doctorName={currentDoctor.name}
-            statusMessage={loadError}
-            specialtyFilter={specialtyFilter}
-            onSelect={(id) => setActiveDoctorId(id)}
-            onNewChat={() => {
-              setFilterOpen(false);
-              setNewChatOpen(true);
-            }}
-          />
+          <View style={styles.flex}>
+            <View style={styles.listTabs}>
+              <Pressable
+                accessibilityRole="button"
+                accessibilityState={{ selected: listMode === 'chats' }}
+                onPress={() => setListMode('chats')}
+                style={[styles.listTab, listMode === 'chats' && styles.listTabActive]}
+              >
+                <Text style={[styles.listTabText, listMode === 'chats' && styles.listTabTextActive]}>Doctors</Text>
+              </Pressable>
+              <Pressable
+                accessibilityRole="button"
+                accessibilityState={{ selected: listMode === 'referrals' }}
+                onPress={() => {
+                  setFilterOpen(false);
+                  setListMode('referrals');
+                }}
+                style={[styles.listTab, listMode === 'referrals' && styles.listTabActive]}
+              >
+                <Text style={[styles.listTabText, listMode === 'referrals' && styles.listTabTextActive]}>
+                  Referrals{referrals.length ? ` · ${referrals.length}` : ''}
+                </Text>
+              </Pressable>
+            </View>
+            {listMode === 'chats' ? (
+              <DoctorList
+                threads={threads}
+                doctorName={currentDoctor.name}
+                statusMessage={loadError}
+                specialtyFilter={specialtyFilter}
+                onSelect={(id) => setActiveDoctorId(id)}
+                onNewChat={() => {
+                  setFilterOpen(false);
+                  setNewChatOpen(true);
+                }}
+              />
+            ) : (
+              <ReferralList
+                rows={referrals}
+                currentDoctorKey={currentDoctor.id}
+                statusMessage={loadError}
+                onRefresh={refreshReferrals}
+                onSelect={(key) => setActiveReferralKey(key)}
+              />
+            )}
+          </View>
         ) : activeDoctor ? (
           <ChatThread
             messages={activeDoctor.messages}
@@ -235,12 +290,86 @@ export function ChatScreen() {
       {newChatOpen ? (
         <NewChatSheet
           directory={directory}
-          existingIds={new Set(threads.map((t) => t.id))}
           onClose={() => setNewChatOpen(false)}
-          onSelectDoctor={startOrOpenChat}
+          onSelectDoctor={(doctor) => setReferralProvider(doctor)}
+        />
+      ) : null}
+      {referralProvider || activeReferralKey ? (
+        <ReferralWorkspace
+          currentDoctor={currentDoctor}
+          provider={referralProvider}
+          referralKey={activeReferralKey}
+          onClose={() => {
+            setReferralProvider(null);
+            setActiveReferralKey(null);
+            refreshReferrals();
+          }}
+          onMessageDoctor={(doctor) => {
+            setReferralProvider(null);
+            startOrOpenChat(doctor);
+          }}
+          onSaved={refreshReferrals}
         />
       ) : null}
     </View>
+  );
+}
+
+function ReferralList({
+  rows,
+  currentDoctorKey,
+  statusMessage,
+  onRefresh,
+  onSelect,
+}: {
+  rows: ReferralSummary[];
+  currentDoctorKey: string;
+  statusMessage: string | null;
+  onRefresh: () => void;
+  onSelect: (referralKey: string) => void;
+}) {
+  return (
+    <ScrollView contentContainerStyle={styles.referralList} showsVerticalScrollIndicator={false}>
+      <View style={styles.referralListHeading}>
+        <View>
+          <Text style={styles.listHint}>Formal patient referrals</Text>
+          {statusMessage ? <Text style={styles.referralError}>{statusMessage}</Text> : null}
+        </View>
+        <Pressable accessibilityRole="button" onPress={onRefresh} style={styles.refreshButton}>
+          <Text style={styles.refreshText}>Refresh</Text>
+        </Pressable>
+      </View>
+      {rows.map((row) => {
+        const incoming = row.to_doctor_key === currentDoctorKey;
+        return (
+          <Pressable
+            key={row.referral_key}
+            accessibilityRole="button"
+            accessibilityLabel={`Open referral ${row.referral_key}`}
+            onPress={() => onSelect(row.referral_key)}
+            style={styles.referralCard}
+          >
+            <View style={styles.referralCardTop}>
+              <Text style={styles.referralPatient} numberOfLines={1}>
+                {row.patient_label ?? 'Patient details after acceptance'}
+              </Text>
+              <Text style={styles.referralStatus}>{row.status.toUpperCase()}</Text>
+            </View>
+            <Text style={styles.referralDirection}>
+              {incoming ? 'Received referral' : 'Sent referral'} · {row.urgency}
+            </Text>
+            <Text style={styles.referralReason} numberOfLines={2}>{row.reason}</Text>
+            {row.last_message ? <Text style={styles.referralLastMessage} numberOfLines={1}>{row.last_message}</Text> : null}
+          </Pressable>
+        );
+      })}
+      {rows.length === 0 ? (
+        <View style={styles.emptyCard}>
+          <Text style={styles.emptyTitle}>No referrals yet</Text>
+          <Text style={styles.emptySub}>Choose a doctor from the Doctors tab and select “Refer a patient.”</Text>
+        </View>
+      ) : null}
+    </ScrollView>
   );
 }
 
@@ -362,12 +491,10 @@ function DoctorList({
 
 function NewChatSheet({
   directory,
-  existingIds,
   onClose,
   onSelectDoctor,
 }: {
   directory: DoctorProfile[];
-  existingIds: Set<string>;
   onClose: () => void;
   onSelectDoctor: (doctor: DoctorProfile) => void;
 }) {
@@ -390,7 +517,7 @@ function NewChatSheet({
       <Pressable style={styles.sheetOverlay} onPress={onClose} />
       <View style={styles.sheetCard}>
         <View style={styles.sheetHeader}>
-          <Text style={styles.sheetTitle}>New chat</Text>
+          <Text style={styles.sheetTitle}>Find a doctor</Text>
           <Pressable
             accessibilityRole="button"
             accessibilityLabel="Close"
@@ -422,12 +549,11 @@ function NewChatSheet({
           showsVerticalScrollIndicator={false}
         >
           {results.map((doc) => {
-            const hasChat = existingIds.has(doc.id);
             return (
               <Pressable
                 key={doc.id}
                 accessibilityRole="button"
-                accessibilityLabel={`Start chat with ${doc.name}`}
+                accessibilityLabel={`View profile for ${doc.name}`}
                 onPress={() => onSelectDoctor(doc)}
                 style={styles.sheetRow}
               >
@@ -440,11 +566,7 @@ function NewChatSheet({
                   <Text style={styles.sheetRowName}>{doc.name}</Text>
                   <Text style={styles.sheetRowSpecialty}>{doc.specialty}</Text>
                 </View>
-                {hasChat ? (
-                  <Text style={styles.sheetRowBadge}>Open</Text>
-                ) : (
-                  <Text style={styles.sheetRowBadgeNew}>New</Text>
-                )}
+                <Text style={styles.sheetRowBadgeNew}>Profile</Text>
               </Pressable>
             );
           })}
@@ -509,6 +631,32 @@ const styles = StyleSheet.create({
   body: {
     flex: 1,
   },
+  listTabs: {
+    flexDirection: 'row',
+    gap: 8,
+    paddingHorizontal: 16,
+    paddingTop: 12,
+  },
+  listTab: {
+    flex: 1,
+    minHeight: 38,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 12,
+    backgroundColor: 'rgba(255,255,255,0.08)',
+  },
+  listTabActive: {
+    backgroundColor: 'rgba(123,97,255,0.28)',
+  },
+  listTabText: {
+    color: 'rgba(255,255,255,0.7)',
+    fontSize: 13,
+    fontWeight: '600',
+  },
+  listTabTextActive: {
+    color: colors.white,
+    fontWeight: '700',
+  },
   listHint: {
     color: 'rgba(255,255,255,0.7)',
     fontSize: 13,
@@ -520,6 +668,72 @@ const styles = StyleSheet.create({
     paddingTop: 14,
     paddingBottom: 96,
     gap: 12,
+  },
+  referralList: {
+    paddingHorizontal: 16,
+    paddingTop: 14,
+    paddingBottom: 28,
+    gap: 10,
+  },
+  referralListHeading: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 2,
+  },
+  refreshButton: {
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 10,
+    backgroundColor: 'rgba(255,255,255,0.1)',
+  },
+  refreshText: {
+    color: colors.skyBlue,
+    fontSize: 12,
+    fontWeight: '700',
+  },
+  referralError: {
+    color: '#FFD1D1',
+    fontSize: 11,
+    marginTop: 3,
+  },
+  referralCard: {
+    backgroundColor: colors.cardBg,
+    borderRadius: 16,
+    padding: 14,
+    gap: 5,
+  },
+  referralCardTop: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 8,
+  },
+  referralPatient: {
+    flex: 1,
+    color: colors.textPrimary,
+    fontSize: 15,
+    fontWeight: '700',
+  },
+  referralStatus: {
+    color: colors.accentPurple,
+    fontSize: 10,
+    fontWeight: '800',
+    letterSpacing: 0.5,
+  },
+  referralDirection: {
+    color: colors.textSecondary,
+    fontSize: 12,
+    textTransform: 'capitalize',
+  },
+  referralReason: {
+    color: colors.textPrimary,
+    fontSize: 13,
+    lineHeight: 18,
+  },
+  referralLastMessage: {
+    color: colors.textMuted,
+    fontSize: 12,
   },
   doctorCard: {
     flexDirection: 'row',

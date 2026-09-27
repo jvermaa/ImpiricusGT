@@ -5,6 +5,13 @@ export type DoctorProfile = {
   specialty: string;
   initials: string;
   avatarColor: string;
+  credentials?: string;
+  subspecialtyFocus?: string;
+  practiceType?: string;
+  state?: string;
+  yearsInPractice?: number;
+  languages?: string[];
+  organization?: string;
 };
 
 export type ChatMessage = {

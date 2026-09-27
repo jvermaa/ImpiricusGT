@@ -11,6 +11,13 @@ type DoctorDTO = {
   specialty: string;
   specialty_title: string;
   accepts_peer_consults: boolean;
+  credentials: string;
+  subspecialty_focus: string;
+  practice_type: string;
+  state: string;
+  years_in_practice: number;
+  languages: string[];
+  organization: string;
 };
 
 type ConsultDTO = {
@@ -68,6 +75,7 @@ function colorFor(key: string): string {
 }
 
 function toProfile(doctor: DoctorDTO | ConsultDTO): DoctorProfile {
+  const detail = doctor as DoctorDTO;
   return {
     id: doctor.doctor_key,
     name: doctor.display_name,
@@ -75,6 +83,13 @@ function toProfile(doctor: DoctorDTO | ConsultDTO): DoctorProfile {
     specialty: doctor.specialty,
     initials: doctor.initials,
     avatarColor: colorFor(doctor.doctor_key),
+    credentials: detail.credentials,
+    subspecialtyFocus: detail.subspecialty_focus,
+    practiceType: detail.practice_type,
+    state: detail.state,
+    yearsInPractice: detail.years_in_practice,
+    languages: detail.languages,
+    organization: detail.organization,
   };
 }
 
