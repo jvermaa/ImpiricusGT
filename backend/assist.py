@@ -126,6 +126,8 @@ def _send_email(
     body: str,
     intended: str,
     attachments: list[dict[str, str | bytes]] | None = None,
+    *,
+    html: str | None = None,
 ) -> dict:
     host = os.getenv("SMTP_HOST", "smtp.gmail.com")
     port = int(os.getenv("SMTP_PORT", "587"))
@@ -138,9 +140,17 @@ def _send_email(
     message["Subject"] = subject
     message["From"] = sender
     message["To"] = recipient
-    message.set_content(
+    plain = (
         f"Intended recipient: {intended}\n\n{body}" if redirect and redirect != intended else body
     )
+    message.set_content(plain)
+    if html:
+        html_body = (
+            f"<p><em>Intended recipient: {intended}</em></p>{html}"
+            if redirect and redirect != intended
+            else html
+        )
+        message.add_alternative(html_body, subtype="html")
     for attachment in attachments or []:
         content = attachment.get("content")
         if not isinstance(content, bytes):

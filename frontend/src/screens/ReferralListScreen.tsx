@@ -44,7 +44,12 @@ export function ReferralListScreen({ direction, withDoctor, title }: Props) {
           {rows.length === 0 ? <Text style={styles.empty}>{profileCopy.noReferrals}</Text> : null}
           {rows.map((row) => (
             <View key={row.referral_key} style={styles.card}>
-              <Text style={styles.cardTitle}>{row.patient_label ?? 'Patient hidden until accepted'}</Text>
+              <Text style={styles.cardTitle}>
+                {row.patient_label ??
+                  (row.status === 'pending_patient_consent'
+                    ? 'Waiting for patient consent'
+                    : 'Patient hidden until shared')}
+              </Text>
               <Text style={styles.meta}>{row.status} · {row.urgency}</Text>
               <Text style={styles.meta}>{row.from_doctor_key} → {row.to_doctor_key}</Text>
               <Text style={styles.reason}>{row.reason}</Text>

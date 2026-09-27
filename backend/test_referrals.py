@@ -110,7 +110,22 @@ def create_referral(client: TestClient) -> dict:
         "urgency": "soon",
     })
     assert response.status_code == 201, response.text
-    return response.json()["referral"]
+    payload = response.json()
+    assert payload["referral"]["status"] == "pending_patient_consent"
+    assert payload["consent"]["approve_url"]
+    assert payload["consent"]["decline_url"]
+    return payload
+
+
+def patient_approves(client: TestClient, created: dict) -> None:
+    approve_url = created["consent"]["approve_url"]
+    path = approve_url.split("8000", 1)[-1] if "8000" in approve_url else approve_url
+    if path.startswith("http"):
+        from urllib.parse import urlparse
+        path = urlparse(approve_url).path + "?" + urlparse(approve_url).query
+    response = client.get(path)
+    assert response.status_code == 200, response.text
+    assert "approved" in response.text.lower()
 
 
 def test_directory_is_case_aware_and_excludes_requester(client: TestClient):
@@ -122,19 +137,35 @@ def test_directory_is_case_aware_and_excludes_requester(client: TestClient):
     assert body["results"][0]["reasons"]
 
 
-def test_patient_handoff_is_hidden_until_acceptance_and_messages_work(client: TestClient):
-    referral = create_referral(client)
-    key = referral["referral_key"]
+def test_patient_handoff_is_hidden_until_consent_and_messages_work(client: TestClient):
+    created = create_referral(client)
+    key = created["referral"]["referral_key"]
 
     before = client.get(f"/referrals/{key}", params={"viewer": "D012"}).json()
+    assert before["referral"]["status"] == "pending_patient_consent"
     assert before["patient_visible"] is False
     assert before["patient_handoff"] is None
+
+    # Specialist cannot accept before patient consent.
+    assert client.post(f"/referrals/{key}/status", json={
+        "status": "accepted",
+        "actor_doctor_key": "D012",
+    }).status_code == 409
+
+    patient_approves(client, created)
+
+    shared = client.get(f"/referrals/{key}", params={"viewer": "D012"}).json()
+    assert shared["referral"]["status"] == "shared_with_specialist"
+    assert shared["patient_visible"] is True
+    assert shared["patient_handoff"]["patient_display_label"] == "Synthetic Patient"
+    assert [row["name"] for row in shared["patient_handoff"]["symptoms"]] == ["dyspnea", "fatigue"]
 
     accepted = client.post(f"/referrals/{key}/status", json={
         "status": "accepted",
         "actor_doctor_key": "D012",
     })
     assert accepted.status_code == 200
+    assert accepted.json()["referral"]["status"] == "accepted"
     assert accepted.json()["patient_handoff"]["patient_display_label"] == "Synthetic Patient"
     assert accepted.json()["patient_handoff"]["symptoms"][0]["name"] == "dyspnea"
 
@@ -159,12 +190,35 @@ def test_patient_handoff_is_hidden_until_acceptance_and_messages_work(client: Te
     assert completed.json()["referral"]["status"] == "completed"
 
 
+def test_patient_can_decline_referral_consent(client: TestClient):
+    created = create_referral(client)
+    key = created["referral"]["referral_key"]
+    decline_url = created["consent"]["decline_url"]
+    from urllib.parse import urlparse
+    parsed = urlparse(decline_url)
+    path = parsed.path + "?" + parsed.query
+    response = client.get(path)
+    assert response.status_code == 200
+    assert "declined" in response.text.lower()
+    detail = client.get(f"/referrals/{key}", params={"viewer": "D011"}).json()
+    assert detail["referral"]["status"] == "patient_declined"
+    # Reusing the link fails.
+    assert "Already used" in client.get(path).text
+
+
 def test_referral_access_and_transition_permissions(client: TestClient):
-    referral = create_referral(client)
-    key = referral["referral_key"]
+    created = create_referral(client)
+    key = created["referral"]["referral_key"]
     assert client.get(f"/referrals/{key}", params={"viewer": "D013"}).status_code == 403
     assert client.post(f"/referrals/{key}/status", json={
         "status": "accepted",
         "actor_doctor_key": "D011",
-    }).status_code == 403
+    }).status_code == 409
     assert client.get("/referrals", params={"doctor": "D011"}).json()[0]["referral_key"] == key
+    # Referring doctor can cancel while waiting on patient consent.
+    cancelled = client.post(f"/referrals/{key}/status", json={
+        "status": "cancelled",
+        "actor_doctor_key": "D011",
+    })
+    assert cancelled.status_code == 200
+    assert cancelled.json()["referral"]["status"] == "cancelled"

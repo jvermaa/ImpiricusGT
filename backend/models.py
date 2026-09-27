@@ -276,12 +276,28 @@ class ReferralRequest(Base):
     patient_key: Mapped[str] = mapped_column(
         ForeignKey("patients.patient_key"), nullable=False
     )
-    status: Mapped[str] = mapped_column(String, nullable=False, default="sent")
+    status: Mapped[str] = mapped_column(String, nullable=False, default="pending_patient_consent")
     urgency: Mapped[str] = mapped_column(String, nullable=False, default="routine")
     reason: Mapped[str] = mapped_column(Text, nullable=False)
     outcome: Mapped[str | None] = mapped_column(Text, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
     updated_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+
+
+class ReferralConsentToken(Base):
+    """One-time patient consent token. Only the hash is stored."""
+
+    __tablename__ = "referral_consent_tokens"
+
+    token_key: Mapped[str] = mapped_column(String, primary_key=True)
+    referral_key: Mapped[str] = mapped_column(
+        ForeignKey("referral_requests.referral_key", ondelete="CASCADE"), nullable=False
+    )
+    token_hash: Mapped[str] = mapped_column(String, nullable=False, unique=True)
+    expires_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+    used_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    decision: Mapped[str | None] = mapped_column(String, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
 
 
 class ReferralMessage(Base):

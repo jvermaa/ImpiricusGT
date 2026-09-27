@@ -23,13 +23,14 @@ import {
   type DoctorCardModel,
   type PanelPatient,
 } from '../api/profile';
+import { createQuickReferral } from '../api/referrals';
 import type { DirectoryFilter } from '../api/directory';
 import { colors } from '../theme/colors';
 import { profileCopy } from '../theme/profileCopy';
 import { space } from '../theme/spacing';
 import { themeForSpecialty } from '../theme/specialtyThemes';
 import { Avatar } from './Avatar';
-import { ChatIcon, ReferHcpIcon, ShareIcon, SlidersIcon } from './NavIcons';
+import { ChatIcon, EditIcon, ReferHcpIcon, ShareIcon, SlidersIcon } from './NavIcons';
 import { SpecialtyIcon } from './SpecialtyIcon';
 
 export type ProfileActions = {
@@ -37,6 +38,10 @@ export type ProfileActions = {
   onOpenConsults?: (peerKey: string | null, readOnlyReason?: string) => void;
   onOpenReferrals?: (direction: 'in' | 'out', withDoctor?: string) => void;
   onOpenDirectory?: (filter: DirectoryFilter) => void;
+  /** When set (e.g. patient portal), Refer sends immediately for this patient. */
+  patientKey?: string;
+  patientName?: string;
+  onReferralSent?: (message: string) => void;
 };
 
 type Props = ProfileActions & {
@@ -91,6 +96,9 @@ export function DoctorProfileCard({
   onOpenConsults,
   onOpenReferrals,
   onOpenDirectory,
+  patientKey: lockedPatientKey,
+  patientName: lockedPatientName,
+  onReferralSent,
 }: Props) {
   const [profile, setProfile] = useState<DoctorCardModel | null>(null);
   const [status, setStatus] = useState<'loading' | 'ready' | 'error'>('loading');
@@ -105,13 +113,11 @@ export function DoctorProfileCard({
   const [bioSaving, setBioSaving] = useState(false);
   const [referOpen, setReferOpen] = useState(false);
   const [patients, setPatients] = useState<PanelPatient[]>([]);
-  const [patientKey, setPatientKey] = useState<string | null>(null);
   const [referError, setReferError] = useState<string | null>(null);
   const [referSaving, setReferSaving] = useState(false);
   const [savingKey, setSavingKey] = useState<'consults' | 'cases' | null>(null);
-  const [highlightAvailability, setHighlightAvailability] = useState(false);
+  const [availabilityOpen, setAvailabilityOpen] = useState(false);
   const scrollRef = useRef<ScrollView>(null);
-  const settingsY = useRef(0);
 
   const load = (mode: 'initial' | 'refresh') => {
     if (mode === 'refresh') setRefreshing(true);
@@ -164,7 +170,7 @@ export function DoctorProfileCard({
   const shareText = profile ? `${profile.headline}\n${profile.doctorKey}` : '';
 
   const setSetting = async (key: 'consults' | 'cases', value: boolean) => {
-    if (!profile || savingKey) return;
+    if (!profile || savingKey === key) return;
     const previous = profile;
     const field = key === 'consults' ? 'accepts_peer_consults' : 'case_exchange_opt_in';
     setSavingKey(key);
@@ -188,7 +194,7 @@ export function DoctorProfileCard({
       setProfile(previous);
       setToast(reason instanceof Error ? reason.message : 'Could not save that setting.');
     } finally {
-      setSavingKey(null);
+      setSavingKey((current) => (current === key ? null : current));
     }
   };
 
@@ -214,39 +220,46 @@ export function DoctorProfileCard({
     }
   };
 
-  const openRefer = () => {
+  const sendReferral = async (patientKey: string, patientName?: string) => {
     if (!profile?.canRefer) return;
+    setReferSaving(true);
     setReferError(null);
-    setPatientKey(null);
+    try {
+      await createQuickReferral({
+        toDoctorKey: profile.doctorKey,
+        patientKey,
+        patientName,
+        doctorName: profile.displayName,
+      });
+      setProfile((current) =>
+        current ? { ...current, referralsIn: current.referralsIn + 1 } : current,
+      );
+      setReferOpen(false);
+      const message = `Consent email sent for ${patientName ?? patientKey}. Waiting for the patient to approve or decline the referral to ${profile.displayName}.`;
+      setToast(message);
+      onReferralSent?.(message);
+    } catch (reason: unknown) {
+      const message = reason instanceof Error ? reason.message : 'Could not send the referral.';
+      setReferError(message);
+      setToast(message);
+    } finally {
+      setReferSaving(false);
+    }
+  };
+
+  const openRefer = () => {
+    if (!profile?.canRefer || referSaving) return;
+    setReferError(null);
+    if (lockedPatientKey) {
+      void sendReferral(lockedPatientKey, lockedPatientName);
+      return;
+    }
     setReferOpen(true);
     loadPanelPatients()
       .then(setPatients)
       .catch((reason: unknown) => {
         setReferError(reason instanceof Error ? reason.message : 'Could not load patients.');
       });
-  };
-
-  const confirmRefer = async () => {
-    if (!profile || !patientKey) return;
-    setReferSaving(true);
-    setReferError(null);
-    try {
-      // The profile demo is intentionally local: this confirms the interaction
-      // without requiring a running API or sending any real referral.
-      setProfile((current) =>
-        current ? { ...current, referralsIn: current.referralsIn + 1 } : current,
-      );
-      setReferOpen(false);
-      setToast('Demo referral confirmed.');
-    } finally {
-      setReferSaving(false);
-    }
-  };
-
-  const scrollToAvailability = () => {
-    scrollRef.current?.scrollTo({ y: Math.max(settingsY.current - space.sm, 0), animated: true });
-    setHighlightAvailability(true);
-    setTimeout(() => setHighlightAvailability(false), 1200);
   };
 
   return (
@@ -276,13 +289,7 @@ export function DoctorProfileCard({
               end={{ x: 1, y: 1 }}
               style={styles.headerCard}
             >
-              <Pressable
-                accessibilityRole={profile.isSelf ? 'button' : 'text'}
-                accessibilityLabel={profile.isSelf ? `Edit bio for ${profile.headline}` : profile.headline}
-                disabled={!profile.isSelf}
-                onPress={openBio}
-                style={({ pressed }) => [styles.identity, pointer, pressed && profile.isSelf && styles.pressed]}
-              >
+              <View style={styles.identity}>
                 <Avatar initials={profile.initials} color={theme.accent} gradient={theme.gradient} size={72} />
                 <Text style={styles.name}>{profile.headline}</Text>
                 <View style={styles.specialtyRow}>
@@ -292,7 +299,7 @@ export function DoctorProfileCard({
                 <Text style={styles.orgLine}>
                   {profile.organization} · {profile.state}
                 </Text>
-              </Pressable>
+              </View>
               <View style={styles.badgeRow}>
                 <ActionButton
                   label="About the demo profile badge"
@@ -306,7 +313,13 @@ export function DoctorProfileCard({
                 {profile.isSelf ? (
                   <>
                     <RoundAction title="Share card" label="Share card" accent={theme.accent} onPress={() => setShareOpen(true)} icon={<ShareIcon color={theme.accent} />} />
-                    <RoundAction title="Edit availability" label="Edit availability" accent={theme.accent} onPress={scrollToAvailability} icon={<SlidersIcon color={theme.accent} />} />
+                    <RoundAction
+                      title="Edit availability"
+                      label="Edit availability"
+                      accent={theme.accent}
+                      onPress={() => setAvailabilityOpen(true)}
+                      icon={<SlidersIcon color={theme.accent} />}
+                    />
                   </>
                 ) : (
                   <>
@@ -320,9 +333,17 @@ export function DoctorProfileCard({
                     />
                     <RoundAction
                       title="Refer"
-                      label={profile.canRefer ? `Refer a patient to ${profile.displayName}` : profile.referBlockReason ?? 'Refer unavailable'}
+                      label={
+                        referSaving
+                          ? 'Sending referral'
+                          : profile.canRefer
+                            ? lockedPatientKey
+                              ? `Refer ${lockedPatientName ?? 'patient'} to ${profile.displayName}`
+                              : `Refer a patient to ${profile.displayName}`
+                            : profile.referBlockReason ?? 'Refer unavailable'
+                      }
                       accent={theme.accent}
-                      disabled={!profile.canRefer}
+                      disabled={!profile.canRefer || referSaving}
                       onPress={openRefer}
                       icon={<ReferHcpIcon color={profile.canRefer ? theme.accent : colors.textMuted} size={20} />}
                     />
@@ -391,8 +412,16 @@ export function DoctorProfileCard({
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>About</Text>
               {profile.isSelf ? (
-                <Pressable accessibilityRole="button" accessibilityLabel={profile.bio ? 'Edit bio' : profileCopy.addBio} onPress={openBio} style={({ pressed }) => [pointer, pressed && styles.pressed]}>
-                  <Text style={profile.bio ? styles.body : styles.prompt}>{profile.bio ?? profileCopy.addBio}</Text>
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel={profile.bio ? 'Edit bio' : profileCopy.addBio}
+                  onPress={openBio}
+                  style={({ pressed }) => [styles.bioRow, pointer, pressed && styles.pressed]}
+                >
+                  <Text style={[profile.bio ? styles.body : styles.prompt, styles.bioText]}>
+                    {profile.bio ?? profileCopy.addBio}
+                  </Text>
+                  <EditIcon color={profile.bio ? colors.textMuted : colors.accentPurple} size={16} />
                 </Pressable>
               ) : profile.bio ? (
                 <Text style={styles.body}>{profile.bio}</Text>
@@ -413,12 +442,7 @@ export function DoctorProfileCard({
             </View>
 
             {profile.isSelf ? (
-              <View
-                style={[styles.section, highlightAvailability && { borderColor: theme.accent, borderWidth: 2 }]}
-                onLayout={(event) => {
-                  settingsY.current = event.nativeEvent.layout.y;
-                }}
-              >
+              <View style={styles.section}>
                 <Text style={styles.sectionTitle}>Availability</Text>
                 <SettingRow
                   title="Accept peer consults"
@@ -426,7 +450,7 @@ export function DoctorProfileCard({
                   value={profile.acceptsPeerConsults}
                   accent={theme.accent}
                   saving={savingKey === 'consults'}
-                  onChange={(value) => setSetting('consults', value)}
+                  onChange={(value) => void setSetting('consults', value)}
                 />
                 <SettingRow
                   title="Share de-identified cases"
@@ -434,7 +458,7 @@ export function DoctorProfileCard({
                   value={profile.caseExchangeOptIn}
                   accent={theme.accent}
                   saving={savingKey === 'cases'}
-                  onChange={(value) => setSetting('cases', value)}
+                  onChange={(value) => void setSetting('cases', value)}
                 />
               </View>
             ) : null}
@@ -483,7 +507,7 @@ export function DoctorProfileCard({
           value={bioDraft}
           onChangeText={setBioDraft}
           multiline
-          maxLength={320}
+          maxLength={280}
           placeholder={profileCopy.bioPlaceholder}
           placeholderTextColor={colors.searchPlaceholder}
           style={styles.bioInput}
@@ -502,34 +526,59 @@ export function DoctorProfileCard({
         </View>
       </Sheet>
 
+      <Sheet visible={availabilityOpen} onClose={() => setAvailabilityOpen(false)} title="Availability">
+        {profile ? (
+          <>
+            <SettingRow
+              title="Accept peer consults"
+              detail={profile.acceptsPeerConsults ? profileCopy.consultsOn : profileCopy.consultsOff}
+              value={profile.acceptsPeerConsults}
+              accent={theme.accent}
+              saving={savingKey === 'consults'}
+              onChange={(value) => void setSetting('consults', value)}
+            />
+            <SettingRow
+              title="Share de-identified cases"
+              detail={profile.caseExchangeOptIn ? profileCopy.sharingOn : profileCopy.sharingOff}
+              value={profile.caseExchangeOptIn}
+              accent={theme.accent}
+              saving={savingKey === 'cases'}
+              onChange={(value) => void setSetting('cases', value)}
+            />
+            <View style={styles.sheetButtons}>
+              <ActionButton
+                label="Done editing availability"
+                title="Done"
+                accent={theme.accent}
+                onPress={() => setAvailabilityOpen(false)}
+              />
+            </View>
+          </>
+        ) : null}
+      </Sheet>
+
       <Sheet visible={referOpen} onClose={() => setReferOpen(false)} title={`Refer to ${profile?.displayName ?? 'doctor'}`}>
+        <Text style={styles.sheetBody}>
+          Tap a patient to send the referral and email immediately.
+        </Text>
         <ScrollView style={styles.patientList}>
-          {patients.map((patient) => {
-            const selected = patient.patientKey === patientKey;
-            return (
-              <Pressable
-                key={patient.patientKey}
-                accessibilityRole="button"
-                accessibilityState={{ selected }}
-                accessibilityLabel={`Select ${patient.label}`}
-                onPress={() => setPatientKey(patient.patientKey)}
-                style={({ pressed }) => [styles.patientRow, selected && styles.patientRowSelected, pointer, pressed && styles.pressed]}
-              >
-                <Text style={styles.patientName}>{patient.label}</Text>
-                <Text style={styles.plain}>{patient.detail}</Text>
-              </Pressable>
-            );
-          })}
+          {patients.map((patient) => (
+            <Pressable
+              key={patient.patientKey}
+              accessibilityRole="button"
+              accessibilityLabel={`Refer ${patient.label}`}
+              disabled={referSaving}
+              onPress={() => void sendReferral(patient.patientKey, patient.label)}
+              style={({ pressed }) => [styles.patientRow, pointer, pressed && styles.pressed]}
+            >
+              <Text style={styles.patientName}>{patient.label}</Text>
+              <Text style={styles.plain}>{patient.detail}</Text>
+            </Pressable>
+          ))}
           {patients.length === 0 ? <Text style={styles.body}>{profileCopy.noPatients}</Text> : null}
         </ScrollView>
         {referError ? <Text style={styles.errorText}>{referError}</Text> : null}
-        <ActionButton
-          label="Confirm referral"
-          title={referSaving ? 'Sending' : 'Confirm referral'}
-          accent={theme.accent}
-          disabled={!patientKey || referSaving}
-          onPress={confirmRefer}
-        />
+        {referSaving ? <Text style={styles.plain}>Sending referral…</Text> : null}
       </Sheet>
     </View>
   );
@@ -607,13 +656,18 @@ function SettingRow({
         accessibilityState={{ checked: value, disabled: saving }}
         disabled={saving}
         onPress={() => onChange(!value)}
+        hitSlop={8}
         style={[
           styles.switchTrack,
           pointer,
-          { backgroundColor: value ? accent : '#3A4158', borderColor: value ? accent : '#8B90A0' },
+          {
+            backgroundColor: value ? accent : '#3A4158',
+            borderColor: value ? accent : '#8B90A0',
+            justifyContent: value ? 'flex-end' : 'flex-start',
+          },
         ]}
       >
-        <View style={[styles.switchThumb, value ? styles.switchThumbOn : null, { backgroundColor: value ? accent : '#C5CAD6' }]} />
+        <View style={[styles.switchThumb, { backgroundColor: value ? colors.white : '#C5CAD6' }]} />
       </Pressable>
     </View>
   );
@@ -776,7 +830,9 @@ const styles = StyleSheet.create({
     padding: space.lg,
     gap: space.sm,
   },
-  sectionTitle: { color: colors.textPrimary, fontSize: 16, fontWeight: '800', marginBottom: space.sm },
+  sectionTitle: { color: colors.textPrimary, fontSize: 16, fontWeight: '800' },
+  bioRow: { flexDirection: 'row', alignItems: 'flex-start', gap: space.sm },
+  bioText: { flex: 1 },
   body: { color: colors.textSecondary, fontSize: 14, lineHeight: 20 },
   plain: { color: colors.textSecondary, fontSize: 14 },
   prompt: { color: colors.accentPurple, fontSize: 14, fontWeight: '700' },
@@ -798,7 +854,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 3,
   },
   switchThumb: { width: 20, height: 20, borderRadius: 10, borderWidth: 2, borderColor: colors.white },
-  switchThumbOn: { alignSelf: 'flex-end' },
   textButton: { borderRadius: 999, borderWidth: 1.5, paddingHorizontal: space.md, paddingVertical: space.sm },
   textButtonLabel: { fontWeight: '800', fontSize: 13 },
   pressed: { opacity: 0.72 },

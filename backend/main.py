@@ -1,4 +1,3 @@
-import asyncio
 import json
 import os
 from collections.abc import AsyncIterator
@@ -13,6 +12,7 @@ from sqlalchemy.orm import Session
 
 import assist
 import clinic
+import events as event_bus
 import notifications
 import referrals
 from database import Base, SessionLocal, engine, ensure_runtime_schema, get_db
@@ -41,7 +41,6 @@ WATCH_TOKENS = {
     "demo-hcp-4": "D007",
     "demo-hcp-5": "D008",
 }
-_subscribers: list[asyncio.Queue] = []
 _sample_requests: dict[str, dict] = {}
 
 
@@ -76,8 +75,7 @@ def _doctor_for_token(token: str, db: Session) -> Doctor:
 
 
 async def _publish(event: dict) -> None:
-    for queue in list(_subscribers):
-        await queue.put(event)
+    event_bus.publish(event)
 
 
 def _label_excerpt(question: str) -> str | None:
@@ -194,8 +192,7 @@ async def sign_sample(request_id: str, token: str = Query(...), db: Session = De
 @app.get("/events")
 async def events(token: str = Query(...), db: Session = Depends(get_db)) -> StreamingResponse:
     _doctor_for_token(token, db)
-    queue: asyncio.Queue = asyncio.Queue()
-    _subscribers.append(queue)
+    queue = event_bus.subscribe()
 
     async def stream() -> AsyncIterator[str]:
         try:
@@ -204,8 +201,7 @@ async def events(token: str = Query(...), db: Session = Depends(get_db)) -> Stre
                 event = await queue.get()
                 yield f"data: {json.dumps(event)}\n\n"
         finally:
-            if queue in _subscribers:
-                _subscribers.remove(queue)
+            event_bus.unsubscribe(queue)
 
     return StreamingResponse(stream(), media_type="text/event-stream")
 
