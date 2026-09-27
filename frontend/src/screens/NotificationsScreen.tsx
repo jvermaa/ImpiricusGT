@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   KeyboardAvoidingView,
   Linking,
@@ -41,11 +41,9 @@ export function NotificationsScreen({
   const [activeId, setActiveId] = useState<string | null>(null);
   const [loadMessage, setLoadMessage] = useState<string | null>(null);
 
-  useEffect(() => {
-    let cancelled = false;
-    loadMyNotifications()
+  const refreshInbox = useCallback(() => {
+    return loadMyNotifications()
       .then((rows) => {
-        if (cancelled) return;
         if (rows.length > 0) {
           setItems(
             rows.map((row) => ({
@@ -61,14 +59,14 @@ export function NotificationsScreen({
         }
       })
       .catch(() => {
-        if (cancelled) return;
         setItems(NOTIFICATIONS);
         // setLoadMessage('Could not load notifications — showing demo inbox.');
       });
-    return () => {
-      cancelled = true;
-    };
   }, []);
+
+  useEffect(() => {
+    void refreshInbox();
+  }, [refreshInbox]);
 
   const active = useMemo(
     () => items.find((n) => n.id === activeId) ?? null,
