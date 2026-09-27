@@ -1,7 +1,15 @@
 import type { DoctorProfile } from './chat';
 
 export type ReferralUrgency = 'routine' | 'soon' | 'urgent';
-export type ReferralStatus = 'sent' | 'accepted' | 'declined' | 'completed' | 'cancelled';
+export type ReferralStatus =
+  | 'pending_patient_consent'
+  | 'shared_with_specialist'
+  | 'sent'
+  | 'accepted'
+  | 'declined'
+  | 'patient_declined'
+  | 'completed'
+  | 'cancelled';
 
 export type ReferralMessage = {
   message_key: string;

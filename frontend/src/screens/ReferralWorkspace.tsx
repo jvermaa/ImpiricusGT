@@ -493,7 +493,13 @@ export function ReferralWorkspace({
               {detail.referral.patient_label ? <Text style={styles.patientMeta}>Patient: {detail.referral.patient_label}</Text> : null}
             </View>
             {detail.patient_handoff ? <HandoffCard handoff={detail.patient_handoff} /> : (
-              <Text style={styles.privacyNote}>Patient history will be shared here after the receiving clinician accepts.</Text>
+              <Text style={styles.privacyNote}>
+                {detail.referral.status === 'pending_patient_consent'
+                  ? 'Waiting for the patient to approve or decline this referral by email. History stays private until they approve.'
+                  : detail.referral.status === 'patient_declined'
+                    ? 'The patient declined this referral. No handoff was shared with the specialist.'
+                    : 'Patient history will be shared here after the patient approves the referral.'}
+              </Text>
             )}
             {showOutcome ? (
               <View style={styles.outcomeCard}>
@@ -517,7 +523,8 @@ export function ReferralWorkspace({
               </View>
             ) : null}
             <View style={styles.statusActions}>
-              {detail.referral.status === 'sent' && isRecipient ? (
+              {(detail.referral.status === 'shared_with_specialist' || detail.referral.status === 'sent') &&
+              isRecipient ? (
                 <>
                   <Pressable accessibilityRole="button" disabled={busy} onPress={() => changeStatus('accepted')} style={styles.primaryButton}>
                     <Text style={styles.primaryButtonText}>Accept referral</Text>
@@ -527,7 +534,10 @@ export function ReferralWorkspace({
                   </Pressable>
                 </>
               ) : null}
-              {detail.referral.status === 'sent' && !isRecipient ? (
+              {(detail.referral.status === 'pending_patient_consent' ||
+                detail.referral.status === 'shared_with_specialist' ||
+                detail.referral.status === 'sent') &&
+              !isRecipient ? (
                 <Pressable accessibilityRole="button" disabled={busy} onPress={() => changeStatus('cancelled')} style={styles.secondaryButton}>
                   <Text style={styles.secondaryButtonText}>Cancel referral</Text>
                 </Pressable>
