@@ -97,6 +97,7 @@ def seed() -> None:
                     license_number=row["license_number"],
                     npi=row["npi"],
                     organization=row["organization"],
+                    bio=None,
                 )
             )
         db.flush()

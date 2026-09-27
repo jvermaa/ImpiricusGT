@@ -317,3 +317,49 @@ def test_consults_and_referral_suggestions_follow_the_accepts_flag(client: TestC
     back = client.get("/referrals/directory", params={"doctor": "D011", "patient_key": "P001"})
     assert any(row["provider"]["doctor_key"] == "D012" for row in back.json()["results"])
     assert fresh.status_code == 201
+
+
+def test_bio_is_plain_text_and_only_the_doctor_can_edit_it(client: TestClient):
+    empty = client.get("/doctors/D011/profile", params={"viewer": "D011"})
+    assert empty.json()["bio"] is None
+
+    saved = client.patch(
+        "/doctors/D011/profile",
+        params={"viewer": "D011"},
+        json={"bio": "  I see migraine and concussion follow-up.  "},
+    )
+    assert saved.status_code == 200
+    assert saved.json() == {"bio": "I see migraine and concussion follow-up."}
+    again = client.get("/doctors/D012/profile", params={"viewer": "D013"})
+    assert again.json()["bio"] is None
+    visible = client.get("/doctors/D011/profile", params={"viewer": "D012"})
+    assert visible.json()["bio"] == "I see migraine and concussion follow-up."
+
+    denied = client.patch(
+        "/doctors/D011/profile",
+        params={"viewer": "D012"},
+        json={"bio": "Not my bio."},
+    )
+    assert denied.status_code == 403
+
+    too_long = client.patch(
+        "/doctors/D011/profile",
+        params={"viewer": "D011"},
+        json={"bio": "x" * 281},
+    )
+    assert too_long.status_code == 422
+
+    markup = client.patch(
+        "/doctors/D011/profile",
+        params={"viewer": "D011"},
+        json={"bio": "<b>hello</b>"},
+    )
+    assert markup.status_code == 422
+
+    cleared = client.patch(
+        "/doctors/D011/profile",
+        params={"viewer": "D011"},
+        json={"bio": "   "},
+    )
+    assert cleared.status_code == 200
+    assert cleared.json()["bio"] is None

@@ -2,7 +2,7 @@ import json
 from datetime import datetime
 
 from fastapi import APIRouter, Depends, HTTPException, Query
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 from sqlalchemy import func, or_, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
@@ -110,6 +110,24 @@ class DoctorSettingsUpdate(BaseModel):
 
     accepts_peer_consults: bool | None = None
     case_exchange_opt_in: bool | None = None
+
+
+class DoctorBioUpdate(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    bio: str | None = None
+
+    @field_validator("bio")
+    @classmethod
+    def plain_bio(cls, value: str | None) -> str | None:
+        if value is None:
+            return None
+        cleaned = value.replace("\r\n", "\n").strip()
+        if "<" in cleaned or ">" in cleaned:
+            raise ValueError("Bio must be plain text.")
+        if len(cleaned) > 280:
+            raise ValueError("Bio must be 280 characters or fewer.")
+        return cleaned or None
 
 
 def _commit(db: Session) -> None:
@@ -326,6 +344,7 @@ def doctor_profile_payload(db: Session, doctor: Doctor, viewer_key: str) -> dict
         "verification": "demo",
         "is_self": is_self,
         "has_consult_thread": has_consult_thread,
+        "bio": doctor.bio,
     }
     if is_self or has_consult_thread:
         payload["professional_email"] = doctor.professional_email
@@ -364,6 +383,23 @@ def update_doctor_settings(
     _commit(db)
     db.refresh(doctor)
     return _settings_payload(doctor)
+
+
+@router.patch("/doctors/{doctor_key}/profile")
+def update_doctor_bio(
+    doctor_key: str,
+    body: DoctorBioUpdate,
+    viewer: str = Query(...),
+    db: Session = Depends(get_db),
+) -> dict:
+    doctor = _require_doctor(db, doctor_key)
+    _require_doctor(db, viewer)
+    if viewer != doctor_key:
+        raise HTTPException(status_code=403, detail="Only this doctor can edit their bio.")
+    doctor.bio = body.bio
+    _commit(db)
+    db.refresh(doctor)
+    return {"bio": doctor.bio}
 
 
 @router.post("/doctors", status_code=201)

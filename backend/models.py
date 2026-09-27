@@ -36,6 +36,7 @@ class Doctor(Base):
     license_number: Mapped[str | None] = mapped_column(String, nullable=True)
     npi: Mapped[str | None] = mapped_column(String, nullable=True)
     organization: Mapped[str] = mapped_column(String, nullable=False)
+    bio: Mapped[str | None] = mapped_column(String(280), nullable=True)
 
     patients: Mapped[list["Patient"]] = relationship(back_populates="primary_doctor")
 
