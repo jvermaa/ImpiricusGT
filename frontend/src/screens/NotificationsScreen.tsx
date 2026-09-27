@@ -128,7 +128,7 @@ export function NotificationsScreen({
   return (
     <View style={styles.root}>
       <View style={[styles.listHeader, { paddingTop: Math.max(insets.top, 12) }]}>
-        <Text style={styles.listTitle}>Notifications</Text>
+        <Text style={styles.listTitle}>Feeds</Text>
         <Text style={styles.listSub}>Brand & access updates for your practice</Text>
       </View>
 
@@ -227,7 +227,7 @@ function NotificationDetail({
       <View style={[styles.detailHeader, { paddingTop: topInset }]}>
         <Pressable
           accessibilityRole="button"
-          accessibilityLabel="Back to notifications"
+          accessibilityLabel="Back to feeds"
           onPress={onBack}
           style={styles.backRow}
         >
