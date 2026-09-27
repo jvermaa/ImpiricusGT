@@ -499,8 +499,6 @@ export function PatientScreen({
   const [similarAnalysis, setSimilarAnalysis] = useState<SimilarCohortAnalysisResponse | null>(null);
   const [selectedSimilarMatchId, setSelectedSimilarMatchId] = useState<string | null>(null);
   const [similarLoading, setSimilarLoading] = useState(false);
-  const [emailPrompt, setEmailPrompt] = useState('');
-  const [emailOpen, setEmailOpen] = useState(false);
   const [emailBusy, setEmailBusy] = useState(false);
   const [pdfOpen, setPdfOpen] = useState(false);
   const [pdfPreparing, setPdfPreparing] = useState(false);
@@ -1269,13 +1267,30 @@ export function PatientScreen({
       return;
     }
     if (action === 'send-notification') {
+      if (emailBusy) return;
+      const patient = selectedPatient;
+      const cohort = suitableSource?.brand
+        ? `${suitableSource.brand} (${suitableSource.title})`
+        : suitableSource?.title ?? 'a relevant clinical update';
+      const prompt =
+        `Write a short, friendly patient email to ${patient.name}. ` +
+        `Tell them their care team identified them as a good match for ${cohort}. ` +
+        `Ask them to contact the clinic if they have questions. Keep it plain language.`;
+      setEmailBusy(true);
+      sendPromptEmail(patient.id, prompt)
+        .then((result) => {
+          setSelectedPatientId(null);
+          setInfoMessage(`Notification email sent to ${patient.name}. Subject: ${result.subject}`);
+        })
+        .catch(() => {
+          setInfoMessage('Could not send that notification email.');
+        })
+        .finally(() => setEmailBusy(false));
       setPdfOpen(false);
       setPdfPreparing(false);
       setPdfReady(false);
       setPdfSendBusy(false);
       setPdfSummarySource(null);
-      setEmailPrompt('');
-      setEmailOpen(true);
       return;
     }
     if (action === 'find-similar') {
@@ -3221,106 +3236,21 @@ export function PatientScreen({
                   key={action.key}
                   accessibilityRole="button"
                   accessibilityLabel={action.label}
+                  disabled={action.key === 'send-notification' && emailBusy}
                   onPress={() => handleAction(action.key)}
                   style={styles.sheetAction}
                 >
                   <View style={styles.sheetActionInner}>
                     <Icon color={colors.textMuted} size={18} />
-                    <Text style={styles.sheetActionText}>{action.label}</Text>
+                    <Text style={styles.sheetActionText}>
+                      {action.key === 'send-notification' && emailBusy
+                        ? 'Sending…'
+                        : action.label}
+                    </Text>
                   </View>
                 </Pressable>
               );
             })}
-            {emailOpen ? (
-              <View style={styles.emailBox}>
-                <TextInput
-                  value={emailPrompt}
-                  onChangeText={setEmailPrompt}
-                  style={styles.emailInput}
-                  placeholder="What should the email say?"
-                  placeholderTextColor={colors.searchPlaceholder}
-                  multiline
-                />
-                <Pressable
-                  accessibilityRole="button"
-                  accessibilityLabel="Send email"
-                  disabled={emailBusy}
-                  onPress={() => {
-                    const prompt = emailPrompt.trim();
-                    if (!prompt || !selectedPatient) return;
-                    setEmailBusy(true);
-                    sendPromptEmail(selectedPatient.id, prompt)
-                      .then((result) => {
-                        setEmailOpen(false);
-                        setSelectedPatientId(null);
-                        setInfoMessage(
-                          result.source === 'gemini'
-                            ? `Email sent to the clinic inbox. Subject: ${result.subject}`
-                            : `Email sent with the doctor's note. Subject: ${result.subject}`,
-                        );
-                      })
-                      .catch(() => setInfoMessage('Could not send that email.'))
-                      .finally(() => setEmailBusy(false));
-                  }}
-                  style={styles.primaryButton}
-                >
-                  <Text style={styles.primaryButtonText}>
-                    {emailBusy ? 'Sending...' : 'Write and send email'}
-                  </Text>
-                </Pressable>
-              </View>
-            ) : null}
-            {pdfOpen ? (
-              <View style={styles.pdfBox}>
-                {pdfPreparing ? (
-                  <View style={styles.pdfPreparingRow}>
-                    <ActivityIndicator size="small" color={colors.accentPurple} />
-                    <Text style={styles.pdfStatusText}>
-                      Generating summarized PDF with patient details and past-visit summary...
-                    </Text>
-                  </View>
-                ) : pdfReady ? (
-                  <>
-                    <Text style={styles.pdfStatusText}>
-                      PDF is ready. Past visits were summarized with{' '}
-                      {pdfSummarySource === 'gemini' ? 'Gemini' : 'the local fallback'}.
-                    </Text>
-                    <Pressable
-                      accessibilityRole="button"
-                      accessibilityLabel="Download summarized PDF"
-                      onPress={() => openRecordPdf(selectedPatient.id)}
-                      style={styles.secondaryButtonWide}
-                      disabled={pdfSendBusy}
-                    >
-                      <Text style={styles.secondaryButtonWideText}>Download PDF</Text>
-                    </Pressable>
-                    <Pressable
-                      accessibilityRole="button"
-                      accessibilityLabel="Send summarized PDF to patient"
-                      onPress={() => {
-                        setPdfSendBusy(true);
-                        sendSummarizedRecordPdf(selectedPatient.id)
-                          .then((result) => {
-                            setPdfOpen(false);
-                            setSelectedPatientId(null);
-                            setInfoMessage(`Summarized PDF sent to patient (${result.recipient}).`);
-                          })
-                          .catch(() => setInfoMessage('Could not send summarized PDF to the patient.'))
-                          .finally(() => setPdfSendBusy(false));
-                      }}
-                      style={[styles.primaryButton, pdfSendBusy && styles.primaryButtonDisabled]}
-                      disabled={pdfSendBusy}
-                    >
-                      <Text style={styles.primaryButtonText}>
-                        {pdfSendBusy ? 'Sending...' : 'Send to Patient'}
-                      </Text>
-                    </Pressable>
-                  </>
-                ) : (
-                  <Text style={styles.pdfStatusText}>Could not prepare the summarized PDF.</Text>
-                )}
-              </View>
-            ) : null}
           </View>
         </View>
       ) : null}
@@ -4740,7 +4670,7 @@ const styles = StyleSheet.create({
   patientCardMatch: {
     borderWidth: 2,
     borderColor: colors.matchRed,
-    backgroundColor: 'rgba(255,253,252,0.94)',
+    backgroundColor: colors.cardBg,
   },
   patientCardHead: {
     flexDirection: 'row',
