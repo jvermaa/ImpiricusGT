@@ -64,6 +64,7 @@ def client():
             family_history="not recorded",
             pregnancy_status="not recorded",
             portal_access=False,
+            contact_email="",
             email_contact_available=False,
             messaging_preference="unavailable",
             patient_education_language="English",

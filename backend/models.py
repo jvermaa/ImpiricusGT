@@ -6,10 +6,12 @@ from sqlalchemy import (
     DateTime,
     Float,
     ForeignKey,
+    Index,
     Integer,
     String,
     Text,
     UniqueConstraint,
+    text,
 )
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -59,6 +61,7 @@ class Patient(Base):
     family_history: Mapped[str] = mapped_column(String, nullable=False)
     pregnancy_status: Mapped[str] = mapped_column(String, nullable=False)
     portal_access: Mapped[bool] = mapped_column(Boolean, nullable=False)
+    contact_email: Mapped[str] = mapped_column(String, nullable=False, default="")
     email_contact_available: Mapped[bool] = mapped_column(Boolean, nullable=False)
     messaging_preference: Mapped[str] = mapped_column(String, nullable=False)
     patient_education_language: Mapped[str] = mapped_column(String, nullable=False)
@@ -240,6 +243,82 @@ class Message(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
 
     thread: Mapped[ConsultThread] = relationship(back_populates="messages")
+
+
+class PatientEmail(Base):
+    __tablename__ = "patient_emails"
+    __table_args__ = (
+        CheckConstraint(
+            "status IN ('draft','approved','sent','failed','cancelled')",
+            name="ck_patient_email_status",
+        ),
+        CheckConstraint(
+            "purpose IN ('follow_up_reminder','appointment_reminder','medication_check_in','education_resources')",
+            name="ck_patient_email_purpose",
+        ),
+        CheckConstraint(
+            "generated_by IN ('gemini','fallback','doctor')",
+            name="ck_patient_email_generated_by",
+        ),
+        CheckConstraint(
+            "status != 'sent' OR approved_at IS NOT NULL",
+            name="ck_patient_email_sent_requires_approval",
+        ),
+    )
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    patient_key: Mapped[str] = mapped_column(
+        ForeignKey("patients.patient_key", ondelete="RESTRICT"), nullable=False
+    )
+    doctor_key: Mapped[str] = mapped_column(
+        ForeignKey("doctors.doctor_key", ondelete="RESTRICT"), nullable=False
+    )
+    followup_key: Mapped[str | None] = mapped_column(
+        ForeignKey("followups.followup_key"), nullable=True
+    )
+    purpose: Mapped[str] = mapped_column(String, nullable=False)
+    subject: Mapped[str] = mapped_column(String, nullable=False)
+    body: Mapped[str] = mapped_column(Text, nullable=False)
+    status: Mapped[str] = mapped_column(String, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+    approved_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    sent_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    error: Mapped[str | None] = mapped_column(Text, nullable=True)
+    generated_by: Mapped[str] = mapped_column(String, nullable=False)
+
+
+class PatientReferral(Base):
+    """Clinician-approved referral suggestion recorded after Ask / Refer."""
+
+    __tablename__ = "referrals"
+    __table_args__ = (
+        CheckConstraint("from_doctor_key != to_doctor_key", name="ck_referral_distinct_doctors"),
+        CheckConstraint(
+            "status IN ('pending','accepted','declined')",
+            name="ck_referral_match_status",
+        ),
+        Index(
+            "uq_referrals_pending_pair",
+            "patient_key",
+            "to_doctor_key",
+            unique=True,
+            sqlite_where=text("status = 'pending'"),
+        ),
+    )
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    patient_key: Mapped[str] = mapped_column(
+        ForeignKey("patients.patient_key", ondelete="RESTRICT"), nullable=False
+    )
+    from_doctor_key: Mapped[str] = mapped_column(
+        ForeignKey("doctors.doctor_key", ondelete="RESTRICT"), nullable=False
+    )
+    to_doctor_key: Mapped[str] = mapped_column(
+        ForeignKey("doctors.doctor_key", ondelete="RESTRICT"), nullable=False
+    )
+    reason: Mapped[str] = mapped_column(Text, nullable=False)
+    status: Mapped[str] = mapped_column(String, nullable=False, default="pending")
+    created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
 
 
 class ReferralRequest(Base):

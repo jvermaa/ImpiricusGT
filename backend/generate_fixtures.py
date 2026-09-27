@@ -1,12 +1,17 @@
 """Keep the committed synthetic fixtures in ../data.
 
 Those JSON files are the source loaded by seed.py. This script checks that
-they are present and internally consistent. It does not rewrite them.
+they are present and internally consistent, and writes one shared synthetic
+contact address onto every patient.
 """
 
 import json
 import sys
 from pathlib import Path
+
+from specialty_map import CODE_SPECIALTY
+
+TEAM_CONTACT_EMAIL = "harisamser27@gmail.com"
 
 DATA_DIR = Path(__file__).resolve().parent.parent / "data"
 FILES = (
@@ -43,11 +48,21 @@ def main() -> None:
     patients = {row["patient_key"]: row for row in loaded["patients"]}
     prescriptions = {row["prescription_key"]: row for row in loaded["prescriptions"]}
 
+    changed = False
     for patient in patients.values():
         if "synthetic" not in str(patient.get("source", "")).lower():
             errors.append(f"{patient['patient_key']} is not marked synthetic")
         if patient["primary_doctor_key"] not in doctors:
             errors.append(f"{patient['patient_key']} has no doctor")
+        if patient.get("contact_email") != TEAM_CONTACT_EMAIL:
+            patient["contact_email"] = TEAM_CONTACT_EMAIL
+            changed = True
+        if patient.get("email_contact_available") is not True:
+            patient["email_contact_available"] = True
+            changed = True
+        for diagnosis in patient.get("diagnoses", []):
+            if diagnosis.get("code") not in CODE_SPECIALTY:
+                errors.append(f"{patient['patient_key']} diagnosis {diagnosis.get('code')} has no specialty")
 
     for doctor_key, doctor in doctors.items():
         derived = sorted(
@@ -100,8 +115,13 @@ def main() -> None:
             print(f"ERROR {error}")
         sys.exit(1)
 
-    print(f"Fixtures in {DATA_DIR} already exist and passed integrity checks.")
-    print("Left data/*.json unchanged.")
+    if changed:
+        path = DATA_DIR / "patients.json"
+        path.write_text(json.dumps(loaded["patients"], indent=2) + "\n", encoding="utf-8")
+        print(f"Wrote shared synthetic contact_email onto {len(loaded['patients'])} patients.")
+    else:
+        print(f"Fixtures in {DATA_DIR} already include the shared synthetic contact email.")
+
     print("Clean.")
 
 

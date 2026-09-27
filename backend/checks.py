@@ -14,6 +14,7 @@ from models import (
     Lab,
     Message,
     Patient,
+    PatientReferral,
     Prescription,
 )
 
@@ -149,6 +150,31 @@ def run_checks(db: Session) -> tuple[list[str], list[str]]:
     ]
     if sms_channels:
         errors.append(f"follow-ups use an SMS channel: {sms_channels[:8]}")
+
+    email_mismatch = [
+        patient.patient_key
+        for patient in patients.values()
+        if bool((patient.contact_email or "").strip()) != bool(patient.email_contact_available)
+    ]
+    if email_mismatch:
+        errors.append(
+            f"email_contact_available does not match contact_email: {email_mismatch[:8]}"
+        )
+
+    bad_referrals = []
+    for row in db.scalars(select(PatientReferral)).all():
+        recipient = doctors.get(row.to_doctor_key)
+        patient = patients.get(row.patient_key)
+        if (
+            row.from_doctor_key == row.to_doctor_key
+            or recipient is None
+            or not recipient.accepts_peer_consults
+            or patient is None
+            or patient.primary_doctor_key != row.from_doctor_key
+        ):
+            bad_referrals.append(row.id)
+    if bad_referrals:
+        errors.append(f"referrals fail consult or panel rules: {bad_referrals[:8]}")
 
     unsynthetic = [
         patient.patient_key

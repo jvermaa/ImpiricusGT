@@ -28,12 +28,13 @@
       "pregnancy_status": "not recorded"
     },
     "portal_access": false,
-    "email_contact_available": false,
+    "email_contact_available": true,
     "messaging_preference": "unavailable",
     "patient_education_language": "English",
     "sharing_preference_for_peer_cases": "not documented",
     "clinical_trial_outreach_preference": "not documented",
-    "source": "fully synthetic fixture"
+    "source": "fully synthetic fixture",
+    "contact_email": "harisamser27@gmail.com"
   },
   {
     "patient_key": "P002",
@@ -70,12 +71,13 @@
       "pregnancy_status": "not recorded"
     },
     "portal_access": true,
-    "email_contact_available": false,
+    "email_contact_available": true,
     "messaging_preference": "portal",
     "patient_education_language": "Spanish",
     "sharing_preference_for_peer_cases": "de-identified case only",
     "clinical_trial_outreach_preference": "not documented",
-    "source": "fully synthetic fixture"
+    "source": "fully synthetic fixture",
+    "contact_email": "harisamser27@gmail.com"
   },
   {
     "patient_key": "P003",
@@ -112,12 +114,13 @@
       "pregnancy_status": "not recorded"
     },
     "portal_access": true,
-    "email_contact_available": false,
+    "email_contact_available": true,
     "messaging_preference": "portal",
     "patient_education_language": "Nepali",
     "sharing_preference_for_peer_cases": "de-identified case only",
     "clinical_trial_outreach_preference": "not documented",
-    "source": "fully synthetic fixture"
+    "source": "fully synthetic fixture",
+    "contact_email": "harisamser27@gmail.com"
   },
   {
     "patient_key": "P004",
@@ -154,12 +157,13 @@
       "pregnancy_status": "not recorded"
     },
     "portal_access": true,
-    "email_contact_available": false,
+    "email_contact_available": true,
     "messaging_preference": "portal",
     "patient_education_language": "English",
     "sharing_preference_for_peer_cases": "de-identified case only",
     "clinical_trial_outreach_preference": "not documented",
-    "source": "fully synthetic fixture"
+    "source": "fully synthetic fixture",
+    "contact_email": "harisamser27@gmail.com"
   },
   {
     "patient_key": "P005",
@@ -196,12 +200,13 @@
       "pregnancy_status": "not recorded"
     },
     "portal_access": true,
-    "email_contact_available": false,
+    "email_contact_available": true,
     "messaging_preference": "portal",
     "patient_education_language": "Spanish",
     "sharing_preference_for_peer_cases": "not documented",
     "clinical_trial_outreach_preference": "not documented",
-    "source": "fully synthetic fixture"
+    "source": "fully synthetic fixture",
+    "contact_email": "harisamser27@gmail.com"
   },
   {
     "patient_key": "P006",
@@ -232,12 +237,13 @@
       "pregnancy_status": "not recorded"
     },
     "portal_access": true,
-    "email_contact_available": false,
+    "email_contact_available": true,
     "messaging_preference": "portal",
     "patient_education_language": "Nepali",
     "sharing_preference_for_peer_cases": "de-identified case only",
     "clinical_trial_outreach_preference": "not documented",
-    "source": "fully synthetic fixture"
+    "source": "fully synthetic fixture",
+    "contact_email": "harisamser27@gmail.com"
   },
   {
     "patient_key": "P007",
@@ -274,12 +280,13 @@
       "pregnancy_status": "not recorded"
     },
     "portal_access": true,
-    "email_contact_available": false,
+    "email_contact_available": true,
     "messaging_preference": "portal",
     "patient_education_language": "English",
     "sharing_preference_for_peer_cases": "de-identified case only",
     "clinical_trial_outreach_preference": "not documented",
-    "source": "fully synthetic fixture"
+    "source": "fully synthetic fixture",
+    "contact_email": "harisamser27@gmail.com"
   },
   {
     "patient_key": "P008",
@@ -316,12 +323,13 @@
       "pregnancy_status": "not recorded"
     },
     "portal_access": false,
-    "email_contact_available": false,
+    "email_contact_available": true,
     "messaging_preference": "unavailable",
     "patient_education_language": "Spanish",
     "sharing_preference_for_peer_cases": "de-identified case only",
     "clinical_trial_outreach_preference": "not documented",
-    "source": "fully synthetic fixture"
+    "source": "fully synthetic fixture",
+    "contact_email": "harisamser27@gmail.com"
   },
   {
     "patient_key": "P009",
@@ -358,12 +366,13 @@
       "pregnancy_status": "not recorded"
     },
     "portal_access": true,
-    "email_contact_available": false,
+    "email_contact_available": true,
     "messaging_preference": "portal",
     "patient_education_language": "Nepali",
     "sharing_preference_for_peer_cases": "not documented",
     "clinical_trial_outreach_preference": "not documented",
-    "source": "fully synthetic fixture"
+    "source": "fully synthetic fixture",
+    "contact_email": "harisamser27@gmail.com"
   },
   {
     "patient_key": "P010",
@@ -400,12 +409,13 @@
       "pregnancy_status": "not recorded"
     },
     "portal_access": true,
-    "email_contact_available": false,
+    "email_contact_available": true,
     "messaging_preference": "portal",
     "patient_education_language": "English",
     "sharing_preference_for_peer_cases": "de-identified case only",
     "clinical_trial_outreach_preference": "not documented",
-    "source": "fully synthetic fixture"
+    "source": "fully synthetic fixture",
+    "contact_email": "harisamser27@gmail.com"
   },
   {
     "patient_key": "P011",
@@ -436,12 +446,13 @@
       "pregnancy_status": "not recorded"
     },
     "portal_access": true,
-    "email_contact_available": false,
+    "email_contact_available": true,
     "messaging_preference": "portal",
     "patient_education_language": "Spanish",
     "sharing_preference_for_peer_cases": "de-identified case only",
     "clinical_trial_outreach_preference": "not documented",
-    "source": "fully synthetic fixture"
+    "source": "fully synthetic fixture",
+    "contact_email": "harisamser27@gmail.com"
   },
   {
     "patient_key": "P012",
@@ -478,12 +489,13 @@
       "pregnancy_status": "not recorded"
     },
     "portal_access": true,
-    "email_contact_available": false,
+    "email_contact_available": true,
     "messaging_preference": "portal",
     "patient_education_language": "Nepali",
     "sharing_preference_for_peer_cases": "de-identified case only",
     "clinical_trial_outreach_preference": "not documented",
-    "source": "fully synthetic fixture"
+    "source": "fully synthetic fixture",
+    "contact_email": "harisamser27@gmail.com"
   },
   {
     "patient_key": "P013",
@@ -520,12 +532,13 @@
       "pregnancy_status": "not recorded"
     },
     "portal_access": true,
-    "email_contact_available": false,
+    "email_contact_available": true,
     "messaging_preference": "portal",
     "patient_education_language": "English",
     "sharing_preference_for_peer_cases": "not documented",
     "clinical_trial_outreach_preference": "not documented",
-    "source": "fully synthetic fixture"
+    "source": "fully synthetic fixture",
+    "contact_email": "harisamser27@gmail.com"
   },
   {
     "patient_key": "P014",
@@ -562,12 +575,13 @@
       "pregnancy_status": "not recorded"
     },
     "portal_access": true,
-    "email_contact_available": false,
+    "email_contact_available": true,
     "messaging_preference": "portal",
     "patient_education_language": "Spanish",
     "sharing_preference_for_peer_cases": "de-identified case only",
     "clinical_trial_outreach_preference": "not documented",
-    "source": "fully synthetic fixture"
+    "source": "fully synthetic fixture",
+    "contact_email": "harisamser27@gmail.com"
   },
   {
     "patient_key": "P015",
@@ -604,12 +618,13 @@
       "pregnancy_status": "not recorded"
     },
     "portal_access": false,
-    "email_contact_available": false,
+    "email_contact_available": true,
     "messaging_preference": "unavailable",
     "patient_education_language": "Nepali",
     "sharing_preference_for_peer_cases": "de-identified case only",
     "clinical_trial_outreach_preference": "not documented",
-    "source": "fully synthetic fixture"
+    "source": "fully synthetic fixture",
+    "contact_email": "harisamser27@gmail.com"
   },
   {
     "patient_key": "P016",
@@ -640,12 +655,13 @@
       "pregnancy_status": "not recorded"
     },
     "portal_access": true,
-    "email_contact_available": false,
+    "email_contact_available": true,
     "messaging_preference": "portal",
     "patient_education_language": "English",
     "sharing_preference_for_peer_cases": "de-identified case only",
     "clinical_trial_outreach_preference": "not documented",
-    "source": "fully synthetic fixture"
+    "source": "fully synthetic fixture",
+    "contact_email": "harisamser27@gmail.com"
   },
   {
     "patient_key": "P017",
@@ -682,12 +698,13 @@
       "pregnancy_status": "not recorded"
     },
     "portal_access": true,
-    "email_contact_available": false,
+    "email_contact_available": true,
     "messaging_preference": "portal",
     "patient_education_language": "Spanish",
     "sharing_preference_for_peer_cases": "not documented",
     "clinical_trial_outreach_preference": "not documented",
-    "source": "fully synthetic fixture"
+    "source": "fully synthetic fixture",
+    "contact_email": "harisamser27@gmail.com"
   },
   {
     "patient_key": "P018",
@@ -724,12 +741,13 @@
       "pregnancy_status": "not recorded"
     },
     "portal_access": true,
-    "email_contact_available": false,
+    "email_contact_available": true,
     "messaging_preference": "portal",
     "patient_education_language": "Nepali",
     "sharing_preference_for_peer_cases": "de-identified case only",
     "clinical_trial_outreach_preference": "not documented",
-    "source": "fully synthetic fixture"
+    "source": "fully synthetic fixture",
+    "contact_email": "harisamser27@gmail.com"
   },
   {
     "patient_key": "P019",
@@ -766,12 +784,13 @@
       "pregnancy_status": "not recorded"
     },
     "portal_access": true,
-    "email_contact_available": false,
+    "email_contact_available": true,
     "messaging_preference": "portal",
     "patient_education_language": "English",
     "sharing_preference_for_peer_cases": "de-identified case only",
     "clinical_trial_outreach_preference": "not documented",
-    "source": "fully synthetic fixture"
+    "source": "fully synthetic fixture",
+    "contact_email": "harisamser27@gmail.com"
   },
   {
     "patient_key": "P020",
@@ -808,12 +827,13 @@
       "pregnancy_status": "not recorded"
     },
     "portal_access": true,
-    "email_contact_available": false,
+    "email_contact_available": true,
     "messaging_preference": "portal",
     "patient_education_language": "Spanish",
     "sharing_preference_for_peer_cases": "de-identified case only",
     "clinical_trial_outreach_preference": "not documented",
-    "source": "fully synthetic fixture"
+    "source": "fully synthetic fixture",
+    "contact_email": "harisamser27@gmail.com"
   },
   {
     "patient_key": "P021",
@@ -844,12 +864,13 @@
       "pregnancy_status": "not recorded"
     },
     "portal_access": true,
-    "email_contact_available": false,
+    "email_contact_available": true,
     "messaging_preference": "portal",
     "patient_education_language": "Nepali",
     "sharing_preference_for_peer_cases": "not documented",
     "clinical_trial_outreach_preference": "not documented",
-    "source": "fully synthetic fixture"
+    "source": "fully synthetic fixture",
+    "contact_email": "harisamser27@gmail.com"
   },
   {
     "patient_key": "P022",
@@ -886,12 +907,13 @@
       "pregnancy_status": "not recorded"
     },
     "portal_access": false,
-    "email_contact_available": false,
+    "email_contact_available": true,
     "messaging_preference": "unavailable",
     "patient_education_language": "English",
     "sharing_preference_for_peer_cases": "de-identified case only",
     "clinical_trial_outreach_preference": "not documented",
-    "source": "fully synthetic fixture"
+    "source": "fully synthetic fixture",
+    "contact_email": "harisamser27@gmail.com"
   },
   {
     "patient_key": "P023",
@@ -928,12 +950,13 @@
       "pregnancy_status": "not recorded"
     },
     "portal_access": true,
-    "email_contact_available": false,
+    "email_contact_available": true,
     "messaging_preference": "portal",
     "patient_education_language": "Spanish",
     "sharing_preference_for_peer_cases": "de-identified case only",
     "clinical_trial_outreach_preference": "not documented",
-    "source": "fully synthetic fixture"
+    "source": "fully synthetic fixture",
+    "contact_email": "harisamser27@gmail.com"
   },
   {
     "patient_key": "P024",
@@ -970,12 +993,13 @@
       "pregnancy_status": "not recorded"
     },
     "portal_access": true,
-    "email_contact_available": false,
+    "email_contact_available": true,
     "messaging_preference": "portal",
     "patient_education_language": "Nepali",
     "sharing_preference_for_peer_cases": "de-identified case only",
     "clinical_trial_outreach_preference": "not documented",
-    "source": "fully synthetic fixture"
+    "source": "fully synthetic fixture",
+    "contact_email": "harisamser27@gmail.com"
   },
   {
     "patient_key": "P025",
@@ -1012,12 +1036,13 @@
       "pregnancy_status": "not recorded"
     },
     "portal_access": true,
-    "email_contact_available": false,
+    "email_contact_available": true,
     "messaging_preference": "portal",
     "patient_education_language": "English",
     "sharing_preference_for_peer_cases": "not documented",
     "clinical_trial_outreach_preference": "not documented",
-    "source": "fully synthetic fixture"
+    "source": "fully synthetic fixture",
+    "contact_email": "harisamser27@gmail.com"
   },
   {
     "patient_key": "P026",
@@ -1048,12 +1073,13 @@
       "pregnancy_status": "not recorded"
     },
     "portal_access": true,
-    "email_contact_available": false,
+    "email_contact_available": true,
     "messaging_preference": "portal",
     "patient_education_language": "Spanish",
     "sharing_preference_for_peer_cases": "de-identified case only",
     "clinical_trial_outreach_preference": "not documented",
-    "source": "fully synthetic fixture"
+    "source": "fully synthetic fixture",
+    "contact_email": "harisamser27@gmail.com"
   },
   {
     "patient_key": "P027",
@@ -1090,12 +1116,13 @@
       "pregnancy_status": "not recorded"
     },
     "portal_access": true,
-    "email_contact_available": false,
+    "email_contact_available": true,
     "messaging_preference": "portal",
     "patient_education_language": "Nepali",
     "sharing_preference_for_peer_cases": "de-identified case only",
     "clinical_trial_outreach_preference": "not documented",
-    "source": "fully synthetic fixture"
+    "source": "fully synthetic fixture",
+    "contact_email": "harisamser27@gmail.com"
   },
   {
     "patient_key": "P028",
@@ -1132,12 +1159,13 @@
       "pregnancy_status": "not recorded"
     },
     "portal_access": true,
-    "email_contact_available": false,
+    "email_contact_available": true,
     "messaging_preference": "portal",
     "patient_education_language": "English",
     "sharing_preference_for_peer_cases": "de-identified case only",
     "clinical_trial_outreach_preference": "not documented",
-    "source": "fully synthetic fixture"
+    "source": "fully synthetic fixture",
+    "contact_email": "harisamser27@gmail.com"
   },
   {
     "patient_key": "P029",
@@ -1174,12 +1202,13 @@
       "pregnancy_status": "not recorded"
     },
     "portal_access": false,
-    "email_contact_available": false,
+    "email_contact_available": true,
     "messaging_preference": "unavailable",
     "patient_education_language": "Spanish",
     "sharing_preference_for_peer_cases": "not documented",
     "clinical_trial_outreach_preference": "not documented",
-    "source": "fully synthetic fixture"
+    "source": "fully synthetic fixture",
+    "contact_email": "harisamser27@gmail.com"
   },
   {
     "patient_key": "P030",
@@ -1216,12 +1245,13 @@
       "pregnancy_status": "not recorded"
     },
     "portal_access": true,
-    "email_contact_available": false,
+    "email_contact_available": true,
     "messaging_preference": "portal",
     "patient_education_language": "Nepali",
     "sharing_preference_for_peer_cases": "de-identified case only",
     "clinical_trial_outreach_preference": "not documented",
-    "source": "fully synthetic fixture"
+    "source": "fully synthetic fixture",
+    "contact_email": "harisamser27@gmail.com"
   },
   {
     "patient_key": "P031",
@@ -1252,12 +1282,13 @@
       "pregnancy_status": "not recorded"
     },
     "portal_access": true,
-    "email_contact_available": false,
+    "email_contact_available": true,
     "messaging_preference": "portal",
     "patient_education_language": "English",
     "sharing_preference_for_peer_cases": "de-identified case only",
     "clinical_trial_outreach_preference": "not documented",
-    "source": "fully synthetic fixture"
+    "source": "fully synthetic fixture",
+    "contact_email": "harisamser27@gmail.com"
   },
   {
     "patient_key": "P032",
@@ -1294,12 +1325,13 @@
       "pregnancy_status": "not recorded"
     },
     "portal_access": true,
-    "email_contact_available": false,
+    "email_contact_available": true,
     "messaging_preference": "portal",
     "patient_education_language": "Spanish",
     "sharing_preference_for_peer_cases": "de-identified case only",
     "clinical_trial_outreach_preference": "not documented",
-    "source": "fully synthetic fixture"
+    "source": "fully synthetic fixture",
+    "contact_email": "harisamser27@gmail.com"
   },
   {
     "patient_key": "P033",
@@ -1336,12 +1368,13 @@
       "pregnancy_status": "not recorded"
     },
     "portal_access": true,
-    "email_contact_available": false,
+    "email_contact_available": true,
     "messaging_preference": "portal",
     "patient_education_language": "Nepali",
     "sharing_preference_for_peer_cases": "not documented",
     "clinical_trial_outreach_preference": "not documented",
-    "source": "fully synthetic fixture"
+    "source": "fully synthetic fixture",
+    "contact_email": "harisamser27@gmail.com"
   },
   {
     "patient_key": "P034",
@@ -1378,12 +1411,13 @@
       "pregnancy_status": "not recorded"
     },
     "portal_access": true,
-    "email_contact_available": false,
+    "email_contact_available": true,
     "messaging_preference": "portal",
     "patient_education_language": "English",
     "sharing_preference_for_peer_cases": "de-identified case only",
     "clinical_trial_outreach_preference": "not documented",
-    "source": "fully synthetic fixture"
+    "source": "fully synthetic fixture",
+    "contact_email": "harisamser27@gmail.com"
   },
   {
     "patient_key": "P035",
@@ -1420,12 +1454,13 @@
       "pregnancy_status": "not recorded"
     },
     "portal_access": true,
-    "email_contact_available": false,
+    "email_contact_available": true,
     "messaging_preference": "portal",
     "patient_education_language": "Spanish",
     "sharing_preference_for_peer_cases": "de-identified case only",
     "clinical_trial_outreach_preference": "not documented",
-    "source": "fully synthetic fixture"
+    "source": "fully synthetic fixture",
+    "contact_email": "harisamser27@gmail.com"
   },
   {
     "patient_key": "P036",
@@ -1456,12 +1491,13 @@
       "pregnancy_status": "not recorded"
     },
     "portal_access": false,
-    "email_contact_available": false,
+    "email_contact_available": true,
     "messaging_preference": "unavailable",
     "patient_education_language": "Nepali",
     "sharing_preference_for_peer_cases": "de-identified case only",
     "clinical_trial_outreach_preference": "not documented",
-    "source": "fully synthetic fixture"
+    "source": "fully synthetic fixture",
+    "contact_email": "harisamser27@gmail.com"
   },
   {
     "patient_key": "P037",
@@ -1498,12 +1534,13 @@
       "pregnancy_status": "not recorded"
     },
     "portal_access": true,
-    "email_contact_available": false,
+    "email_contact_available": true,
     "messaging_preference": "portal",
     "patient_education_language": "English",
     "sharing_preference_for_peer_cases": "not documented",
     "clinical_trial_outreach_preference": "not documented",
-    "source": "fully synthetic fixture"
+    "source": "fully synthetic fixture",
+    "contact_email": "harisamser27@gmail.com"
   },
   {
     "patient_key": "P038",
@@ -1540,12 +1577,13 @@
       "pregnancy_status": "not recorded"
     },
     "portal_access": true,
-    "email_contact_available": false,
+    "email_contact_available": true,
     "messaging_preference": "portal",
     "patient_education_language": "Spanish",
     "sharing_preference_for_peer_cases": "de-identified case only",
     "clinical_trial_outreach_preference": "not documented",
-    "source": "fully synthetic fixture"
+    "source": "fully synthetic fixture",
+    "contact_email": "harisamser27@gmail.com"
   },
   {
     "patient_key": "P039",
@@ -1582,12 +1620,13 @@
       "pregnancy_status": "not recorded"
     },
     "portal_access": true,
-    "email_contact_available": false,
+    "email_contact_available": true,
     "messaging_preference": "portal",
     "patient_education_language": "Nepali",
     "sharing_preference_for_peer_cases": "de-identified case only",
     "clinical_trial_outreach_preference": "not documented",
-    "source": "fully synthetic fixture"
+    "source": "fully synthetic fixture",
+    "contact_email": "harisamser27@gmail.com"
   },
   {
     "patient_key": "P040",
@@ -1624,12 +1663,13 @@
       "pregnancy_status": "not recorded"
     },
     "portal_access": true,
-    "email_contact_available": false,
+    "email_contact_available": true,
     "messaging_preference": "portal",
     "patient_education_language": "English",
     "sharing_preference_for_peer_cases": "de-identified case only",
     "clinical_trial_outreach_preference": "not documented",
-    "source": "fully synthetic fixture"
+    "source": "fully synthetic fixture",
+    "contact_email": "harisamser27@gmail.com"
   },
   {
     "patient_key": "P041",
@@ -1660,12 +1700,13 @@
       "pregnancy_status": "not recorded"
     },
     "portal_access": true,
-    "email_contact_available": false,
+    "email_contact_available": true,
     "messaging_preference": "portal",
     "patient_education_language": "Spanish",
     "sharing_preference_for_peer_cases": "not documented",
     "clinical_trial_outreach_preference": "not documented",
-    "source": "fully synthetic fixture"
+    "source": "fully synthetic fixture",
+    "contact_email": "harisamser27@gmail.com"
   },
   {
     "patient_key": "P042",
@@ -1702,12 +1743,13 @@
       "pregnancy_status": "not recorded"
     },
     "portal_access": true,
-    "email_contact_available": false,
+    "email_contact_available": true,
     "messaging_preference": "portal",
     "patient_education_language": "Nepali",
     "sharing_preference_for_peer_cases": "de-identified case only",
     "clinical_trial_outreach_preference": "not documented",
-    "source": "fully synthetic fixture"
+    "source": "fully synthetic fixture",
+    "contact_email": "harisamser27@gmail.com"
   },
   {
     "patient_key": "P043",
@@ -1744,12 +1786,13 @@
       "pregnancy_status": "not recorded"
     },
     "portal_access": false,
-    "email_contact_available": false,
+    "email_contact_available": true,
     "messaging_preference": "unavailable",
     "patient_education_language": "English",
     "sharing_preference_for_peer_cases": "de-identified case only",
     "clinical_trial_outreach_preference": "not documented",
-    "source": "fully synthetic fixture"
+    "source": "fully synthetic fixture",
+    "contact_email": "harisamser27@gmail.com"
   },
   {
     "patient_key": "P044",
@@ -1786,12 +1829,13 @@
       "pregnancy_status": "not recorded"
     },
     "portal_access": true,
-    "email_contact_available": false,
+    "email_contact_available": true,
     "messaging_preference": "portal",
     "patient_education_language": "Spanish",
     "sharing_preference_for_peer_cases": "de-identified case only",
     "clinical_trial_outreach_preference": "not documented",
-    "source": "fully synthetic fixture"
+    "source": "fully synthetic fixture",
+    "contact_email": "harisamser27@gmail.com"
   },
   {
     "patient_key": "P045",
@@ -1828,12 +1872,13 @@
       "pregnancy_status": "not recorded"
     },
     "portal_access": true,
-    "email_contact_available": false,
+    "email_contact_available": true,
     "messaging_preference": "portal",
     "patient_education_language": "Nepali",
     "sharing_preference_for_peer_cases": "not documented",
     "clinical_trial_outreach_preference": "not documented",
-    "source": "fully synthetic fixture"
+    "source": "fully synthetic fixture",
+    "contact_email": "harisamser27@gmail.com"
   },
   {
     "patient_key": "P046",
@@ -1864,12 +1909,13 @@
       "pregnancy_status": "not recorded"
     },
     "portal_access": true,
-    "email_contact_available": false,
+    "email_contact_available": true,
     "messaging_preference": "portal",
     "patient_education_language": "English",
     "sharing_preference_for_peer_cases": "de-identified case only",
     "clinical_trial_outreach_preference": "not documented",
-    "source": "fully synthetic fixture"
+    "source": "fully synthetic fixture",
+    "contact_email": "harisamser27@gmail.com"
   },
   {
     "patient_key": "P047",
@@ -1906,12 +1952,13 @@
       "pregnancy_status": "not recorded"
     },
     "portal_access": true,
-    "email_contact_available": false,
+    "email_contact_available": true,
     "messaging_preference": "portal",
     "patient_education_language": "Spanish",
     "sharing_preference_for_peer_cases": "de-identified case only",
     "clinical_trial_outreach_preference": "not documented",
-    "source": "fully synthetic fixture"
+    "source": "fully synthetic fixture",
+    "contact_email": "harisamser27@gmail.com"
   },
   {
     "patient_key": "P048",
@@ -1948,12 +1995,13 @@
       "pregnancy_status": "not recorded"
     },
     "portal_access": true,
-    "email_contact_available": false,
+    "email_contact_available": true,
     "messaging_preference": "portal",
     "patient_education_language": "Nepali",
     "sharing_preference_for_peer_cases": "de-identified case only",
     "clinical_trial_outreach_preference": "not documented",
-    "source": "fully synthetic fixture"
+    "source": "fully synthetic fixture",
+    "contact_email": "harisamser27@gmail.com"
   },
   {
     "patient_key": "P049",
@@ -1990,12 +2038,13 @@
       "pregnancy_status": "not recorded"
     },
     "portal_access": true,
-    "email_contact_available": false,
+    "email_contact_available": true,
     "messaging_preference": "portal",
     "patient_education_language": "English",
     "sharing_preference_for_peer_cases": "not documented",
     "clinical_trial_outreach_preference": "not documented",
-    "source": "fully synthetic fixture"
+    "source": "fully synthetic fixture",
+    "contact_email": "harisamser27@gmail.com"
   },
   {
     "patient_key": "P050",
@@ -2032,12 +2081,13 @@
       "pregnancy_status": "not recorded"
     },
     "portal_access": false,
-    "email_contact_available": false,
+    "email_contact_available": true,
     "messaging_preference": "unavailable",
     "patient_education_language": "Spanish",
     "sharing_preference_for_peer_cases": "de-identified case only",
     "clinical_trial_outreach_preference": "not documented",
-    "source": "fully synthetic fixture"
+    "source": "fully synthetic fixture",
+    "contact_email": "harisamser27@gmail.com"
   },
   {
     "patient_key": "P051",
@@ -2068,12 +2118,13 @@
       "pregnancy_status": "not recorded"
     },
     "portal_access": true,
-    "email_contact_available": false,
+    "email_contact_available": true,
     "messaging_preference": "portal",
     "patient_education_language": "Nepali",
     "sharing_preference_for_peer_cases": "de-identified case only",
     "clinical_trial_outreach_preference": "not documented",
-    "source": "fully synthetic fixture"
+    "source": "fully synthetic fixture",
+    "contact_email": "harisamser27@gmail.com"
   },
   {
     "patient_key": "P052",
@@ -2110,12 +2161,13 @@
       "pregnancy_status": "not recorded"
     },
     "portal_access": true,
-    "email_contact_available": false,
+    "email_contact_available": true,
     "messaging_preference": "portal",
     "patient_education_language": "English",
     "sharing_preference_for_peer_cases": "de-identified case only",
     "clinical_trial_outreach_preference": "not documented",
-    "source": "fully synthetic fixture"
+    "source": "fully synthetic fixture",
+    "contact_email": "harisamser27@gmail.com"
   },
   {
     "patient_key": "P053",
@@ -2152,12 +2204,13 @@
       "pregnancy_status": "not recorded"
     },
     "portal_access": true,
-    "email_contact_available": false,
+    "email_contact_available": true,
     "messaging_preference": "portal",
     "patient_education_language": "Spanish",
     "sharing_preference_for_peer_cases": "not documented",
     "clinical_trial_outreach_preference": "not documented",
-    "source": "fully synthetic fixture"
+    "source": "fully synthetic fixture",
+    "contact_email": "harisamser27@gmail.com"
   },
   {
     "patient_key": "P054",
@@ -2194,12 +2247,13 @@
       "pregnancy_status": "not recorded"
     },
     "portal_access": true,
-    "email_contact_available": false,
+    "email_contact_available": true,
     "messaging_preference": "portal",
     "patient_education_language": "Nepali",
     "sharing_preference_for_peer_cases": "de-identified case only",
     "clinical_trial_outreach_preference": "not documented",
-    "source": "fully synthetic fixture"
+    "source": "fully synthetic fixture",
+    "contact_email": "harisamser27@gmail.com"
   },
   {
     "patient_key": "P055",
@@ -2236,12 +2290,13 @@
       "pregnancy_status": "not recorded"
     },
     "portal_access": true,
-    "email_contact_available": false,
+    "email_contact_available": true,
     "messaging_preference": "portal",
     "patient_education_language": "English",
     "sharing_preference_for_peer_cases": "de-identified case only",
     "clinical_trial_outreach_preference": "not documented",
-    "source": "fully synthetic fixture"
+    "source": "fully synthetic fixture",
+    "contact_email": "harisamser27@gmail.com"
   },
   {
     "patient_key": "P056",
@@ -2272,12 +2327,13 @@
       "pregnancy_status": "not recorded"
     },
     "portal_access": true,
-    "email_contact_available": false,
+    "email_contact_available": true,
     "messaging_preference": "portal",
     "patient_education_language": "Spanish",
     "sharing_preference_for_peer_cases": "de-identified case only",
     "clinical_trial_outreach_preference": "not documented",
-    "source": "fully synthetic fixture"
+    "source": "fully synthetic fixture",
+    "contact_email": "harisamser27@gmail.com"
   },
   {
     "patient_key": "P057",
@@ -2314,12 +2370,13 @@
       "pregnancy_status": "not recorded"
     },
     "portal_access": false,
-    "email_contact_available": false,
+    "email_contact_available": true,
     "messaging_preference": "unavailable",
     "patient_education_language": "Nepali",
     "sharing_preference_for_peer_cases": "not documented",
     "clinical_trial_outreach_preference": "not documented",
-    "source": "fully synthetic fixture"
+    "source": "fully synthetic fixture",
+    "contact_email": "harisamser27@gmail.com"
   },
   {
     "patient_key": "P058",
@@ -2356,12 +2413,13 @@
       "pregnancy_status": "not recorded"
     },
     "portal_access": true,
-    "email_contact_available": false,
+    "email_contact_available": true,
     "messaging_preference": "portal",
     "patient_education_language": "English",
     "sharing_preference_for_peer_cases": "de-identified case only",
     "clinical_trial_outreach_preference": "not documented",
-    "source": "fully synthetic fixture"
+    "source": "fully synthetic fixture",
+    "contact_email": "harisamser27@gmail.com"
   },
   {
     "patient_key": "P059",
@@ -2398,12 +2456,13 @@
       "pregnancy_status": "not recorded"
     },
     "portal_access": true,
-    "email_contact_available": false,
+    "email_contact_available": true,
     "messaging_preference": "portal",
     "patient_education_language": "Spanish",
     "sharing_preference_for_peer_cases": "de-identified case only",
     "clinical_trial_outreach_preference": "not documented",
-    "source": "fully synthetic fixture"
+    "source": "fully synthetic fixture",
+    "contact_email": "harisamser27@gmail.com"
   },
   {
     "patient_key": "P060",
@@ -2440,12 +2499,13 @@
       "pregnancy_status": "not recorded"
     },
     "portal_access": true,
-    "email_contact_available": false,
+    "email_contact_available": true,
     "messaging_preference": "portal",
     "patient_education_language": "Nepali",
     "sharing_preference_for_peer_cases": "de-identified case only",
     "clinical_trial_outreach_preference": "not documented",
-    "source": "fully synthetic fixture"
+    "source": "fully synthetic fixture",
+    "contact_email": "harisamser27@gmail.com"
   },
   {
     "patient_key": "P061",
@@ -2476,12 +2536,13 @@
       "pregnancy_status": "not recorded"
     },
     "portal_access": true,
-    "email_contact_available": false,
+    "email_contact_available": true,
     "messaging_preference": "portal",
     "patient_education_language": "English",
     "sharing_preference_for_peer_cases": "not documented",
     "clinical_trial_outreach_preference": "not documented",
-    "source": "fully synthetic fixture"
+    "source": "fully synthetic fixture",
+    "contact_email": "harisamser27@gmail.com"
   },
   {
     "patient_key": "P062",
@@ -2518,12 +2579,13 @@
       "pregnancy_status": "not recorded"
     },
     "portal_access": true,
-    "email_contact_available": false,
+    "email_contact_available": true,
     "messaging_preference": "portal",
     "patient_education_language": "Spanish",
     "sharing_preference_for_peer_cases": "de-identified case only",
     "clinical_trial_outreach_preference": "not documented",
-    "source": "fully synthetic fixture"
+    "source": "fully synthetic fixture",
+    "contact_email": "harisamser27@gmail.com"
   },
   {
     "patient_key": "P063",
@@ -2560,12 +2622,13 @@
       "pregnancy_status": "not recorded"
     },
     "portal_access": true,
-    "email_contact_available": false,
+    "email_contact_available": true,
     "messaging_preference": "portal",
     "patient_education_language": "Nepali",
     "sharing_preference_for_peer_cases": "de-identified case only",
     "clinical_trial_outreach_preference": "not documented",
-    "source": "fully synthetic fixture"
+    "source": "fully synthetic fixture",
+    "contact_email": "harisamser27@gmail.com"
   },
   {
     "patient_key": "P064",
@@ -2602,12 +2665,13 @@
       "pregnancy_status": "not recorded"
     },
     "portal_access": false,
-    "email_contact_available": false,
+    "email_contact_available": true,
     "messaging_preference": "unavailable",
     "patient_education_language": "English",
     "sharing_preference_for_peer_cases": "de-identified case only",
     "clinical_trial_outreach_preference": "not documented",
-    "source": "fully synthetic fixture"
+    "source": "fully synthetic fixture",
+    "contact_email": "harisamser27@gmail.com"
   },
   {
     "patient_key": "P065",
@@ -2644,12 +2708,13 @@
       "pregnancy_status": "not recorded"
     },
     "portal_access": true,
-    "email_contact_available": false,
+    "email_contact_available": true,
     "messaging_preference": "portal",
     "patient_education_language": "Spanish",
     "sharing_preference_for_peer_cases": "not documented",
     "clinical_trial_outreach_preference": "not documented",
-    "source": "fully synthetic fixture"
+    "source": "fully synthetic fixture",
+    "contact_email": "harisamser27@gmail.com"
   },
   {
     "patient_key": "P066",
@@ -2680,12 +2745,13 @@
       "pregnancy_status": "not recorded"
     },
     "portal_access": true,
-    "email_contact_available": false,
+    "email_contact_available": true,
     "messaging_preference": "portal",
     "patient_education_language": "Nepali",
     "sharing_preference_for_peer_cases": "de-identified case only",
     "clinical_trial_outreach_preference": "not documented",
-    "source": "fully synthetic fixture"
+    "source": "fully synthetic fixture",
+    "contact_email": "harisamser27@gmail.com"
   },
   {
     "patient_key": "P067",
@@ -2722,12 +2788,13 @@
       "pregnancy_status": "not recorded"
     },
     "portal_access": true,
-    "email_contact_available": false,
+    "email_contact_available": true,
     "messaging_preference": "portal",
     "patient_education_language": "English",
     "sharing_preference_for_peer_cases": "de-identified case only",
     "clinical_trial_outreach_preference": "not documented",
-    "source": "fully synthetic fixture"
+    "source": "fully synthetic fixture",
+    "contact_email": "harisamser27@gmail.com"
   },
   {
     "patient_key": "P068",
@@ -2764,12 +2831,13 @@
       "pregnancy_status": "not recorded"
     },
     "portal_access": true,
-    "email_contact_available": false,
+    "email_contact_available": true,
     "messaging_preference": "portal",
     "patient_education_language": "Spanish",
     "sharing_preference_for_peer_cases": "de-identified case only",
     "clinical_trial_outreach_preference": "not documented",
-    "source": "fully synthetic fixture"
+    "source": "fully synthetic fixture",
+    "contact_email": "harisamser27@gmail.com"
   },
   {
     "patient_key": "P069",
@@ -2806,12 +2874,13 @@
       "pregnancy_status": "not recorded"
     },
     "portal_access": true,
-    "email_contact_available": false,
+    "email_contact_available": true,
     "messaging_preference": "portal",
     "patient_education_language": "Nepali",
     "sharing_preference_for_peer_cases": "not documented",
     "clinical_trial_outreach_preference": "not documented",
-    "source": "fully synthetic fixture"
+    "source": "fully synthetic fixture",
+    "contact_email": "harisamser27@gmail.com"
   },
   {
     "patient_key": "P070",
@@ -2848,12 +2917,13 @@
       "pregnancy_status": "not recorded"
     },
     "portal_access": true,
-    "email_contact_available": false,
+    "email_contact_available": true,
     "messaging_preference": "portal",
     "patient_education_language": "English",
     "sharing_preference_for_peer_cases": "de-identified case only",
     "clinical_trial_outreach_preference": "not documented",
-    "source": "fully synthetic fixture"
+    "source": "fully synthetic fixture",
+    "contact_email": "harisamser27@gmail.com"
   },
   {
     "patient_key": "P071",
@@ -2884,12 +2954,13 @@
       "pregnancy_status": "not recorded"
     },
     "portal_access": false,
-    "email_contact_available": false,
+    "email_contact_available": true,
     "messaging_preference": "unavailable",
     "patient_education_language": "Spanish",
     "sharing_preference_for_peer_cases": "de-identified case only",
     "clinical_trial_outreach_preference": "not documented",
-    "source": "fully synthetic fixture"
+    "source": "fully synthetic fixture",
+    "contact_email": "harisamser27@gmail.com"
   },
   {
     "patient_key": "P072",
@@ -2926,12 +2997,13 @@
       "pregnancy_status": "not recorded"
     },
     "portal_access": true,
-    "email_contact_available": false,
+    "email_contact_available": true,
     "messaging_preference": "portal",
     "patient_education_language": "Nepali",
     "sharing_preference_for_peer_cases": "de-identified case only",
     "clinical_trial_outreach_preference": "not documented",
-    "source": "fully synthetic fixture"
+    "source": "fully synthetic fixture",
+    "contact_email": "harisamser27@gmail.com"
   },
   {
     "patient_key": "P073",
@@ -2968,12 +3040,13 @@
       "pregnancy_status": "not recorded"
     },
     "portal_access": true,
-    "email_contact_available": false,
+    "email_contact_available": true,
     "messaging_preference": "portal",
     "patient_education_language": "English",
     "sharing_preference_for_peer_cases": "not documented",
     "clinical_trial_outreach_preference": "not documented",
-    "source": "fully synthetic fixture"
+    "source": "fully synthetic fixture",
+    "contact_email": "harisamser27@gmail.com"
   },
   {
     "patient_key": "P074",
@@ -3010,12 +3083,13 @@
       "pregnancy_status": "not recorded"
     },
     "portal_access": true,
-    "email_contact_available": false,
+    "email_contact_available": true,
     "messaging_preference": "portal",
     "patient_education_language": "Spanish",
     "sharing_preference_for_peer_cases": "de-identified case only",
     "clinical_trial_outreach_preference": "not documented",
-    "source": "fully synthetic fixture"
+    "source": "fully synthetic fixture",
+    "contact_email": "harisamser27@gmail.com"
   },
   {
     "patient_key": "P075",
@@ -3052,12 +3126,13 @@
       "pregnancy_status": "not recorded"
     },
     "portal_access": true,
-    "email_contact_available": false,
+    "email_contact_available": true,
     "messaging_preference": "portal",
     "patient_education_language": "Nepali",
     "sharing_preference_for_peer_cases": "de-identified case only",
     "clinical_trial_outreach_preference": "not documented",
-    "source": "fully synthetic fixture"
+    "source": "fully synthetic fixture",
+    "contact_email": "harisamser27@gmail.com"
   },
   {
     "patient_key": "P076",
@@ -3088,12 +3163,13 @@
       "pregnancy_status": "not recorded"
     },
     "portal_access": true,
-    "email_contact_available": false,
+    "email_contact_available": true,
     "messaging_preference": "portal",
     "patient_education_language": "English",
     "sharing_preference_for_peer_cases": "de-identified case only",
     "clinical_trial_outreach_preference": "not documented",
-    "source": "fully synthetic fixture"
+    "source": "fully synthetic fixture",
+    "contact_email": "harisamser27@gmail.com"
   },
   {
     "patient_key": "P077",
@@ -3130,12 +3206,13 @@
       "pregnancy_status": "not recorded"
     },
     "portal_access": true,
-    "email_contact_available": false,
+    "email_contact_available": true,
     "messaging_preference": "portal",
     "patient_education_language": "Spanish",
     "sharing_preference_for_peer_cases": "not documented",
     "clinical_trial_outreach_preference": "not documented",
-    "source": "fully synthetic fixture"
+    "source": "fully synthetic fixture",
+    "contact_email": "harisamser27@gmail.com"
   },
   {
     "patient_key": "P078",
@@ -3172,12 +3249,13 @@
       "pregnancy_status": "not recorded"
     },
     "portal_access": false,
-    "email_contact_available": false,
+    "email_contact_available": true,
     "messaging_preference": "unavailable",
     "patient_education_language": "Nepali",
     "sharing_preference_for_peer_cases": "de-identified case only",
     "clinical_trial_outreach_preference": "not documented",
-    "source": "fully synthetic fixture"
+    "source": "fully synthetic fixture",
+    "contact_email": "harisamser27@gmail.com"
   },
   {
     "patient_key": "P079",
@@ -3214,12 +3292,13 @@
       "pregnancy_status": "not recorded"
     },
     "portal_access": true,
-    "email_contact_available": false,
+    "email_contact_available": true,
     "messaging_preference": "portal",
     "patient_education_language": "English",
     "sharing_preference_for_peer_cases": "de-identified case only",
     "clinical_trial_outreach_preference": "not documented",
-    "source": "fully synthetic fixture"
+    "source": "fully synthetic fixture",
+    "contact_email": "harisamser27@gmail.com"
   },
   {
     "patient_key": "P080",
@@ -3256,12 +3335,13 @@
       "pregnancy_status": "not recorded"
     },
     "portal_access": true,
-    "email_contact_available": false,
+    "email_contact_available": true,
     "messaging_preference": "portal",
     "patient_education_language": "Spanish",
     "sharing_preference_for_peer_cases": "de-identified case only",
     "clinical_trial_outreach_preference": "not documented",
-    "source": "fully synthetic fixture"
+    "source": "fully synthetic fixture",
+    "contact_email": "harisamser27@gmail.com"
   },
   {
     "patient_key": "P081",
@@ -3292,12 +3372,13 @@
       "pregnancy_status": "not recorded"
     },
     "portal_access": true,
-    "email_contact_available": false,
+    "email_contact_available": true,
     "messaging_preference": "portal",
     "patient_education_language": "Nepali",
     "sharing_preference_for_peer_cases": "not documented",
     "clinical_trial_outreach_preference": "not documented",
-    "source": "fully synthetic fixture"
+    "source": "fully synthetic fixture",
+    "contact_email": "harisamser27@gmail.com"
   },
   {
     "patient_key": "P082",
@@ -3334,12 +3415,13 @@
       "pregnancy_status": "not recorded"
     },
     "portal_access": true,
-    "email_contact_available": false,
+    "email_contact_available": true,
     "messaging_preference": "portal",
     "patient_education_language": "English",
     "sharing_preference_for_peer_cases": "de-identified case only",
     "clinical_trial_outreach_preference": "not documented",
-    "source": "fully synthetic fixture"
+    "source": "fully synthetic fixture",
+    "contact_email": "harisamser27@gmail.com"
   },
   {
     "patient_key": "P083",
@@ -3376,12 +3458,13 @@
       "pregnancy_status": "not recorded"
     },
     "portal_access": true,
-    "email_contact_available": false,
+    "email_contact_available": true,
     "messaging_preference": "portal",
     "patient_education_language": "Spanish",
     "sharing_preference_for_peer_cases": "de-identified case only",
     "clinical_trial_outreach_preference": "not documented",
-    "source": "fully synthetic fixture"
+    "source": "fully synthetic fixture",
+    "contact_email": "harisamser27@gmail.com"
   },
   {
     "patient_key": "P084",
@@ -3418,12 +3501,13 @@
       "pregnancy_status": "not recorded"
     },
     "portal_access": true,
-    "email_contact_available": false,
+    "email_contact_available": true,
     "messaging_preference": "portal",
     "patient_education_language": "Nepali",
     "sharing_preference_for_peer_cases": "de-identified case only",
     "clinical_trial_outreach_preference": "not documented",
-    "source": "fully synthetic fixture"
+    "source": "fully synthetic fixture",
+    "contact_email": "harisamser27@gmail.com"
   },
   {
     "patient_key": "P085",
@@ -3460,12 +3544,13 @@
       "pregnancy_status": "not recorded"
     },
     "portal_access": false,
-    "email_contact_available": false,
+    "email_contact_available": true,
     "messaging_preference": "unavailable",
     "patient_education_language": "English",
     "sharing_preference_for_peer_cases": "not documented",
     "clinical_trial_outreach_preference": "not documented",
-    "source": "fully synthetic fixture"
+    "source": "fully synthetic fixture",
+    "contact_email": "harisamser27@gmail.com"
   },
   {
     "patient_key": "P086",
@@ -3496,12 +3581,13 @@
       "pregnancy_status": "not recorded"
     },
     "portal_access": true,
-    "email_contact_available": false,
+    "email_contact_available": true,
     "messaging_preference": "portal",
     "patient_education_language": "Spanish",
     "sharing_preference_for_peer_cases": "de-identified case only",
     "clinical_trial_outreach_preference": "not documented",
-    "source": "fully synthetic fixture"
+    "source": "fully synthetic fixture",
+    "contact_email": "harisamser27@gmail.com"
   },
   {
     "patient_key": "P087",
@@ -3538,12 +3624,13 @@
       "pregnancy_status": "not recorded"
     },
     "portal_access": true,
-    "email_contact_available": false,
+    "email_contact_available": true,
     "messaging_preference": "portal",
     "patient_education_language": "Nepali",
     "sharing_preference_for_peer_cases": "de-identified case only",
     "clinical_trial_outreach_preference": "not documented",
-    "source": "fully synthetic fixture"
+    "source": "fully synthetic fixture",
+    "contact_email": "harisamser27@gmail.com"
   },
   {
     "patient_key": "P088",
@@ -3580,12 +3667,13 @@
       "pregnancy_status": "not recorded"
     },
     "portal_access": true,
-    "email_contact_available": false,
+    "email_contact_available": true,
     "messaging_preference": "portal",
     "patient_education_language": "English",
     "sharing_preference_for_peer_cases": "de-identified case only",
     "clinical_trial_outreach_preference": "not documented",
-    "source": "fully synthetic fixture"
+    "source": "fully synthetic fixture",
+    "contact_email": "harisamser27@gmail.com"
   },
   {
     "patient_key": "P089",
@@ -3622,12 +3710,13 @@
       "pregnancy_status": "not recorded"
     },
     "portal_access": true,
-    "email_contact_available": false,
+    "email_contact_available": true,
     "messaging_preference": "portal",
     "patient_education_language": "Spanish",
     "sharing_preference_for_peer_cases": "not documented",
     "clinical_trial_outreach_preference": "not documented",
-    "source": "fully synthetic fixture"
+    "source": "fully synthetic fixture",
+    "contact_email": "harisamser27@gmail.com"
   },
   {
     "patient_key": "P090",
@@ -3664,12 +3753,13 @@
       "pregnancy_status": "not recorded"
     },
     "portal_access": true,
-    "email_contact_available": false,
+    "email_contact_available": true,
     "messaging_preference": "portal",
     "patient_education_language": "Nepali",
     "sharing_preference_for_peer_cases": "de-identified case only",
     "clinical_trial_outreach_preference": "not documented",
-    "source": "fully synthetic fixture"
+    "source": "fully synthetic fixture",
+    "contact_email": "harisamser27@gmail.com"
   },
   {
     "patient_key": "P091",
@@ -3700,12 +3790,13 @@
       "pregnancy_status": "not recorded"
     },
     "portal_access": true,
-    "email_contact_available": false,
+    "email_contact_available": true,
     "messaging_preference": "portal",
     "patient_education_language": "English",
     "sharing_preference_for_peer_cases": "de-identified case only",
     "clinical_trial_outreach_preference": "not documented",
-    "source": "fully synthetic fixture"
+    "source": "fully synthetic fixture",
+    "contact_email": "harisamser27@gmail.com"
   },
   {
     "patient_key": "P092",
@@ -3742,12 +3833,13 @@
       "pregnancy_status": "not recorded"
     },
     "portal_access": false,
-    "email_contact_available": false,
+    "email_contact_available": true,
     "messaging_preference": "unavailable",
     "patient_education_language": "Spanish",
     "sharing_preference_for_peer_cases": "de-identified case only",
     "clinical_trial_outreach_preference": "not documented",
-    "source": "fully synthetic fixture"
+    "source": "fully synthetic fixture",
+    "contact_email": "harisamser27@gmail.com"
   },
   {
     "patient_key": "P093",
@@ -3784,12 +3876,13 @@
       "pregnancy_status": "not recorded"
     },
     "portal_access": true,
-    "email_contact_available": false,
+    "email_contact_available": true,
     "messaging_preference": "portal",
     "patient_education_language": "Nepali",
     "sharing_preference_for_peer_cases": "not documented",
     "clinical_trial_outreach_preference": "not documented",
-    "source": "fully synthetic fixture"
+    "source": "fully synthetic fixture",
+    "contact_email": "harisamser27@gmail.com"
   },
   {
     "patient_key": "P094",
@@ -3826,12 +3919,13 @@
       "pregnancy_status": "not recorded"
     },
     "portal_access": true,
-    "email_contact_available": false,
+    "email_contact_available": true,
     "messaging_preference": "portal",
     "patient_education_language": "English",
     "sharing_preference_for_peer_cases": "de-identified case only",
     "clinical_trial_outreach_preference": "not documented",
-    "source": "fully synthetic fixture"
+    "source": "fully synthetic fixture",
+    "contact_email": "harisamser27@gmail.com"
   },
   {
     "patient_key": "P095",
@@ -3868,12 +3962,13 @@
       "pregnancy_status": "not recorded"
     },
     "portal_access": true,
-    "email_contact_available": false,
+    "email_contact_available": true,
     "messaging_preference": "portal",
     "patient_education_language": "Spanish",
     "sharing_preference_for_peer_cases": "de-identified case only",
     "clinical_trial_outreach_preference": "not documented",
-    "source": "fully synthetic fixture"
+    "source": "fully synthetic fixture",
+    "contact_email": "harisamser27@gmail.com"
   },
   {
     "patient_key": "P096",
@@ -3904,12 +3999,13 @@
       "pregnancy_status": "not recorded"
     },
     "portal_access": true,
-    "email_contact_available": false,
+    "email_contact_available": true,
     "messaging_preference": "portal",
     "patient_education_language": "Nepali",
     "sharing_preference_for_peer_cases": "de-identified case only",
     "clinical_trial_outreach_preference": "not documented",
-    "source": "fully synthetic fixture"
+    "source": "fully synthetic fixture",
+    "contact_email": "harisamser27@gmail.com"
   },
   {
     "patient_key": "P097",
@@ -3946,12 +4042,13 @@
       "pregnancy_status": "not recorded"
     },
     "portal_access": true,
-    "email_contact_available": false,
+    "email_contact_available": true,
     "messaging_preference": "portal",
     "patient_education_language": "English",
     "sharing_preference_for_peer_cases": "not documented",
     "clinical_trial_outreach_preference": "not documented",
-    "source": "fully synthetic fixture"
+    "source": "fully synthetic fixture",
+    "contact_email": "harisamser27@gmail.com"
   },
   {
     "patient_key": "P098",
@@ -3988,12 +4085,13 @@
       "pregnancy_status": "not recorded"
     },
     "portal_access": true,
-    "email_contact_available": false,
+    "email_contact_available": true,
     "messaging_preference": "portal",
     "patient_education_language": "Spanish",
     "sharing_preference_for_peer_cases": "de-identified case only",
     "clinical_trial_outreach_preference": "not documented",
-    "source": "fully synthetic fixture"
+    "source": "fully synthetic fixture",
+    "contact_email": "harisamser27@gmail.com"
   },
   {
     "patient_key": "P099",
@@ -4030,12 +4128,13 @@
       "pregnancy_status": "not recorded"
     },
     "portal_access": false,
-    "email_contact_available": false,
+    "email_contact_available": true,
     "messaging_preference": "unavailable",
     "patient_education_language": "Nepali",
     "sharing_preference_for_peer_cases": "de-identified case only",
     "clinical_trial_outreach_preference": "not documented",
-    "source": "fully synthetic fixture"
+    "source": "fully synthetic fixture",
+    "contact_email": "harisamser27@gmail.com"
   },
   {
     "patient_key": "P100",
@@ -4072,12 +4171,13 @@
       "pregnancy_status": "not recorded"
     },
     "portal_access": true,
-    "email_contact_available": false,
+    "email_contact_available": true,
     "messaging_preference": "portal",
     "patient_education_language": "English",
     "sharing_preference_for_peer_cases": "de-identified case only",
     "clinical_trial_outreach_preference": "not documented",
-    "source": "fully synthetic fixture"
+    "source": "fully synthetic fixture",
+    "contact_email": "harisamser27@gmail.com"
   },
   {
     "patient_key": "P101",
@@ -4108,12 +4208,13 @@
       "pregnancy_status": "not recorded"
     },
     "portal_access": true,
-    "email_contact_available": false,
+    "email_contact_available": true,
     "messaging_preference": "portal",
     "patient_education_language": "Spanish",
     "sharing_preference_for_peer_cases": "not documented",
     "clinical_trial_outreach_preference": "not documented",
-    "source": "fully synthetic fixture"
+    "source": "fully synthetic fixture",
+    "contact_email": "harisamser27@gmail.com"
   },
   {
     "patient_key": "P102",
@@ -4150,12 +4251,13 @@
       "pregnancy_status": "not recorded"
     },
     "portal_access": true,
-    "email_contact_available": false,
+    "email_contact_available": true,
     "messaging_preference": "portal",
     "patient_education_language": "Nepali",
     "sharing_preference_for_peer_cases": "de-identified case only",
     "clinical_trial_outreach_preference": "not documented",
-    "source": "fully synthetic fixture"
+    "source": "fully synthetic fixture",
+    "contact_email": "harisamser27@gmail.com"
   },
   {
     "patient_key": "P103",
@@ -4192,12 +4294,13 @@
       "pregnancy_status": "not recorded"
     },
     "portal_access": true,
-    "email_contact_available": false,
+    "email_contact_available": true,
     "messaging_preference": "portal",
     "patient_education_language": "English",
     "sharing_preference_for_peer_cases": "de-identified case only",
     "clinical_trial_outreach_preference": "not documented",
-    "source": "fully synthetic fixture"
+    "source": "fully synthetic fixture",
+    "contact_email": "harisamser27@gmail.com"
   },
   {
     "patient_key": "P104",
@@ -4234,12 +4337,13 @@
       "pregnancy_status": "not recorded"
     },
     "portal_access": true,
-    "email_contact_available": false,
+    "email_contact_available": true,
     "messaging_preference": "portal",
     "patient_education_language": "Spanish",
     "sharing_preference_for_peer_cases": "de-identified case only",
     "clinical_trial_outreach_preference": "not documented",
-    "source": "fully synthetic fixture"
+    "source": "fully synthetic fixture",
+    "contact_email": "harisamser27@gmail.com"
   },
   {
     "patient_key": "P105",
@@ -4276,12 +4380,13 @@
       "pregnancy_status": "not recorded"
     },
     "portal_access": true,
-    "email_contact_available": false,
+    "email_contact_available": true,
     "messaging_preference": "portal",
     "patient_education_language": "Nepali",
     "sharing_preference_for_peer_cases": "not documented",
     "clinical_trial_outreach_preference": "not documented",
-    "source": "fully synthetic fixture"
+    "source": "fully synthetic fixture",
+    "contact_email": "harisamser27@gmail.com"
   },
   {
     "patient_key": "P106",
@@ -4312,12 +4417,13 @@
       "pregnancy_status": "not recorded"
     },
     "portal_access": false,
-    "email_contact_available": false,
+    "email_contact_available": true,
     "messaging_preference": "unavailable",
     "patient_education_language": "English",
     "sharing_preference_for_peer_cases": "de-identified case only",
     "clinical_trial_outreach_preference": "not documented",
-    "source": "fully synthetic fixture"
+    "source": "fully synthetic fixture",
+    "contact_email": "harisamser27@gmail.com"
   },
   {
     "patient_key": "P107",
@@ -4354,12 +4460,13 @@
       "pregnancy_status": "not recorded"
     },
     "portal_access": true,
-    "email_contact_available": false,
+    "email_contact_available": true,
     "messaging_preference": "portal",
     "patient_education_language": "Spanish",
     "sharing_preference_for_peer_cases": "de-identified case only",
     "clinical_trial_outreach_preference": "not documented",
-    "source": "fully synthetic fixture"
+    "source": "fully synthetic fixture",
+    "contact_email": "harisamser27@gmail.com"
   },
   {
     "patient_key": "P108",
@@ -4396,12 +4503,13 @@
       "pregnancy_status": "not recorded"
     },
     "portal_access": true,
-    "email_contact_available": false,
+    "email_contact_available": true,
     "messaging_preference": "portal",
     "patient_education_language": "Nepali",
     "sharing_preference_for_peer_cases": "de-identified case only",
     "clinical_trial_outreach_preference": "not documented",
-    "source": "fully synthetic fixture"
+    "source": "fully synthetic fixture",
+    "contact_email": "harisamser27@gmail.com"
   },
   {
     "patient_key": "P109",
@@ -4438,12 +4546,13 @@
       "pregnancy_status": "not recorded"
     },
     "portal_access": true,
-    "email_contact_available": false,
+    "email_contact_available": true,
     "messaging_preference": "portal",
     "patient_education_language": "English",
     "sharing_preference_for_peer_cases": "not documented",
     "clinical_trial_outreach_preference": "not documented",
-    "source": "fully synthetic fixture"
+    "source": "fully synthetic fixture",
+    "contact_email": "harisamser27@gmail.com"
   },
   {
     "patient_key": "P110",
@@ -4480,12 +4589,13 @@
       "pregnancy_status": "not recorded"
     },
     "portal_access": true,
-    "email_contact_available": false,
+    "email_contact_available": true,
     "messaging_preference": "portal",
     "patient_education_language": "Spanish",
     "sharing_preference_for_peer_cases": "de-identified case only",
     "clinical_trial_outreach_preference": "not documented",
-    "source": "fully synthetic fixture"
+    "source": "fully synthetic fixture",
+    "contact_email": "harisamser27@gmail.com"
   },
   {
     "patient_key": "P111",
@@ -4516,12 +4626,13 @@
       "pregnancy_status": "not recorded"
     },
     "portal_access": true,
-    "email_contact_available": false,
+    "email_contact_available": true,
     "messaging_preference": "portal",
     "patient_education_language": "Nepali",
     "sharing_preference_for_peer_cases": "de-identified case only",
     "clinical_trial_outreach_preference": "not documented",
-    "source": "fully synthetic fixture"
+    "source": "fully synthetic fixture",
+    "contact_email": "harisamser27@gmail.com"
   },
   {
     "patient_key": "P112",
@@ -4558,12 +4669,13 @@
       "pregnancy_status": "not recorded"
     },
     "portal_access": true,
-    "email_contact_available": false,
+    "email_contact_available": true,
     "messaging_preference": "portal",
     "patient_education_language": "English",
     "sharing_preference_for_peer_cases": "de-identified case only",
     "clinical_trial_outreach_preference": "not documented",
-    "source": "fully synthetic fixture"
+    "source": "fully synthetic fixture",
+    "contact_email": "harisamser27@gmail.com"
   },
   {
     "patient_key": "P113",
@@ -4600,12 +4712,13 @@
       "pregnancy_status": "not recorded"
     },
     "portal_access": false,
-    "email_contact_available": false,
+    "email_contact_available": true,
     "messaging_preference": "unavailable",
     "patient_education_language": "Spanish",
     "sharing_preference_for_peer_cases": "not documented",
     "clinical_trial_outreach_preference": "not documented",
-    "source": "fully synthetic fixture"
+    "source": "fully synthetic fixture",
+    "contact_email": "harisamser27@gmail.com"
   },
   {
     "patient_key": "P114",
@@ -4642,12 +4755,13 @@
       "pregnancy_status": "not recorded"
     },
     "portal_access": true,
-    "email_contact_available": false,
+    "email_contact_available": true,
     "messaging_preference": "portal",
     "patient_education_language": "Nepali",
     "sharing_preference_for_peer_cases": "de-identified case only",
     "clinical_trial_outreach_preference": "not documented",
-    "source": "fully synthetic fixture"
+    "source": "fully synthetic fixture",
+    "contact_email": "harisamser27@gmail.com"
   },
   {
     "patient_key": "P115",
@@ -4684,12 +4798,13 @@
       "pregnancy_status": "not recorded"
     },
     "portal_access": true,
-    "email_contact_available": false,
+    "email_contact_available": true,
     "messaging_preference": "portal",
     "patient_education_language": "English",
     "sharing_preference_for_peer_cases": "de-identified case only",
     "clinical_trial_outreach_preference": "not documented",
-    "source": "fully synthetic fixture"
+    "source": "fully synthetic fixture",
+    "contact_email": "harisamser27@gmail.com"
   },
   {
     "patient_key": "P116",
@@ -4720,12 +4835,13 @@
       "pregnancy_status": "not recorded"
     },
     "portal_access": true,
-    "email_contact_available": false,
+    "email_contact_available": true,
     "messaging_preference": "portal",
     "patient_education_language": "Spanish",
     "sharing_preference_for_peer_cases": "de-identified case only",
     "clinical_trial_outreach_preference": "not documented",
-    "source": "fully synthetic fixture"
+    "source": "fully synthetic fixture",
+    "contact_email": "harisamser27@gmail.com"
   },
   {
     "patient_key": "P117",
@@ -4762,12 +4878,13 @@
       "pregnancy_status": "not recorded"
     },
     "portal_access": true,
-    "email_contact_available": false,
+    "email_contact_available": true,
     "messaging_preference": "portal",
     "patient_education_language": "Nepali",
     "sharing_preference_for_peer_cases": "not documented",
     "clinical_trial_outreach_preference": "not documented",
-    "source": "fully synthetic fixture"
+    "source": "fully synthetic fixture",
+    "contact_email": "harisamser27@gmail.com"
   },
   {
     "patient_key": "P118",
@@ -4804,12 +4921,13 @@
       "pregnancy_status": "not recorded"
     },
     "portal_access": true,
-    "email_contact_available": false,
+    "email_contact_available": true,
     "messaging_preference": "portal",
     "patient_education_language": "English",
     "sharing_preference_for_peer_cases": "de-identified case only",
     "clinical_trial_outreach_preference": "not documented",
-    "source": "fully synthetic fixture"
+    "source": "fully synthetic fixture",
+    "contact_email": "harisamser27@gmail.com"
   },
   {
     "patient_key": "P119",
@@ -4846,12 +4964,13 @@
       "pregnancy_status": "not recorded"
     },
     "portal_access": true,
-    "email_contact_available": false,
+    "email_contact_available": true,
     "messaging_preference": "portal",
     "patient_education_language": "Spanish",
     "sharing_preference_for_peer_cases": "de-identified case only",
     "clinical_trial_outreach_preference": "not documented",
-    "source": "fully synthetic fixture"
+    "source": "fully synthetic fixture",
+    "contact_email": "harisamser27@gmail.com"
   },
   {
     "patient_key": "P120",
@@ -4888,11 +5007,12 @@
       "pregnancy_status": "not recorded"
     },
     "portal_access": false,
-    "email_contact_available": false,
+    "email_contact_available": true,
     "messaging_preference": "unavailable",
     "patient_education_language": "Nepali",
     "sharing_preference_for_peer_cases": "de-identified case only",
     "clinical_trial_outreach_preference": "not documented",
-    "source": "fully synthetic fixture"
+    "source": "fully synthetic fixture",
+    "contact_email": "harisamser27@gmail.com"
   }
 ]

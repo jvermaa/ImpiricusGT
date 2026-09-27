@@ -78,6 +78,7 @@ class DiagnosisIn(BaseModel):
 
 class PatientCreate(BaseModel):
     name: str
+    contact_email: str = ""
     age_group: str
     state: str
     sex_for_clinical_context: str
@@ -283,9 +284,11 @@ def get_patient(patient_key: str, doctor: str = Query(...), db: Session = Depend
 @router.post("/patients", status_code=201)
 def create_patient(body: PatientCreate, db: Session = Depends(get_db)) -> dict:
     _require_doctor(db, body.primary_doctor_key)
+    contact_email = body.contact_email.strip()
     patient = Patient(
         patient_key=next_key(db, Patient.patient_key, "P"),
         name=body.name,
+        contact_email=contact_email,
         age_group=body.age_group,
         state=body.state,
         sex_for_clinical_context=body.sex_for_clinical_context,
@@ -298,7 +301,7 @@ def create_patient(body: PatientCreate, db: Session = Depends(get_db)) -> dict:
         family_history=body.family_history,
         pregnancy_status=body.pregnancy_status,
         portal_access=body.portal_access,
-        email_contact_available=body.email_contact_available,
+        email_contact_available=bool(contact_email),
         messaging_preference=body.messaging_preference,
         patient_education_language=body.patient_education_language,
         sharing_preference_for_peer_cases=body.sharing_preference_for_peer_cases,
