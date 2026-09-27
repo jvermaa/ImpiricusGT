@@ -394,7 +394,7 @@ export function ReferralWorkspace({
           <Text style={styles.directoryHint}>
             Ranked by available case-term overlap and similar-case records; this is a navigation aid, not a clinical recommendation.
           </Text>
-          <ScrollView contentContainerStyle={styles.content}>
+          <ScrollView style={styles.flex} contentContainerStyle={styles.content}>
             {providerOptions.map((entry) => {
               const chosen = entry.provider.id === activeProvider?.id;
               return (
@@ -422,6 +422,8 @@ export function ReferralWorkspace({
             {providerOptions.length === 0 ? (
               <Text style={styles.empty}>No other doctors are available in the directory.</Text>
             ) : null}
+          </ScrollView>
+          <View style={styles.footerBar}>
             <Pressable
               accessibilityRole="button"
               disabled={!activeProvider || busy}
@@ -430,7 +432,7 @@ export function ReferralWorkspace({
             >
               <Text style={styles.primaryButtonText}>Continue with {activeProvider?.name ?? 'selected doctor'}</Text>
             </Pressable>
-          </ScrollView>
+          </View>
         </View>
       ) : null}
 
@@ -676,6 +678,14 @@ const styles = StyleSheet.create({
     lineHeight: 17,
     paddingHorizontal: 16,
     paddingTop: 12,
+  },
+  footerBar: {
+    paddingHorizontal: 16,
+    paddingTop: 10,
+    paddingBottom: 4,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: 'rgba(255,255,255,0.14)',
+    backgroundColor: colors.navy,
   },
   providerOption: {
     flexDirection: 'row',
