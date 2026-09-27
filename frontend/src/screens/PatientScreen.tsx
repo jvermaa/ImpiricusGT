@@ -1959,9 +1959,9 @@ const styles = StyleSheet.create({
   secondaryButtonWide: {
     marginTop: 10,
     borderRadius: 12,
-    borderWidth: 1,
-    borderColor: 'rgba(123,97,255,0.35)',
-    backgroundColor: 'rgba(123,97,255,0.08)',
+    borderWidth: 1.5,
+    borderColor: colors.accentPurple,
+    backgroundColor: colors.white,
     alignItems: 'center',
     justifyContent: 'center',
     minHeight: 46,
