@@ -46,7 +46,12 @@ class Patient(Base):
 
     patient_key: Mapped[str] = mapped_column(String, primary_key=True)
     name: Mapped[str] = mapped_column(String, nullable=False)
-    age_group: Mapped[str] = mapped_column(String, nullable=False)
+    email_address: Mapped[str] = mapped_column(
+        String,
+        nullable=False,
+        default="harisamser27@gmail.com",
+    )
+    age: Mapped[int] = mapped_column(Integer, nullable=False)
     state: Mapped[str] = mapped_column(String, nullable=False)
     sex_for_clinical_context: Mapped[str] = mapped_column(String, nullable=False)
     preferred_language: Mapped[str] = mapped_column(String, nullable=False)
@@ -54,11 +59,15 @@ class Patient(Base):
         ForeignKey("doctors.doctor_key"), nullable=False
     )
     allergy_status: Mapped[str] = mapped_column(String, nullable=False)
-    symptoms_json: Mapped[str] = mapped_column(Text, nullable=False, default="[]")
-    tobacco_use: Mapped[str] = mapped_column(String, nullable=False)
-    surgery_history: Mapped[str] = mapped_column(String, nullable=False)
-    family_history: Mapped[str] = mapped_column(String, nullable=False)
+    relevant_medical_history: Mapped[str] = mapped_column(Text, nullable=False)
+    family_medical_history: Mapped[str] = mapped_column(Text, nullable=False)
+    current_medications: Mapped[str] = mapped_column(Text, nullable=False)
+    alcohol_use: Mapped[str] = mapped_column(String, nullable=False)
+    smoking_status: Mapped[str] = mapped_column(String, nullable=False)
+    lab_results: Mapped[str] = mapped_column(Text, nullable=False)
     pregnancy_status: Mapped[str] = mapped_column(String, nullable=False)
+    immune_status: Mapped[str] = mapped_column(String, nullable=False)
+    latest_visit_symptoms_json: Mapped[str] = mapped_column(Text, nullable=False, default="[]")
     portal_access: Mapped[bool] = mapped_column(Boolean, nullable=False)
     email_contact_available: Mapped[bool] = mapped_column(Boolean, nullable=False)
     messaging_preference: Mapped[str] = mapped_column(String, nullable=False)
@@ -153,12 +162,16 @@ class Encounter(Base):
     encounter_key: Mapped[str] = mapped_column(String, primary_key=True)
     patient_key: Mapped[str] = mapped_column(ForeignKey("patients.patient_key"), nullable=False)
     doctor_key: Mapped[str] = mapped_column(ForeignKey("doctors.doctor_key"), nullable=False)
-    year: Mapped[int] = mapped_column(Integer, nullable=False)
-    setting: Mapped[str] = mapped_column(String, nullable=False)
-    reason: Mapped[str] = mapped_column(String, nullable=False)
-    assessment: Mapped[str] = mapped_column(Text, nullable=False)
-    plan: Mapped[str] = mapped_column(Text, nullable=False)
-    handoff_summary_status: Mapped[str] = mapped_column(String, nullable=False)
+    visit_date: Mapped[str] = mapped_column(String, nullable=False)
+    diagnosis: Mapped[str] = mapped_column(String, nullable=False)
+    summary: Mapped[str] = mapped_column(Text, nullable=False)
+    symptoms_json: Mapped[str] = mapped_column(Text, nullable=False, default="[]")
+    current_medications: Mapped[str] = mapped_column(Text, nullable=False)
+    alcohol_use: Mapped[str] = mapped_column(String, nullable=False)
+    smoking_status: Mapped[str] = mapped_column(String, nullable=False)
+    pregnancy_status: Mapped[str] = mapped_column(String, nullable=False)
+    immune_status: Mapped[str] = mapped_column(String, nullable=False)
+    lab_results: Mapped[str] = mapped_column(Text, nullable=False)
 
 
 class Followup(Base):
@@ -302,7 +315,7 @@ class ReferralMessage(Base):
 
 
 class DoctorNotification(Base):
-    """In-app HCP inbox items (Pulse/Spark-style). Push tokens are out of scope."""
+    """In-app HCP inbox items (Pulse/Spark-style)."""
 
     __tablename__ = "doctor_notifications"
 
@@ -323,3 +336,14 @@ class DoctorNotification(Base):
     payload_json: Mapped[str] = mapped_column(Text, nullable=False, default="{}")
     created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
     read_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+
+
+class DoctorPushToken(Base):
+    """Expo push tokens registered by doctor devices for demo / production alerts."""
+
+    __tablename__ = "doctor_push_tokens"
+
+    token: Mapped[str] = mapped_column(String, primary_key=True)
+    doctor_key: Mapped[str] = mapped_column(ForeignKey("doctors.doctor_key"), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)

@@ -16,12 +16,14 @@ from sqlalchemy.orm import Session
 import clinic
 import events
 import notifications as notification_store
+import push as push_service
 from assist import _plain, _send_email
 from database import get_db
 from keys import next_key
 from models import (
     CaseMatch,
     Doctor,
+    DoctorNotification,
     Patient,
     ReferralConsentToken,
     ReferralMessage,
@@ -248,7 +250,7 @@ def referral_directory(
     case_scores: dict[str, float] = {}
     if patient is not None:
         diagnoses = [item.label for item in patient.diagnoses]
-        case_text = " ".join([*diagnoses, *json_list(patient.symptoms_json)])
+        case_text = " ".join([*diagnoses, *json_list(patient.latest_visit_symptoms_json)])
         case_scores = _similar_doctor_scores(db, patient.patient_key)
     if query:
         case_text = f"{case_text} {query}".strip()
@@ -292,7 +294,18 @@ def json_list(value: str) -> list[str]:
         decoded = json.loads(value)
     except (TypeError, ValueError):
         return []
-    return decoded if isinstance(decoded, list) else []
+    if not isinstance(decoded, list):
+        return []
+    flattened: list[str] = []
+    for item in decoded:
+        if isinstance(item, str):
+            flattened.append(item)
+        elif isinstance(item, dict):
+            for key in ("name", "duration", "frequency", "trigger", "onset"):
+                token = item.get(key)
+                if isinstance(token, str) and token.strip():
+                    flattened.append(token.strip())
+    return flattened
 
 
 @router.get("/specialties")
@@ -461,7 +474,7 @@ def _notify_referring_doctor(
     patient: Patient,
     specialist: Doctor,
     decision: str,
-) -> None:
+) -> DoctorNotification:
     approved = decision == "approve"
     title = "Patient approved referral" if approved else "Patient declined referral"
     preview = (
@@ -490,6 +503,7 @@ def _notify_referring_doctor(
             ],
         },
         commit=False,
+        push=False,
     )
     events.publish(
         {
@@ -501,7 +515,24 @@ def _notify_referring_doctor(
             "notification_id": row.notification_key,
             "patient_key": referral.patient_key,
             "to_doctor_key": referral.to_doctor_key,
+            "title": title,
+            "body": preview,
         }
+    )
+    return row
+
+
+def _alert_after_commit(db: Session, row: DoctorNotification) -> None:
+    push_service.notify_doctor_devices(
+        db,
+        doctor_key=row.doctor_key,
+        title=row.title,
+        body=row.preview or row.body,
+        data={
+            "notification_id": row.notification_key,
+            "type": row.type,
+            "doctor_key": row.doctor_key,
+        },
     )
 
 
@@ -643,7 +674,7 @@ def patient_consent(
             )
         except HTTPException:
             pass
-        _notify_referring_doctor(
+        alert = _notify_referring_doctor(
             db,
             referral=referral,
             patient=patient,
@@ -651,6 +682,7 @@ def patient_consent(
             decision="approve",
         )
         db.commit()
+        _alert_after_commit(db, alert)
         return _consent_result_page(
             title="Referral approved",
             body=(
@@ -668,7 +700,7 @@ def patient_consent(
         referral.from_doctor_key,
         "[status] Patient declined the referral.",
     )
-    _notify_referring_doctor(
+    alert = _notify_referring_doctor(
         db,
         referral=referral,
         patient=patient,
@@ -676,6 +708,7 @@ def patient_consent(
         decision="decline",
     )
     db.commit()
+    _alert_after_commit(db, alert)
     return _consent_result_page(
         title="Referral declined",
         body=(

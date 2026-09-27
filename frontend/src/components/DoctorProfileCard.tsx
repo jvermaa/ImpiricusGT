@@ -106,7 +106,6 @@ export function DoctorProfileCard({
   const [refreshing, setRefreshing] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
   const [shareOpen, setShareOpen] = useState(false);
-  const [demoOpen, setDemoOpen] = useState(false);
   const [bioOpen, setBioOpen] = useState(false);
   const [bioDraft, setBioDraft] = useState('');
   const [bioError, setBioError] = useState<string | null>(null);
@@ -301,13 +300,9 @@ export function DoctorProfileCard({
                 </Text>
               </View>
               <View style={styles.badgeRow}>
-                <ActionButton
-                  label="About the demo profile badge"
-                  title={profileCopy.demoBadge}
-                  accent={colors.white}
-                  outline
-                  onPress={() => setDemoOpen(true)}
-                />
+                <View style={[styles.textButton, styles.demoBadge]}>
+                  <Text style={[styles.textButtonLabel, { color: colors.white }]}>{profileCopy.demoBadge}</Text>
+                </View>
               </View>
               <View style={styles.actions}>
                 {profile.isSelf ? (
@@ -471,10 +466,6 @@ export function DoctorProfileCard({
           <Text style={styles.toastText}>{toast}</Text>
         </View>
       ) : null}
-
-      <Sheet visible={demoOpen} onClose={() => setDemoOpen(false)} title={profileCopy.demoTitle}>
-        <Text style={styles.sheetBody}>{profileCopy.demoBody}</Text>
-      </Sheet>
 
       <Sheet visible={shareOpen} onClose={() => setShareOpen(false)} title={profile?.headline ?? 'Share card'}>
         <Text style={styles.sheetKey}>{profile?.doctorKey}</Text>
@@ -801,6 +792,7 @@ const styles = StyleSheet.create({
   specialty: { color: colors.white, fontSize: 14, fontWeight: '600' },
   orgLine: { color: 'rgba(255,255,255,0.82)', fontSize: 13, textAlign: 'center' },
   badgeRow: { alignItems: 'center', marginTop: space.sm },
+  demoBadge: { backgroundColor: 'transparent', borderColor: colors.white },
   actions: { flexDirection: 'row', justifyContent: 'center', gap: space.lg, marginTop: space.md },
   action: { alignItems: 'center', width: 76 },
   actionCircle: {
