@@ -283,3 +283,27 @@ class ReferralMessage(Base):
     )
     text: Mapped[str] = mapped_column(Text, nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+
+
+class DoctorNotification(Base):
+    """In-app HCP inbox items (Pulse/Spark-style). Push tokens are out of scope."""
+
+    __tablename__ = "doctor_notifications"
+
+    notification_key: Mapped[str] = mapped_column(String, primary_key=True)
+    doctor_key: Mapped[str] = mapped_column(ForeignKey("doctors.doctor_key"), nullable=False)
+    type: Mapped[str] = mapped_column(String, nullable=False)
+    title: Mapped[str] = mapped_column(String, nullable=False)
+    sender: Mapped[str] = mapped_column(String, nullable=False)
+    brand: Mapped[str] = mapped_column(String, nullable=False)
+    preview: Mapped[str] = mapped_column(Text, nullable=False)
+    body: Mapped[str] = mapped_column(Text, nullable=False)
+    thread_id: Mapped[str] = mapped_column(String, nullable=False)
+    link_url: Mapped[str | None] = mapped_column(String, nullable=True)
+    link_button_label: Mapped[str | None] = mapped_column(String, nullable=True)
+    find_suitable_patients: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    opens_chat: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
+    unread_count: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    payload_json: Mapped[str] = mapped_column(Text, nullable=False, default="{}")
+    created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+    read_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)

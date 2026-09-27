@@ -28,7 +28,7 @@ import { CURRENT_DOCTOR_KEY } from '../api/config';
 import { Avatar } from '../components/Avatar';
 import { DoctorProfileCard } from '../components/DoctorProfileCard';
 import { ChatThread } from '../components/ChatThread';
-import { ChevronLeftIcon, CloseIcon, NotificationIcon, SearchIcon } from '../components/NavIcons';
+import { ChevronLeftIcon, CloseIcon, NotificationIcon, SearchIcon, PdfIcon, EditIcon, AddVisitIcon, ReferHcpIcon } from '../components/NavIcons';
 import type { AppNotification } from '../data/notificationsMock';
 import { DOCTOR_DIRECTORY, type DoctorProfile } from '../data/chatMock';
 import type { ChatMessage, CurrentDoctor, DoctorThread } from '../types/chat';
@@ -84,14 +84,23 @@ type SymptomDraft = {
   onset: SymptomOnset;
 };
 
-const ACTIONS: Array<{ key: ActionKey; label: string }> = [
-  { key: 'find-similar', label: 'Find Similar Patients' },
-  { key: 'generate-pdf', label: 'Generate Medical Record PDF' },
-  { key: 'send-notification', label: 'Send Notification' },
-  { key: 'edit-patient', label: 'Edit Patient Details' },
-  { key: 'add-visit', label: 'Add Visit' },
-  { key: 'ask-refer-hcp', label: 'Ask/Refer an HCP' },
+const ACTIONS: Array<{
+  key: ActionKey;
+  label: string;
+  Icon: (props: { color: string; size?: number }) => React.ReactElement;
+}> = [
+  { key: 'find-similar', label: 'Find Similar Patients', Icon: SearchIcon },
+  { key: 'generate-pdf', label: 'Generate Medical Record PDF', Icon: PdfIcon },
+  { key: 'edit-patient', label: 'Edit Patient Details', Icon: EditIcon },
+  { key: 'add-visit', label: 'Add Visit', Icon: AddVisitIcon },
+  { key: 'ask-refer-hcp', label: 'Ask/Refer an HCP', Icon: ReferHcpIcon },
 ];
+
+const SEND_NOTIFICATION_ACTION: (typeof ACTIONS)[number] = {
+  key: 'send-notification',
+  label: 'Send Notification',
+  Icon: NotificationIcon,
+};
 
 const HIGH_MATCH_SET = new Set<string>(HIGH_MATCH_PATIENT_IDS);
 
@@ -293,6 +302,12 @@ export function PatientScreen({
   const highMatchPatients = useMemo(
     () => patients.filter((patient) => HIGH_MATCH_SET.has(patient.id)),
     [patients],
+  );
+
+  /** Send Notification only after Notification → Find Suitable Patients. */
+  const sheetActions = useMemo(
+    () => (suitableMode ? [SEND_NOTIFICATION_ACTION, ...ACTIONS] : ACTIONS),
+    [suitableMode],
   );
 
   const headerTitle =
@@ -515,7 +530,7 @@ export function PatientScreen({
       return;
     }
 
-    const label = ACTIONS.find((entry) => entry.key === action)?.label ?? 'Action';
+    const label = sheetActions.find((entry) => entry.key === action)?.label ?? 'Action';
     setInfoMessage(`${label} is ready for backend wiring.`);
     setSelectedPatientId(null);
   };
@@ -1184,34 +1199,19 @@ export function PatientScreen({
                   : selectedPatient.diagnosis}
               </Text>
             </View>
-            {ACTIONS.map((action) => {
-              const emphasized =
-                action.key === 'find-similar' || action.key === 'send-notification';
-              const iconColor = emphasized ? colors.skyBlue : colors.textMuted;
+            {sheetActions.map((action) => {
+              const Icon = action.Icon;
               return (
                 <Pressable
                   key={action.key}
                   accessibilityRole="button"
                   accessibilityLabel={action.label}
                   onPress={() => handleAction(action.key)}
-                  style={[styles.sheetAction, emphasized && styles.sheetActionPrimary]}
+                  style={styles.sheetAction}
                 >
                   <View style={styles.sheetActionInner}>
-                    {action.key === 'find-similar' ? (
-                      <SearchIcon color={iconColor} size={18} />
-                    ) : action.key === 'send-notification' ? (
-                      <NotificationIcon color={iconColor} size={18} />
-                    ) : (
-                      <View style={styles.sheetActionIconSpacer} />
-                    )}
-                    <Text
-                      style={[
-                        styles.sheetActionText,
-                        emphasized && styles.sheetActionTextPrimary,
-                      ]}
-                    >
-                      {action.label}
-                    </Text>
+                    <Icon color={colors.textMuted} size={18} />
+                    <Text style={styles.sheetActionText}>{action.label}</Text>
                   </View>
                 </Pressable>
               );

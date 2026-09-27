@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   KeyboardAvoidingView,
   Linking,
@@ -11,6 +11,11 @@ import {
   View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import {
+  loadMyNotifications,
+  markNotificationRead,
+  postNotificationMessage,
+} from '../api/notifications';
 import { Avatar } from '../components/Avatar';
 import { ChevronLeftIcon, SendIcon } from '../components/NavIcons';
 import {
@@ -32,8 +37,38 @@ export function NotificationsScreen({
   onFindSuitablePatients,
 }: Props) {
   const insets = useSafeAreaInsets();
-  const [items, setItems] = useState(NOTIFICATIONS);
+  const [items, setItems] = useState<AppNotification[]>(NOTIFICATIONS);
   const [activeId, setActiveId] = useState<string | null>(null);
+  const [loadMessage, setLoadMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    loadMyNotifications()
+      .then((rows) => {
+        if (cancelled) return;
+        if (rows.length > 0) {
+          setItems(
+            rows.map((row) => ({
+              ...row,
+              findSuitablePatients: true,
+              opensChat: false,
+            })),
+          );
+          setLoadMessage(null);
+        } else {
+          setItems(NOTIFICATIONS);
+          setLoadMessage('No stored notifications — showing demo inbox.');
+        }
+      })
+      .catch(() => {
+        if (cancelled) return;
+        setItems(NOTIFICATIONS);
+        setLoadMessage('Could not load notifications — showing demo inbox.');
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const active = useMemo(
     () => items.find((n) => n.id === activeId) ?? null,
@@ -44,6 +79,13 @@ export function NotificationsScreen({
     setItems((prev) =>
       prev.map((n) => (n.id === id ? { ...n, unread: 0 } : n)),
     );
+    if (/^N\d+/i.test(id)) {
+      markNotificationRead(id)
+        .then((updated) => {
+          setItems((prev) => prev.map((n) => (n.id === id ? updated : n)));
+        })
+        .catch(() => undefined);
+    }
   };
 
   const openNotification = (id: string) => {
@@ -52,20 +94,16 @@ export function NotificationsScreen({
   };
 
   const handleCardPress = (n: AppNotification) => {
-    // Never open chat for link-only / match cards
-    if (n.opensChat === false || n.findSuitablePatients) {
-      if (n.linkUrl) {
-        markRead(n.id);
-        Linking.openURL(n.linkUrl).catch(() => undefined);
-      }
-      return;
+    // Inbox cards never open the desk chat — only open an external link if present.
+    markRead(n.id);
+    if (n.linkUrl) {
+      Linking.openURL(n.linkUrl).catch(() => undefined);
     }
-    openNotification(n.id);
   };
 
   const appendMessage = (text: string, from: 'me' | 'desk' = 'me') => {
     if (!activeId) return;
-    const msg: NotificationMessage = {
+    const localMsg: NotificationMessage = {
       id: `local-${Date.now()}`,
       senderId: from,
       senderName: from === 'desk' ? 'Desk' : undefined,
@@ -74,9 +112,18 @@ export function NotificationsScreen({
     };
     setItems((prev) =>
       prev.map((n) =>
-        n.id === activeId ? { ...n, messages: [...n.messages, msg] } : n,
+        n.id === activeId ? { ...n, messages: [...n.messages, localMsg] } : n,
       ),
     );
+    if (/^N\d+/i.test(activeId) && from === 'me') {
+      postNotificationMessage(activeId, text, 'me')
+        .then(({ notification }) => {
+          setItems((prev) =>
+            prev.map((n) => (n.id === activeId ? notification : n)),
+          );
+        })
+        .catch(() => undefined);
+    }
   };
 
   const runAction = (action: NotificationAction) => {
@@ -130,6 +177,7 @@ export function NotificationsScreen({
       <View style={[styles.listHeader, { paddingTop: Math.max(insets.top, 12) }]}>
         <Text style={styles.listTitle}>Notifications</Text>
         <Text style={styles.listSub}>Brand & access updates for your practice</Text>
+        {loadMessage ? <Text style={styles.loadHint}>{loadMessage}</Text> : null}
       </View>
 
       <ScrollView
@@ -138,8 +186,10 @@ export function NotificationsScreen({
         showsVerticalScrollIndicator={false}
       >
         {items.map((n) => {
-          const meta = NOTIFICATION_TYPE_META[n.type];
-          const isMatchCard = !!n.findSuitablePatients;
+          const meta = NOTIFICATION_TYPE_META[n.type] ?? {
+            accent: colors.accentPurple,
+            label: n.type,
+          };
 
           return (
             <View key={n.id} style={styles.card}>
@@ -160,23 +210,21 @@ export function NotificationsScreen({
                     {n.preview}
                   </Text>
                 </Pressable>
-                {isMatchCard ? (
-                  <View style={styles.cardActionRow}>
-                    <Pressable
-                      accessibilityRole="button"
-                      accessibilityLabel="Find suitable patients"
-                      onPress={() => {
-                        markRead(n.id);
-                        onFindSuitablePatients?.(n);
-                      }}
-                      style={styles.findOnCardBtn}
-                    >
-                      <Text style={styles.findOnCardBtnText}>
-                        Find suitable patients
-                      </Text>
-                    </Pressable>
-                  </View>
-                ) : null}
+                <View style={styles.cardActionRow}>
+                  <Pressable
+                    accessibilityRole="button"
+                    accessibilityLabel="Find suitable patients"
+                    onPress={() => {
+                      markRead(n.id);
+                      onFindSuitablePatients?.(n);
+                    }}
+                    style={styles.findOnCardBtn}
+                  >
+                    <Text style={styles.findOnCardBtnText}>
+                      Find suitable patients
+                    </Text>
+                  </Pressable>
+                </View>
               </View>
             </View>
           );
@@ -485,6 +533,11 @@ const styles = StyleSheet.create({
     color: 'rgba(255,255,255,0.65)',
     fontSize: 13,
     marginTop: 4,
+  },
+  loadHint: {
+    color: 'rgba(255,255,255,0.5)',
+    fontSize: 11,
+    marginTop: 6,
   },
   listContent: {
     paddingHorizontal: 16,

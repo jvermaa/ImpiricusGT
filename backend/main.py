@@ -13,6 +13,7 @@ from sqlalchemy.orm import Session
 
 import assist
 import clinic
+import notifications
 import referrals
 from database import Base, SessionLocal, engine, get_db
 from models import Doctor
@@ -29,6 +30,7 @@ app.add_middleware(
 app.include_router(clinic.router)
 app.include_router(referrals.router)
 app.include_router(assist.router)
+app.include_router(notifications.router)
 Base.metadata.create_all(bind=engine)
 
 WATCH_TOKENS = {
