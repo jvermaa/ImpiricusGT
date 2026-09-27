@@ -4,6 +4,7 @@ import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { BottomNavBar, TabKey } from './src/components/BottomNavBar';
 import { DottedGradientBackground } from './src/components/DottedGradientBackground';
+import type { AppNotification } from './src/data/notificationsMock';
 import { ChatScreen } from './src/screens/ChatScreen';
 import { NotificationsScreen } from './src/screens/NotificationsScreen';
 import { PatientScreen } from './src/screens/PatientScreen';
@@ -11,8 +12,22 @@ import { PlaceholderScreen } from './src/screens/PlaceholderScreen';
 
 function AppShell() {
   const [activeTab, setActiveTab] = useState<TabKey>('notification');
+  const [suitablePatientsMode, setSuitablePatientsMode] = useState(false);
+  const [suitableSource, setSuitableSource] = useState<AppNotification | null>(null);
   const { width } = useWindowDimensions();
   const isWide = width > 768;
+
+  const exitSuitableMode = () => {
+    setSuitablePatientsMode(false);
+    setSuitableSource(null);
+  };
+
+  const switchTab = (tab: TabKey) => {
+    setActiveTab(tab);
+    if (tab !== 'patient') {
+      exitSuitableMode();
+    }
+  };
 
   return (
     <DottedGradientBackground>
@@ -24,15 +39,24 @@ function AppShell() {
               <ChatScreen />
             ) : activeTab === 'notification' ? (
               <NotificationsScreen
-                onOpenPatient={() => setActiveTab('patient')}
+                onOpenPatient={() => switchTab('patient')}
+                onFindSuitablePatients={(notification) => {
+                  setSuitableSource(notification);
+                  setSuitablePatientsMode(true);
+                  setActiveTab('patient');
+                }}
               />
             ) : activeTab === 'patient' ? (
-              <PatientScreen />
+              <PatientScreen
+                suitableMode={suitablePatientsMode}
+                suitableSource={suitableSource}
+                onExitSuitableMode={exitSuitableMode}
+              />
             ) : (
               <PlaceholderScreen title="Profile" />
             )}
           </View>
-          <BottomNavBar activeTab={activeTab} onTabPress={setActiveTab} />
+          <BottomNavBar activeTab={activeTab} onTabPress={switchTab} />
         </View>
       </View>
     </DottedGradientBackground>

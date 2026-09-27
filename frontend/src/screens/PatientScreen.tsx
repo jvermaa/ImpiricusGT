@@ -10,8 +10,11 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { loadMyPatients } from '../api/clinic';
-import { ChevronLeftIcon, CloseIcon, SearchIcon } from '../components/NavIcons';
+import { ChevronLeftIcon, CloseIcon, NotificationIcon, SearchIcon } from '../components/NavIcons';
+import type { AppNotification } from '../data/notificationsMock';
 import {
+  HIGH_MATCH_PATIENT_IDS,
+  PATIENTS,
   type PastVisit,
   type PatientProfile,
   type SymptomEntry,
@@ -59,6 +62,8 @@ const ACTIONS: Array<{ key: ActionKey; label: string }> = [
   { key: 'add-visit', label: 'Add Visit' },
 ];
 
+const HIGH_MATCH_SET = new Set<string>(HIGH_MATCH_PATIENT_IDS);
+
 const EMPTY_SYMPTOM: SymptomDraft = {
   name: '',
   duration: '',
@@ -80,7 +85,15 @@ function makeVisitForm(patient: PatientProfile): VisitForm {
   };
 }
 
-export function PatientScreen() {
+export function PatientScreen({
+  suitableMode = false,
+  suitableSource = null,
+  onExitSuitableMode,
+}: {
+  suitableMode?: boolean;
+  suitableSource?: AppNotification | null;
+  onExitSuitableMode?: () => void;
+}) {
   const insets = useSafeAreaInsets();
   const [patients, setPatients] = useState<PatientProfile[]>([]);
   const [route, setRoute] = useState<RouteState>({ name: 'list' });
@@ -96,17 +109,35 @@ export function PatientScreen() {
     let cancelled = false;
     loadMyPatients()
       .then((rows) => {
-        if (!cancelled) setPatients(rows);
+        if (!cancelled) setPatients(rows.length > 0 ? rows : PATIENTS);
       })
       .catch(() => {
         if (!cancelled) {
-          setInfoMessage('Could not load this doctor’s patient panel from the API.');
+          setPatients(PATIENTS);
+          setInfoMessage('Showing demo panel — API patient load failed.');
         }
       });
     return () => {
       cancelled = true;
     };
   }, []);
+
+  useEffect(() => {
+    if (!suitableMode) return;
+    setRoute({ name: 'list' });
+    setSelectedPatientId(null);
+    setInfoMessage(null);
+    setQuery('');
+    // Hardcoded cohort panel for finder mode
+    setPatients(PATIENTS);
+  }, [suitableMode]);
+
+  const exitSuitableMode = () => {
+    onExitSuitableMode?.();
+    loadMyPatients()
+      .then((rows) => setPatients(rows.length > 0 ? rows : PATIENTS))
+      .catch(() => setPatients(PATIENTS));
+  };
 
   const routedPatientId =
     route.name === 'list' ? null : route.patientId;
@@ -134,38 +165,70 @@ export function PatientScreen() {
 
   const filteredPatients = useMemo(() => {
     const normalized = query.trim().toLowerCase();
-    if (!normalized) return patients;
-    return patients.filter((patient) => {
-      const symptomText = patient.symptoms.map((symptom) => symptom.name).join(' ');
-      return (
-        patient.name.toLowerCase().includes(normalized) ||
-        patient.diagnosis.toLowerCase().includes(normalized) ||
-        symptomText.toLowerCase().includes(normalized)
-      );
+    const base = !normalized
+      ? patients
+      : patients.filter((patient) => {
+          const symptomText = patient.symptoms.map((symptom) => symptom.name).join(' ');
+          return (
+            patient.name.toLowerCase().includes(normalized) ||
+            patient.diagnosis.toLowerCase().includes(normalized) ||
+            symptomText.toLowerCase().includes(normalized)
+          );
+        });
+
+    if (!suitableMode) return base;
+
+    return [...base].sort((a, b) => {
+      const aMatch = HIGH_MATCH_SET.has(a.id) ? 0 : 1;
+      const bMatch = HIGH_MATCH_SET.has(b.id) ? 0 : 1;
+      if (aMatch !== bMatch) return aMatch - bMatch;
+      return a.name.localeCompare(b.name);
     });
-  }, [patients, query]);
+  }, [patients, query, suitableMode]);
+
+  const highMatchPatients = useMemo(
+    () => patients.filter((patient) => HIGH_MATCH_SET.has(patient.id)),
+    [patients],
+  );
 
   const headerTitle =
-    route.name === 'list'
-      ? 'Patients'
-      : route.name === 'edit'
-        ? routedPatient?.name ?? 'Patient Details'
-        : route.name === 'visitDetails'
-          ? 'Visit Details'
-          : 'Add Visit';
+    suitableMode && route.name === 'list'
+      ? 'Patient Cohort'
+      : route.name === 'list'
+        ? 'Patients'
+        : route.name === 'edit'
+          ? routedPatient?.name ?? 'Patient Details'
+          : route.name === 'visitDetails'
+            ? 'Visit Details'
+            : 'Add Visit';
 
   const headerSubtitle =
-    route.name === 'list'
-      ? `${patients.length} patients`
-      : route.name === 'edit'
-        ? 'Patient details and visit history'
-        : route.name === 'visitDetails'
-          ? activeVisit
-            ? `${activeVisit.date} · ${activeVisit.diagnosis}`
-            : 'Past visit snapshot'
-          : routedPatient
-            ? `${routedPatient.name} · Age ${routedPatient.age}`
-            : 'Visit intake';
+    suitableMode && route.name === 'list'
+      ? suitableSource?.brand
+        ? `${suitableSource.brand} · ${highMatchPatients.length} high matches`
+        : `${highMatchPatients.length} high matches`
+      : route.name === 'list'
+        ? `${patients.length} patients`
+        : route.name === 'edit'
+          ? 'Patient details and visit history'
+          : route.name === 'visitDetails'
+            ? activeVisit
+              ? `${activeVisit.date} · ${activeVisit.diagnosis}`
+              : 'Past visit snapshot'
+            : routedPatient
+              ? `${routedPatient.name} · Age ${routedPatient.age}`
+              : 'Visit intake';
+
+  const notifyPatients = (targets: PatientProfile[], label: string) => {
+    if (targets.length === 0) {
+      setInfoMessage('No suitable patients to notify.');
+      setSelectedPatientId(null);
+      return;
+    }
+    const names = targets.map((p) => p.name).join(', ');
+    setInfoMessage(`${label}: ${names}.`);
+    setSelectedPatientId(null);
+  };
 
   const openAddVisit = (patientId: string) => {
     const patient = patients.find((entry) => entry.id === patientId);
@@ -199,6 +262,17 @@ export function PatientScreen() {
       openAddVisit(selectedPatient.id);
       return;
     }
+    if (action === 'send-notification') {
+      notifyPatients([selectedPatient], `Notification sent to ${selectedPatient.name}`);
+      return;
+    }
+    if (action === 'find-similar') {
+      setInfoMessage(
+        `Find Similar Patients for ${selectedPatient.name} is ready for backend wiring.`,
+      );
+      setSelectedPatientId(null);
+      return;
+    }
 
     const label = ACTIONS.find((entry) => entry.key === action)?.label ?? 'Action';
     setInfoMessage(`${label} is ready for backend wiring.`);
@@ -206,7 +280,10 @@ export function PatientScreen() {
   };
 
   const goBack = () => {
-    if (route.name === 'list') return;
+    if (route.name === 'list') {
+      if (suitableMode) exitSuitableMode();
+      return;
+    }
     if (route.name === 'addVisit' || route.name === 'visitDetails') {
       setAddSymptomOpen(false);
       setRoute({ name: 'edit', patientId: route.patientId });
@@ -299,43 +376,85 @@ export function PatientScreen() {
     setRoute({ name: 'edit', patientId: route.patientId });
   };
 
+  const showBack = route.name !== 'list' || suitableMode;
+
   return (
     <View style={styles.root}>
-      <View style={[styles.header, { paddingTop: Math.max(insets.top, 12) }]}>
+      <View
+        style={[
+          styles.header,
+          suitableMode && styles.headerSuitable,
+          { paddingTop: Math.max(insets.top, 12) },
+        ]}
+      >
         <Pressable
           accessibilityRole="button"
-          accessibilityLabel={route.name === 'list' ? 'Patients' : 'Go back'}
-          onPress={route.name === 'list' ? undefined : goBack}
-          disabled={route.name === 'list'}
+          accessibilityLabel={
+            suitableMode && route.name === 'list'
+              ? 'Exit cohort analyzer'
+              : route.name === 'list'
+                ? 'Patients'
+                : 'Go back'
+          }
+          onPress={showBack ? goBack : undefined}
+          disabled={!showBack}
           style={styles.headerLeft}
         >
-          {route.name !== 'list' ? (
+          {showBack ? (
             <ChevronLeftIcon color={colors.white} size={22} />
           ) : null}
           <View style={styles.headerTitles}>
-            <Text style={styles.headerTitle} numberOfLines={1}>
+            <Text
+              style={[styles.headerTitle, suitableMode && styles.headerTitleSuitable]}
+              numberOfLines={1}
+            >
               {headerTitle}
             </Text>
-            <Text style={styles.headerSubtitle} numberOfLines={1}>
+            <Text
+              style={[styles.headerSubtitle, suitableMode && styles.headerSubtitleSuitable]}
+              numberOfLines={1}
+            >
               {headerSubtitle}
             </Text>
           </View>
         </Pressable>
+        {suitableMode && route.name === 'list' ? (
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Notify all suitable patients"
+            onPress={() =>
+              notifyPatients(
+                highMatchPatients,
+                `Notified ${highMatchPatients.length} suitable patient${
+                  highMatchPatients.length === 1 ? '' : 's'
+                }`,
+              )
+            }
+            style={({ pressed }) => [
+              styles.notifyAllBtn,
+              pressed && styles.notifyAllBtnPressed,
+            ]}
+          >
+            <Text style={styles.notifyAllBtnText}>Notify all suitable</Text>
+          </Pressable>
+        ) : null}
       </View>
 
       <View style={styles.body}>
         {route.name === 'list' ? (
           <View style={styles.flex}>
-            <View style={styles.searchBar}>
-              <SearchIcon color={colors.searchPlaceholder} size={18} />
-              <TextInput
-                value={query}
-                onChangeText={setQuery}
-                placeholder="Search patients, diagnosis, or symptoms"
-                placeholderTextColor={colors.searchPlaceholder}
-                style={styles.searchInput}
-              />
-            </View>
+            {!suitableMode ? (
+              <View style={styles.searchBar}>
+                <SearchIcon color={colors.searchPlaceholder} size={18} />
+                <TextInput
+                  value={query}
+                  onChangeText={setQuery}
+                  placeholder="Search patients, diagnosis, or symptoms"
+                  placeholderTextColor={colors.searchPlaceholder}
+                  style={styles.searchInput}
+                />
+              </View>
+            ) : null}
 
             <ScrollView
               style={styles.flex}
@@ -343,37 +462,95 @@ export function PatientScreen() {
               showsVerticalScrollIndicator={false}
               keyboardShouldPersistTaps="handled"
             >
+              {suitableMode && suitableSource ? (
+                <View style={styles.trialBlock}>
+                  <Text style={styles.trialEyebrow}>SELECTED TRIAL DESK</Text>
+                  <View style={styles.trialCard}>
+                    <View style={styles.trialAccent} />
+                    <View style={styles.trialBody}>
+                      <Text style={styles.trialTitle}>{suitableSource.title}</Text>
+                      <Text style={styles.trialMeta}>
+                        {suitableSource.preview ||
+                          `${suitableSource.brand} · Cohort match`}
+                      </Text>
+                    </View>
+                  </View>
+                </View>
+              ) : null}
+
+              {suitableMode ? (
+                <View style={styles.cohortHeader}>
+                  <Text style={styles.cohortTitle}>Patient Cohort Analyzer</Text>
+                  <Text style={styles.cohortLegend}>
+                    Red Outline = High Match Relevance
+                  </Text>
+                </View>
+              ) : null}
+
               {infoMessage ? (
                 <View style={styles.infoBanner}>
                   <Text style={styles.infoBannerText}>{infoMessage}</Text>
                 </View>
               ) : null}
 
-              {filteredPatients.map((patient) => (
-                <Pressable
-                  key={patient.id}
-                  accessibilityRole="button"
-                  accessibilityLabel={`Open actions for ${patient.name}`}
-                  onPress={() => setSelectedPatientId(patient.id)}
-                  style={styles.patientCard}
-                >
-                  <View style={styles.patientCardHead}>
-                    <Text style={styles.patientName}>{patient.name}</Text>
-                    <Text style={styles.patientAge}>Age {patient.age}</Text>
-                  </View>
-
-                  <View style={styles.symptomsRow}>
-                    {patient.symptoms.slice(0, 3).map((symptom) => (
-                      <View key={symptom.id} style={styles.symptomPill}>
-                        <Text style={styles.symptomPillText}>{symptom.name}</Text>
+              {filteredPatients.map((patient) => {
+                const isHighMatch = suitableMode && HIGH_MATCH_SET.has(patient.id);
+                return (
+                  <Pressable
+                    key={patient.id}
+                    accessibilityRole="button"
+                    accessibilityLabel={`Open actions for ${patient.name}`}
+                    onPress={() => setSelectedPatientId(patient.id)}
+                    style={[
+                      styles.patientCard,
+                      isHighMatch && styles.patientCardMatch,
+                    ]}
+                  >
+                    <View style={styles.patientCardHead}>
+                      <Text
+                        style={[
+                          styles.patientName,
+                          isHighMatch && styles.patientNameMatch,
+                        ]}
+                      >
+                        {patient.name}
+                      </Text>
+                      <View style={styles.patientCardHeadRight}>
+                        <Text style={styles.patientAge}>Age {patient.age}</Text>
+                        {isHighMatch ? (
+                          <View style={styles.matchBadge}>
+                            <Text style={styles.matchBadgeText}>MATCH</Text>
+                          </View>
+                        ) : null}
                       </View>
-                    ))}
-                  </View>
+                    </View>
 
-                  <Text style={styles.metaText}>Dx: {patient.diagnosis}</Text>
-                  <Text style={styles.metaText}>Rx: {patient.prescription}</Text>
-                </Pressable>
-              ))}
+                    <View style={styles.symptomsRow}>
+                      {patient.symptoms.slice(0, 3).map((symptom) => (
+                        <View
+                          key={symptom.id}
+                          style={[
+                            styles.symptomPill,
+                            isHighMatch && styles.symptomPillMatch,
+                          ]}
+                        >
+                          <Text
+                            style={[
+                              styles.symptomPillText,
+                              isHighMatch && styles.symptomPillTextMatch,
+                            ]}
+                          >
+                            {symptom.name}
+                          </Text>
+                        </View>
+                      ))}
+                    </View>
+
+                    <Text style={styles.metaText}>Dx: {patient.diagnosis}</Text>
+                    <Text style={styles.metaText}>Rx: {patient.prescription}</Text>
+                  </Pressable>
+                );
+              })}
             </ScrollView>
           </View>
         ) : route.name === 'edit' && routedPatient ? (
@@ -639,20 +816,44 @@ export function PatientScreen() {
             <View style={styles.sheetHeader}>
               <Text style={styles.sheetTitle}>{selectedPatient.name}</Text>
               <Text style={styles.sheetSubtitle}>
-                Age {selectedPatient.age} · {selectedPatient.diagnosis}
+                Age {selectedPatient.age} ·{' '}
+                {suitableMode
+                  ? `${selectedPatient.diagnosis} Cohort`
+                  : selectedPatient.diagnosis}
               </Text>
             </View>
-            {ACTIONS.map((action) => (
-              <Pressable
-                key={action.key}
-                accessibilityRole="button"
-                accessibilityLabel={action.label}
-                onPress={() => handleAction(action.key)}
-                style={styles.sheetAction}
-              >
-                <Text style={styles.sheetActionText}>{action.label}</Text>
-              </Pressable>
-            ))}
+            {ACTIONS.map((action) => {
+              const emphasized =
+                action.key === 'find-similar' || action.key === 'send-notification';
+              const iconColor = emphasized ? colors.skyBlue : colors.textMuted;
+              return (
+                <Pressable
+                  key={action.key}
+                  accessibilityRole="button"
+                  accessibilityLabel={action.label}
+                  onPress={() => handleAction(action.key)}
+                  style={[styles.sheetAction, emphasized && styles.sheetActionPrimary]}
+                >
+                  <View style={styles.sheetActionInner}>
+                    {action.key === 'find-similar' ? (
+                      <SearchIcon color={iconColor} size={18} />
+                    ) : action.key === 'send-notification' ? (
+                      <NotificationIcon color={iconColor} size={18} />
+                    ) : (
+                      <View style={styles.sheetActionIconSpacer} />
+                    )}
+                    <Text
+                      style={[
+                        styles.sheetActionText,
+                        emphasized && styles.sheetActionTextPrimary,
+                      ]}
+                    >
+                      {action.label}
+                    </Text>
+                  </View>
+                </Pressable>
+              );
+            })}
           </View>
         </View>
       ) : null}
@@ -816,26 +1017,57 @@ const styles = StyleSheet.create({
     borderBottomWidth: StyleSheet.hairlineWidth,
     borderBottomColor: 'rgba(255,255,255,0.12)',
   },
+  headerSuitable: {
+    backgroundColor: 'rgba(90, 200, 250, 0.22)',
+    borderBottomColor: colors.skyBlueBorder,
+    borderBottomWidth: 2,
+    gap: 8,
+  },
   headerLeft: {
     flexDirection: 'row',
     alignItems: 'center',
     flex: 1,
     gap: 4,
     paddingVertical: 4,
-    paddingRight: 12,
+    paddingRight: 8,
+    minWidth: 0,
   },
   headerTitles: {
     flex: 1,
+    minWidth: 0,
   },
   headerTitle: {
     color: colors.white,
     fontSize: 18,
     fontWeight: '700',
   },
+  headerTitleSuitable: {
+    color: colors.skyBlue,
+  },
   headerSubtitle: {
     color: 'rgba(255,255,255,0.65)',
     fontSize: 12,
     marginTop: 1,
+  },
+  headerSubtitleSuitable: {
+    color: 'rgba(90, 200, 250, 0.95)',
+  },
+  notifyAllBtn: {
+    backgroundColor: colors.skyBlue,
+    borderRadius: 10,
+    paddingHorizontal: 10,
+    paddingVertical: 8,
+    maxWidth: 118,
+  },
+  notifyAllBtnPressed: {
+    opacity: 0.85,
+  },
+  notifyAllBtnText: {
+    color: colors.navy,
+    fontSize: 11,
+    fontWeight: '800',
+    textAlign: 'center',
+    lineHeight: 14,
   },
   body: {
     flex: 1,
@@ -864,9 +1096,66 @@ const styles = StyleSheet.create({
     paddingBottom: 96,
     gap: 12,
   },
+  trialBlock: {
+    gap: 8,
+  },
+  trialEyebrow: {
+    color: colors.skyBlue,
+    fontSize: 11,
+    fontWeight: '800',
+    letterSpacing: 0.8,
+  },
+  trialCard: {
+    flexDirection: 'row',
+    backgroundColor: colors.cardBg,
+    borderRadius: 14,
+    overflow: 'hidden',
+    borderWidth: 1.5,
+    borderColor: colors.skyBlueBorder,
+  },
+  trialAccent: {
+    width: 5,
+    backgroundColor: colors.trialOrange,
+  },
+  trialBody: {
+    flex: 1,
+    paddingVertical: 12,
+    paddingHorizontal: 12,
+    gap: 4,
+  },
+  trialTitle: {
+    color: colors.textPrimary,
+    fontSize: 15,
+    fontWeight: '700',
+  },
+  trialMeta: {
+    color: colors.trialOrange,
+    fontSize: 13,
+    fontWeight: '600',
+  },
+  cohortHeader: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    justifyContent: 'space-between',
+    gap: 10,
+    marginTop: 4,
+  },
+  cohortTitle: {
+    color: colors.white,
+    fontSize: 17,
+    fontWeight: '800',
+    flexShrink: 1,
+  },
+  cohortLegend: {
+    color: colors.matchRed,
+    fontSize: 11,
+    fontWeight: '700',
+    textAlign: 'right',
+    maxWidth: 140,
+  },
   infoBanner: {
-    backgroundColor: 'rgba(123, 97, 255, 0.2)',
-    borderColor: 'rgba(123, 97, 255, 0.45)',
+    backgroundColor: colors.skyBlueSoft,
+    borderColor: colors.skyBlueBorder,
     borderWidth: 1,
     borderRadius: 12,
     paddingHorizontal: 12,
@@ -883,6 +1172,12 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     paddingHorizontal: 14,
     gap: 10,
+    borderWidth: 1.5,
+    borderColor: 'rgba(90,96,112,0.12)',
+  },
+  patientCardMatch: {
+    borderColor: colors.matchRed,
+    backgroundColor: colors.matchRedSoft,
   },
   patientCardHead: {
     flexDirection: 'row',
@@ -890,16 +1185,38 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     gap: 10,
   },
+  patientCardHeadRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
   patientName: {
     color: colors.textPrimary,
     fontSize: 16,
     fontWeight: '700',
     flex: 1,
   },
+  patientNameMatch: {
+    color: colors.textPrimary,
+  },
   patientAge: {
     color: colors.textMuted,
     fontSize: 13,
     fontWeight: '600',
+  },
+  matchBadge: {
+    backgroundColor: colors.matchRedSoft,
+    borderWidth: 1,
+    borderColor: colors.matchRed,
+    borderRadius: 999,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+  },
+  matchBadgeText: {
+    color: colors.matchRed,
+    fontSize: 10,
+    fontWeight: '800',
+    letterSpacing: 0.4,
   },
   symptomsRow: {
     flexDirection: 'row',
@@ -912,10 +1229,16 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 5,
   },
+  symptomPillMatch: {
+    backgroundColor: 'rgba(229, 57, 53, 0.08)',
+  },
   symptomPillText: {
     color: colors.textSecondary,
     fontSize: 12,
     fontWeight: '600',
+  },
+  symptomPillTextMatch: {
+    color: colors.textSecondary,
   },
   metaText: {
     color: colors.textSecondary,
@@ -1173,11 +1496,29 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingHorizontal: 12,
     marginTop: 8,
+    backgroundColor: colors.white,
+  },
+  sheetActionPrimary: {
+    backgroundColor: colors.skyBlueSoft,
+    borderColor: colors.skyBlueBorder,
+  },
+  sheetActionInner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  sheetActionIconSpacer: {
+    width: 18,
+    height: 18,
   },
   sheetActionText: {
     color: colors.textPrimary,
     fontSize: 15,
     fontWeight: '600',
+  },
+  sheetActionTextPrimary: {
+    color: colors.skyBlue,
+    fontWeight: '700',
   },
   sheetModalHeader: {
     flexDirection: 'row',
