@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Keyboard, Platform, StyleSheet, View, useWindowDimensions } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { BottomNavBar, TabKey } from './src/components/BottomNavBar';
+import { BottomNavBar, type TabKey } from './src/components/BottomNavBar';
 import { DottedGradientBackground } from './src/components/DottedGradientBackground';
 import type { AppNotification } from './src/data/notificationsMock';
 import { ChatScreen } from './src/screens/ChatScreen';
@@ -37,9 +37,7 @@ function AppShell() {
 
   const switchTab = (tab: TabKey) => {
     setActiveTab(tab);
-    if (tab !== 'patient') {
-      exitSuitableMode();
-    }
+    if (tab !== 'patient') exitSuitableMode();
   };
 
   return (

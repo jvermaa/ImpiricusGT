@@ -34,11 +34,18 @@ function doctorProfile(doctor: DoctorDirectoryDTO): ReferralDirectoryEntry['prov
   const paletteIndex = doctor.doctor_key
     .split('')
     .reduce((sum, character) => sum + character.charCodeAt(0), 0) % AVATAR_PALETTE.length;
+
+  const degrees = doctor.credentials ? doctor.credentials.split(',').map((value) => value.trim()).filter(Boolean) : ['MD'];
+
   return {
     id: doctor.doctor_key,
     name: doctor.display_name,
     designation: doctor.specialty_title,
     specialty: doctor.specialty,
+    specializations: [doctor.specialty, doctor.subspecialty_focus].filter(Boolean),
+    degrees,
+    address: `${doctor.organization || 'Clinic'}, ${doctor.state || 'Unknown state'}`,
+    distanceKm: 0,
     initials: doctor.initials,
     avatarColor: AVATAR_PALETTE[paletteIndex],
     credentials: doctor.credentials,
