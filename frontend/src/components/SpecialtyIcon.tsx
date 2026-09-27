@@ -22,18 +22,20 @@ export function SpecialtyIcon({ name, color, size = 22 }: Props) {
       {name === 'brain' ? (
         <>
           <Path
-            d="M9.2 6.2A3 3 0 0 0 6 9c-1.4.2-2.4 1.4-2.4 2.8 0 1 .5 1.8 1.2 2.3-.2.5-.3 1-.3 1.6 0 1.7 1.4 3 3.2 3.3"
+            d="M12 4.8c-1.8 0-3.2 1.1-3.6 2.6-.9.4-1.6 1.3-1.6 2.4 0 .9.4 1.6 1 2.1-.2.4-.3.8-.3 1.3 0 1.6 1.4 2.9 3.2 3.1"
             stroke={color}
-            strokeWidth={1.5}
+            strokeWidth={1.6}
             strokeLinecap="round"
+            strokeLinejoin="round"
           />
           <Path
-            d="M14.8 6.2A3 3 0 0 1 18 9c1.4.2 2.4 1.4 2.4 2.8 0 1-.5 1.8-1.2 2.3.2.5.3 1 .3 1.6 0 1.7-1.4 3-3.2 3.3"
+            d="M12 4.8c1.8 0 3.2 1.1 3.6 2.6.9.4 1.6 1.3 1.6 2.4 0 .9-.4 1.6-1 2.1.2.4.3.8.3 1.3 0 1.6-1.4 2.9-3.2 3.1"
             stroke={color}
-            strokeWidth={1.5}
+            strokeWidth={1.6}
             strokeLinecap="round"
+            strokeLinejoin="round"
           />
-          <Path d="M12 6.2v12.4" stroke={color} strokeWidth={1.5} strokeLinecap="round" />
+          <Path d="M12 5.2v11.4" stroke={color} strokeWidth={1.6} strokeLinecap="round" />
         </>
       ) : null}
       {name === 'lungs' ? (
