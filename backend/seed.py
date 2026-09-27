@@ -111,7 +111,7 @@ def seed() -> None:
                 {
                     "patient_key",
                     "name",
-                    "age_group",
+                    "age",
                     "state",
                     "sex_for_clinical_context",
                     "preferred_language",
@@ -119,8 +119,15 @@ def seed() -> None:
                     "diagnoses",
                     "allergies",
                     "allergy_status",
-                    "symptoms",
-                    "background",
+                    "relevant_medical_history",
+                    "family_medical_history",
+                    "current_medications",
+                    "alcohol_use",
+                    "smoking_status",
+                    "lab_results",
+                    "pregnancy_status",
+                    "immune_status",
+                    "latest_visit_symptoms",
                     "portal_access",
                     "email_contact_available",
                     "messaging_preference",
@@ -131,22 +138,25 @@ def seed() -> None:
                 },
                 row.get("patient_key", "patient"),
             )
-            background = row["background"]
             db.add(
                 Patient(
                     patient_key=row["patient_key"],
                     name=row["name"],
-                    age_group=row["age_group"],
+                    age=row["age"],
                     state=row["state"],
                     sex_for_clinical_context=row["sex_for_clinical_context"],
                     preferred_language=row["preferred_language"],
                     primary_doctor_key=row["primary_doctor_key"],
                     allergy_status=row["allergy_status"],
-                    symptoms_json=json.dumps(row["symptoms"]),
-                    tobacco_use=background["tobacco_use"],
-                    surgery_history=background["surgery_history"],
-                    family_history=background["family_history"],
-                    pregnancy_status=background["pregnancy_status"],
+                    relevant_medical_history=row["relevant_medical_history"],
+                    family_medical_history=row["family_medical_history"],
+                    current_medications=row["current_medications"],
+                    alcohol_use=row["alcohol_use"],
+                    smoking_status=row["smoking_status"],
+                    lab_results=row["lab_results"],
+                    pregnancy_status=row["pregnancy_status"],
+                    immune_status=row["immune_status"],
+                    latest_visit_symptoms_json=json.dumps(row["latest_visit_symptoms"]),
                     portal_access=row["portal_access"],
                     email_contact_available=row["email_contact_available"],
                     messaging_preference=row["messaging_preference"],
@@ -183,7 +193,42 @@ def seed() -> None:
         for row in labs:
             db.add(Lab(**row))
         for row in encounters:
-            db.add(Encounter(**row))
+            _require(
+                row,
+                {
+                    "encounter_key",
+                    "patient_key",
+                    "doctor_key",
+                    "visit_date",
+                    "diagnosis",
+                    "summary",
+                    "symptoms",
+                    "current_medications",
+                    "alcohol_use",
+                    "smoking_status",
+                    "pregnancy_status",
+                    "immune_status",
+                    "lab_results",
+                },
+                row.get("encounter_key", "encounter"),
+            )
+            db.add(
+                Encounter(
+                    encounter_key=row["encounter_key"],
+                    patient_key=row["patient_key"],
+                    doctor_key=row["doctor_key"],
+                    visit_date=row["visit_date"],
+                    diagnosis=row["diagnosis"],
+                    summary=row["summary"],
+                    symptoms_json=json.dumps(row["symptoms"]),
+                    current_medications=row["current_medications"],
+                    alcohol_use=row["alcohol_use"],
+                    smoking_status=row["smoking_status"],
+                    pregnancy_status=row["pregnancy_status"],
+                    immune_status=row["immune_status"],
+                    lab_results=row["lab_results"],
+                )
+            )
         db.flush()
         for row in followups:
             db.add(Followup(**row))

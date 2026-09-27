@@ -3,1320 +3,4440 @@
     "encounter_key": "E001",
     "patient_key": "P001",
     "doctor_key": "D001",
-    "year": 2023,
-    "setting": "office",
-    "reason": "Review of hypertension",
-    "assessment": "Fictional follow-up; clinical assessment pending",
-    "plan": "Clinician to review findings and next steps",
-    "handoff_summary_status": "draft not clinically verified"
+    "visit_date": "2023-02-02",
+    "diagnosis": "Hypertension",
+    "summary": "Follow-up assessment completed with treatment plan and monitoring instructions reviewed.",
+    "symptoms": [
+      {
+        "name": "Headache",
+        "duration": "1 week",
+        "frequency": "Intermittent",
+        "trigger": "Stress",
+        "onset": "Sudden"
+      },
+      {
+        "name": "Dizziness",
+        "duration": "2 weeks",
+        "frequency": "Several times weekly",
+        "trigger": "Late evening",
+        "onset": "Gradual"
+      },
+      {
+        "name": "Elevated blood pressure",
+        "duration": "4 weeks",
+        "frequency": "Daily",
+        "trigger": "After meals",
+        "onset": "Sudden"
+      }
+    ],
+    "current_medications": "amlodipine 5 mg",
+    "alcohol_use": "Daily",
+    "smoking_status": "Never smoker",
+    "pregnancy_status": "Not Pregnant",
+    "immune_status": "Immunocompetent",
+    "lab_results": "blood_pressure_systolic: 168.7 mmHg (2023)"
   },
   {
     "encounter_key": "E002",
     "patient_key": "P002",
     "doctor_key": "D002",
-    "year": 2024,
-    "setting": "office",
-    "reason": "Review of heart failure",
-    "assessment": "Fictional follow-up; clinical assessment pending",
-    "plan": "Clinician to review findings and next steps",
-    "handoff_summary_status": "draft not clinically verified"
+    "visit_date": "2024-03-03",
+    "diagnosis": "Heart Failure",
+    "summary": "Follow-up assessment completed with treatment plan and monitoring instructions reviewed.",
+    "symptoms": [
+      {
+        "name": "Shortness of breath",
+        "duration": "2 weeks",
+        "frequency": "Several times weekly",
+        "trigger": "Late evening",
+        "onset": "Gradual"
+      },
+      {
+        "name": "Leg swelling",
+        "duration": "4 weeks",
+        "frequency": "Daily",
+        "trigger": "After meals",
+        "onset": "Sudden"
+      },
+      {
+        "name": "Fatigue",
+        "duration": "8 weeks",
+        "frequency": "Intermittent",
+        "trigger": "Cold air",
+        "onset": "Gradual"
+      }
+    ],
+    "current_medications": "furosemide 20 mg",
+    "alcohol_use": "None",
+    "smoking_status": "Former smoker",
+    "pregnancy_status": "N/A",
+    "immune_status": "Immunocompetent",
+    "lab_results": "creatinine: 0.9 mg/dL (2024)"
   },
   {
     "encounter_key": "E003",
     "patient_key": "P003",
     "doctor_key": "D003",
-    "year": 2025,
-    "setting": "office",
-    "reason": "Review of hypertension",
-    "assessment": "Fictional follow-up; clinical assessment pending",
-    "plan": "Clinician to review findings and next steps",
-    "handoff_summary_status": "draft not clinically verified"
+    "visit_date": "2025-04-04",
+    "diagnosis": "Hypertension",
+    "summary": "Follow-up assessment completed with treatment plan and monitoring instructions reviewed.",
+    "symptoms": [
+      {
+        "name": "Headache",
+        "duration": "4 weeks",
+        "frequency": "Daily",
+        "trigger": "After meals",
+        "onset": "Sudden"
+      },
+      {
+        "name": "Dizziness",
+        "duration": "8 weeks",
+        "frequency": "Intermittent",
+        "trigger": "Cold air",
+        "onset": "Gradual"
+      },
+      {
+        "name": "Elevated blood pressure",
+        "duration": "3 days",
+        "frequency": "Several times weekly",
+        "trigger": "Exertion",
+        "onset": "Sudden"
+      }
+    ],
+    "current_medications": "amlodipine 5 mg",
+    "alcohol_use": "Social",
+    "smoking_status": "Current smoker",
+    "pregnancy_status": "N/A",
+    "immune_status": "Immunocompetent",
+    "lab_results": "blood_pressure_systolic: 161.8 mmHg (2025)"
   },
   {
     "encounter_key": "E004",
     "patient_key": "P004",
     "doctor_key": "D004",
-    "year": 2026,
-    "setting": "office",
-    "reason": "Review of heart failure",
-    "assessment": "Fictional follow-up; clinical assessment pending",
-    "plan": "Clinician to review findings and next steps",
-    "handoff_summary_status": "draft not clinically verified"
+    "visit_date": "2026-05-05",
+    "diagnosis": "Heart Failure",
+    "summary": "Follow-up assessment completed with treatment plan and monitoring instructions reviewed.",
+    "symptoms": [
+      {
+        "name": "Shortness of breath",
+        "duration": "8 weeks",
+        "frequency": "Intermittent",
+        "trigger": "Cold air",
+        "onset": "Gradual"
+      },
+      {
+        "name": "Leg swelling",
+        "duration": "3 days",
+        "frequency": "Several times weekly",
+        "trigger": "Exertion",
+        "onset": "Sudden"
+      },
+      {
+        "name": "Fatigue",
+        "duration": "1 week",
+        "frequency": "Daily",
+        "trigger": "Stress",
+        "onset": "Gradual"
+      }
+    ],
+    "current_medications": "furosemide 20 mg",
+    "alcohol_use": "Daily",
+    "smoking_status": "Never smoker",
+    "pregnancy_status": "Not Pregnant",
+    "immune_status": "Immunocompetent",
+    "lab_results": "creatinine: 0.9 mg/dL (2026)"
   },
   {
     "encounter_key": "E005",
     "patient_key": "P005",
     "doctor_key": "D005",
-    "year": 2023,
-    "setting": "telehealth",
-    "reason": "Review of hypertension",
-    "assessment": "Fictional follow-up; clinical assessment pending",
-    "plan": "Clinician to review findings and next steps",
-    "handoff_summary_status": "draft not clinically verified"
+    "visit_date": "2023-06-06",
+    "diagnosis": "Hypertension",
+    "summary": "Follow-up assessment completed with treatment plan and monitoring instructions reviewed.",
+    "symptoms": [
+      {
+        "name": "Headache",
+        "duration": "3 days",
+        "frequency": "Several times weekly",
+        "trigger": "Exertion",
+        "onset": "Sudden"
+      },
+      {
+        "name": "Dizziness",
+        "duration": "1 week",
+        "frequency": "Daily",
+        "trigger": "Stress",
+        "onset": "Gradual"
+      },
+      {
+        "name": "Elevated blood pressure",
+        "duration": "2 weeks",
+        "frequency": "Intermittent",
+        "trigger": "Late evening",
+        "onset": "Sudden"
+      }
+    ],
+    "current_medications": "amlodipine 5 mg",
+    "alcohol_use": "None",
+    "smoking_status": "Former smoker",
+    "pregnancy_status": "N/A",
+    "immune_status": "Immunocompetent",
+    "lab_results": "blood_pressure_systolic: 172.6 mmHg (2023)"
   },
   {
     "encounter_key": "E006",
     "patient_key": "P006",
     "doctor_key": "D006",
-    "year": 2024,
-    "setting": "telehealth",
-    "reason": "Review of hypothyroidism",
-    "assessment": "Fictional follow-up; clinical assessment pending",
-    "plan": "Clinician to review findings and next steps",
-    "handoff_summary_status": "draft not clinically verified"
+    "visit_date": "2024-07-07",
+    "diagnosis": "Hypothyroidism",
+    "summary": "Follow-up assessment completed with treatment plan and monitoring instructions reviewed.",
+    "symptoms": [
+      {
+        "name": "Fatigue",
+        "duration": "1 week",
+        "frequency": "Daily",
+        "trigger": "Stress",
+        "onset": "Gradual"
+      },
+      {
+        "name": "Cold intolerance",
+        "duration": "2 weeks",
+        "frequency": "Intermittent",
+        "trigger": "Late evening",
+        "onset": "Sudden"
+      },
+      {
+        "name": "Weight gain",
+        "duration": "4 weeks",
+        "frequency": "Several times weekly",
+        "trigger": "After meals",
+        "onset": "Gradual"
+      }
+    ],
+    "current_medications": "levothyroxine 50 mcg",
+    "alcohol_use": "Social",
+    "smoking_status": "Current smoker",
+    "pregnancy_status": "Not Pregnant",
+    "immune_status": "Immunocompetent",
+    "lab_results": "tsh: 6.3 mIU/L (2024)"
   },
   {
     "encounter_key": "E007",
     "patient_key": "P007",
     "doctor_key": "D007",
-    "year": 2025,
-    "setting": "office",
-    "reason": "Review of type 2 diabetes",
-    "assessment": "Fictional follow-up; clinical assessment pending",
-    "plan": "Clinician to review findings and next steps",
-    "handoff_summary_status": "draft not clinically verified"
+    "visit_date": "2025-08-08",
+    "diagnosis": "Type 2 Diabetes",
+    "summary": "Follow-up assessment completed with treatment plan and monitoring instructions reviewed.",
+    "symptoms": [
+      {
+        "name": "Increased thirst",
+        "duration": "2 weeks",
+        "frequency": "Intermittent",
+        "trigger": "Late evening",
+        "onset": "Sudden"
+      },
+      {
+        "name": "Frequent urination",
+        "duration": "4 weeks",
+        "frequency": "Several times weekly",
+        "trigger": "After meals",
+        "onset": "Gradual"
+      },
+      {
+        "name": "Blurred vision",
+        "duration": "8 weeks",
+        "frequency": "Daily",
+        "trigger": "Cold air",
+        "onset": "Sudden"
+      }
+    ],
+    "current_medications": "metformin 500 mg",
+    "alcohol_use": "Daily",
+    "smoking_status": "Never smoker",
+    "pregnancy_status": "Not Pregnant",
+    "immune_status": "Immunocompetent",
+    "lab_results": "hba1c: 8.8 % (2025)"
   },
   {
     "encounter_key": "E008",
     "patient_key": "P008",
     "doctor_key": "D008",
-    "year": 2026,
-    "setting": "office",
-    "reason": "Review of hypothyroidism",
-    "assessment": "Fictional follow-up; clinical assessment pending",
-    "plan": "Clinician to review findings and next steps",
-    "handoff_summary_status": "draft not clinically verified"
+    "visit_date": "2026-09-09",
+    "diagnosis": "Hypothyroidism",
+    "summary": "Follow-up assessment completed with treatment plan and monitoring instructions reviewed.",
+    "symptoms": [
+      {
+        "name": "Fatigue",
+        "duration": "4 weeks",
+        "frequency": "Several times weekly",
+        "trigger": "After meals",
+        "onset": "Gradual"
+      },
+      {
+        "name": "Cold intolerance",
+        "duration": "8 weeks",
+        "frequency": "Daily",
+        "trigger": "Cold air",
+        "onset": "Sudden"
+      },
+      {
+        "name": "Weight gain",
+        "duration": "3 days",
+        "frequency": "Intermittent",
+        "trigger": "Exertion",
+        "onset": "Gradual"
+      }
+    ],
+    "current_medications": "levothyroxine 50 mcg",
+    "alcohol_use": "None",
+    "smoking_status": "Former smoker",
+    "pregnancy_status": "N/A",
+    "immune_status": "Immunocompetent",
+    "lab_results": "tsh: 1.8 mIU/L (2026)"
   },
   {
     "encounter_key": "E009",
     "patient_key": "P009",
     "doctor_key": "D009",
-    "year": 2023,
-    "setting": "telehealth",
-    "reason": "Review of type 2 diabetes",
-    "assessment": "Fictional follow-up; clinical assessment pending",
-    "plan": "Clinician to review findings and next steps",
-    "handoff_summary_status": "draft not clinically verified"
+    "visit_date": "2023-10-10",
+    "diagnosis": "Type 2 Diabetes",
+    "summary": "Follow-up assessment completed with treatment plan and monitoring instructions reviewed.",
+    "symptoms": [
+      {
+        "name": "Increased thirst",
+        "duration": "8 weeks",
+        "frequency": "Daily",
+        "trigger": "Cold air",
+        "onset": "Sudden"
+      },
+      {
+        "name": "Frequent urination",
+        "duration": "3 days",
+        "frequency": "Intermittent",
+        "trigger": "Exertion",
+        "onset": "Gradual"
+      },
+      {
+        "name": "Blurred vision",
+        "duration": "1 week",
+        "frequency": "Several times weekly",
+        "trigger": "Stress",
+        "onset": "Sudden"
+      }
+    ],
+    "current_medications": "metformin 500 mg",
+    "alcohol_use": "Social",
+    "smoking_status": "Current smoker",
+    "pregnancy_status": "N/A",
+    "immune_status": "Immunocompetent",
+    "lab_results": "hba1c: 7.7 % (2023)"
   },
   {
     "encounter_key": "E010",
     "patient_key": "P010",
     "doctor_key": "D010",
-    "year": 2024,
-    "setting": "telehealth",
-    "reason": "Review of hypothyroidism",
-    "assessment": "Fictional follow-up; clinical assessment pending",
-    "plan": "Clinician to review findings and next steps",
-    "handoff_summary_status": "draft not clinically verified"
+    "visit_date": "2024-11-11",
+    "diagnosis": "Hypothyroidism",
+    "summary": "Follow-up assessment completed with treatment plan and monitoring instructions reviewed.",
+    "symptoms": [
+      {
+        "name": "Fatigue",
+        "duration": "3 days",
+        "frequency": "Intermittent",
+        "trigger": "Exertion",
+        "onset": "Gradual"
+      },
+      {
+        "name": "Cold intolerance",
+        "duration": "1 week",
+        "frequency": "Several times weekly",
+        "trigger": "Stress",
+        "onset": "Sudden"
+      },
+      {
+        "name": "Weight gain",
+        "duration": "2 weeks",
+        "frequency": "Daily",
+        "trigger": "Late evening",
+        "onset": "Gradual"
+      }
+    ],
+    "current_medications": "levothyroxine 50 mcg",
+    "alcohol_use": "Daily",
+    "smoking_status": "Never smoker",
+    "pregnancy_status": "Not Pregnant",
+    "immune_status": "Immunocompetent",
+    "lab_results": "tsh: 6.4 mIU/L (2024)"
   },
   {
     "encounter_key": "E011",
     "patient_key": "P011",
     "doctor_key": "D011",
-    "year": 2025,
-    "setting": "office",
-    "reason": "Review of asthma",
-    "assessment": "Fictional follow-up; clinical assessment pending",
-    "plan": "Clinician to review findings and next steps",
-    "handoff_summary_status": "draft not clinically verified"
+    "visit_date": "2025-12-12",
+    "diagnosis": "Asthma",
+    "summary": "Follow-up assessment completed with treatment plan and monitoring instructions reviewed.",
+    "symptoms": [
+      {
+        "name": "Wheezing",
+        "duration": "1 week",
+        "frequency": "Several times weekly",
+        "trigger": "Stress",
+        "onset": "Sudden"
+      },
+      {
+        "name": "Cough",
+        "duration": "2 weeks",
+        "frequency": "Daily",
+        "trigger": "Late evening",
+        "onset": "Gradual"
+      },
+      {
+        "name": "Chest tightness",
+        "duration": "4 weeks",
+        "frequency": "Intermittent",
+        "trigger": "After meals",
+        "onset": "Sudden"
+      }
+    ],
+    "current_medications": "budesonide 200 mcg",
+    "alcohol_use": "None",
+    "smoking_status": "Former smoker",
+    "pregnancy_status": "N/A",
+    "immune_status": "Immunocompromised",
+    "lab_results": "peak_flow: 307.6 L/min (2025)"
   },
   {
     "encounter_key": "E012",
     "patient_key": "P012",
     "doctor_key": "D012",
-    "year": 2026,
-    "setting": "office",
-    "reason": "Review of copd",
-    "assessment": "Fictional follow-up; clinical assessment pending",
-    "plan": "Clinician to review findings and next steps",
-    "handoff_summary_status": "draft not clinically verified"
+    "visit_date": "2026-01-13",
+    "diagnosis": "Copd",
+    "summary": "Follow-up assessment completed with treatment plan and monitoring instructions reviewed.",
+    "symptoms": [
+      {
+        "name": "Chronic cough",
+        "duration": "2 weeks",
+        "frequency": "Daily",
+        "trigger": "Late evening",
+        "onset": "Gradual"
+      },
+      {
+        "name": "Dyspnea",
+        "duration": "4 weeks",
+        "frequency": "Intermittent",
+        "trigger": "After meals",
+        "onset": "Sudden"
+      },
+      {
+        "name": "Sputum production",
+        "duration": "8 weeks",
+        "frequency": "Several times weekly",
+        "trigger": "Cold air",
+        "onset": "Gradual"
+      }
+    ],
+    "current_medications": "tiotropium 18 mcg",
+    "alcohol_use": "Social",
+    "smoking_status": "Current smoker",
+    "pregnancy_status": "Not Pregnant",
+    "immune_status": "Immunocompetent",
+    "lab_results": "oxygen_saturation: 91.0 % (2026)"
   },
   {
     "encounter_key": "E013",
     "patient_key": "P013",
     "doctor_key": "D013",
-    "year": 2023,
-    "setting": "office",
-    "reason": "Review of asthma",
-    "assessment": "Fictional follow-up; clinical assessment pending",
-    "plan": "Clinician to review findings and next steps",
-    "handoff_summary_status": "draft not clinically verified"
+    "visit_date": "2023-02-14",
+    "diagnosis": "Asthma",
+    "summary": "Follow-up assessment completed with treatment plan and monitoring instructions reviewed.",
+    "symptoms": [
+      {
+        "name": "Wheezing",
+        "duration": "4 weeks",
+        "frequency": "Intermittent",
+        "trigger": "After meals",
+        "onset": "Sudden"
+      },
+      {
+        "name": "Cough",
+        "duration": "8 weeks",
+        "frequency": "Several times weekly",
+        "trigger": "Cold air",
+        "onset": "Gradual"
+      },
+      {
+        "name": "Chest tightness",
+        "duration": "3 days",
+        "frequency": "Daily",
+        "trigger": "Exertion",
+        "onset": "Sudden"
+      }
+    ],
+    "current_medications": "budesonide 200 mcg",
+    "alcohol_use": "Daily",
+    "smoking_status": "Never smoker",
+    "pregnancy_status": "Not Pregnant",
+    "immune_status": "Immunocompetent",
+    "lab_results": "peak_flow: 348.8 L/min (2023)"
   },
   {
     "encounter_key": "E014",
     "patient_key": "P014",
     "doctor_key": "D014",
-    "year": 2024,
-    "setting": "telehealth",
-    "reason": "Review of copd",
-    "assessment": "Fictional follow-up; clinical assessment pending",
-    "plan": "Clinician to review findings and next steps",
-    "handoff_summary_status": "draft not clinically verified"
+    "visit_date": "2024-03-15",
+    "diagnosis": "Copd",
+    "summary": "Follow-up assessment completed with treatment plan and monitoring instructions reviewed.",
+    "symptoms": [
+      {
+        "name": "Chronic cough",
+        "duration": "8 weeks",
+        "frequency": "Several times weekly",
+        "trigger": "Cold air",
+        "onset": "Gradual"
+      },
+      {
+        "name": "Dyspnea",
+        "duration": "3 days",
+        "frequency": "Daily",
+        "trigger": "Exertion",
+        "onset": "Sudden"
+      },
+      {
+        "name": "Sputum production",
+        "duration": "1 week",
+        "frequency": "Intermittent",
+        "trigger": "Stress",
+        "onset": "Gradual"
+      }
+    ],
+    "current_medications": "tiotropium 18 mcg",
+    "alcohol_use": "None",
+    "smoking_status": "Former smoker",
+    "pregnancy_status": "N/A",
+    "immune_status": "Immunocompetent",
+    "lab_results": "oxygen_saturation: 89.0 % (2024)"
   },
   {
     "encounter_key": "E015",
     "patient_key": "P015",
     "doctor_key": "D015",
-    "year": 2025,
-    "setting": "telehealth",
-    "reason": "Review of asthma",
-    "assessment": "Fictional follow-up; clinical assessment pending",
-    "plan": "Clinician to review findings and next steps",
-    "handoff_summary_status": "draft not clinically verified"
+    "visit_date": "2025-04-16",
+    "diagnosis": "Asthma",
+    "summary": "Follow-up assessment completed with treatment plan and monitoring instructions reviewed.",
+    "symptoms": [
+      {
+        "name": "Wheezing",
+        "duration": "3 days",
+        "frequency": "Daily",
+        "trigger": "Exertion",
+        "onset": "Sudden"
+      },
+      {
+        "name": "Cough",
+        "duration": "1 week",
+        "frequency": "Intermittent",
+        "trigger": "Stress",
+        "onset": "Gradual"
+      },
+      {
+        "name": "Chest tightness",
+        "duration": "2 weeks",
+        "frequency": "Several times weekly",
+        "trigger": "Late evening",
+        "onset": "Sudden"
+      }
+    ],
+    "current_medications": "budesonide 200 mcg",
+    "alcohol_use": "Social",
+    "smoking_status": "Current smoker",
+    "pregnancy_status": "N/A",
+    "immune_status": "Immunocompetent",
+    "lab_results": "peak_flow: 428.3 L/min (2025)"
   },
   {
     "encounter_key": "E016",
     "patient_key": "P016",
     "doctor_key": "D016",
-    "year": 2026,
-    "setting": "office",
-    "reason": "Review of psoriasis",
-    "assessment": "Fictional follow-up; clinical assessment pending",
-    "plan": "Clinician to review findings and next steps",
-    "handoff_summary_status": "draft not clinically verified"
+    "visit_date": "2026-05-17",
+    "diagnosis": "Psoriasis",
+    "summary": "Follow-up assessment completed with treatment plan and monitoring instructions reviewed.",
+    "symptoms": [
+      {
+        "name": "Plaque rash",
+        "duration": "1 week",
+        "frequency": "Intermittent",
+        "trigger": "Stress",
+        "onset": "Gradual"
+      },
+      {
+        "name": "Skin irritation",
+        "duration": "2 weeks",
+        "frequency": "Several times weekly",
+        "trigger": "Late evening",
+        "onset": "Sudden"
+      },
+      {
+        "name": "Itching",
+        "duration": "4 weeks",
+        "frequency": "Daily",
+        "trigger": "After meals",
+        "onset": "Gradual"
+      }
+    ],
+    "current_medications": "calcipotriene 0.005% thin layer",
+    "alcohol_use": "Daily",
+    "smoking_status": "Never smoker",
+    "pregnancy_status": "Not Pregnant",
+    "immune_status": "Immunocompetent",
+    "lab_results": "crp: 10.6 mg/L (2026)"
   },
   {
     "encounter_key": "E017",
     "patient_key": "P017",
     "doctor_key": "D017",
-    "year": 2023,
-    "setting": "telehealth",
-    "reason": "Review of atopic dermatitis",
-    "assessment": "Fictional follow-up; clinical assessment pending",
-    "plan": "Clinician to review findings and next steps",
-    "handoff_summary_status": "draft not clinically verified"
+    "visit_date": "2023-06-18",
+    "diagnosis": "Atopic Dermatitis",
+    "summary": "Follow-up assessment completed with treatment plan and monitoring instructions reviewed.",
+    "symptoms": [
+      {
+        "name": "Pruritus",
+        "duration": "2 weeks",
+        "frequency": "Several times weekly",
+        "trigger": "Late evening",
+        "onset": "Sudden"
+      },
+      {
+        "name": "Dry skin",
+        "duration": "4 weeks",
+        "frequency": "Daily",
+        "trigger": "After meals",
+        "onset": "Gradual"
+      },
+      {
+        "name": "Eczematous rash",
+        "duration": "8 weeks",
+        "frequency": "Intermittent",
+        "trigger": "Cold air",
+        "onset": "Sudden"
+      }
+    ],
+    "current_medications": "triamcinolone 0.1% thin layer",
+    "alcohol_use": "None",
+    "smoking_status": "Former smoker",
+    "pregnancy_status": "N/A",
+    "immune_status": "Immunocompetent",
+    "lab_results": "eosinophils: 6.8 % (2023)"
   },
   {
     "encounter_key": "E018",
     "patient_key": "P018",
     "doctor_key": "D018",
-    "year": 2024,
-    "setting": "office",
-    "reason": "Review of psoriasis",
-    "assessment": "Fictional follow-up; clinical assessment pending",
-    "plan": "Clinician to review findings and next steps",
-    "handoff_summary_status": "draft not clinically verified"
+    "visit_date": "2024-07-19",
+    "diagnosis": "Psoriasis",
+    "summary": "Follow-up assessment completed with treatment plan and monitoring instructions reviewed.",
+    "symptoms": [
+      {
+        "name": "Plaque rash",
+        "duration": "4 weeks",
+        "frequency": "Daily",
+        "trigger": "After meals",
+        "onset": "Gradual"
+      },
+      {
+        "name": "Skin irritation",
+        "duration": "8 weeks",
+        "frequency": "Intermittent",
+        "trigger": "Cold air",
+        "onset": "Sudden"
+      },
+      {
+        "name": "Itching",
+        "duration": "3 days",
+        "frequency": "Several times weekly",
+        "trigger": "Exertion",
+        "onset": "Gradual"
+      }
+    ],
+    "current_medications": "calcipotriene 0.005% thin layer",
+    "alcohol_use": "Social",
+    "smoking_status": "Current smoker",
+    "pregnancy_status": "Not Pregnant",
+    "immune_status": "Immunocompetent",
+    "lab_results": "crp: 7.0 mg/L (2024)"
   },
   {
     "encounter_key": "E019",
     "patient_key": "P019",
     "doctor_key": "D019",
-    "year": 2025,
-    "setting": "office",
-    "reason": "Review of atopic dermatitis",
-    "assessment": "Fictional follow-up; clinical assessment pending",
-    "plan": "Clinician to review findings and next steps",
-    "handoff_summary_status": "draft not clinically verified"
+    "visit_date": "2025-08-20",
+    "diagnosis": "Atopic Dermatitis",
+    "summary": "Follow-up assessment completed with treatment plan and monitoring instructions reviewed.",
+    "symptoms": [
+      {
+        "name": "Pruritus",
+        "duration": "8 weeks",
+        "frequency": "Intermittent",
+        "trigger": "Cold air",
+        "onset": "Sudden"
+      },
+      {
+        "name": "Dry skin",
+        "duration": "3 days",
+        "frequency": "Several times weekly",
+        "trigger": "Exertion",
+        "onset": "Gradual"
+      },
+      {
+        "name": "Eczematous rash",
+        "duration": "1 week",
+        "frequency": "Daily",
+        "trigger": "Stress",
+        "onset": "Sudden"
+      }
+    ],
+    "current_medications": "triamcinolone 0.1% thin layer",
+    "alcohol_use": "Daily",
+    "smoking_status": "Never smoker",
+    "pregnancy_status": "Not Pregnant",
+    "immune_status": "Immunocompetent",
+    "lab_results": "eosinophils: 4.0 % (2025)"
   },
   {
     "encounter_key": "E020",
     "patient_key": "P020",
     "doctor_key": "D020",
-    "year": 2026,
-    "setting": "office",
-    "reason": "Review of psoriasis",
-    "assessment": "Fictional follow-up; clinical assessment pending",
-    "plan": "Clinician to review findings and next steps",
-    "handoff_summary_status": "draft not clinically verified"
+    "visit_date": "2026-09-21",
+    "diagnosis": "Psoriasis",
+    "summary": "Follow-up assessment completed with treatment plan and monitoring instructions reviewed.",
+    "symptoms": [
+      {
+        "name": "Plaque rash",
+        "duration": "3 days",
+        "frequency": "Several times weekly",
+        "trigger": "Exertion",
+        "onset": "Gradual"
+      },
+      {
+        "name": "Skin irritation",
+        "duration": "1 week",
+        "frequency": "Daily",
+        "trigger": "Stress",
+        "onset": "Sudden"
+      },
+      {
+        "name": "Itching",
+        "duration": "2 weeks",
+        "frequency": "Intermittent",
+        "trigger": "Late evening",
+        "onset": "Gradual"
+      }
+    ],
+    "current_medications": "calcipotriene 0.005% thin layer",
+    "alcohol_use": "None",
+    "smoking_status": "Former smoker",
+    "pregnancy_status": "N/A",
+    "immune_status": "Immunocompetent",
+    "lab_results": "crp: 10.5 mg/L (2026)"
   },
   {
     "encounter_key": "E021",
     "patient_key": "P021",
     "doctor_key": "D021",
-    "year": 2023,
-    "setting": "telehealth",
-    "reason": "Review of rheumatoid arthritis",
-    "assessment": "Fictional follow-up; clinical assessment pending",
-    "plan": "Clinician to review findings and next steps",
-    "handoff_summary_status": "draft not clinically verified"
+    "visit_date": "2023-10-22",
+    "diagnosis": "Rheumatoid Arthritis",
+    "summary": "Follow-up assessment completed with treatment plan and monitoring instructions reviewed.",
+    "symptoms": [
+      {
+        "name": "Joint pain",
+        "duration": "1 week",
+        "frequency": "Daily",
+        "trigger": "Stress",
+        "onset": "Sudden"
+      },
+      {
+        "name": "Morning stiffness",
+        "duration": "2 weeks",
+        "frequency": "Intermittent",
+        "trigger": "Late evening",
+        "onset": "Gradual"
+      },
+      {
+        "name": "Joint swelling",
+        "duration": "4 weeks",
+        "frequency": "Several times weekly",
+        "trigger": "After meals",
+        "onset": "Sudden"
+      }
+    ],
+    "current_medications": "methotrexate 10 mg",
+    "alcohol_use": "Social",
+    "smoking_status": "Current smoker",
+    "pregnancy_status": "N/A",
+    "immune_status": "Immunocompetent",
+    "lab_results": "crp: 16.1 mg/L (2023)"
   },
   {
     "encounter_key": "E022",
     "patient_key": "P022",
     "doctor_key": "D022",
-    "year": 2024,
-    "setting": "telehealth",
-    "reason": "Review of gout",
-    "assessment": "Fictional follow-up; clinical assessment pending",
-    "plan": "Clinician to review findings and next steps",
-    "handoff_summary_status": "draft not clinically verified"
+    "visit_date": "2024-11-23",
+    "diagnosis": "Gout",
+    "summary": "Follow-up assessment completed with treatment plan and monitoring instructions reviewed.",
+    "symptoms": [
+      {
+        "name": "Acute joint pain",
+        "duration": "2 weeks",
+        "frequency": "Intermittent",
+        "trigger": "Late evening",
+        "onset": "Gradual"
+      },
+      {
+        "name": "Joint redness",
+        "duration": "4 weeks",
+        "frequency": "Several times weekly",
+        "trigger": "After meals",
+        "onset": "Sudden"
+      },
+      {
+        "name": "Joint swelling",
+        "duration": "8 weeks",
+        "frequency": "Daily",
+        "trigger": "Cold air",
+        "onset": "Gradual"
+      }
+    ],
+    "current_medications": "allopurinol 100 mg",
+    "alcohol_use": "Daily",
+    "smoking_status": "Never smoker",
+    "pregnancy_status": "Not Pregnant",
+    "immune_status": "Immunocompromised",
+    "lab_results": "uric_acid: 5.0 mg/dL (2024)"
   },
   {
     "encounter_key": "E023",
     "patient_key": "P023",
     "doctor_key": "D023",
-    "year": 2025,
-    "setting": "telehealth",
-    "reason": "Review of rheumatoid arthritis",
-    "assessment": "Fictional follow-up; clinical assessment pending",
-    "plan": "Clinician to review findings and next steps",
-    "handoff_summary_status": "draft not clinically verified"
+    "visit_date": "2025-12-24",
+    "diagnosis": "Rheumatoid Arthritis",
+    "summary": "Follow-up assessment completed with treatment plan and monitoring instructions reviewed.",
+    "symptoms": [
+      {
+        "name": "Joint pain",
+        "duration": "4 weeks",
+        "frequency": "Several times weekly",
+        "trigger": "After meals",
+        "onset": "Sudden"
+      },
+      {
+        "name": "Morning stiffness",
+        "duration": "8 weeks",
+        "frequency": "Daily",
+        "trigger": "Cold air",
+        "onset": "Gradual"
+      },
+      {
+        "name": "Joint swelling",
+        "duration": "3 days",
+        "frequency": "Intermittent",
+        "trigger": "Exertion",
+        "onset": "Sudden"
+      }
+    ],
+    "current_medications": "methotrexate 10 mg",
+    "alcohol_use": "None",
+    "smoking_status": "Former smoker",
+    "pregnancy_status": "N/A",
+    "immune_status": "Immunocompetent",
+    "lab_results": "crp: 4.4 mg/L (2025)"
   },
   {
     "encounter_key": "E024",
     "patient_key": "P024",
     "doctor_key": "D024",
-    "year": 2026,
-    "setting": "office",
-    "reason": "Review of gout",
-    "assessment": "Fictional follow-up; clinical assessment pending",
-    "plan": "Clinician to review findings and next steps",
-    "handoff_summary_status": "draft not clinically verified"
+    "visit_date": "2026-01-25",
+    "diagnosis": "Gout",
+    "summary": "Follow-up assessment completed with treatment plan and monitoring instructions reviewed.",
+    "symptoms": [
+      {
+        "name": "Acute joint pain",
+        "duration": "8 weeks",
+        "frequency": "Daily",
+        "trigger": "Cold air",
+        "onset": "Gradual"
+      },
+      {
+        "name": "Joint redness",
+        "duration": "3 days",
+        "frequency": "Intermittent",
+        "trigger": "Exertion",
+        "onset": "Sudden"
+      },
+      {
+        "name": "Joint swelling",
+        "duration": "1 week",
+        "frequency": "Several times weekly",
+        "trigger": "Stress",
+        "onset": "Gradual"
+      }
+    ],
+    "current_medications": "allopurinol 100 mg",
+    "alcohol_use": "Social",
+    "smoking_status": "Current smoker",
+    "pregnancy_status": "Not Pregnant",
+    "immune_status": "Immunocompetent",
+    "lab_results": "uric_acid: 6.8 mg/dL (2026)"
   },
   {
     "encounter_key": "E025",
     "patient_key": "P025",
     "doctor_key": "D025",
-    "year": 2023,
-    "setting": "telehealth",
-    "reason": "Review of rheumatoid arthritis",
-    "assessment": "Fictional follow-up; clinical assessment pending",
-    "plan": "Clinician to review findings and next steps",
-    "handoff_summary_status": "draft not clinically verified"
+    "visit_date": "2023-02-26",
+    "diagnosis": "Rheumatoid Arthritis",
+    "summary": "Follow-up assessment completed with treatment plan and monitoring instructions reviewed.",
+    "symptoms": [
+      {
+        "name": "Joint pain",
+        "duration": "3 days",
+        "frequency": "Intermittent",
+        "trigger": "Exertion",
+        "onset": "Sudden"
+      },
+      {
+        "name": "Morning stiffness",
+        "duration": "1 week",
+        "frequency": "Several times weekly",
+        "trigger": "Stress",
+        "onset": "Gradual"
+      },
+      {
+        "name": "Joint swelling",
+        "duration": "2 weeks",
+        "frequency": "Daily",
+        "trigger": "Late evening",
+        "onset": "Sudden"
+      }
+    ],
+    "current_medications": "methotrexate 10 mg",
+    "alcohol_use": "Daily",
+    "smoking_status": "Never smoker",
+    "pregnancy_status": "Not Pregnant",
+    "immune_status": "Immunocompetent",
+    "lab_results": "crp: 1.6 mg/L (2023)"
   },
   {
     "encounter_key": "E026",
     "patient_key": "P026",
     "doctor_key": "D026",
-    "year": 2024,
-    "setting": "telehealth",
-    "reason": "Review of inflammatory bowel disease",
-    "assessment": "Fictional follow-up; clinical assessment pending",
-    "plan": "Clinician to review findings and next steps",
-    "handoff_summary_status": "draft not clinically verified"
+    "visit_date": "2024-03-27",
+    "diagnosis": "Inflammatory Bowel Disease",
+    "summary": "Follow-up assessment completed with treatment plan and monitoring instructions reviewed.",
+    "symptoms": [
+      {
+        "name": "Fatigue",
+        "duration": "1 week",
+        "frequency": "Several times weekly",
+        "trigger": "Stress",
+        "onset": "Gradual"
+      },
+      {
+        "name": "Pain",
+        "duration": "2 weeks",
+        "frequency": "Daily",
+        "trigger": "Late evening",
+        "onset": "Sudden"
+      },
+      {
+        "name": "Sleep disturbance",
+        "duration": "4 weeks",
+        "frequency": "Intermittent",
+        "trigger": "After meals",
+        "onset": "Gradual"
+      }
+    ],
+    "current_medications": "mesalamine 800 mg",
+    "alcohol_use": "None",
+    "smoking_status": "Former smoker",
+    "pregnancy_status": "N/A",
+    "immune_status": "Immunocompetent",
+    "lab_results": "crp: 8.7 mg/L (2024)"
   },
   {
     "encounter_key": "E027",
     "patient_key": "P027",
     "doctor_key": "D027",
-    "year": 2025,
-    "setting": "office",
-    "reason": "Review of gerd",
-    "assessment": "Fictional follow-up; clinical assessment pending",
-    "plan": "Clinician to review findings and next steps",
-    "handoff_summary_status": "draft not clinically verified"
+    "visit_date": "2025-04-01",
+    "diagnosis": "Gerd",
+    "summary": "Follow-up assessment completed with treatment plan and monitoring instructions reviewed.",
+    "symptoms": [
+      {
+        "name": "Fatigue",
+        "duration": "2 weeks",
+        "frequency": "Daily",
+        "trigger": "Late evening",
+        "onset": "Sudden"
+      },
+      {
+        "name": "Pain",
+        "duration": "4 weeks",
+        "frequency": "Intermittent",
+        "trigger": "After meals",
+        "onset": "Gradual"
+      },
+      {
+        "name": "Sleep disturbance",
+        "duration": "8 weeks",
+        "frequency": "Several times weekly",
+        "trigger": "Cold air",
+        "onset": "Sudden"
+      }
+    ],
+    "current_medications": "omeprazole 20 mg",
+    "alcohol_use": "Social",
+    "smoking_status": "Current smoker",
+    "pregnancy_status": "N/A",
+    "immune_status": "Immunocompetent",
+    "lab_results": "hemoglobin: 13.8 g/dL (2025)"
   },
   {
     "encounter_key": "E028",
     "patient_key": "P028",
     "doctor_key": "D028",
-    "year": 2026,
-    "setting": "telehealth",
-    "reason": "Review of inflammatory bowel disease",
-    "assessment": "Fictional follow-up; clinical assessment pending",
-    "plan": "Clinician to review findings and next steps",
-    "handoff_summary_status": "draft not clinically verified"
+    "visit_date": "2026-05-02",
+    "diagnosis": "Inflammatory Bowel Disease",
+    "summary": "Follow-up assessment completed with treatment plan and monitoring instructions reviewed.",
+    "symptoms": [
+      {
+        "name": "Fatigue",
+        "duration": "4 weeks",
+        "frequency": "Intermittent",
+        "trigger": "After meals",
+        "onset": "Gradual"
+      },
+      {
+        "name": "Pain",
+        "duration": "8 weeks",
+        "frequency": "Several times weekly",
+        "trigger": "Cold air",
+        "onset": "Sudden"
+      },
+      {
+        "name": "Sleep disturbance",
+        "duration": "3 days",
+        "frequency": "Daily",
+        "trigger": "Exertion",
+        "onset": "Gradual"
+      }
+    ],
+    "current_medications": "mesalamine 800 mg",
+    "alcohol_use": "Daily",
+    "smoking_status": "Never smoker",
+    "pregnancy_status": "Not Pregnant",
+    "immune_status": "Immunocompetent",
+    "lab_results": "crp: 6.7 mg/L (2026)"
   },
   {
     "encounter_key": "E029",
     "patient_key": "P029",
     "doctor_key": "D029",
-    "year": 2023,
-    "setting": "office",
-    "reason": "Review of gerd",
-    "assessment": "Fictional follow-up; clinical assessment pending",
-    "plan": "Clinician to review findings and next steps",
-    "handoff_summary_status": "draft not clinically verified"
+    "visit_date": "2023-06-03",
+    "diagnosis": "Gerd",
+    "summary": "Follow-up assessment completed with treatment plan and monitoring instructions reviewed.",
+    "symptoms": [
+      {
+        "name": "Fatigue",
+        "duration": "8 weeks",
+        "frequency": "Several times weekly",
+        "trigger": "Cold air",
+        "onset": "Sudden"
+      },
+      {
+        "name": "Pain",
+        "duration": "3 days",
+        "frequency": "Daily",
+        "trigger": "Exertion",
+        "onset": "Gradual"
+      },
+      {
+        "name": "Sleep disturbance",
+        "duration": "1 week",
+        "frequency": "Intermittent",
+        "trigger": "Stress",
+        "onset": "Sudden"
+      }
+    ],
+    "current_medications": "omeprazole 20 mg",
+    "alcohol_use": "None",
+    "smoking_status": "Former smoker",
+    "pregnancy_status": "N/A",
+    "immune_status": "Immunocompetent",
+    "lab_results": "hemoglobin: 12.7 g/dL (2023)"
   },
   {
     "encounter_key": "E030",
     "patient_key": "P030",
     "doctor_key": "D030",
-    "year": 2024,
-    "setting": "office",
-    "reason": "Review of inflammatory bowel disease",
-    "assessment": "Fictional follow-up; clinical assessment pending",
-    "plan": "Clinician to review findings and next steps",
-    "handoff_summary_status": "draft not clinically verified"
+    "visit_date": "2024-07-04",
+    "diagnosis": "Inflammatory Bowel Disease",
+    "summary": "Follow-up assessment completed with treatment plan and monitoring instructions reviewed.",
+    "symptoms": [
+      {
+        "name": "Fatigue",
+        "duration": "3 days",
+        "frequency": "Daily",
+        "trigger": "Exertion",
+        "onset": "Gradual"
+      },
+      {
+        "name": "Pain",
+        "duration": "1 week",
+        "frequency": "Intermittent",
+        "trigger": "Stress",
+        "onset": "Sudden"
+      },
+      {
+        "name": "Sleep disturbance",
+        "duration": "2 weeks",
+        "frequency": "Several times weekly",
+        "trigger": "Late evening",
+        "onset": "Gradual"
+      }
+    ],
+    "current_medications": "mesalamine 800 mg",
+    "alcohol_use": "Social",
+    "smoking_status": "Current smoker",
+    "pregnancy_status": "Not Pregnant",
+    "immune_status": "Immunocompetent",
+    "lab_results": "crp: 17.6 mg/L (2024)"
   },
   {
     "encounter_key": "E031",
     "patient_key": "P031",
     "doctor_key": "D031",
-    "year": 2025,
-    "setting": "office",
-    "reason": "Review of migraine",
-    "assessment": "Fictional follow-up; clinical assessment pending",
-    "plan": "Clinician to review findings and next steps",
-    "handoff_summary_status": "draft not clinically verified"
+    "visit_date": "2025-08-05",
+    "diagnosis": "Migraine",
+    "summary": "Follow-up assessment completed with treatment plan and monitoring instructions reviewed.",
+    "symptoms": [
+      {
+        "name": "Fatigue",
+        "duration": "1 week",
+        "frequency": "Intermittent",
+        "trigger": "Stress",
+        "onset": "Sudden"
+      },
+      {
+        "name": "Pain",
+        "duration": "2 weeks",
+        "frequency": "Several times weekly",
+        "trigger": "Late evening",
+        "onset": "Gradual"
+      },
+      {
+        "name": "Sleep disturbance",
+        "duration": "4 weeks",
+        "frequency": "Daily",
+        "trigger": "After meals",
+        "onset": "Sudden"
+      }
+    ],
+    "current_medications": "sumatriptan 50 mg",
+    "alcohol_use": "Daily",
+    "smoking_status": "Never smoker",
+    "pregnancy_status": "Not Pregnant",
+    "immune_status": "Immunocompetent",
+    "lab_results": "hemoglobin: 11.6 g/dL (2025)"
   },
   {
     "encounter_key": "E032",
     "patient_key": "P032",
     "doctor_key": "D032",
-    "year": 2026,
-    "setting": "office",
-    "reason": "Review of epilepsy",
-    "assessment": "Fictional follow-up; clinical assessment pending",
-    "plan": "Clinician to review findings and next steps",
-    "handoff_summary_status": "draft not clinically verified"
+    "visit_date": "2026-09-06",
+    "diagnosis": "Epilepsy",
+    "summary": "Follow-up assessment completed with treatment plan and monitoring instructions reviewed.",
+    "symptoms": [
+      {
+        "name": "Fatigue",
+        "duration": "2 weeks",
+        "frequency": "Several times weekly",
+        "trigger": "Late evening",
+        "onset": "Gradual"
+      },
+      {
+        "name": "Pain",
+        "duration": "4 weeks",
+        "frequency": "Daily",
+        "trigger": "After meals",
+        "onset": "Sudden"
+      },
+      {
+        "name": "Sleep disturbance",
+        "duration": "8 weeks",
+        "frequency": "Intermittent",
+        "trigger": "Cold air",
+        "onset": "Gradual"
+      }
+    ],
+    "current_medications": "levetiracetam 500 mg",
+    "alcohol_use": "None",
+    "smoking_status": "Former smoker",
+    "pregnancy_status": "N/A",
+    "immune_status": "Immunocompetent",
+    "lab_results": "creatinine: 1.3 mg/dL (2026)"
   },
   {
     "encounter_key": "E033",
     "patient_key": "P033",
     "doctor_key": "D033",
-    "year": 2023,
-    "setting": "telehealth",
-    "reason": "Review of migraine",
-    "assessment": "Fictional follow-up; clinical assessment pending",
-    "plan": "Clinician to review findings and next steps",
-    "handoff_summary_status": "draft not clinically verified"
+    "visit_date": "2023-10-07",
+    "diagnosis": "Migraine",
+    "summary": "Follow-up assessment completed with treatment plan and monitoring instructions reviewed.",
+    "symptoms": [
+      {
+        "name": "Fatigue",
+        "duration": "4 weeks",
+        "frequency": "Daily",
+        "trigger": "After meals",
+        "onset": "Sudden"
+      },
+      {
+        "name": "Pain",
+        "duration": "8 weeks",
+        "frequency": "Intermittent",
+        "trigger": "Cold air",
+        "onset": "Gradual"
+      },
+      {
+        "name": "Sleep disturbance",
+        "duration": "3 days",
+        "frequency": "Several times weekly",
+        "trigger": "Exertion",
+        "onset": "Sudden"
+      }
+    ],
+    "current_medications": "sumatriptan 50 mg",
+    "alcohol_use": "Social",
+    "smoking_status": "Current smoker",
+    "pregnancy_status": "N/A",
+    "immune_status": "Immunocompromised",
+    "lab_results": "hemoglobin: 10.6 g/dL (2023)"
   },
   {
     "encounter_key": "E034",
     "patient_key": "P034",
     "doctor_key": "D034",
-    "year": 2024,
-    "setting": "telehealth",
-    "reason": "Review of epilepsy",
-    "assessment": "Fictional follow-up; clinical assessment pending",
-    "plan": "Clinician to review findings and next steps",
-    "handoff_summary_status": "draft not clinically verified"
+    "visit_date": "2024-11-08",
+    "diagnosis": "Epilepsy",
+    "summary": "Follow-up assessment completed with treatment plan and monitoring instructions reviewed.",
+    "symptoms": [
+      {
+        "name": "Fatigue",
+        "duration": "8 weeks",
+        "frequency": "Intermittent",
+        "trigger": "Cold air",
+        "onset": "Gradual"
+      },
+      {
+        "name": "Pain",
+        "duration": "3 days",
+        "frequency": "Several times weekly",
+        "trigger": "Exertion",
+        "onset": "Sudden"
+      },
+      {
+        "name": "Sleep disturbance",
+        "duration": "1 week",
+        "frequency": "Daily",
+        "trigger": "Stress",
+        "onset": "Gradual"
+      }
+    ],
+    "current_medications": "levetiracetam 500 mg",
+    "alcohol_use": "Daily",
+    "smoking_status": "Never smoker",
+    "pregnancy_status": "Not Pregnant",
+    "immune_status": "Immunocompetent",
+    "lab_results": "creatinine: 0.8 mg/dL (2024)"
   },
   {
     "encounter_key": "E035",
     "patient_key": "P035",
     "doctor_key": "D035",
-    "year": 2025,
-    "setting": "office",
-    "reason": "Review of migraine",
-    "assessment": "Fictional follow-up; clinical assessment pending",
-    "plan": "Clinician to review findings and next steps",
-    "handoff_summary_status": "draft not clinically verified"
+    "visit_date": "2025-12-09",
+    "diagnosis": "Migraine",
+    "summary": "Follow-up assessment completed with treatment plan and monitoring instructions reviewed.",
+    "symptoms": [
+      {
+        "name": "Fatigue",
+        "duration": "3 days",
+        "frequency": "Several times weekly",
+        "trigger": "Exertion",
+        "onset": "Sudden"
+      },
+      {
+        "name": "Pain",
+        "duration": "1 week",
+        "frequency": "Daily",
+        "trigger": "Stress",
+        "onset": "Gradual"
+      },
+      {
+        "name": "Sleep disturbance",
+        "duration": "2 weeks",
+        "frequency": "Intermittent",
+        "trigger": "Late evening",
+        "onset": "Sudden"
+      }
+    ],
+    "current_medications": "sumatriptan 50 mg",
+    "alcohol_use": "None",
+    "smoking_status": "Former smoker",
+    "pregnancy_status": "N/A",
+    "immune_status": "Immunocompetent",
+    "lab_results": "hemoglobin: 14.9 g/dL (2025)"
   },
   {
     "encounter_key": "E036",
     "patient_key": "P036",
     "doctor_key": "D036",
-    "year": 2026,
-    "setting": "office",
-    "reason": "Review of iron deficiency anemia",
-    "assessment": "Fictional follow-up; clinical assessment pending",
-    "plan": "Clinician to review findings and next steps",
-    "handoff_summary_status": "draft not clinically verified"
+    "visit_date": "2026-01-10",
+    "diagnosis": "Iron Deficiency Anemia",
+    "summary": "Follow-up assessment completed with treatment plan and monitoring instructions reviewed.",
+    "symptoms": [
+      {
+        "name": "Fatigue",
+        "duration": "1 week",
+        "frequency": "Daily",
+        "trigger": "Stress",
+        "onset": "Gradual"
+      },
+      {
+        "name": "Pain",
+        "duration": "2 weeks",
+        "frequency": "Intermittent",
+        "trigger": "Late evening",
+        "onset": "Sudden"
+      },
+      {
+        "name": "Sleep disturbance",
+        "duration": "4 weeks",
+        "frequency": "Several times weekly",
+        "trigger": "After meals",
+        "onset": "Gradual"
+      }
+    ],
+    "current_medications": "ferrous sulfate 325 mg",
+    "alcohol_use": "Social",
+    "smoking_status": "Current smoker",
+    "pregnancy_status": "Not Pregnant",
+    "immune_status": "Immunocompetent",
+    "lab_results": "hemoglobin: 11.1 g/dL (2026)"
   },
   {
     "encounter_key": "E037",
     "patient_key": "P037",
     "doctor_key": "D037",
-    "year": 2023,
-    "setting": "office",
-    "reason": "Review of hyperlipidemia",
-    "assessment": "Fictional follow-up; clinical assessment pending",
-    "plan": "Clinician to review findings and next steps",
-    "handoff_summary_status": "draft not clinically verified"
+    "visit_date": "2023-02-11",
+    "diagnosis": "Hyperlipidemia",
+    "summary": "Follow-up assessment completed with treatment plan and monitoring instructions reviewed.",
+    "symptoms": [
+      {
+        "name": "Fatigue",
+        "duration": "2 weeks",
+        "frequency": "Intermittent",
+        "trigger": "Late evening",
+        "onset": "Sudden"
+      },
+      {
+        "name": "Pain",
+        "duration": "4 weeks",
+        "frequency": "Several times weekly",
+        "trigger": "After meals",
+        "onset": "Gradual"
+      },
+      {
+        "name": "Sleep disturbance",
+        "duration": "8 weeks",
+        "frequency": "Daily",
+        "trigger": "Cold air",
+        "onset": "Sudden"
+      }
+    ],
+    "current_medications": "atorvastatin 10 mg",
+    "alcohol_use": "Daily",
+    "smoking_status": "Never smoker",
+    "pregnancy_status": "Not Pregnant",
+    "immune_status": "Immunocompetent",
+    "lab_results": "ldl_cholesterol: 184.1 mg/dL (2023)"
   },
   {
     "encounter_key": "E038",
     "patient_key": "P038",
     "doctor_key": "D038",
-    "year": 2024,
-    "setting": "office",
-    "reason": "Review of iron deficiency anemia",
-    "assessment": "Fictional follow-up; clinical assessment pending",
-    "plan": "Clinician to review findings and next steps",
-    "handoff_summary_status": "draft not clinically verified"
+    "visit_date": "2024-03-12",
+    "diagnosis": "Iron Deficiency Anemia",
+    "summary": "Follow-up assessment completed with treatment plan and monitoring instructions reviewed.",
+    "symptoms": [
+      {
+        "name": "Fatigue",
+        "duration": "4 weeks",
+        "frequency": "Several times weekly",
+        "trigger": "After meals",
+        "onset": "Gradual"
+      },
+      {
+        "name": "Pain",
+        "duration": "8 weeks",
+        "frequency": "Daily",
+        "trigger": "Cold air",
+        "onset": "Sudden"
+      },
+      {
+        "name": "Sleep disturbance",
+        "duration": "3 days",
+        "frequency": "Intermittent",
+        "trigger": "Exertion",
+        "onset": "Gradual"
+      }
+    ],
+    "current_medications": "ferrous sulfate 325 mg",
+    "alcohol_use": "None",
+    "smoking_status": "Former smoker",
+    "pregnancy_status": "N/A",
+    "immune_status": "Immunocompetent",
+    "lab_results": "hemoglobin: 9.7 g/dL (2024)"
   },
   {
     "encounter_key": "E039",
     "patient_key": "P039",
     "doctor_key": "D039",
-    "year": 2025,
-    "setting": "telehealth",
-    "reason": "Review of hyperlipidemia",
-    "assessment": "Fictional follow-up; clinical assessment pending",
-    "plan": "Clinician to review findings and next steps",
-    "handoff_summary_status": "draft not clinically verified"
+    "visit_date": "2025-04-13",
+    "diagnosis": "Hyperlipidemia",
+    "summary": "Follow-up assessment completed with treatment plan and monitoring instructions reviewed.",
+    "symptoms": [
+      {
+        "name": "Fatigue",
+        "duration": "8 weeks",
+        "frequency": "Daily",
+        "trigger": "Cold air",
+        "onset": "Sudden"
+      },
+      {
+        "name": "Pain",
+        "duration": "3 days",
+        "frequency": "Intermittent",
+        "trigger": "Exertion",
+        "onset": "Gradual"
+      },
+      {
+        "name": "Sleep disturbance",
+        "duration": "1 week",
+        "frequency": "Several times weekly",
+        "trigger": "Stress",
+        "onset": "Sudden"
+      }
+    ],
+    "current_medications": "atorvastatin 10 mg",
+    "alcohol_use": "Social",
+    "smoking_status": "Current smoker",
+    "pregnancy_status": "N/A",
+    "immune_status": "Immunocompetent",
+    "lab_results": "ldl_cholesterol: 143.7 mg/dL (2025)"
   },
   {
     "encounter_key": "E040",
     "patient_key": "P040",
     "doctor_key": "D040",
-    "year": 2026,
-    "setting": "office",
-    "reason": "Review of iron deficiency anemia",
-    "assessment": "Fictional follow-up; clinical assessment pending",
-    "plan": "Clinician to review findings and next steps",
-    "handoff_summary_status": "draft not clinically verified"
+    "visit_date": "2026-05-14",
+    "diagnosis": "Iron Deficiency Anemia",
+    "summary": "Follow-up assessment completed with treatment plan and monitoring instructions reviewed.",
+    "symptoms": [
+      {
+        "name": "Fatigue",
+        "duration": "3 days",
+        "frequency": "Intermittent",
+        "trigger": "Exertion",
+        "onset": "Gradual"
+      },
+      {
+        "name": "Pain",
+        "duration": "1 week",
+        "frequency": "Several times weekly",
+        "trigger": "Stress",
+        "onset": "Sudden"
+      },
+      {
+        "name": "Sleep disturbance",
+        "duration": "2 weeks",
+        "frequency": "Daily",
+        "trigger": "Late evening",
+        "onset": "Gradual"
+      }
+    ],
+    "current_medications": "ferrous sulfate 325 mg",
+    "alcohol_use": "Daily",
+    "smoking_status": "Never smoker",
+    "pregnancy_status": "Not Pregnant",
+    "immune_status": "Immunocompetent",
+    "lab_results": "hemoglobin: 9.7 g/dL (2026)"
   },
   {
     "encounter_key": "E041",
     "patient_key": "P041",
     "doctor_key": "D001",
-    "year": 2023,
-    "setting": "office",
-    "reason": "Review of heart failure",
-    "assessment": "Fictional follow-up; clinical assessment pending",
-    "plan": "Clinician to review findings and next steps",
-    "handoff_summary_status": "draft not clinically verified"
+    "visit_date": "2023-06-15",
+    "diagnosis": "Heart Failure",
+    "summary": "Follow-up assessment completed with treatment plan and monitoring instructions reviewed.",
+    "symptoms": [
+      {
+        "name": "Shortness of breath",
+        "duration": "1 week",
+        "frequency": "Several times weekly",
+        "trigger": "Stress",
+        "onset": "Sudden"
+      },
+      {
+        "name": "Leg swelling",
+        "duration": "2 weeks",
+        "frequency": "Daily",
+        "trigger": "Late evening",
+        "onset": "Gradual"
+      },
+      {
+        "name": "Fatigue",
+        "duration": "4 weeks",
+        "frequency": "Intermittent",
+        "trigger": "After meals",
+        "onset": "Sudden"
+      }
+    ],
+    "current_medications": "furosemide 20 mg",
+    "alcohol_use": "None",
+    "smoking_status": "Former smoker",
+    "pregnancy_status": "N/A",
+    "immune_status": "Immunocompetent",
+    "lab_results": "creatinine: 1.5 mg/dL (2023)"
   },
   {
     "encounter_key": "E042",
     "patient_key": "P042",
     "doctor_key": "D002",
-    "year": 2024,
-    "setting": "office",
-    "reason": "Review of hypertension",
-    "assessment": "Fictional follow-up; clinical assessment pending",
-    "plan": "Clinician to review findings and next steps",
-    "handoff_summary_status": "draft not clinically verified"
+    "visit_date": "2024-07-16",
+    "diagnosis": "Hypertension",
+    "summary": "Follow-up assessment completed with treatment plan and monitoring instructions reviewed.",
+    "symptoms": [
+      {
+        "name": "Headache",
+        "duration": "2 weeks",
+        "frequency": "Daily",
+        "trigger": "Late evening",
+        "onset": "Gradual"
+      },
+      {
+        "name": "Dizziness",
+        "duration": "4 weeks",
+        "frequency": "Intermittent",
+        "trigger": "After meals",
+        "onset": "Sudden"
+      },
+      {
+        "name": "Elevated blood pressure",
+        "duration": "8 weeks",
+        "frequency": "Several times weekly",
+        "trigger": "Cold air",
+        "onset": "Gradual"
+      }
+    ],
+    "current_medications": "amlodipine 5 mg",
+    "alcohol_use": "Social",
+    "smoking_status": "Current smoker",
+    "pregnancy_status": "Not Pregnant",
+    "immune_status": "Immunocompetent",
+    "lab_results": "blood_pressure_systolic: 139.2 mmHg (2024)"
   },
   {
     "encounter_key": "E043",
     "patient_key": "P043",
     "doctor_key": "D003",
-    "year": 2025,
-    "setting": "office",
-    "reason": "Review of heart failure",
-    "assessment": "Fictional follow-up; clinical assessment pending",
-    "plan": "Clinician to review findings and next steps",
-    "handoff_summary_status": "draft not clinically verified"
+    "visit_date": "2025-08-17",
+    "diagnosis": "Heart Failure",
+    "summary": "Follow-up assessment completed with treatment plan and monitoring instructions reviewed.",
+    "symptoms": [
+      {
+        "name": "Shortness of breath",
+        "duration": "4 weeks",
+        "frequency": "Intermittent",
+        "trigger": "After meals",
+        "onset": "Sudden"
+      },
+      {
+        "name": "Leg swelling",
+        "duration": "8 weeks",
+        "frequency": "Several times weekly",
+        "trigger": "Cold air",
+        "onset": "Gradual"
+      },
+      {
+        "name": "Fatigue",
+        "duration": "3 days",
+        "frequency": "Daily",
+        "trigger": "Exertion",
+        "onset": "Sudden"
+      }
+    ],
+    "current_medications": "furosemide 20 mg",
+    "alcohol_use": "Daily",
+    "smoking_status": "Never smoker",
+    "pregnancy_status": "Not Pregnant",
+    "immune_status": "Immunocompetent",
+    "lab_results": "creatinine: 1.0 mg/dL (2025)"
   },
   {
     "encounter_key": "E044",
     "patient_key": "P044",
     "doctor_key": "D004",
-    "year": 2026,
-    "setting": "office",
-    "reason": "Review of hypertension",
-    "assessment": "Fictional follow-up; clinical assessment pending",
-    "plan": "Clinician to review findings and next steps",
-    "handoff_summary_status": "draft not clinically verified"
+    "visit_date": "2026-09-18",
+    "diagnosis": "Hypertension",
+    "summary": "Follow-up assessment completed with treatment plan and monitoring instructions reviewed.",
+    "symptoms": [
+      {
+        "name": "Headache",
+        "duration": "8 weeks",
+        "frequency": "Several times weekly",
+        "trigger": "Cold air",
+        "onset": "Gradual"
+      },
+      {
+        "name": "Dizziness",
+        "duration": "3 days",
+        "frequency": "Daily",
+        "trigger": "Exertion",
+        "onset": "Sudden"
+      },
+      {
+        "name": "Elevated blood pressure",
+        "duration": "1 week",
+        "frequency": "Intermittent",
+        "trigger": "Stress",
+        "onset": "Gradual"
+      }
+    ],
+    "current_medications": "amlodipine 5 mg",
+    "alcohol_use": "None",
+    "smoking_status": "Former smoker",
+    "pregnancy_status": "N/A",
+    "immune_status": "Immunocompromised",
+    "lab_results": "blood_pressure_systolic: 159.2 mmHg (2026)"
   },
   {
     "encounter_key": "E045",
     "patient_key": "P045",
     "doctor_key": "D005",
-    "year": 2023,
-    "setting": "telehealth",
-    "reason": "Review of heart failure",
-    "assessment": "Fictional follow-up; clinical assessment pending",
-    "plan": "Clinician to review findings and next steps",
-    "handoff_summary_status": "draft not clinically verified"
+    "visit_date": "2023-10-19",
+    "diagnosis": "Heart Failure",
+    "summary": "Follow-up assessment completed with treatment plan and monitoring instructions reviewed.",
+    "symptoms": [
+      {
+        "name": "Shortness of breath",
+        "duration": "3 days",
+        "frequency": "Daily",
+        "trigger": "Exertion",
+        "onset": "Sudden"
+      },
+      {
+        "name": "Leg swelling",
+        "duration": "1 week",
+        "frequency": "Intermittent",
+        "trigger": "Stress",
+        "onset": "Gradual"
+      },
+      {
+        "name": "Fatigue",
+        "duration": "2 weeks",
+        "frequency": "Several times weekly",
+        "trigger": "Late evening",
+        "onset": "Sudden"
+      }
+    ],
+    "current_medications": "furosemide 20 mg",
+    "alcohol_use": "Social",
+    "smoking_status": "Current smoker",
+    "pregnancy_status": "N/A",
+    "immune_status": "Immunocompetent",
+    "lab_results": "creatinine: 1.2 mg/dL (2023)"
   },
   {
     "encounter_key": "E046",
     "patient_key": "P046",
     "doctor_key": "D006",
-    "year": 2024,
-    "setting": "office",
-    "reason": "Review of type 2 diabetes",
-    "assessment": "Fictional follow-up; clinical assessment pending",
-    "plan": "Clinician to review findings and next steps",
-    "handoff_summary_status": "draft not clinically verified"
+    "visit_date": "2024-11-20",
+    "diagnosis": "Type 2 Diabetes",
+    "summary": "Follow-up assessment completed with treatment plan and monitoring instructions reviewed.",
+    "symptoms": [
+      {
+        "name": "Increased thirst",
+        "duration": "1 week",
+        "frequency": "Intermittent",
+        "trigger": "Stress",
+        "onset": "Gradual"
+      },
+      {
+        "name": "Frequent urination",
+        "duration": "2 weeks",
+        "frequency": "Several times weekly",
+        "trigger": "Late evening",
+        "onset": "Sudden"
+      },
+      {
+        "name": "Blurred vision",
+        "duration": "4 weeks",
+        "frequency": "Daily",
+        "trigger": "After meals",
+        "onset": "Gradual"
+      }
+    ],
+    "current_medications": "metformin 500 mg",
+    "alcohol_use": "Daily",
+    "smoking_status": "Never smoker",
+    "pregnancy_status": "Not Pregnant",
+    "immune_status": "Immunocompetent",
+    "lab_results": "hba1c: 10.3 % (2024)"
   },
   {
     "encounter_key": "E047",
     "patient_key": "P047",
     "doctor_key": "D007",
-    "year": 2025,
-    "setting": "telehealth",
-    "reason": "Review of hypothyroidism",
-    "assessment": "Fictional follow-up; clinical assessment pending",
-    "plan": "Clinician to review findings and next steps",
-    "handoff_summary_status": "draft not clinically verified"
+    "visit_date": "2025-12-21",
+    "diagnosis": "Hypothyroidism",
+    "summary": "Follow-up assessment completed with treatment plan and monitoring instructions reviewed.",
+    "symptoms": [
+      {
+        "name": "Fatigue",
+        "duration": "2 weeks",
+        "frequency": "Several times weekly",
+        "trigger": "Late evening",
+        "onset": "Sudden"
+      },
+      {
+        "name": "Cold intolerance",
+        "duration": "4 weeks",
+        "frequency": "Daily",
+        "trigger": "After meals",
+        "onset": "Gradual"
+      },
+      {
+        "name": "Weight gain",
+        "duration": "8 weeks",
+        "frequency": "Intermittent",
+        "trigger": "Cold air",
+        "onset": "Sudden"
+      }
+    ],
+    "current_medications": "levothyroxine 50 mcg",
+    "alcohol_use": "None",
+    "smoking_status": "Former smoker",
+    "pregnancy_status": "N/A",
+    "immune_status": "Immunocompetent",
+    "lab_results": "tsh: 9.7 mIU/L (2025)"
   },
   {
     "encounter_key": "E048",
     "patient_key": "P048",
     "doctor_key": "D008",
-    "year": 2026,
-    "setting": "office",
-    "reason": "Review of type 2 diabetes",
-    "assessment": "Fictional follow-up; clinical assessment pending",
-    "plan": "Clinician to review findings and next steps",
-    "handoff_summary_status": "draft not clinically verified"
+    "visit_date": "2026-01-22",
+    "diagnosis": "Type 2 Diabetes",
+    "summary": "Follow-up assessment completed with treatment plan and monitoring instructions reviewed.",
+    "symptoms": [
+      {
+        "name": "Increased thirst",
+        "duration": "4 weeks",
+        "frequency": "Daily",
+        "trigger": "After meals",
+        "onset": "Gradual"
+      },
+      {
+        "name": "Frequent urination",
+        "duration": "8 weeks",
+        "frequency": "Intermittent",
+        "trigger": "Cold air",
+        "onset": "Sudden"
+      },
+      {
+        "name": "Blurred vision",
+        "duration": "3 days",
+        "frequency": "Several times weekly",
+        "trigger": "Exertion",
+        "onset": "Gradual"
+      }
+    ],
+    "current_medications": "metformin 500 mg",
+    "alcohol_use": "Social",
+    "smoking_status": "Current smoker",
+    "pregnancy_status": "Not Pregnant",
+    "immune_status": "Immunocompetent",
+    "lab_results": "hba1c: 7.9 % (2026)"
   },
   {
     "encounter_key": "E049",
     "patient_key": "P049",
     "doctor_key": "D009",
-    "year": 2023,
-    "setting": "office",
-    "reason": "Review of hypothyroidism",
-    "assessment": "Fictional follow-up; clinical assessment pending",
-    "plan": "Clinician to review findings and next steps",
-    "handoff_summary_status": "draft not clinically verified"
+    "visit_date": "2023-02-23",
+    "diagnosis": "Hypothyroidism",
+    "summary": "Follow-up assessment completed with treatment plan and monitoring instructions reviewed.",
+    "symptoms": [
+      {
+        "name": "Fatigue",
+        "duration": "8 weeks",
+        "frequency": "Intermittent",
+        "trigger": "Cold air",
+        "onset": "Sudden"
+      },
+      {
+        "name": "Cold intolerance",
+        "duration": "3 days",
+        "frequency": "Several times weekly",
+        "trigger": "Exertion",
+        "onset": "Gradual"
+      },
+      {
+        "name": "Weight gain",
+        "duration": "1 week",
+        "frequency": "Daily",
+        "trigger": "Stress",
+        "onset": "Sudden"
+      }
+    ],
+    "current_medications": "levothyroxine 50 mcg",
+    "alcohol_use": "Daily",
+    "smoking_status": "Never smoker",
+    "pregnancy_status": "Not Pregnant",
+    "immune_status": "Immunocompetent",
+    "lab_results": "tsh: 1.9 mIU/L (2023)"
   },
   {
     "encounter_key": "E050",
     "patient_key": "P050",
     "doctor_key": "D010",
-    "year": 2024,
-    "setting": "office",
-    "reason": "Review of type 2 diabetes",
-    "assessment": "Fictional follow-up; clinical assessment pending",
-    "plan": "Clinician to review findings and next steps",
-    "handoff_summary_status": "draft not clinically verified"
+    "visit_date": "2024-03-24",
+    "diagnosis": "Type 2 Diabetes",
+    "summary": "Follow-up assessment completed with treatment plan and monitoring instructions reviewed.",
+    "symptoms": [
+      {
+        "name": "Increased thirst",
+        "duration": "3 days",
+        "frequency": "Several times weekly",
+        "trigger": "Exertion",
+        "onset": "Gradual"
+      },
+      {
+        "name": "Frequent urination",
+        "duration": "1 week",
+        "frequency": "Daily",
+        "trigger": "Stress",
+        "onset": "Sudden"
+      },
+      {
+        "name": "Blurred vision",
+        "duration": "2 weeks",
+        "frequency": "Intermittent",
+        "trigger": "Late evening",
+        "onset": "Gradual"
+      }
+    ],
+    "current_medications": "metformin 500 mg",
+    "alcohol_use": "None",
+    "smoking_status": "Former smoker",
+    "pregnancy_status": "N/A",
+    "immune_status": "Immunocompetent",
+    "lab_results": "hba1c: 10.4 % (2024)"
   },
   {
     "encounter_key": "E051",
     "patient_key": "P051",
     "doctor_key": "D011",
-    "year": 2025,
-    "setting": "office",
-    "reason": "Review of copd",
-    "assessment": "Fictional follow-up; clinical assessment pending",
-    "plan": "Clinician to review findings and next steps",
-    "handoff_summary_status": "draft not clinically verified"
+    "visit_date": "2025-04-25",
+    "diagnosis": "Copd",
+    "summary": "Follow-up assessment completed with treatment plan and monitoring instructions reviewed.",
+    "symptoms": [
+      {
+        "name": "Chronic cough",
+        "duration": "1 week",
+        "frequency": "Daily",
+        "trigger": "Stress",
+        "onset": "Sudden"
+      },
+      {
+        "name": "Dyspnea",
+        "duration": "2 weeks",
+        "frequency": "Intermittent",
+        "trigger": "Late evening",
+        "onset": "Gradual"
+      },
+      {
+        "name": "Sputum production",
+        "duration": "4 weeks",
+        "frequency": "Several times weekly",
+        "trigger": "After meals",
+        "onset": "Sudden"
+      }
+    ],
+    "current_medications": "tiotropium 18 mcg",
+    "alcohol_use": "Social",
+    "smoking_status": "Current smoker",
+    "pregnancy_status": "N/A",
+    "immune_status": "Immunocompetent",
+    "lab_results": "oxygen_saturation: 92.5 % (2025)"
   },
   {
     "encounter_key": "E052",
     "patient_key": "P052",
     "doctor_key": "D012",
-    "year": 2026,
-    "setting": "office",
-    "reason": "Review of asthma",
-    "assessment": "Fictional follow-up; clinical assessment pending",
-    "plan": "Clinician to review findings and next steps",
-    "handoff_summary_status": "draft not clinically verified"
+    "visit_date": "2026-05-26",
+    "diagnosis": "Asthma",
+    "summary": "Follow-up assessment completed with treatment plan and monitoring instructions reviewed.",
+    "symptoms": [
+      {
+        "name": "Wheezing",
+        "duration": "2 weeks",
+        "frequency": "Intermittent",
+        "trigger": "Late evening",
+        "onset": "Gradual"
+      },
+      {
+        "name": "Cough",
+        "duration": "4 weeks",
+        "frequency": "Several times weekly",
+        "trigger": "After meals",
+        "onset": "Sudden"
+      },
+      {
+        "name": "Chest tightness",
+        "duration": "8 weeks",
+        "frequency": "Daily",
+        "trigger": "Cold air",
+        "onset": "Gradual"
+      }
+    ],
+    "current_medications": "budesonide 200 mcg",
+    "alcohol_use": "Daily",
+    "smoking_status": "Never smoker",
+    "pregnancy_status": "Not Pregnant",
+    "immune_status": "Immunocompetent",
+    "lab_results": "peak_flow: 387.2 L/min (2026)"
   },
   {
     "encounter_key": "E053",
     "patient_key": "P053",
     "doctor_key": "D013",
-    "year": 2023,
-    "setting": "office",
-    "reason": "Review of copd",
-    "assessment": "Fictional follow-up; clinical assessment pending",
-    "plan": "Clinician to review findings and next steps",
-    "handoff_summary_status": "draft not clinically verified"
+    "visit_date": "2023-06-27",
+    "diagnosis": "Copd",
+    "summary": "Follow-up assessment completed with treatment plan and monitoring instructions reviewed.",
+    "symptoms": [
+      {
+        "name": "Chronic cough",
+        "duration": "4 weeks",
+        "frequency": "Several times weekly",
+        "trigger": "After meals",
+        "onset": "Sudden"
+      },
+      {
+        "name": "Dyspnea",
+        "duration": "8 weeks",
+        "frequency": "Daily",
+        "trigger": "Cold air",
+        "onset": "Gradual"
+      },
+      {
+        "name": "Sputum production",
+        "duration": "3 days",
+        "frequency": "Intermittent",
+        "trigger": "Exertion",
+        "onset": "Sudden"
+      }
+    ],
+    "current_medications": "tiotropium 18 mcg",
+    "alcohol_use": "None",
+    "smoking_status": "Former smoker",
+    "pregnancy_status": "N/A",
+    "immune_status": "Immunocompetent",
+    "lab_results": "oxygen_saturation: 97.8 % (2023)"
   },
   {
     "encounter_key": "E054",
     "patient_key": "P054",
     "doctor_key": "D014",
-    "year": 2024,
-    "setting": "telehealth",
-    "reason": "Review of asthma",
-    "assessment": "Fictional follow-up; clinical assessment pending",
-    "plan": "Clinician to review findings and next steps",
-    "handoff_summary_status": "draft not clinically verified"
+    "visit_date": "2024-07-01",
+    "diagnosis": "Asthma",
+    "summary": "Follow-up assessment completed with treatment plan and monitoring instructions reviewed.",
+    "symptoms": [
+      {
+        "name": "Wheezing",
+        "duration": "8 weeks",
+        "frequency": "Daily",
+        "trigger": "Cold air",
+        "onset": "Gradual"
+      },
+      {
+        "name": "Cough",
+        "duration": "3 days",
+        "frequency": "Intermittent",
+        "trigger": "Exertion",
+        "onset": "Sudden"
+      },
+      {
+        "name": "Chest tightness",
+        "duration": "1 week",
+        "frequency": "Several times weekly",
+        "trigger": "Stress",
+        "onset": "Gradual"
+      }
+    ],
+    "current_medications": "budesonide 200 mcg",
+    "alcohol_use": "Social",
+    "smoking_status": "Current smoker",
+    "pregnancy_status": "Not Pregnant",
+    "immune_status": "Immunocompetent",
+    "lab_results": "peak_flow: 339.4 L/min (2024)"
   },
   {
     "encounter_key": "E055",
     "patient_key": "P055",
     "doctor_key": "D015",
-    "year": 2025,
-    "setting": "telehealth",
-    "reason": "Review of copd",
-    "assessment": "Fictional follow-up; clinical assessment pending",
-    "plan": "Clinician to review findings and next steps",
-    "handoff_summary_status": "draft not clinically verified"
+    "visit_date": "2025-08-02",
+    "diagnosis": "Copd",
+    "summary": "Follow-up assessment completed with treatment plan and monitoring instructions reviewed.",
+    "symptoms": [
+      {
+        "name": "Chronic cough",
+        "duration": "3 days",
+        "frequency": "Intermittent",
+        "trigger": "Exertion",
+        "onset": "Sudden"
+      },
+      {
+        "name": "Dyspnea",
+        "duration": "1 week",
+        "frequency": "Several times weekly",
+        "trigger": "Stress",
+        "onset": "Gradual"
+      },
+      {
+        "name": "Sputum production",
+        "duration": "2 weeks",
+        "frequency": "Daily",
+        "trigger": "Late evening",
+        "onset": "Sudden"
+      }
+    ],
+    "current_medications": "tiotropium 18 mcg",
+    "alcohol_use": "Daily",
+    "smoking_status": "Never smoker",
+    "pregnancy_status": "Not Pregnant",
+    "immune_status": "Immunocompromised",
+    "lab_results": "oxygen_saturation: 89.0 % (2025)"
   },
   {
     "encounter_key": "E056",
     "patient_key": "P056",
     "doctor_key": "D016",
-    "year": 2026,
-    "setting": "office",
-    "reason": "Review of atopic dermatitis",
-    "assessment": "Fictional follow-up; clinical assessment pending",
-    "plan": "Clinician to review findings and next steps",
-    "handoff_summary_status": "draft not clinically verified"
+    "visit_date": "2026-09-03",
+    "diagnosis": "Atopic Dermatitis",
+    "summary": "Follow-up assessment completed with treatment plan and monitoring instructions reviewed.",
+    "symptoms": [
+      {
+        "name": "Pruritus",
+        "duration": "1 week",
+        "frequency": "Several times weekly",
+        "trigger": "Stress",
+        "onset": "Gradual"
+      },
+      {
+        "name": "Dry skin",
+        "duration": "2 weeks",
+        "frequency": "Daily",
+        "trigger": "Late evening",
+        "onset": "Sudden"
+      },
+      {
+        "name": "Eczematous rash",
+        "duration": "4 weeks",
+        "frequency": "Intermittent",
+        "trigger": "After meals",
+        "onset": "Gradual"
+      }
+    ],
+    "current_medications": "triamcinolone 0.1% thin layer",
+    "alcohol_use": "None",
+    "smoking_status": "Former smoker",
+    "pregnancy_status": "N/A",
+    "immune_status": "Immunocompetent",
+    "lab_results": "eosinophils: 6.5 % (2026)"
   },
   {
     "encounter_key": "E057",
     "patient_key": "P057",
     "doctor_key": "D017",
-    "year": 2023,
-    "setting": "telehealth",
-    "reason": "Review of psoriasis",
-    "assessment": "Fictional follow-up; clinical assessment pending",
-    "plan": "Clinician to review findings and next steps",
-    "handoff_summary_status": "draft not clinically verified"
+    "visit_date": "2023-10-04",
+    "diagnosis": "Psoriasis",
+    "summary": "Follow-up assessment completed with treatment plan and monitoring instructions reviewed.",
+    "symptoms": [
+      {
+        "name": "Plaque rash",
+        "duration": "2 weeks",
+        "frequency": "Daily",
+        "trigger": "Late evening",
+        "onset": "Sudden"
+      },
+      {
+        "name": "Skin irritation",
+        "duration": "4 weeks",
+        "frequency": "Intermittent",
+        "trigger": "After meals",
+        "onset": "Gradual"
+      },
+      {
+        "name": "Itching",
+        "duration": "8 weeks",
+        "frequency": "Several times weekly",
+        "trigger": "Cold air",
+        "onset": "Sudden"
+      }
+    ],
+    "current_medications": "calcipotriene 0.005% thin layer",
+    "alcohol_use": "Social",
+    "smoking_status": "Current smoker",
+    "pregnancy_status": "N/A",
+    "immune_status": "Immunocompetent",
+    "lab_results": "crp: 8.9 mg/L (2023)"
   },
   {
     "encounter_key": "E058",
     "patient_key": "P058",
     "doctor_key": "D018",
-    "year": 2024,
-    "setting": "telehealth",
-    "reason": "Review of atopic dermatitis",
-    "assessment": "Fictional follow-up; clinical assessment pending",
-    "plan": "Clinician to review findings and next steps",
-    "handoff_summary_status": "draft not clinically verified"
+    "visit_date": "2024-11-05",
+    "diagnosis": "Atopic Dermatitis",
+    "summary": "Follow-up assessment completed with treatment plan and monitoring instructions reviewed.",
+    "symptoms": [
+      {
+        "name": "Pruritus",
+        "duration": "4 weeks",
+        "frequency": "Intermittent",
+        "trigger": "After meals",
+        "onset": "Gradual"
+      },
+      {
+        "name": "Dry skin",
+        "duration": "8 weeks",
+        "frequency": "Several times weekly",
+        "trigger": "Cold air",
+        "onset": "Sudden"
+      },
+      {
+        "name": "Eczematous rash",
+        "duration": "3 days",
+        "frequency": "Daily",
+        "trigger": "Exertion",
+        "onset": "Gradual"
+      }
+    ],
+    "current_medications": "triamcinolone 0.1% thin layer",
+    "alcohol_use": "Daily",
+    "smoking_status": "Never smoker",
+    "pregnancy_status": "Not Pregnant",
+    "immune_status": "Immunocompetent",
+    "lab_results": "eosinophils: 10.9 % (2024)"
   },
   {
     "encounter_key": "E059",
     "patient_key": "P059",
     "doctor_key": "D019",
-    "year": 2025,
-    "setting": "telehealth",
-    "reason": "Review of psoriasis",
-    "assessment": "Fictional follow-up; clinical assessment pending",
-    "plan": "Clinician to review findings and next steps",
-    "handoff_summary_status": "draft not clinically verified"
+    "visit_date": "2025-12-06",
+    "diagnosis": "Psoriasis",
+    "summary": "Follow-up assessment completed with treatment plan and monitoring instructions reviewed.",
+    "symptoms": [
+      {
+        "name": "Plaque rash",
+        "duration": "8 weeks",
+        "frequency": "Several times weekly",
+        "trigger": "Cold air",
+        "onset": "Sudden"
+      },
+      {
+        "name": "Skin irritation",
+        "duration": "3 days",
+        "frequency": "Daily",
+        "trigger": "Exertion",
+        "onset": "Gradual"
+      },
+      {
+        "name": "Itching",
+        "duration": "1 week",
+        "frequency": "Intermittent",
+        "trigger": "Stress",
+        "onset": "Sudden"
+      }
+    ],
+    "current_medications": "calcipotriene 0.005% thin layer",
+    "alcohol_use": "None",
+    "smoking_status": "Former smoker",
+    "pregnancy_status": "N/A",
+    "immune_status": "Immunocompetent",
+    "lab_results": "crp: 2.2 mg/L (2025)"
   },
   {
     "encounter_key": "E060",
     "patient_key": "P060",
     "doctor_key": "D020",
-    "year": 2026,
-    "setting": "office",
-    "reason": "Review of atopic dermatitis",
-    "assessment": "Fictional follow-up; clinical assessment pending",
-    "plan": "Clinician to review findings and next steps",
-    "handoff_summary_status": "draft not clinically verified"
+    "visit_date": "2026-01-07",
+    "diagnosis": "Atopic Dermatitis",
+    "summary": "Follow-up assessment completed with treatment plan and monitoring instructions reviewed.",
+    "symptoms": [
+      {
+        "name": "Pruritus",
+        "duration": "3 days",
+        "frequency": "Daily",
+        "trigger": "Exertion",
+        "onset": "Gradual"
+      },
+      {
+        "name": "Dry skin",
+        "duration": "1 week",
+        "frequency": "Intermittent",
+        "trigger": "Stress",
+        "onset": "Sudden"
+      },
+      {
+        "name": "Eczematous rash",
+        "duration": "2 weeks",
+        "frequency": "Several times weekly",
+        "trigger": "Late evening",
+        "onset": "Gradual"
+      }
+    ],
+    "current_medications": "triamcinolone 0.1% thin layer",
+    "alcohol_use": "Social",
+    "smoking_status": "Current smoker",
+    "pregnancy_status": "Not Pregnant",
+    "immune_status": "Immunocompetent",
+    "lab_results": "eosinophils: 4.2 % (2026)"
   },
   {
     "encounter_key": "E061",
     "patient_key": "P061",
     "doctor_key": "D021",
-    "year": 2023,
-    "setting": "office",
-    "reason": "Review of gout",
-    "assessment": "Fictional follow-up; clinical assessment pending",
-    "plan": "Clinician to review findings and next steps",
-    "handoff_summary_status": "draft not clinically verified"
+    "visit_date": "2023-02-08",
+    "diagnosis": "Gout",
+    "summary": "Follow-up assessment completed with treatment plan and monitoring instructions reviewed.",
+    "symptoms": [
+      {
+        "name": "Acute joint pain",
+        "duration": "1 week",
+        "frequency": "Intermittent",
+        "trigger": "Stress",
+        "onset": "Sudden"
+      },
+      {
+        "name": "Joint redness",
+        "duration": "2 weeks",
+        "frequency": "Several times weekly",
+        "trigger": "Late evening",
+        "onset": "Gradual"
+      },
+      {
+        "name": "Joint swelling",
+        "duration": "4 weeks",
+        "frequency": "Daily",
+        "trigger": "After meals",
+        "onset": "Sudden"
+      }
+    ],
+    "current_medications": "allopurinol 100 mg",
+    "alcohol_use": "Daily",
+    "smoking_status": "Never smoker",
+    "pregnancy_status": "Not Pregnant",
+    "immune_status": "Immunocompetent",
+    "lab_results": "uric_acid: 8.4 mg/dL (2023)"
   },
   {
     "encounter_key": "E062",
     "patient_key": "P062",
     "doctor_key": "D022",
-    "year": 2024,
-    "setting": "office",
-    "reason": "Review of rheumatoid arthritis",
-    "assessment": "Fictional follow-up; clinical assessment pending",
-    "plan": "Clinician to review findings and next steps",
-    "handoff_summary_status": "draft not clinically verified"
+    "visit_date": "2024-03-09",
+    "diagnosis": "Rheumatoid Arthritis",
+    "summary": "Follow-up assessment completed with treatment plan and monitoring instructions reviewed.",
+    "symptoms": [
+      {
+        "name": "Joint pain",
+        "duration": "2 weeks",
+        "frequency": "Several times weekly",
+        "trigger": "Late evening",
+        "onset": "Gradual"
+      },
+      {
+        "name": "Morning stiffness",
+        "duration": "4 weeks",
+        "frequency": "Daily",
+        "trigger": "After meals",
+        "onset": "Sudden"
+      },
+      {
+        "name": "Joint swelling",
+        "duration": "8 weeks",
+        "frequency": "Intermittent",
+        "trigger": "Cold air",
+        "onset": "Gradual"
+      }
+    ],
+    "current_medications": "methotrexate 10 mg",
+    "alcohol_use": "None",
+    "smoking_status": "Former smoker",
+    "pregnancy_status": "N/A",
+    "immune_status": "Immunocompetent",
+    "lab_results": "crp: 13.6 mg/L (2024)"
   },
   {
     "encounter_key": "E063",
     "patient_key": "P063",
     "doctor_key": "D023",
-    "year": 2025,
-    "setting": "telehealth",
-    "reason": "Review of gout",
-    "assessment": "Fictional follow-up; clinical assessment pending",
-    "plan": "Clinician to review findings and next steps",
-    "handoff_summary_status": "draft not clinically verified"
+    "visit_date": "2025-04-10",
+    "diagnosis": "Gout",
+    "summary": "Follow-up assessment completed with treatment plan and monitoring instructions reviewed.",
+    "symptoms": [
+      {
+        "name": "Acute joint pain",
+        "duration": "4 weeks",
+        "frequency": "Daily",
+        "trigger": "After meals",
+        "onset": "Sudden"
+      },
+      {
+        "name": "Joint redness",
+        "duration": "8 weeks",
+        "frequency": "Intermittent",
+        "trigger": "Cold air",
+        "onset": "Gradual"
+      },
+      {
+        "name": "Joint swelling",
+        "duration": "3 days",
+        "frequency": "Several times weekly",
+        "trigger": "Exertion",
+        "onset": "Sudden"
+      }
+    ],
+    "current_medications": "allopurinol 100 mg",
+    "alcohol_use": "Social",
+    "smoking_status": "Current smoker",
+    "pregnancy_status": "N/A",
+    "immune_status": "Immunocompetent",
+    "lab_results": "uric_acid: 8.1 mg/dL (2025)"
   },
   {
     "encounter_key": "E064",
     "patient_key": "P064",
     "doctor_key": "D024",
-    "year": 2026,
-    "setting": "office",
-    "reason": "Review of rheumatoid arthritis",
-    "assessment": "Fictional follow-up; clinical assessment pending",
-    "plan": "Clinician to review findings and next steps",
-    "handoff_summary_status": "draft not clinically verified"
+    "visit_date": "2026-05-11",
+    "diagnosis": "Rheumatoid Arthritis",
+    "summary": "Follow-up assessment completed with treatment plan and monitoring instructions reviewed.",
+    "symptoms": [
+      {
+        "name": "Joint pain",
+        "duration": "8 weeks",
+        "frequency": "Intermittent",
+        "trigger": "Cold air",
+        "onset": "Gradual"
+      },
+      {
+        "name": "Morning stiffness",
+        "duration": "3 days",
+        "frequency": "Several times weekly",
+        "trigger": "Exertion",
+        "onset": "Sudden"
+      },
+      {
+        "name": "Joint swelling",
+        "duration": "1 week",
+        "frequency": "Daily",
+        "trigger": "Stress",
+        "onset": "Gradual"
+      }
+    ],
+    "current_medications": "methotrexate 10 mg",
+    "alcohol_use": "Daily",
+    "smoking_status": "Never smoker",
+    "pregnancy_status": "Not Pregnant",
+    "immune_status": "Immunocompetent",
+    "lab_results": "crp: 7.9 mg/L (2026)"
   },
   {
     "encounter_key": "E065",
     "patient_key": "P065",
     "doctor_key": "D025",
-    "year": 2023,
-    "setting": "telehealth",
-    "reason": "Review of gout",
-    "assessment": "Fictional follow-up; clinical assessment pending",
-    "plan": "Clinician to review findings and next steps",
-    "handoff_summary_status": "draft not clinically verified"
+    "visit_date": "2023-06-12",
+    "diagnosis": "Gout",
+    "summary": "Follow-up assessment completed with treatment plan and monitoring instructions reviewed.",
+    "symptoms": [
+      {
+        "name": "Acute joint pain",
+        "duration": "3 days",
+        "frequency": "Several times weekly",
+        "trigger": "Exertion",
+        "onset": "Sudden"
+      },
+      {
+        "name": "Joint redness",
+        "duration": "1 week",
+        "frequency": "Daily",
+        "trigger": "Stress",
+        "onset": "Gradual"
+      },
+      {
+        "name": "Joint swelling",
+        "duration": "2 weeks",
+        "frequency": "Intermittent",
+        "trigger": "Late evening",
+        "onset": "Sudden"
+      }
+    ],
+    "current_medications": "allopurinol 100 mg",
+    "alcohol_use": "None",
+    "smoking_status": "Former smoker",
+    "pregnancy_status": "N/A",
+    "immune_status": "Immunocompetent",
+    "lab_results": "uric_acid: 8.4 mg/dL (2023)"
   },
   {
     "encounter_key": "E066",
     "patient_key": "P066",
     "doctor_key": "D026",
-    "year": 2024,
-    "setting": "telehealth",
-    "reason": "Review of gerd",
-    "assessment": "Fictional follow-up; clinical assessment pending",
-    "plan": "Clinician to review findings and next steps",
-    "handoff_summary_status": "draft not clinically verified"
+    "visit_date": "2024-07-13",
+    "diagnosis": "Gerd",
+    "summary": "Follow-up assessment completed with treatment plan and monitoring instructions reviewed.",
+    "symptoms": [
+      {
+        "name": "Fatigue",
+        "duration": "1 week",
+        "frequency": "Daily",
+        "trigger": "Stress",
+        "onset": "Gradual"
+      },
+      {
+        "name": "Pain",
+        "duration": "2 weeks",
+        "frequency": "Intermittent",
+        "trigger": "Late evening",
+        "onset": "Sudden"
+      },
+      {
+        "name": "Sleep disturbance",
+        "duration": "4 weeks",
+        "frequency": "Several times weekly",
+        "trigger": "After meals",
+        "onset": "Gradual"
+      }
+    ],
+    "current_medications": "omeprazole 20 mg",
+    "alcohol_use": "Social",
+    "smoking_status": "Current smoker",
+    "pregnancy_status": "Not Pregnant",
+    "immune_status": "Immunocompromised",
+    "lab_results": "hemoglobin: 10.8 g/dL (2024)"
   },
   {
     "encounter_key": "E067",
     "patient_key": "P067",
     "doctor_key": "D027",
-    "year": 2025,
-    "setting": "telehealth",
-    "reason": "Review of inflammatory bowel disease",
-    "assessment": "Fictional follow-up; clinical assessment pending",
-    "plan": "Clinician to review findings and next steps",
-    "handoff_summary_status": "draft not clinically verified"
+    "visit_date": "2025-08-14",
+    "diagnosis": "Inflammatory Bowel Disease",
+    "summary": "Follow-up assessment completed with treatment plan and monitoring instructions reviewed.",
+    "symptoms": [
+      {
+        "name": "Fatigue",
+        "duration": "2 weeks",
+        "frequency": "Intermittent",
+        "trigger": "Late evening",
+        "onset": "Sudden"
+      },
+      {
+        "name": "Pain",
+        "duration": "4 weeks",
+        "frequency": "Several times weekly",
+        "trigger": "After meals",
+        "onset": "Gradual"
+      },
+      {
+        "name": "Sleep disturbance",
+        "duration": "8 weeks",
+        "frequency": "Daily",
+        "trigger": "Cold air",
+        "onset": "Sudden"
+      }
+    ],
+    "current_medications": "mesalamine 800 mg",
+    "alcohol_use": "Daily",
+    "smoking_status": "Never smoker",
+    "pregnancy_status": "Not Pregnant",
+    "immune_status": "Immunocompetent",
+    "lab_results": "crp: 14.1 mg/L (2025)"
   },
   {
     "encounter_key": "E068",
     "patient_key": "P068",
     "doctor_key": "D028",
-    "year": 2026,
-    "setting": "office",
-    "reason": "Review of gerd",
-    "assessment": "Fictional follow-up; clinical assessment pending",
-    "plan": "Clinician to review findings and next steps",
-    "handoff_summary_status": "draft not clinically verified"
+    "visit_date": "2026-09-15",
+    "diagnosis": "Gerd",
+    "summary": "Follow-up assessment completed with treatment plan and monitoring instructions reviewed.",
+    "symptoms": [
+      {
+        "name": "Fatigue",
+        "duration": "4 weeks",
+        "frequency": "Several times weekly",
+        "trigger": "After meals",
+        "onset": "Gradual"
+      },
+      {
+        "name": "Pain",
+        "duration": "8 weeks",
+        "frequency": "Daily",
+        "trigger": "Cold air",
+        "onset": "Sudden"
+      },
+      {
+        "name": "Sleep disturbance",
+        "duration": "3 days",
+        "frequency": "Intermittent",
+        "trigger": "Exertion",
+        "onset": "Gradual"
+      }
+    ],
+    "current_medications": "omeprazole 20 mg",
+    "alcohol_use": "None",
+    "smoking_status": "Former smoker",
+    "pregnancy_status": "N/A",
+    "immune_status": "Immunocompetent",
+    "lab_results": "hemoglobin: 15.5 g/dL (2026)"
   },
   {
     "encounter_key": "E069",
     "patient_key": "P069",
     "doctor_key": "D029",
-    "year": 2023,
-    "setting": "telehealth",
-    "reason": "Review of inflammatory bowel disease",
-    "assessment": "Fictional follow-up; clinical assessment pending",
-    "plan": "Clinician to review findings and next steps",
-    "handoff_summary_status": "draft not clinically verified"
+    "visit_date": "2023-10-16",
+    "diagnosis": "Inflammatory Bowel Disease",
+    "summary": "Follow-up assessment completed with treatment plan and monitoring instructions reviewed.",
+    "symptoms": [
+      {
+        "name": "Fatigue",
+        "duration": "8 weeks",
+        "frequency": "Daily",
+        "trigger": "Cold air",
+        "onset": "Sudden"
+      },
+      {
+        "name": "Pain",
+        "duration": "3 days",
+        "frequency": "Intermittent",
+        "trigger": "Exertion",
+        "onset": "Gradual"
+      },
+      {
+        "name": "Sleep disturbance",
+        "duration": "1 week",
+        "frequency": "Several times weekly",
+        "trigger": "Stress",
+        "onset": "Sudden"
+      }
+    ],
+    "current_medications": "mesalamine 800 mg",
+    "alcohol_use": "Social",
+    "smoking_status": "Current smoker",
+    "pregnancy_status": "N/A",
+    "immune_status": "Immunocompetent",
+    "lab_results": "crp: 12.1 mg/L (2023)"
   },
   {
     "encounter_key": "E070",
     "patient_key": "P070",
     "doctor_key": "D030",
-    "year": 2024,
-    "setting": "office",
-    "reason": "Review of gerd",
-    "assessment": "Fictional follow-up; clinical assessment pending",
-    "plan": "Clinician to review findings and next steps",
-    "handoff_summary_status": "draft not clinically verified"
+    "visit_date": "2024-11-17",
+    "diagnosis": "Gerd",
+    "summary": "Follow-up assessment completed with treatment plan and monitoring instructions reviewed.",
+    "symptoms": [
+      {
+        "name": "Fatigue",
+        "duration": "3 days",
+        "frequency": "Intermittent",
+        "trigger": "Exertion",
+        "onset": "Gradual"
+      },
+      {
+        "name": "Pain",
+        "duration": "1 week",
+        "frequency": "Several times weekly",
+        "trigger": "Stress",
+        "onset": "Sudden"
+      },
+      {
+        "name": "Sleep disturbance",
+        "duration": "2 weeks",
+        "frequency": "Daily",
+        "trigger": "Late evening",
+        "onset": "Gradual"
+      }
+    ],
+    "current_medications": "omeprazole 20 mg",
+    "alcohol_use": "Daily",
+    "smoking_status": "Never smoker",
+    "pregnancy_status": "Not Pregnant",
+    "immune_status": "Immunocompetent",
+    "lab_results": "hemoglobin: 14.7 g/dL (2024)"
   },
   {
     "encounter_key": "E071",
     "patient_key": "P071",
     "doctor_key": "D031",
-    "year": 2025,
-    "setting": "office",
-    "reason": "Review of epilepsy",
-    "assessment": "Fictional follow-up; clinical assessment pending",
-    "plan": "Clinician to review findings and next steps",
-    "handoff_summary_status": "draft not clinically verified"
+    "visit_date": "2025-12-18",
+    "diagnosis": "Epilepsy",
+    "summary": "Follow-up assessment completed with treatment plan and monitoring instructions reviewed.",
+    "symptoms": [
+      {
+        "name": "Fatigue",
+        "duration": "1 week",
+        "frequency": "Several times weekly",
+        "trigger": "Stress",
+        "onset": "Sudden"
+      },
+      {
+        "name": "Pain",
+        "duration": "2 weeks",
+        "frequency": "Daily",
+        "trigger": "Late evening",
+        "onset": "Gradual"
+      },
+      {
+        "name": "Sleep disturbance",
+        "duration": "4 weeks",
+        "frequency": "Intermittent",
+        "trigger": "After meals",
+        "onset": "Sudden"
+      }
+    ],
+    "current_medications": "levetiracetam 500 mg",
+    "alcohol_use": "None",
+    "smoking_status": "Former smoker",
+    "pregnancy_status": "N/A",
+    "immune_status": "Immunocompetent",
+    "lab_results": "creatinine: 1.9 mg/dL (2025)"
   },
   {
     "encounter_key": "E072",
     "patient_key": "P072",
     "doctor_key": "D032",
-    "year": 2026,
-    "setting": "telehealth",
-    "reason": "Review of migraine",
-    "assessment": "Fictional follow-up; clinical assessment pending",
-    "plan": "Clinician to review findings and next steps",
-    "handoff_summary_status": "draft not clinically verified"
+    "visit_date": "2026-01-19",
+    "diagnosis": "Migraine",
+    "summary": "Follow-up assessment completed with treatment plan and monitoring instructions reviewed.",
+    "symptoms": [
+      {
+        "name": "Fatigue",
+        "duration": "2 weeks",
+        "frequency": "Daily",
+        "trigger": "Late evening",
+        "onset": "Gradual"
+      },
+      {
+        "name": "Pain",
+        "duration": "4 weeks",
+        "frequency": "Intermittent",
+        "trigger": "After meals",
+        "onset": "Sudden"
+      },
+      {
+        "name": "Sleep disturbance",
+        "duration": "8 weeks",
+        "frequency": "Several times weekly",
+        "trigger": "Cold air",
+        "onset": "Gradual"
+      }
+    ],
+    "current_medications": "sumatriptan 50 mg",
+    "alcohol_use": "Social",
+    "smoking_status": "Current smoker",
+    "pregnancy_status": "Not Pregnant",
+    "immune_status": "Immunocompetent",
+    "lab_results": "hemoglobin: 11.9 g/dL (2026)"
   },
   {
     "encounter_key": "E073",
     "patient_key": "P073",
     "doctor_key": "D033",
-    "year": 2023,
-    "setting": "telehealth",
-    "reason": "Review of epilepsy",
-    "assessment": "Fictional follow-up; clinical assessment pending",
-    "plan": "Clinician to review findings and next steps",
-    "handoff_summary_status": "draft not clinically verified"
+    "visit_date": "2023-02-20",
+    "diagnosis": "Epilepsy",
+    "summary": "Follow-up assessment completed with treatment plan and monitoring instructions reviewed.",
+    "symptoms": [
+      {
+        "name": "Fatigue",
+        "duration": "4 weeks",
+        "frequency": "Intermittent",
+        "trigger": "After meals",
+        "onset": "Sudden"
+      },
+      {
+        "name": "Pain",
+        "duration": "8 weeks",
+        "frequency": "Several times weekly",
+        "trigger": "Cold air",
+        "onset": "Gradual"
+      },
+      {
+        "name": "Sleep disturbance",
+        "duration": "3 days",
+        "frequency": "Daily",
+        "trigger": "Exertion",
+        "onset": "Sudden"
+      }
+    ],
+    "current_medications": "levetiracetam 500 mg",
+    "alcohol_use": "Daily",
+    "smoking_status": "Never smoker",
+    "pregnancy_status": "Not Pregnant",
+    "immune_status": "Immunocompetent",
+    "lab_results": "creatinine: 1.6 mg/dL (2023)"
   },
   {
     "encounter_key": "E074",
     "patient_key": "P074",
     "doctor_key": "D034",
-    "year": 2024,
-    "setting": "telehealth",
-    "reason": "Review of migraine",
-    "assessment": "Fictional follow-up; clinical assessment pending",
-    "plan": "Clinician to review findings and next steps",
-    "handoff_summary_status": "draft not clinically verified"
+    "visit_date": "2024-03-21",
+    "diagnosis": "Migraine",
+    "summary": "Follow-up assessment completed with treatment plan and monitoring instructions reviewed.",
+    "symptoms": [
+      {
+        "name": "Fatigue",
+        "duration": "8 weeks",
+        "frequency": "Several times weekly",
+        "trigger": "Cold air",
+        "onset": "Gradual"
+      },
+      {
+        "name": "Pain",
+        "duration": "3 days",
+        "frequency": "Daily",
+        "trigger": "Exertion",
+        "onset": "Sudden"
+      },
+      {
+        "name": "Sleep disturbance",
+        "duration": "1 week",
+        "frequency": "Intermittent",
+        "trigger": "Stress",
+        "onset": "Gradual"
+      }
+    ],
+    "current_medications": "sumatriptan 50 mg",
+    "alcohol_use": "None",
+    "smoking_status": "Former smoker",
+    "pregnancy_status": "N/A",
+    "immune_status": "Immunocompetent",
+    "lab_results": "hemoglobin: 11.1 g/dL (2024)"
   },
   {
     "encounter_key": "E075",
     "patient_key": "P075",
     "doctor_key": "D035",
-    "year": 2025,
-    "setting": "telehealth",
-    "reason": "Review of epilepsy",
-    "assessment": "Fictional follow-up; clinical assessment pending",
-    "plan": "Clinician to review findings and next steps",
-    "handoff_summary_status": "draft not clinically verified"
+    "visit_date": "2025-04-22",
+    "diagnosis": "Epilepsy",
+    "summary": "Follow-up assessment completed with treatment plan and monitoring instructions reviewed.",
+    "symptoms": [
+      {
+        "name": "Fatigue",
+        "duration": "3 days",
+        "frequency": "Daily",
+        "trigger": "Exertion",
+        "onset": "Sudden"
+      },
+      {
+        "name": "Pain",
+        "duration": "1 week",
+        "frequency": "Intermittent",
+        "trigger": "Stress",
+        "onset": "Gradual"
+      },
+      {
+        "name": "Sleep disturbance",
+        "duration": "2 weeks",
+        "frequency": "Several times weekly",
+        "trigger": "Late evening",
+        "onset": "Sudden"
+      }
+    ],
+    "current_medications": "levetiracetam 500 mg",
+    "alcohol_use": "Social",
+    "smoking_status": "Current smoker",
+    "pregnancy_status": "N/A",
+    "immune_status": "Immunocompetent",
+    "lab_results": "creatinine: 1.5 mg/dL (2025)"
   },
   {
     "encounter_key": "E076",
     "patient_key": "P076",
     "doctor_key": "D036",
-    "year": 2026,
-    "setting": "telehealth",
-    "reason": "Review of hyperlipidemia",
-    "assessment": "Fictional follow-up; clinical assessment pending",
-    "plan": "Clinician to review findings and next steps",
-    "handoff_summary_status": "draft not clinically verified"
+    "visit_date": "2026-05-23",
+    "diagnosis": "Hyperlipidemia",
+    "summary": "Follow-up assessment completed with treatment plan and monitoring instructions reviewed.",
+    "symptoms": [
+      {
+        "name": "Fatigue",
+        "duration": "1 week",
+        "frequency": "Intermittent",
+        "trigger": "Stress",
+        "onset": "Gradual"
+      },
+      {
+        "name": "Pain",
+        "duration": "2 weeks",
+        "frequency": "Several times weekly",
+        "trigger": "Late evening",
+        "onset": "Sudden"
+      },
+      {
+        "name": "Sleep disturbance",
+        "duration": "4 weeks",
+        "frequency": "Daily",
+        "trigger": "After meals",
+        "onset": "Gradual"
+      }
+    ],
+    "current_medications": "atorvastatin 10 mg",
+    "alcohol_use": "Daily",
+    "smoking_status": "Never smoker",
+    "pregnancy_status": "Not Pregnant",
+    "immune_status": "Immunocompetent",
+    "lab_results": "ldl_cholesterol: 108.2 mg/dL (2026)"
   },
   {
     "encounter_key": "E077",
     "patient_key": "P077",
     "doctor_key": "D037",
-    "year": 2023,
-    "setting": "office",
-    "reason": "Review of iron deficiency anemia",
-    "assessment": "Fictional follow-up; clinical assessment pending",
-    "plan": "Clinician to review findings and next steps",
-    "handoff_summary_status": "draft not clinically verified"
+    "visit_date": "2023-06-24",
+    "diagnosis": "Iron Deficiency Anemia",
+    "summary": "Follow-up assessment completed with treatment plan and monitoring instructions reviewed.",
+    "symptoms": [
+      {
+        "name": "Fatigue",
+        "duration": "2 weeks",
+        "frequency": "Several times weekly",
+        "trigger": "Late evening",
+        "onset": "Sudden"
+      },
+      {
+        "name": "Pain",
+        "duration": "4 weeks",
+        "frequency": "Daily",
+        "trigger": "After meals",
+        "onset": "Gradual"
+      },
+      {
+        "name": "Sleep disturbance",
+        "duration": "8 weeks",
+        "frequency": "Intermittent",
+        "trigger": "Cold air",
+        "onset": "Sudden"
+      }
+    ],
+    "current_medications": "ferrous sulfate 325 mg",
+    "alcohol_use": "None",
+    "smoking_status": "Former smoker",
+    "pregnancy_status": "N/A",
+    "immune_status": "Immunocompromised",
+    "lab_results": "hemoglobin: 9.1 g/dL (2023)"
   },
   {
     "encounter_key": "E078",
     "patient_key": "P078",
     "doctor_key": "D038",
-    "year": 2024,
-    "setting": "office",
-    "reason": "Review of hyperlipidemia",
-    "assessment": "Fictional follow-up; clinical assessment pending",
-    "plan": "Clinician to review findings and next steps",
-    "handoff_summary_status": "draft not clinically verified"
+    "visit_date": "2024-07-25",
+    "diagnosis": "Hyperlipidemia",
+    "summary": "Follow-up assessment completed with treatment plan and monitoring instructions reviewed.",
+    "symptoms": [
+      {
+        "name": "Fatigue",
+        "duration": "4 weeks",
+        "frequency": "Daily",
+        "trigger": "After meals",
+        "onset": "Gradual"
+      },
+      {
+        "name": "Pain",
+        "duration": "8 weeks",
+        "frequency": "Intermittent",
+        "trigger": "Cold air",
+        "onset": "Sudden"
+      },
+      {
+        "name": "Sleep disturbance",
+        "duration": "3 days",
+        "frequency": "Several times weekly",
+        "trigger": "Exertion",
+        "onset": "Gradual"
+      }
+    ],
+    "current_medications": "atorvastatin 10 mg",
+    "alcohol_use": "Social",
+    "smoking_status": "Current smoker",
+    "pregnancy_status": "Not Pregnant",
+    "immune_status": "Immunocompetent",
+    "lab_results": "ldl_cholesterol: 115.0 mg/dL (2024)"
   },
   {
     "encounter_key": "E079",
     "patient_key": "P079",
     "doctor_key": "D039",
-    "year": 2025,
-    "setting": "telehealth",
-    "reason": "Review of iron deficiency anemia",
-    "assessment": "Fictional follow-up; clinical assessment pending",
-    "plan": "Clinician to review findings and next steps",
-    "handoff_summary_status": "draft not clinically verified"
+    "visit_date": "2025-08-26",
+    "diagnosis": "Iron Deficiency Anemia",
+    "summary": "Follow-up assessment completed with treatment plan and monitoring instructions reviewed.",
+    "symptoms": [
+      {
+        "name": "Fatigue",
+        "duration": "8 weeks",
+        "frequency": "Intermittent",
+        "trigger": "Cold air",
+        "onset": "Sudden"
+      },
+      {
+        "name": "Pain",
+        "duration": "3 days",
+        "frequency": "Several times weekly",
+        "trigger": "Exertion",
+        "onset": "Gradual"
+      },
+      {
+        "name": "Sleep disturbance",
+        "duration": "1 week",
+        "frequency": "Daily",
+        "trigger": "Stress",
+        "onset": "Sudden"
+      }
+    ],
+    "current_medications": "ferrous sulfate 325 mg",
+    "alcohol_use": "Daily",
+    "smoking_status": "Never smoker",
+    "pregnancy_status": "Not Pregnant",
+    "immune_status": "Immunocompetent",
+    "lab_results": "hemoglobin: 10.0 g/dL (2025)"
   },
   {
     "encounter_key": "E080",
     "patient_key": "P080",
     "doctor_key": "D040",
-    "year": 2026,
-    "setting": "office",
-    "reason": "Review of hyperlipidemia",
-    "assessment": "Fictional follow-up; clinical assessment pending",
-    "plan": "Clinician to review findings and next steps",
-    "handoff_summary_status": "draft not clinically verified"
+    "visit_date": "2026-09-27",
+    "diagnosis": "Hyperlipidemia",
+    "summary": "Follow-up assessment completed with treatment plan and monitoring instructions reviewed.",
+    "symptoms": [
+      {
+        "name": "Fatigue",
+        "duration": "3 days",
+        "frequency": "Several times weekly",
+        "trigger": "Exertion",
+        "onset": "Gradual"
+      },
+      {
+        "name": "Pain",
+        "duration": "1 week",
+        "frequency": "Daily",
+        "trigger": "Stress",
+        "onset": "Sudden"
+      },
+      {
+        "name": "Sleep disturbance",
+        "duration": "2 weeks",
+        "frequency": "Intermittent",
+        "trigger": "Late evening",
+        "onset": "Gradual"
+      }
+    ],
+    "current_medications": "atorvastatin 10 mg",
+    "alcohol_use": "None",
+    "smoking_status": "Former smoker",
+    "pregnancy_status": "N/A",
+    "immune_status": "Immunocompetent",
+    "lab_results": "ldl_cholesterol: 172.4 mg/dL (2026)"
   },
   {
     "encounter_key": "E081",
     "patient_key": "P081",
     "doctor_key": "D001",
-    "year": 2023,
-    "setting": "office",
-    "reason": "Review of hypertension",
-    "assessment": "Fictional follow-up; clinical assessment pending",
-    "plan": "Clinician to review findings and next steps",
-    "handoff_summary_status": "draft not clinically verified"
+    "visit_date": "2023-10-01",
+    "diagnosis": "Hypertension",
+    "summary": "Follow-up assessment completed with treatment plan and monitoring instructions reviewed.",
+    "symptoms": [
+      {
+        "name": "Headache",
+        "duration": "1 week",
+        "frequency": "Daily",
+        "trigger": "Stress",
+        "onset": "Sudden"
+      },
+      {
+        "name": "Dizziness",
+        "duration": "2 weeks",
+        "frequency": "Intermittent",
+        "trigger": "Late evening",
+        "onset": "Gradual"
+      },
+      {
+        "name": "Elevated blood pressure",
+        "duration": "4 weeks",
+        "frequency": "Several times weekly",
+        "trigger": "After meals",
+        "onset": "Sudden"
+      }
+    ],
+    "current_medications": "amlodipine 5 mg",
+    "alcohol_use": "Social",
+    "smoking_status": "Current smoker",
+    "pregnancy_status": "N/A",
+    "immune_status": "Immunocompetent",
+    "lab_results": "blood_pressure_systolic: 139.1 mmHg (2023)"
   },
   {
     "encounter_key": "E082",
     "patient_key": "P082",
     "doctor_key": "D002",
-    "year": 2024,
-    "setting": "office",
-    "reason": "Review of heart failure",
-    "assessment": "Fictional follow-up; clinical assessment pending",
-    "plan": "Clinician to review findings and next steps",
-    "handoff_summary_status": "draft not clinically verified"
+    "visit_date": "2024-11-02",
+    "diagnosis": "Heart Failure",
+    "summary": "Follow-up assessment completed with treatment plan and monitoring instructions reviewed.",
+    "symptoms": [
+      {
+        "name": "Shortness of breath",
+        "duration": "2 weeks",
+        "frequency": "Intermittent",
+        "trigger": "Late evening",
+        "onset": "Gradual"
+      },
+      {
+        "name": "Leg swelling",
+        "duration": "4 weeks",
+        "frequency": "Several times weekly",
+        "trigger": "After meals",
+        "onset": "Sudden"
+      },
+      {
+        "name": "Fatigue",
+        "duration": "8 weeks",
+        "frequency": "Daily",
+        "trigger": "Cold air",
+        "onset": "Gradual"
+      }
+    ],
+    "current_medications": "furosemide 20 mg",
+    "alcohol_use": "Daily",
+    "smoking_status": "Never smoker",
+    "pregnancy_status": "Not Pregnant",
+    "immune_status": "Immunocompetent",
+    "lab_results": "creatinine: 0.8 mg/dL (2024)"
   },
   {
     "encounter_key": "E083",
     "patient_key": "P083",
     "doctor_key": "D003",
-    "year": 2025,
-    "setting": "telehealth",
-    "reason": "Review of hypertension",
-    "assessment": "Fictional follow-up; clinical assessment pending",
-    "plan": "Clinician to review findings and next steps",
-    "handoff_summary_status": "draft not clinically verified"
+    "visit_date": "2025-12-03",
+    "diagnosis": "Hypertension",
+    "summary": "Follow-up assessment completed with treatment plan and monitoring instructions reviewed.",
+    "symptoms": [
+      {
+        "name": "Headache",
+        "duration": "4 weeks",
+        "frequency": "Several times weekly",
+        "trigger": "After meals",
+        "onset": "Sudden"
+      },
+      {
+        "name": "Dizziness",
+        "duration": "8 weeks",
+        "frequency": "Daily",
+        "trigger": "Cold air",
+        "onset": "Gradual"
+      },
+      {
+        "name": "Elevated blood pressure",
+        "duration": "3 days",
+        "frequency": "Intermittent",
+        "trigger": "Exertion",
+        "onset": "Sudden"
+      }
+    ],
+    "current_medications": "amlodipine 5 mg",
+    "alcohol_use": "None",
+    "smoking_status": "Former smoker",
+    "pregnancy_status": "N/A",
+    "immune_status": "Immunocompetent",
+    "lab_results": "blood_pressure_systolic: 141.9 mmHg (2025)"
   },
   {
     "encounter_key": "E084",
     "patient_key": "P084",
     "doctor_key": "D004",
-    "year": 2026,
-    "setting": "office",
-    "reason": "Review of heart failure",
-    "assessment": "Fictional follow-up; clinical assessment pending",
-    "plan": "Clinician to review findings and next steps",
-    "handoff_summary_status": "draft not clinically verified"
+    "visit_date": "2026-01-04",
+    "diagnosis": "Heart Failure",
+    "summary": "Follow-up assessment completed with treatment plan and monitoring instructions reviewed.",
+    "symptoms": [
+      {
+        "name": "Shortness of breath",
+        "duration": "8 weeks",
+        "frequency": "Daily",
+        "trigger": "Cold air",
+        "onset": "Gradual"
+      },
+      {
+        "name": "Leg swelling",
+        "duration": "3 days",
+        "frequency": "Intermittent",
+        "trigger": "Exertion",
+        "onset": "Sudden"
+      },
+      {
+        "name": "Fatigue",
+        "duration": "1 week",
+        "frequency": "Several times weekly",
+        "trigger": "Stress",
+        "onset": "Gradual"
+      }
+    ],
+    "current_medications": "furosemide 20 mg",
+    "alcohol_use": "Social",
+    "smoking_status": "Current smoker",
+    "pregnancy_status": "Not Pregnant",
+    "immune_status": "Immunocompetent",
+    "lab_results": "creatinine: 0.8 mg/dL (2026)"
   },
   {
     "encounter_key": "E085",
     "patient_key": "P085",
     "doctor_key": "D005",
-    "year": 2023,
-    "setting": "telehealth",
-    "reason": "Review of hypertension",
-    "assessment": "Fictional follow-up; clinical assessment pending",
-    "plan": "Clinician to review findings and next steps",
-    "handoff_summary_status": "draft not clinically verified"
+    "visit_date": "2023-02-05",
+    "diagnosis": "Hypertension",
+    "summary": "Follow-up assessment completed with treatment plan and monitoring instructions reviewed.",
+    "symptoms": [
+      {
+        "name": "Headache",
+        "duration": "3 days",
+        "frequency": "Intermittent",
+        "trigger": "Exertion",
+        "onset": "Sudden"
+      },
+      {
+        "name": "Dizziness",
+        "duration": "1 week",
+        "frequency": "Several times weekly",
+        "trigger": "Stress",
+        "onset": "Gradual"
+      },
+      {
+        "name": "Elevated blood pressure",
+        "duration": "2 weeks",
+        "frequency": "Daily",
+        "trigger": "Late evening",
+        "onset": "Sudden"
+      }
+    ],
+    "current_medications": "amlodipine 5 mg",
+    "alcohol_use": "Daily",
+    "smoking_status": "Never smoker",
+    "pregnancy_status": "Not Pregnant",
+    "immune_status": "Immunocompetent",
+    "lab_results": "blood_pressure_systolic: 151.7 mmHg (2023)"
   },
   {
     "encounter_key": "E086",
     "patient_key": "P086",
     "doctor_key": "D006",
-    "year": 2024,
-    "setting": "telehealth",
-    "reason": "Review of hypothyroidism",
-    "assessment": "Fictional follow-up; clinical assessment pending",
-    "plan": "Clinician to review findings and next steps",
-    "handoff_summary_status": "draft not clinically verified"
+    "visit_date": "2024-03-06",
+    "diagnosis": "Hypothyroidism",
+    "summary": "Follow-up assessment completed with treatment plan and monitoring instructions reviewed.",
+    "symptoms": [
+      {
+        "name": "Fatigue",
+        "duration": "1 week",
+        "frequency": "Several times weekly",
+        "trigger": "Stress",
+        "onset": "Gradual"
+      },
+      {
+        "name": "Cold intolerance",
+        "duration": "2 weeks",
+        "frequency": "Daily",
+        "trigger": "Late evening",
+        "onset": "Sudden"
+      },
+      {
+        "name": "Weight gain",
+        "duration": "4 weeks",
+        "frequency": "Intermittent",
+        "trigger": "After meals",
+        "onset": "Gradual"
+      }
+    ],
+    "current_medications": "levothyroxine 50 mcg",
+    "alcohol_use": "None",
+    "smoking_status": "Former smoker",
+    "pregnancy_status": "N/A",
+    "immune_status": "Immunocompetent",
+    "lab_results": "tsh: 5.1 mIU/L (2024)"
   },
   {
     "encounter_key": "E087",
     "patient_key": "P087",
     "doctor_key": "D007",
-    "year": 2025,
-    "setting": "office",
-    "reason": "Review of type 2 diabetes",
-    "assessment": "Fictional follow-up; clinical assessment pending",
-    "plan": "Clinician to review findings and next steps",
-    "handoff_summary_status": "draft not clinically verified"
+    "visit_date": "2025-04-07",
+    "diagnosis": "Type 2 Diabetes",
+    "summary": "Follow-up assessment completed with treatment plan and monitoring instructions reviewed.",
+    "symptoms": [
+      {
+        "name": "Increased thirst",
+        "duration": "2 weeks",
+        "frequency": "Daily",
+        "trigger": "Late evening",
+        "onset": "Sudden"
+      },
+      {
+        "name": "Frequent urination",
+        "duration": "4 weeks",
+        "frequency": "Intermittent",
+        "trigger": "After meals",
+        "onset": "Gradual"
+      },
+      {
+        "name": "Blurred vision",
+        "duration": "8 weeks",
+        "frequency": "Several times weekly",
+        "trigger": "Cold air",
+        "onset": "Sudden"
+      }
+    ],
+    "current_medications": "metformin 500 mg",
+    "alcohol_use": "Social",
+    "smoking_status": "Current smoker",
+    "pregnancy_status": "N/A",
+    "immune_status": "Immunocompetent",
+    "lab_results": "hba1c: 8.1 % (2025)"
   },
   {
     "encounter_key": "E088",
     "patient_key": "P088",
     "doctor_key": "D008",
-    "year": 2026,
-    "setting": "office",
-    "reason": "Review of hypothyroidism",
-    "assessment": "Fictional follow-up; clinical assessment pending",
-    "plan": "Clinician to review findings and next steps",
-    "handoff_summary_status": "draft not clinically verified"
+    "visit_date": "2026-05-08",
+    "diagnosis": "Hypothyroidism",
+    "summary": "Follow-up assessment completed with treatment plan and monitoring instructions reviewed.",
+    "symptoms": [
+      {
+        "name": "Fatigue",
+        "duration": "4 weeks",
+        "frequency": "Intermittent",
+        "trigger": "After meals",
+        "onset": "Gradual"
+      },
+      {
+        "name": "Cold intolerance",
+        "duration": "8 weeks",
+        "frequency": "Several times weekly",
+        "trigger": "Cold air",
+        "onset": "Sudden"
+      },
+      {
+        "name": "Weight gain",
+        "duration": "3 days",
+        "frequency": "Daily",
+        "trigger": "Exertion",
+        "onset": "Gradual"
+      }
+    ],
+    "current_medications": "levothyroxine 50 mcg",
+    "alcohol_use": "Daily",
+    "smoking_status": "Never smoker",
+    "pregnancy_status": "Not Pregnant",
+    "immune_status": "Immunocompromised",
+    "lab_results": "tsh: 2.9 mIU/L (2026)"
   },
   {
     "encounter_key": "E089",
     "patient_key": "P089",
     "doctor_key": "D009",
-    "year": 2023,
-    "setting": "telehealth",
-    "reason": "Review of type 2 diabetes",
-    "assessment": "Fictional follow-up; clinical assessment pending",
-    "plan": "Clinician to review findings and next steps",
-    "handoff_summary_status": "draft not clinically verified"
+    "visit_date": "2023-06-09",
+    "diagnosis": "Type 2 Diabetes",
+    "summary": "Follow-up assessment completed with treatment plan and monitoring instructions reviewed.",
+    "symptoms": [
+      {
+        "name": "Increased thirst",
+        "duration": "8 weeks",
+        "frequency": "Several times weekly",
+        "trigger": "Cold air",
+        "onset": "Sudden"
+      },
+      {
+        "name": "Frequent urination",
+        "duration": "3 days",
+        "frequency": "Daily",
+        "trigger": "Exertion",
+        "onset": "Gradual"
+      },
+      {
+        "name": "Blurred vision",
+        "duration": "1 week",
+        "frequency": "Intermittent",
+        "trigger": "Stress",
+        "onset": "Sudden"
+      }
+    ],
+    "current_medications": "metformin 500 mg",
+    "alcohol_use": "None",
+    "smoking_status": "Former smoker",
+    "pregnancy_status": "N/A",
+    "immune_status": "Immunocompetent",
+    "lab_results": "hba1c: 10.2 % (2023)"
   },
   {
     "encounter_key": "E090",
     "patient_key": "P090",
     "doctor_key": "D010",
-    "year": 2024,
-    "setting": "office",
-    "reason": "Review of hypothyroidism",
-    "assessment": "Fictional follow-up; clinical assessment pending",
-    "plan": "Clinician to review findings and next steps",
-    "handoff_summary_status": "draft not clinically verified"
+    "visit_date": "2024-07-10",
+    "diagnosis": "Hypothyroidism",
+    "summary": "Follow-up assessment completed with treatment plan and monitoring instructions reviewed.",
+    "symptoms": [
+      {
+        "name": "Fatigue",
+        "duration": "3 days",
+        "frequency": "Daily",
+        "trigger": "Exertion",
+        "onset": "Gradual"
+      },
+      {
+        "name": "Cold intolerance",
+        "duration": "1 week",
+        "frequency": "Intermittent",
+        "trigger": "Stress",
+        "onset": "Sudden"
+      },
+      {
+        "name": "Weight gain",
+        "duration": "2 weeks",
+        "frequency": "Several times weekly",
+        "trigger": "Late evening",
+        "onset": "Gradual"
+      }
+    ],
+    "current_medications": "levothyroxine 50 mcg",
+    "alcohol_use": "Social",
+    "smoking_status": "Current smoker",
+    "pregnancy_status": "Not Pregnant",
+    "immune_status": "Immunocompetent",
+    "lab_results": "tsh: 6.2 mIU/L (2024)"
   },
   {
     "encounter_key": "E091",
     "patient_key": "P091",
     "doctor_key": "D011",
-    "year": 2025,
-    "setting": "telehealth",
-    "reason": "Review of asthma",
-    "assessment": "Fictional follow-up; clinical assessment pending",
-    "plan": "Clinician to review findings and next steps",
-    "handoff_summary_status": "draft not clinically verified"
+    "visit_date": "2025-08-11",
+    "diagnosis": "Asthma",
+    "summary": "Follow-up assessment completed with treatment plan and monitoring instructions reviewed.",
+    "symptoms": [
+      {
+        "name": "Wheezing",
+        "duration": "1 week",
+        "frequency": "Intermittent",
+        "trigger": "Stress",
+        "onset": "Sudden"
+      },
+      {
+        "name": "Cough",
+        "duration": "2 weeks",
+        "frequency": "Several times weekly",
+        "trigger": "Late evening",
+        "onset": "Gradual"
+      },
+      {
+        "name": "Chest tightness",
+        "duration": "4 weeks",
+        "frequency": "Daily",
+        "trigger": "After meals",
+        "onset": "Sudden"
+      }
+    ],
+    "current_medications": "budesonide 200 mcg",
+    "alcohol_use": "Daily",
+    "smoking_status": "Never smoker",
+    "pregnancy_status": "Not Pregnant",
+    "immune_status": "Immunocompetent",
+    "lab_results": "peak_flow: 269.8 L/min (2025)"
   },
   {
     "encounter_key": "E092",
     "patient_key": "P092",
     "doctor_key": "D012",
-    "year": 2026,
-    "setting": "telehealth",
-    "reason": "Review of copd",
-    "assessment": "Fictional follow-up; clinical assessment pending",
-    "plan": "Clinician to review findings and next steps",
-    "handoff_summary_status": "draft not clinically verified"
+    "visit_date": "2026-09-12",
+    "diagnosis": "Copd",
+    "summary": "Follow-up assessment completed with treatment plan and monitoring instructions reviewed.",
+    "symptoms": [
+      {
+        "name": "Chronic cough",
+        "duration": "2 weeks",
+        "frequency": "Several times weekly",
+        "trigger": "Late evening",
+        "onset": "Gradual"
+      },
+      {
+        "name": "Dyspnea",
+        "duration": "4 weeks",
+        "frequency": "Daily",
+        "trigger": "After meals",
+        "onset": "Sudden"
+      },
+      {
+        "name": "Sputum production",
+        "duration": "8 weeks",
+        "frequency": "Intermittent",
+        "trigger": "Cold air",
+        "onset": "Gradual"
+      }
+    ],
+    "current_medications": "tiotropium 18 mcg",
+    "alcohol_use": "None",
+    "smoking_status": "Former smoker",
+    "pregnancy_status": "N/A",
+    "immune_status": "Immunocompetent",
+    "lab_results": "oxygen_saturation: 95.6 % (2026)"
   },
   {
     "encounter_key": "E093",
     "patient_key": "P093",
     "doctor_key": "D013",
-    "year": 2023,
-    "setting": "office",
-    "reason": "Review of asthma",
-    "assessment": "Fictional follow-up; clinical assessment pending",
-    "plan": "Clinician to review findings and next steps",
-    "handoff_summary_status": "draft not clinically verified"
+    "visit_date": "2023-10-13",
+    "diagnosis": "Asthma",
+    "summary": "Follow-up assessment completed with treatment plan and monitoring instructions reviewed.",
+    "symptoms": [
+      {
+        "name": "Wheezing",
+        "duration": "4 weeks",
+        "frequency": "Daily",
+        "trigger": "After meals",
+        "onset": "Sudden"
+      },
+      {
+        "name": "Cough",
+        "duration": "8 weeks",
+        "frequency": "Intermittent",
+        "trigger": "Cold air",
+        "onset": "Gradual"
+      },
+      {
+        "name": "Chest tightness",
+        "duration": "3 days",
+        "frequency": "Several times weekly",
+        "trigger": "Exertion",
+        "onset": "Sudden"
+      }
+    ],
+    "current_medications": "budesonide 200 mcg",
+    "alcohol_use": "Social",
+    "smoking_status": "Current smoker",
+    "pregnancy_status": "N/A",
+    "immune_status": "Immunocompetent",
+    "lab_results": "peak_flow: 234.6 L/min (2023)"
   },
   {
     "encounter_key": "E094",
     "patient_key": "P094",
     "doctor_key": "D014",
-    "year": 2024,
-    "setting": "telehealth",
-    "reason": "Review of copd",
-    "assessment": "Fictional follow-up; clinical assessment pending",
-    "plan": "Clinician to review findings and next steps",
-    "handoff_summary_status": "draft not clinically verified"
+    "visit_date": "2024-11-14",
+    "diagnosis": "Copd",
+    "summary": "Follow-up assessment completed with treatment plan and monitoring instructions reviewed.",
+    "symptoms": [
+      {
+        "name": "Chronic cough",
+        "duration": "8 weeks",
+        "frequency": "Intermittent",
+        "trigger": "Cold air",
+        "onset": "Gradual"
+      },
+      {
+        "name": "Dyspnea",
+        "duration": "3 days",
+        "frequency": "Several times weekly",
+        "trigger": "Exertion",
+        "onset": "Sudden"
+      },
+      {
+        "name": "Sputum production",
+        "duration": "1 week",
+        "frequency": "Daily",
+        "trigger": "Stress",
+        "onset": "Gradual"
+      }
+    ],
+    "current_medications": "tiotropium 18 mcg",
+    "alcohol_use": "Daily",
+    "smoking_status": "Never smoker",
+    "pregnancy_status": "Not Pregnant",
+    "immune_status": "Immunocompetent",
+    "lab_results": "oxygen_saturation: 93.4 % (2024)"
   },
   {
     "encounter_key": "E095",
     "patient_key": "P095",
     "doctor_key": "D015",
-    "year": 2025,
-    "setting": "office",
-    "reason": "Review of asthma",
-    "assessment": "Fictional follow-up; clinical assessment pending",
-    "plan": "Clinician to review findings and next steps",
-    "handoff_summary_status": "draft not clinically verified"
+    "visit_date": "2025-12-15",
+    "diagnosis": "Asthma",
+    "summary": "Follow-up assessment completed with treatment plan and monitoring instructions reviewed.",
+    "symptoms": [
+      {
+        "name": "Wheezing",
+        "duration": "3 days",
+        "frequency": "Several times weekly",
+        "trigger": "Exertion",
+        "onset": "Sudden"
+      },
+      {
+        "name": "Cough",
+        "duration": "1 week",
+        "frequency": "Daily",
+        "trigger": "Stress",
+        "onset": "Gradual"
+      },
+      {
+        "name": "Chest tightness",
+        "duration": "2 weeks",
+        "frequency": "Intermittent",
+        "trigger": "Late evening",
+        "onset": "Sudden"
+      }
+    ],
+    "current_medications": "budesonide 200 mcg",
+    "alcohol_use": "None",
+    "smoking_status": "Former smoker",
+    "pregnancy_status": "N/A",
+    "immune_status": "Immunocompetent",
+    "lab_results": "peak_flow: 328.3 L/min (2025)"
   },
   {
     "encounter_key": "E096",
     "patient_key": "P096",
     "doctor_key": "D016",
-    "year": 2026,
-    "setting": "telehealth",
-    "reason": "Review of psoriasis",
-    "assessment": "Fictional follow-up; clinical assessment pending",
-    "plan": "Clinician to review findings and next steps",
-    "handoff_summary_status": "draft not clinically verified"
+    "visit_date": "2026-01-16",
+    "diagnosis": "Psoriasis",
+    "summary": "Follow-up assessment completed with treatment plan and monitoring instructions reviewed.",
+    "symptoms": [
+      {
+        "name": "Plaque rash",
+        "duration": "1 week",
+        "frequency": "Daily",
+        "trigger": "Stress",
+        "onset": "Gradual"
+      },
+      {
+        "name": "Skin irritation",
+        "duration": "2 weeks",
+        "frequency": "Intermittent",
+        "trigger": "Late evening",
+        "onset": "Sudden"
+      },
+      {
+        "name": "Itching",
+        "duration": "4 weeks",
+        "frequency": "Several times weekly",
+        "trigger": "After meals",
+        "onset": "Gradual"
+      }
+    ],
+    "current_medications": "calcipotriene 0.005% thin layer",
+    "alcohol_use": "Social",
+    "smoking_status": "Current smoker",
+    "pregnancy_status": "Not Pregnant",
+    "immune_status": "Immunocompetent",
+    "lab_results": "crp: 3.4 mg/L (2026)"
   },
   {
     "encounter_key": "E097",
     "patient_key": "P097",
     "doctor_key": "D017",
-    "year": 2023,
-    "setting": "telehealth",
-    "reason": "Review of atopic dermatitis",
-    "assessment": "Fictional follow-up; clinical assessment pending",
-    "plan": "Clinician to review findings and next steps",
-    "handoff_summary_status": "draft not clinically verified"
+    "visit_date": "2023-02-17",
+    "diagnosis": "Atopic Dermatitis",
+    "summary": "Follow-up assessment completed with treatment plan and monitoring instructions reviewed.",
+    "symptoms": [
+      {
+        "name": "Pruritus",
+        "duration": "2 weeks",
+        "frequency": "Intermittent",
+        "trigger": "Late evening",
+        "onset": "Sudden"
+      },
+      {
+        "name": "Dry skin",
+        "duration": "4 weeks",
+        "frequency": "Several times weekly",
+        "trigger": "After meals",
+        "onset": "Gradual"
+      },
+      {
+        "name": "Eczematous rash",
+        "duration": "8 weeks",
+        "frequency": "Daily",
+        "trigger": "Cold air",
+        "onset": "Sudden"
+      }
+    ],
+    "current_medications": "triamcinolone 0.1% thin layer",
+    "alcohol_use": "Daily",
+    "smoking_status": "Never smoker",
+    "pregnancy_status": "Not Pregnant",
+    "immune_status": "Immunocompetent",
+    "lab_results": "eosinophils: 9.7 % (2023)"
   },
   {
     "encounter_key": "E098",
     "patient_key": "P098",
     "doctor_key": "D018",
-    "year": 2024,
-    "setting": "office",
-    "reason": "Review of psoriasis",
-    "assessment": "Fictional follow-up; clinical assessment pending",
-    "plan": "Clinician to review findings and next steps",
-    "handoff_summary_status": "draft not clinically verified"
+    "visit_date": "2024-03-18",
+    "diagnosis": "Psoriasis",
+    "summary": "Follow-up assessment completed with treatment plan and monitoring instructions reviewed.",
+    "symptoms": [
+      {
+        "name": "Plaque rash",
+        "duration": "4 weeks",
+        "frequency": "Several times weekly",
+        "trigger": "After meals",
+        "onset": "Gradual"
+      },
+      {
+        "name": "Skin irritation",
+        "duration": "8 weeks",
+        "frequency": "Daily",
+        "trigger": "Cold air",
+        "onset": "Sudden"
+      },
+      {
+        "name": "Itching",
+        "duration": "3 days",
+        "frequency": "Intermittent",
+        "trigger": "Exertion",
+        "onset": "Gradual"
+      }
+    ],
+    "current_medications": "calcipotriene 0.005% thin layer",
+    "alcohol_use": "None",
+    "smoking_status": "Former smoker",
+    "pregnancy_status": "N/A",
+    "immune_status": "Immunocompetent",
+    "lab_results": "crp: 11.9 mg/L (2024)"
   },
   {
     "encounter_key": "E099",
     "patient_key": "P099",
     "doctor_key": "D019",
-    "year": 2025,
-    "setting": "telehealth",
-    "reason": "Review of atopic dermatitis",
-    "assessment": "Fictional follow-up; clinical assessment pending",
-    "plan": "Clinician to review findings and next steps",
-    "handoff_summary_status": "draft not clinically verified"
+    "visit_date": "2025-04-19",
+    "diagnosis": "Atopic Dermatitis",
+    "summary": "Follow-up assessment completed with treatment plan and monitoring instructions reviewed.",
+    "symptoms": [
+      {
+        "name": "Pruritus",
+        "duration": "8 weeks",
+        "frequency": "Daily",
+        "trigger": "Cold air",
+        "onset": "Sudden"
+      },
+      {
+        "name": "Dry skin",
+        "duration": "3 days",
+        "frequency": "Intermittent",
+        "trigger": "Exertion",
+        "onset": "Gradual"
+      },
+      {
+        "name": "Eczematous rash",
+        "duration": "1 week",
+        "frequency": "Several times weekly",
+        "trigger": "Stress",
+        "onset": "Sudden"
+      }
+    ],
+    "current_medications": "triamcinolone 0.1% thin layer",
+    "alcohol_use": "Social",
+    "smoking_status": "Current smoker",
+    "pregnancy_status": "N/A",
+    "immune_status": "Immunocompromised",
+    "lab_results": "eosinophils: 7.0 % (2025)"
   },
   {
     "encounter_key": "E100",
     "patient_key": "P100",
     "doctor_key": "D020",
-    "year": 2026,
-    "setting": "telehealth",
-    "reason": "Review of psoriasis",
-    "assessment": "Fictional follow-up; clinical assessment pending",
-    "plan": "Clinician to review findings and next steps",
-    "handoff_summary_status": "draft not clinically verified"
+    "visit_date": "2026-05-20",
+    "diagnosis": "Psoriasis",
+    "summary": "Follow-up assessment completed with treatment plan and monitoring instructions reviewed.",
+    "symptoms": [
+      {
+        "name": "Plaque rash",
+        "duration": "3 days",
+        "frequency": "Intermittent",
+        "trigger": "Exertion",
+        "onset": "Gradual"
+      },
+      {
+        "name": "Skin irritation",
+        "duration": "1 week",
+        "frequency": "Several times weekly",
+        "trigger": "Stress",
+        "onset": "Sudden"
+      },
+      {
+        "name": "Itching",
+        "duration": "2 weeks",
+        "frequency": "Daily",
+        "trigger": "Late evening",
+        "onset": "Gradual"
+      }
+    ],
+    "current_medications": "calcipotriene 0.005% thin layer",
+    "alcohol_use": "Daily",
+    "smoking_status": "Never smoker",
+    "pregnancy_status": "Not Pregnant",
+    "immune_status": "Immunocompetent",
+    "lab_results": "crp: 8.4 mg/L (2026)"
   },
   {
     "encounter_key": "E101",
     "patient_key": "P101",
     "doctor_key": "D021",
-    "year": 2023,
-    "setting": "office",
-    "reason": "Review of rheumatoid arthritis",
-    "assessment": "Fictional follow-up; clinical assessment pending",
-    "plan": "Clinician to review findings and next steps",
-    "handoff_summary_status": "draft not clinically verified"
+    "visit_date": "2023-06-21",
+    "diagnosis": "Rheumatoid Arthritis",
+    "summary": "Follow-up assessment completed with treatment plan and monitoring instructions reviewed.",
+    "symptoms": [
+      {
+        "name": "Joint pain",
+        "duration": "1 week",
+        "frequency": "Several times weekly",
+        "trigger": "Stress",
+        "onset": "Sudden"
+      },
+      {
+        "name": "Morning stiffness",
+        "duration": "2 weeks",
+        "frequency": "Daily",
+        "trigger": "Late evening",
+        "onset": "Gradual"
+      },
+      {
+        "name": "Joint swelling",
+        "duration": "4 weeks",
+        "frequency": "Intermittent",
+        "trigger": "After meals",
+        "onset": "Sudden"
+      }
+    ],
+    "current_medications": "methotrexate 10 mg",
+    "alcohol_use": "None",
+    "smoking_status": "Former smoker",
+    "pregnancy_status": "N/A",
+    "immune_status": "Immunocompetent",
+    "lab_results": "crp: 12.7 mg/L (2023)"
   },
   {
     "encounter_key": "E102",
     "patient_key": "P102",
     "doctor_key": "D022",
-    "year": 2024,
-    "setting": "telehealth",
-    "reason": "Review of gout",
-    "assessment": "Fictional follow-up; clinical assessment pending",
-    "plan": "Clinician to review findings and next steps",
-    "handoff_summary_status": "draft not clinically verified"
+    "visit_date": "2024-07-22",
+    "diagnosis": "Gout",
+    "summary": "Follow-up assessment completed with treatment plan and monitoring instructions reviewed.",
+    "symptoms": [
+      {
+        "name": "Acute joint pain",
+        "duration": "2 weeks",
+        "frequency": "Daily",
+        "trigger": "Late evening",
+        "onset": "Gradual"
+      },
+      {
+        "name": "Joint redness",
+        "duration": "4 weeks",
+        "frequency": "Intermittent",
+        "trigger": "After meals",
+        "onset": "Sudden"
+      },
+      {
+        "name": "Joint swelling",
+        "duration": "8 weeks",
+        "frequency": "Several times weekly",
+        "trigger": "Cold air",
+        "onset": "Gradual"
+      }
+    ],
+    "current_medications": "allopurinol 100 mg",
+    "alcohol_use": "Social",
+    "smoking_status": "Current smoker",
+    "pregnancy_status": "Not Pregnant",
+    "immune_status": "Immunocompetent",
+    "lab_results": "uric_acid: 4.3 mg/dL (2024)"
   },
   {
     "encounter_key": "E103",
     "patient_key": "P103",
     "doctor_key": "D023",
-    "year": 2025,
-    "setting": "telehealth",
-    "reason": "Review of rheumatoid arthritis",
-    "assessment": "Fictional follow-up; clinical assessment pending",
-    "plan": "Clinician to review findings and next steps",
-    "handoff_summary_status": "draft not clinically verified"
+    "visit_date": "2025-08-23",
+    "diagnosis": "Rheumatoid Arthritis",
+    "summary": "Follow-up assessment completed with treatment plan and monitoring instructions reviewed.",
+    "symptoms": [
+      {
+        "name": "Joint pain",
+        "duration": "4 weeks",
+        "frequency": "Intermittent",
+        "trigger": "After meals",
+        "onset": "Sudden"
+      },
+      {
+        "name": "Morning stiffness",
+        "duration": "8 weeks",
+        "frequency": "Several times weekly",
+        "trigger": "Cold air",
+        "onset": "Gradual"
+      },
+      {
+        "name": "Joint swelling",
+        "duration": "3 days",
+        "frequency": "Daily",
+        "trigger": "Exertion",
+        "onset": "Sudden"
+      }
+    ],
+    "current_medications": "methotrexate 10 mg",
+    "alcohol_use": "Daily",
+    "smoking_status": "Never smoker",
+    "pregnancy_status": "Not Pregnant",
+    "immune_status": "Immunocompetent",
+    "lab_results": "crp: 17.3 mg/L (2025)"
   },
   {
     "encounter_key": "E104",
     "patient_key": "P104",
     "doctor_key": "D024",
-    "year": 2026,
-    "setting": "telehealth",
-    "reason": "Review of gout",
-    "assessment": "Fictional follow-up; clinical assessment pending",
-    "plan": "Clinician to review findings and next steps",
-    "handoff_summary_status": "draft not clinically verified"
+    "visit_date": "2026-09-24",
+    "diagnosis": "Gout",
+    "summary": "Follow-up assessment completed with treatment plan and monitoring instructions reviewed.",
+    "symptoms": [
+      {
+        "name": "Acute joint pain",
+        "duration": "8 weeks",
+        "frequency": "Several times weekly",
+        "trigger": "Cold air",
+        "onset": "Gradual"
+      },
+      {
+        "name": "Joint redness",
+        "duration": "3 days",
+        "frequency": "Daily",
+        "trigger": "Exertion",
+        "onset": "Sudden"
+      },
+      {
+        "name": "Joint swelling",
+        "duration": "1 week",
+        "frequency": "Intermittent",
+        "trigger": "Stress",
+        "onset": "Gradual"
+      }
+    ],
+    "current_medications": "allopurinol 100 mg",
+    "alcohol_use": "None",
+    "smoking_status": "Former smoker",
+    "pregnancy_status": "N/A",
+    "immune_status": "Immunocompetent",
+    "lab_results": "uric_acid: 9.4 mg/dL (2026)"
   },
   {
     "encounter_key": "E105",
     "patient_key": "P105",
     "doctor_key": "D025",
-    "year": 2023,
-    "setting": "office",
-    "reason": "Review of rheumatoid arthritis",
-    "assessment": "Fictional follow-up; clinical assessment pending",
-    "plan": "Clinician to review findings and next steps",
-    "handoff_summary_status": "draft not clinically verified"
+    "visit_date": "2023-10-25",
+    "diagnosis": "Rheumatoid Arthritis",
+    "summary": "Follow-up assessment completed with treatment plan and monitoring instructions reviewed.",
+    "symptoms": [
+      {
+        "name": "Joint pain",
+        "duration": "3 days",
+        "frequency": "Daily",
+        "trigger": "Exertion",
+        "onset": "Sudden"
+      },
+      {
+        "name": "Morning stiffness",
+        "duration": "1 week",
+        "frequency": "Intermittent",
+        "trigger": "Stress",
+        "onset": "Gradual"
+      },
+      {
+        "name": "Joint swelling",
+        "duration": "2 weeks",
+        "frequency": "Several times weekly",
+        "trigger": "Late evening",
+        "onset": "Sudden"
+      }
+    ],
+    "current_medications": "methotrexate 10 mg",
+    "alcohol_use": "Social",
+    "smoking_status": "Current smoker",
+    "pregnancy_status": "N/A",
+    "immune_status": "Immunocompetent",
+    "lab_results": "crp: 0.8 mg/L (2023)"
   },
   {
     "encounter_key": "E106",
     "patient_key": "P106",
     "doctor_key": "D026",
-    "year": 2024,
-    "setting": "office",
-    "reason": "Review of inflammatory bowel disease",
-    "assessment": "Fictional follow-up; clinical assessment pending",
-    "plan": "Clinician to review findings and next steps",
-    "handoff_summary_status": "draft not clinically verified"
+    "visit_date": "2024-11-26",
+    "diagnosis": "Inflammatory Bowel Disease",
+    "summary": "Follow-up assessment completed with treatment plan and monitoring instructions reviewed.",
+    "symptoms": [
+      {
+        "name": "Fatigue",
+        "duration": "1 week",
+        "frequency": "Intermittent",
+        "trigger": "Stress",
+        "onset": "Gradual"
+      },
+      {
+        "name": "Pain",
+        "duration": "2 weeks",
+        "frequency": "Several times weekly",
+        "trigger": "Late evening",
+        "onset": "Sudden"
+      },
+      {
+        "name": "Sleep disturbance",
+        "duration": "4 weeks",
+        "frequency": "Daily",
+        "trigger": "After meals",
+        "onset": "Gradual"
+      }
+    ],
+    "current_medications": "mesalamine 800 mg",
+    "alcohol_use": "Daily",
+    "smoking_status": "Never smoker",
+    "pregnancy_status": "Not Pregnant",
+    "immune_status": "Immunocompetent",
+    "lab_results": "crp: 19.1 mg/L (2024)"
   },
   {
     "encounter_key": "E107",
     "patient_key": "P107",
     "doctor_key": "D027",
-    "year": 2025,
-    "setting": "telehealth",
-    "reason": "Review of gerd",
-    "assessment": "Fictional follow-up; clinical assessment pending",
-    "plan": "Clinician to review findings and next steps",
-    "handoff_summary_status": "draft not clinically verified"
+    "visit_date": "2025-12-27",
+    "diagnosis": "Gerd",
+    "summary": "Follow-up assessment completed with treatment plan and monitoring instructions reviewed.",
+    "symptoms": [
+      {
+        "name": "Fatigue",
+        "duration": "2 weeks",
+        "frequency": "Several times weekly",
+        "trigger": "Late evening",
+        "onset": "Sudden"
+      },
+      {
+        "name": "Pain",
+        "duration": "4 weeks",
+        "frequency": "Daily",
+        "trigger": "After meals",
+        "onset": "Gradual"
+      },
+      {
+        "name": "Sleep disturbance",
+        "duration": "8 weeks",
+        "frequency": "Intermittent",
+        "trigger": "Cold air",
+        "onset": "Sudden"
+      }
+    ],
+    "current_medications": "omeprazole 20 mg",
+    "alcohol_use": "None",
+    "smoking_status": "Former smoker",
+    "pregnancy_status": "N/A",
+    "immune_status": "Immunocompetent",
+    "lab_results": "hemoglobin: 11.6 g/dL (2025)"
   },
   {
     "encounter_key": "E108",
     "patient_key": "P108",
     "doctor_key": "D028",
-    "year": 2026,
-    "setting": "office",
-    "reason": "Review of inflammatory bowel disease",
-    "assessment": "Fictional follow-up; clinical assessment pending",
-    "plan": "Clinician to review findings and next steps",
-    "handoff_summary_status": "draft not clinically verified"
+    "visit_date": "2026-01-01",
+    "diagnosis": "Inflammatory Bowel Disease",
+    "summary": "Follow-up assessment completed with treatment plan and monitoring instructions reviewed.",
+    "symptoms": [
+      {
+        "name": "Fatigue",
+        "duration": "4 weeks",
+        "frequency": "Daily",
+        "trigger": "After meals",
+        "onset": "Gradual"
+      },
+      {
+        "name": "Pain",
+        "duration": "8 weeks",
+        "frequency": "Intermittent",
+        "trigger": "Cold air",
+        "onset": "Sudden"
+      },
+      {
+        "name": "Sleep disturbance",
+        "duration": "3 days",
+        "frequency": "Several times weekly",
+        "trigger": "Exertion",
+        "onset": "Gradual"
+      }
+    ],
+    "current_medications": "mesalamine 800 mg",
+    "alcohol_use": "Social",
+    "smoking_status": "Current smoker",
+    "pregnancy_status": "Not Pregnant",
+    "immune_status": "Immunocompetent",
+    "lab_results": "crp: 19.4 mg/L (2026)"
   },
   {
     "encounter_key": "E109",
     "patient_key": "P109",
     "doctor_key": "D029",
-    "year": 2023,
-    "setting": "telehealth",
-    "reason": "Review of gerd",
-    "assessment": "Fictional follow-up; clinical assessment pending",
-    "plan": "Clinician to review findings and next steps",
-    "handoff_summary_status": "draft not clinically verified"
+    "visit_date": "2023-02-02",
+    "diagnosis": "Gerd",
+    "summary": "Follow-up assessment completed with treatment plan and monitoring instructions reviewed.",
+    "symptoms": [
+      {
+        "name": "Fatigue",
+        "duration": "8 weeks",
+        "frequency": "Intermittent",
+        "trigger": "Cold air",
+        "onset": "Sudden"
+      },
+      {
+        "name": "Pain",
+        "duration": "3 days",
+        "frequency": "Several times weekly",
+        "trigger": "Exertion",
+        "onset": "Gradual"
+      },
+      {
+        "name": "Sleep disturbance",
+        "duration": "1 week",
+        "frequency": "Daily",
+        "trigger": "Stress",
+        "onset": "Sudden"
+      }
+    ],
+    "current_medications": "omeprazole 20 mg",
+    "alcohol_use": "Daily",
+    "smoking_status": "Never smoker",
+    "pregnancy_status": "Not Pregnant",
+    "immune_status": "Immunocompetent",
+    "lab_results": "hemoglobin: 11.1 g/dL (2023)"
   },
   {
     "encounter_key": "E110",
     "patient_key": "P110",
     "doctor_key": "D030",
-    "year": 2024,
-    "setting": "office",
-    "reason": "Review of inflammatory bowel disease",
-    "assessment": "Fictional follow-up; clinical assessment pending",
-    "plan": "Clinician to review findings and next steps",
-    "handoff_summary_status": "draft not clinically verified"
+    "visit_date": "2024-03-03",
+    "diagnosis": "Inflammatory Bowel Disease",
+    "summary": "Follow-up assessment completed with treatment plan and monitoring instructions reviewed.",
+    "symptoms": [
+      {
+        "name": "Fatigue",
+        "duration": "3 days",
+        "frequency": "Several times weekly",
+        "trigger": "Exertion",
+        "onset": "Gradual"
+      },
+      {
+        "name": "Pain",
+        "duration": "1 week",
+        "frequency": "Daily",
+        "trigger": "Stress",
+        "onset": "Sudden"
+      },
+      {
+        "name": "Sleep disturbance",
+        "duration": "2 weeks",
+        "frequency": "Intermittent",
+        "trigger": "Late evening",
+        "onset": "Gradual"
+      }
+    ],
+    "current_medications": "mesalamine 800 mg",
+    "alcohol_use": "None",
+    "smoking_status": "Former smoker",
+    "pregnancy_status": "N/A",
+    "immune_status": "Immunocompromised",
+    "lab_results": "crp: 3.0 mg/L (2024)"
   },
   {
     "encounter_key": "E111",
     "patient_key": "P111",
     "doctor_key": "D031",
-    "year": 2025,
-    "setting": "office",
-    "reason": "Review of migraine",
-    "assessment": "Fictional follow-up; clinical assessment pending",
-    "plan": "Clinician to review findings and next steps",
-    "handoff_summary_status": "draft not clinically verified"
+    "visit_date": "2025-04-04",
+    "diagnosis": "Migraine",
+    "summary": "Follow-up assessment completed with treatment plan and monitoring instructions reviewed.",
+    "symptoms": [
+      {
+        "name": "Fatigue",
+        "duration": "1 week",
+        "frequency": "Daily",
+        "trigger": "Stress",
+        "onset": "Sudden"
+      },
+      {
+        "name": "Pain",
+        "duration": "2 weeks",
+        "frequency": "Intermittent",
+        "trigger": "Late evening",
+        "onset": "Gradual"
+      },
+      {
+        "name": "Sleep disturbance",
+        "duration": "4 weeks",
+        "frequency": "Several times weekly",
+        "trigger": "After meals",
+        "onset": "Sudden"
+      }
+    ],
+    "current_medications": "sumatriptan 50 mg",
+    "alcohol_use": "Social",
+    "smoking_status": "Current smoker",
+    "pregnancy_status": "N/A",
+    "immune_status": "Immunocompetent",
+    "lab_results": "hemoglobin: 11.6 g/dL (2025)"
   },
   {
     "encounter_key": "E112",
     "patient_key": "P112",
     "doctor_key": "D032",
-    "year": 2026,
-    "setting": "telehealth",
-    "reason": "Review of epilepsy",
-    "assessment": "Fictional follow-up; clinical assessment pending",
-    "plan": "Clinician to review findings and next steps",
-    "handoff_summary_status": "draft not clinically verified"
+    "visit_date": "2026-05-05",
+    "diagnosis": "Epilepsy",
+    "summary": "Follow-up assessment completed with treatment plan and monitoring instructions reviewed.",
+    "symptoms": [
+      {
+        "name": "Fatigue",
+        "duration": "2 weeks",
+        "frequency": "Intermittent",
+        "trigger": "Late evening",
+        "onset": "Gradual"
+      },
+      {
+        "name": "Pain",
+        "duration": "4 weeks",
+        "frequency": "Several times weekly",
+        "trigger": "After meals",
+        "onset": "Sudden"
+      },
+      {
+        "name": "Sleep disturbance",
+        "duration": "8 weeks",
+        "frequency": "Daily",
+        "trigger": "Cold air",
+        "onset": "Gradual"
+      }
+    ],
+    "current_medications": "levetiracetam 500 mg",
+    "alcohol_use": "Daily",
+    "smoking_status": "Never smoker",
+    "pregnancy_status": "Not Pregnant",
+    "immune_status": "Immunocompetent",
+    "lab_results": "creatinine: 1.8 mg/dL (2026)"
   },
   {
     "encounter_key": "E113",
     "patient_key": "P113",
     "doctor_key": "D033",
-    "year": 2023,
-    "setting": "office",
-    "reason": "Review of migraine",
-    "assessment": "Fictional follow-up; clinical assessment pending",
-    "plan": "Clinician to review findings and next steps",
-    "handoff_summary_status": "draft not clinically verified"
+    "visit_date": "2023-06-06",
+    "diagnosis": "Migraine",
+    "summary": "Follow-up assessment completed with treatment plan and monitoring instructions reviewed.",
+    "symptoms": [
+      {
+        "name": "Fatigue",
+        "duration": "4 weeks",
+        "frequency": "Several times weekly",
+        "trigger": "After meals",
+        "onset": "Sudden"
+      },
+      {
+        "name": "Pain",
+        "duration": "8 weeks",
+        "frequency": "Daily",
+        "trigger": "Cold air",
+        "onset": "Gradual"
+      },
+      {
+        "name": "Sleep disturbance",
+        "duration": "3 days",
+        "frequency": "Intermittent",
+        "trigger": "Exertion",
+        "onset": "Sudden"
+      }
+    ],
+    "current_medications": "sumatriptan 50 mg",
+    "alcohol_use": "None",
+    "smoking_status": "Former smoker",
+    "pregnancy_status": "N/A",
+    "immune_status": "Immunocompetent",
+    "lab_results": "hemoglobin: 11.6 g/dL (2023)"
   },
   {
     "encounter_key": "E114",
     "patient_key": "P114",
     "doctor_key": "D034",
-    "year": 2024,
-    "setting": "office",
-    "reason": "Review of epilepsy",
-    "assessment": "Fictional follow-up; clinical assessment pending",
-    "plan": "Clinician to review findings and next steps",
-    "handoff_summary_status": "draft not clinically verified"
+    "visit_date": "2024-07-07",
+    "diagnosis": "Epilepsy",
+    "summary": "Follow-up assessment completed with treatment plan and monitoring instructions reviewed.",
+    "symptoms": [
+      {
+        "name": "Fatigue",
+        "duration": "8 weeks",
+        "frequency": "Daily",
+        "trigger": "Cold air",
+        "onset": "Gradual"
+      },
+      {
+        "name": "Pain",
+        "duration": "3 days",
+        "frequency": "Intermittent",
+        "trigger": "Exertion",
+        "onset": "Sudden"
+      },
+      {
+        "name": "Sleep disturbance",
+        "duration": "1 week",
+        "frequency": "Several times weekly",
+        "trigger": "Stress",
+        "onset": "Gradual"
+      }
+    ],
+    "current_medications": "levetiracetam 500 mg",
+    "alcohol_use": "Social",
+    "smoking_status": "Current smoker",
+    "pregnancy_status": "Not Pregnant",
+    "immune_status": "Immunocompetent",
+    "lab_results": "creatinine: 1.5 mg/dL (2024)"
   },
   {
     "encounter_key": "E115",
     "patient_key": "P115",
     "doctor_key": "D035",
-    "year": 2025,
-    "setting": "office",
-    "reason": "Review of migraine",
-    "assessment": "Fictional follow-up; clinical assessment pending",
-    "plan": "Clinician to review findings and next steps",
-    "handoff_summary_status": "draft not clinically verified"
+    "visit_date": "2025-08-08",
+    "diagnosis": "Migraine",
+    "summary": "Follow-up assessment completed with treatment plan and monitoring instructions reviewed.",
+    "symptoms": [
+      {
+        "name": "Fatigue",
+        "duration": "3 days",
+        "frequency": "Intermittent",
+        "trigger": "Exertion",
+        "onset": "Sudden"
+      },
+      {
+        "name": "Pain",
+        "duration": "1 week",
+        "frequency": "Several times weekly",
+        "trigger": "Stress",
+        "onset": "Gradual"
+      },
+      {
+        "name": "Sleep disturbance",
+        "duration": "2 weeks",
+        "frequency": "Daily",
+        "trigger": "Late evening",
+        "onset": "Sudden"
+      }
+    ],
+    "current_medications": "sumatriptan 50 mg",
+    "alcohol_use": "Daily",
+    "smoking_status": "Never smoker",
+    "pregnancy_status": "Not Pregnant",
+    "immune_status": "Immunocompetent",
+    "lab_results": "hemoglobin: 10.2 g/dL (2025)"
   },
   {
     "encounter_key": "E116",
     "patient_key": "P116",
     "doctor_key": "D036",
-    "year": 2026,
-    "setting": "telehealth",
-    "reason": "Review of iron deficiency anemia",
-    "assessment": "Fictional follow-up; clinical assessment pending",
-    "plan": "Clinician to review findings and next steps",
-    "handoff_summary_status": "draft not clinically verified"
+    "visit_date": "2026-09-09",
+    "diagnosis": "Iron Deficiency Anemia",
+    "summary": "Follow-up assessment completed with treatment plan and monitoring instructions reviewed.",
+    "symptoms": [
+      {
+        "name": "Fatigue",
+        "duration": "1 week",
+        "frequency": "Several times weekly",
+        "trigger": "Stress",
+        "onset": "Gradual"
+      },
+      {
+        "name": "Pain",
+        "duration": "2 weeks",
+        "frequency": "Daily",
+        "trigger": "Late evening",
+        "onset": "Sudden"
+      },
+      {
+        "name": "Sleep disturbance",
+        "duration": "4 weeks",
+        "frequency": "Intermittent",
+        "trigger": "After meals",
+        "onset": "Gradual"
+      }
+    ],
+    "current_medications": "ferrous sulfate 325 mg",
+    "alcohol_use": "None",
+    "smoking_status": "Former smoker",
+    "pregnancy_status": "N/A",
+    "immune_status": "Immunocompetent",
+    "lab_results": "hemoglobin: 14.6 g/dL (2026)"
   },
   {
     "encounter_key": "E117",
     "patient_key": "P117",
     "doctor_key": "D037",
-    "year": 2023,
-    "setting": "telehealth",
-    "reason": "Review of hyperlipidemia",
-    "assessment": "Fictional follow-up; clinical assessment pending",
-    "plan": "Clinician to review findings and next steps",
-    "handoff_summary_status": "draft not clinically verified"
+    "visit_date": "2023-10-10",
+    "diagnosis": "Hyperlipidemia",
+    "summary": "Follow-up assessment completed with treatment plan and monitoring instructions reviewed.",
+    "symptoms": [
+      {
+        "name": "Fatigue",
+        "duration": "2 weeks",
+        "frequency": "Daily",
+        "trigger": "Late evening",
+        "onset": "Sudden"
+      },
+      {
+        "name": "Pain",
+        "duration": "4 weeks",
+        "frequency": "Intermittent",
+        "trigger": "After meals",
+        "onset": "Gradual"
+      },
+      {
+        "name": "Sleep disturbance",
+        "duration": "8 weeks",
+        "frequency": "Several times weekly",
+        "trigger": "Cold air",
+        "onset": "Sudden"
+      }
+    ],
+    "current_medications": "atorvastatin 10 mg",
+    "alcohol_use": "Social",
+    "smoking_status": "Current smoker",
+    "pregnancy_status": "N/A",
+    "immune_status": "Immunocompetent",
+    "lab_results": "ldl_cholesterol: 186.5 mg/dL (2023)"
   },
   {
     "encounter_key": "E118",
     "patient_key": "P118",
     "doctor_key": "D038",
-    "year": 2024,
-    "setting": "telehealth",
-    "reason": "Review of iron deficiency anemia",
-    "assessment": "Fictional follow-up; clinical assessment pending",
-    "plan": "Clinician to review findings and next steps",
-    "handoff_summary_status": "draft not clinically verified"
+    "visit_date": "2024-11-11",
+    "diagnosis": "Iron Deficiency Anemia",
+    "summary": "Follow-up assessment completed with treatment plan and monitoring instructions reviewed.",
+    "symptoms": [
+      {
+        "name": "Fatigue",
+        "duration": "4 weeks",
+        "frequency": "Intermittent",
+        "trigger": "After meals",
+        "onset": "Gradual"
+      },
+      {
+        "name": "Pain",
+        "duration": "8 weeks",
+        "frequency": "Several times weekly",
+        "trigger": "Cold air",
+        "onset": "Sudden"
+      },
+      {
+        "name": "Sleep disturbance",
+        "duration": "3 days",
+        "frequency": "Daily",
+        "trigger": "Exertion",
+        "onset": "Gradual"
+      }
+    ],
+    "current_medications": "ferrous sulfate 325 mg",
+    "alcohol_use": "Daily",
+    "smoking_status": "Never smoker",
+    "pregnancy_status": "Not Pregnant",
+    "immune_status": "Immunocompetent",
+    "lab_results": "hemoglobin: 13.4 g/dL (2024)"
   },
   {
     "encounter_key": "E119",
     "patient_key": "P119",
     "doctor_key": "D039",
-    "year": 2025,
-    "setting": "office",
-    "reason": "Review of hyperlipidemia",
-    "assessment": "Fictional follow-up; clinical assessment pending",
-    "plan": "Clinician to review findings and next steps",
-    "handoff_summary_status": "draft not clinically verified"
+    "visit_date": "2025-12-12",
+    "diagnosis": "Hyperlipidemia",
+    "summary": "Follow-up assessment completed with treatment plan and monitoring instructions reviewed.",
+    "symptoms": [
+      {
+        "name": "Fatigue",
+        "duration": "8 weeks",
+        "frequency": "Several times weekly",
+        "trigger": "Cold air",
+        "onset": "Sudden"
+      },
+      {
+        "name": "Pain",
+        "duration": "3 days",
+        "frequency": "Daily",
+        "trigger": "Exertion",
+        "onset": "Gradual"
+      },
+      {
+        "name": "Sleep disturbance",
+        "duration": "1 week",
+        "frequency": "Intermittent",
+        "trigger": "Stress",
+        "onset": "Sudden"
+      }
+    ],
+    "current_medications": "atorvastatin 10 mg",
+    "alcohol_use": "None",
+    "smoking_status": "Former smoker",
+    "pregnancy_status": "N/A",
+    "immune_status": "Immunocompetent",
+    "lab_results": "ldl_cholesterol: 158.8 mg/dL (2025)"
   },
   {
     "encounter_key": "E120",
     "patient_key": "P120",
     "doctor_key": "D040",
-    "year": 2026,
-    "setting": "office",
-    "reason": "Review of iron deficiency anemia",
-    "assessment": "Fictional follow-up; clinical assessment pending",
-    "plan": "Clinician to review findings and next steps",
-    "handoff_summary_status": "draft not clinically verified"
+    "visit_date": "2026-01-13",
+    "diagnosis": "Iron Deficiency Anemia",
+    "summary": "Follow-up assessment completed with treatment plan and monitoring instructions reviewed.",
+    "symptoms": [
+      {
+        "name": "Fatigue",
+        "duration": "3 days",
+        "frequency": "Daily",
+        "trigger": "Exertion",
+        "onset": "Gradual"
+      },
+      {
+        "name": "Pain",
+        "duration": "1 week",
+        "frequency": "Intermittent",
+        "trigger": "Stress",
+        "onset": "Sudden"
+      },
+      {
+        "name": "Sleep disturbance",
+        "duration": "2 weeks",
+        "frequency": "Several times weekly",
+        "trigger": "Late evening",
+        "onset": "Gradual"
+      }
+    ],
+    "current_medications": "ferrous sulfate 325 mg",
+    "alcohol_use": "Social",
+    "smoking_status": "Current smoker",
+    "pregnancy_status": "Not Pregnant",
+    "immune_status": "Immunocompetent",
+    "lab_results": "hemoglobin: 12.6 g/dL (2026)"
   }
 ]
