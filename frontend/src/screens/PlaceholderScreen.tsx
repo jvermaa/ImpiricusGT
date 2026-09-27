@@ -23,13 +23,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
   },
   title: {
-    color: colors.white,
+    color: colors.navy,
     fontSize: 28,
     fontWeight: '700',
     marginBottom: 8,
   },
   subtitle: {
-    color: 'rgba(255,255,255,0.65)',
+    color: 'rgba(10,14,39,0.62)',
     fontSize: 15,
   },
 });

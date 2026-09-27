@@ -74,7 +74,7 @@ export function DoctorDirectoryScreen({ filter, onOpenDoctor }: Props) {
         <FilterRow label="Language" options={options.languages.map(option)} selected={active.language} onSelect={(value) => setActive((current) => ({ ...current, language: current.language === value ? undefined : value }))} />
         <FilterRow label="Practice" options={options.practices.map(option)} selected={active.practiceType} onSelect={(value) => setActive((current) => ({ ...current, practiceType: current.practiceType === value ? undefined : value }))} />
       </View>
-      {status === 'loading' ? <ActivityIndicator color={colors.white} style={styles.pad} /> : null}
+      {status === 'loading' ? <ActivityIndicator color={colors.navy} style={styles.pad} /> : null}
       {status === 'error' ? (
         <View style={styles.pad}>
           <Text style={styles.empty}>Could not load doctors.</Text>
@@ -190,18 +190,18 @@ const styles = StyleSheet.create({
   },
   filterGroups: { maxHeight: 168 },
   filterRow: { flexDirection: 'row', alignItems: 'center' },
-  filterLabel: { width: 72, marginLeft: space.lg, color: colors.white, fontSize: 11, fontWeight: '700' },
+  filterLabel: { width: 72, marginLeft: space.lg, color: colors.navy, fontSize: 11, fontWeight: '700' },
   filters: { paddingRight: space.lg, paddingVertical: space.xs, gap: space.sm },
-  filterChip: { borderRadius: 999, borderWidth: 1, borderColor: 'rgba(255,255,255,0.35)', paddingHorizontal: space.sm, paddingVertical: space.xs },
+  filterChip: { borderRadius: 999, borderWidth: 1, borderColor: 'rgba(10,14,39,0.28)', paddingHorizontal: space.sm, paddingVertical: space.xs },
   filterChipOn: { backgroundColor: colors.white },
   filterText: { color: colors.navy, fontSize: 12, fontWeight: '700' },
-  filterTextIdle: { color: colors.white },
+  filterTextIdle: { color: colors.navy },
   list: { paddingHorizontal: space.lg, paddingBottom: space.xl, gap: space.md },
   card: { flexDirection: 'row', gap: space.md, backgroundColor: colors.cardBg, borderRadius: space.md, padding: space.md, alignItems: 'center' },
   meta: { flex: 1 },
   name: { color: colors.textPrimary, fontWeight: '800' },
   line: { color: colors.textSecondary, fontSize: 12, marginTop: 2 },
-  empty: { color: colors.white, fontSize: 16, fontWeight: '700' },
+  empty: { color: colors.navy, fontSize: 16, fontWeight: '700' },
   clear: { marginTop: space.sm, alignSelf: 'flex-start', backgroundColor: colors.white, borderRadius: 999, paddingHorizontal: space.md, paddingVertical: space.sm },
   clearText: { color: colors.navy, fontWeight: '800' },
   pad: { padding: space.lg },

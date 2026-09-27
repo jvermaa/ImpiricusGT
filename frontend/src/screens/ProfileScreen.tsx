@@ -69,7 +69,7 @@ export function ProfileScreen({ route, onChangeRoute, onOpenPatients, onOpenCons
             onPress={back}
             style={styles.back}
           >
-            <ChevronLeftIcon color={colors.white} size={22} />
+            <ChevronLeftIcon color={colors.navy} size={22} />
           </Pressable>
         ) : (
           <View style={styles.back} />
@@ -100,5 +100,5 @@ const styles = StyleSheet.create({
   root: { flex: 1 },
   header: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: space.lg, paddingBottom: space.sm },
   back: { width: 32, height: 32, justifyContent: 'center' },
-  headerTitle: { color: colors.white, fontSize: 18, fontWeight: '800' },
+  headerTitle: { color: colors.navy, fontSize: 18, fontWeight: '800' },
 });

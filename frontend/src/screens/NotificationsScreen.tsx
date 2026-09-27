@@ -538,6 +538,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   listHeader: {
+    backgroundColor: 'rgba(166, 91, 99, 0.96)',
     paddingHorizontal: 16,
     paddingBottom: 10,
   },
@@ -614,6 +615,7 @@ const styles = StyleSheet.create({
     fontWeight: "700",
   },
   detailHeader: {
+    backgroundColor: 'rgba(166, 91, 99, 0.96)',
     paddingHorizontal: 12,
     paddingBottom: 12,
     borderBottomWidth: StyleSheet.hairlineWidth,
@@ -769,11 +771,11 @@ const styles = StyleSheet.create({
   msgName: {
     fontSize: 13,
     fontWeight: "700",
-    color: colors.white,
+    color: colors.navy,
   },
   msgRole: {
     fontSize: 11,
-    color: "rgba(255,255,255,0.55)",
+    color: colors.textMuted,
   },
   bubble: {
     maxWidth: "88%",
