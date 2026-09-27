@@ -16,7 +16,10 @@ type AppSymbolName =
   | 'filter'
   | 'search'
   | 'close'
-  | 'send';
+  | 'send'
+  | 'pdf'
+  | 'edit'
+  | 'addVisit';
 
 const SYMBOL_NAMES = {
   patient: { ios: 'doc.text', android: 'description', web: 'description' },
@@ -29,6 +32,9 @@ const SYMBOL_NAMES = {
   search: { ios: 'magnifyingglass', android: 'search', web: 'search' },
   close: { ios: 'xmark', android: 'close', web: 'close' },
   send: { ios: 'paperplane.fill', android: 'send', web: 'send' },
+  pdf: { ios: 'doc.richtext', android: 'picture_as_pdf', web: 'picture_as_pdf' },
+  edit: { ios: 'pencil', android: 'edit', web: 'edit' },
+  addVisit: { ios: 'calendar.badge.plus', android: 'event', web: 'event' },
 } as const;
 
 function AppSymbol({ name, color, size = 24 }: IconProps & { name: AppSymbolName }) {
@@ -90,4 +96,19 @@ export function CloseIcon(props: IconProps) {
 /** Send arrow for composer. */
 export function SendIcon(props: IconProps) {
   return <AppSymbol name="send" {...props} />;
+}
+
+/** Document / PDF export. */
+export function PdfIcon({ size = 18, ...props }: IconProps) {
+  return <AppSymbol name="pdf" size={size} {...props} />;
+}
+
+/** Pencil for edit. */
+export function EditIcon({ size = 18, ...props }: IconProps) {
+  return <AppSymbol name="edit" size={size} {...props} />;
+}
+
+/** Calendar with plus for add visit. */
+export function AddVisitIcon({ size = 18, ...props }: IconProps) {
+  return <AppSymbol name="addVisit" size={size} {...props} />;
 }
