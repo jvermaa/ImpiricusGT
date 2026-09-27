@@ -1,20 +1,29 @@
 """Formal referral directory, handoff lifecycle, and clinician message threads."""
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
+import hashlib
+import html
+import os
 import re
+import secrets
 from typing import Literal
 
 from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi.responses import HTMLResponse
 from pydantic import BaseModel, Field, field_validator
 from sqlalchemy import or_, select
 from sqlalchemy.orm import Session
 
 import clinic
+import events
+import notifications as notification_store
+from assist import _plain, _send_email
 from database import get_db
 from keys import next_key
 from models import (
     CaseMatch,
     Doctor,
     Patient,
+    ReferralConsentToken,
     ReferralMessage,
     ReferralRequest,
 )
@@ -22,14 +31,39 @@ from models import (
 router = APIRouter(prefix="/referrals", tags=["referrals"])
 
 TRANSITIONS = {
+    "pending_patient_consent": {"cancelled"},
+    "shared_with_specialist": {"accepted", "declined", "cancelled"},
+    # Legacy alias used by older rows / clients.
     "sent": {"accepted", "declined", "cancelled"},
     "accepted": {"completed", "cancelled"},
 }
-OPEN_STATUSES = {"sent", "accepted"}
+OPEN_STATUSES = {"pending_patient_consent", "shared_with_specialist", "sent", "accepted"}
+SPECIALIST_VISIBLE_STATUSES = {"shared_with_specialist", "sent", "accepted", "completed"}
+CONSENT_TOKEN_TTL_HOURS = int(os.getenv("REFERRAL_CONSENT_TTL_HOURS", "168"))
 
 
 def _utc_now() -> datetime:
     return datetime.now(UTC).replace(tzinfo=None)
+
+
+def _public_base_url() -> str:
+    return (
+        os.getenv("PUBLIC_API_BASE_URL", "").strip()
+        or os.getenv("PUBLIC_APP_URL", "").strip()
+        or "http://localhost:8000"
+    ).rstrip("/")
+
+
+def _hash_token(raw: str) -> str:
+    return hashlib.sha256(raw.encode("utf-8")).hexdigest()
+
+
+def _patient_visible(referral: ReferralRequest, viewer: str) -> bool:
+    if viewer == referral.from_doctor_key:
+        return True
+    if viewer == referral.to_doctor_key and referral.status in SPECIALIST_VISIBLE_STATUSES:
+        return True
+    return False
 
 
 class ReferralCreate(BaseModel):
@@ -152,7 +186,7 @@ def _similar_doctor_scores(db: Session, patient_key: str) -> dict[str, float]:
 
 def _referral_summary(db: Session, referral: ReferralRequest, viewer: str) -> dict:
     patient = db.get(Patient, referral.patient_key)
-    patient_visible = viewer == referral.from_doctor_key or referral.status in {"accepted", "completed"}
+    patient_visible = _patient_visible(referral, viewer)
     patient_label = patient.name if patient is not None and patient_visible else None
     last_message = db.scalar(
         select(ReferralMessage)
@@ -179,7 +213,7 @@ def _referral_summary(db: Session, referral: ReferralRequest, viewer: str) -> di
 
 def _referral_detail(db: Session, referral: ReferralRequest, viewer: str) -> dict:
     _require_participant(referral, viewer)
-    patient_visible = viewer == referral.from_doctor_key or referral.status in {"accepted", "completed"}
+    patient_visible = _patient_visible(referral, viewer)
     patient_handoff = None
     if patient_visible:
         patient = db.get(Patient, referral.patient_key)
@@ -271,9 +305,223 @@ def referral_specialties(doctor: str = Query(...), db: Session = Depends(get_db)
     return {"specialties": [{"name": key, "count": counts[key]} for key in sorted(counts)]}
 
 
+def _consent_links(raw_token: str) -> tuple[str, str]:
+    base = f"{_public_base_url()}/referrals/consent"
+    approve = f"{base}?token={raw_token}&decision=approve"
+    decline = f"{base}?token={raw_token}&decision=decline"
+    return approve, decline
+
+
+def _issue_consent_token(db: Session, referral_key: str) -> str:
+    raw = secrets.token_urlsafe(32)
+    now = _utc_now()
+    row = ReferralConsentToken(
+        token_key=next_key(db, ReferralConsentToken.token_key, "CT"),
+        referral_key=referral_key,
+        token_hash=_hash_token(raw),
+        expires_at=now + timedelta(hours=CONSENT_TOKEN_TTL_HOURS),
+        used_at=None,
+        decision=None,
+        created_at=now,
+    )
+    db.add(row)
+    db.flush()
+    return raw
+
+
+def _consent_email_html(
+    *,
+    patient_name: str,
+    referring_name: str,
+    specialist_name: str,
+    specialty: str,
+    organization: str,
+    state: str,
+    reason: str,
+    urgency: str,
+    approve_url: str,
+    decline_url: str,
+) -> str:
+    safe = html.escape
+    return f"""
+<div style="font-family:Arial,sans-serif;line-height:1.5;color:#1a1a1a;max-width:560px">
+  <p>Hello {safe(patient_name)},</p>
+  <p>
+    Your clinician <strong>{safe(referring_name)}</strong> would like to refer you to
+    <strong>{safe(specialist_name)}</strong> ({safe(specialty)}).
+  </p>
+  <p>
+    <strong>Specialist details</strong><br/>
+    {safe(specialist_name)}<br/>
+    {safe(specialty)} · {safe(organization)} · {safe(state)}
+  </p>
+  <p><strong>Reason ({safe(urgency)}):</strong> {safe(reason)}</p>
+  <p>Please choose one option. Your medical history is shared with the specialist only if you approve.</p>
+  <p style="margin:24px 0">
+    <a href="{safe(approve_url)}"
+       style="background:#2E8B7A;color:#fff;padding:12px 18px;border-radius:8px;text-decoration:none;display:inline-block;margin-right:10px">
+      Approve referral
+    </a>
+    <a href="{safe(decline_url)}"
+       style="background:#C45B7A;color:#fff;padding:12px 18px;border-radius:8px;text-decoration:none;display:inline-block">
+      Decline referral
+    </a>
+  </p>
+  <p style="font-size:12px;color:#666">
+    If the buttons do not work, open these links:<br/>
+    Approve: {safe(approve_url)}<br/>
+    Decline: {safe(decline_url)}
+  </p>
+</div>
+""".strip()
+
+
+def _send_consent_email(
+    *,
+    referring: Doctor,
+    recipient: Doctor,
+    patient: Patient,
+    reason: str,
+    urgency: str,
+    raw_token: str,
+) -> dict:
+    approve_url, decline_url = _consent_links(raw_token)
+    intended = os.getenv("EMAIL_REDIRECT_TO", "").strip() or os.getenv("SMTP_FROM", "").strip()
+    if not intended:
+        return {
+            "status": "skipped",
+            "detail": "no destination",
+            "approve_url": approve_url,
+            "decline_url": decline_url,
+        }
+    specialty = clinic._specialty_title(recipient.specialty)
+    subject = f"Action needed: referral to {recipient.display_name}"
+    plain = (
+        f"Hello {patient.name},\n\n"
+        f"Your clinician {referring.display_name} would like to refer you to "
+        f"{recipient.display_name} ({specialty}).\n\n"
+        f"Specialist details\n"
+        f"- Name: {recipient.display_name}\n"
+        f"- Specialty: {specialty}\n"
+        f"- Organization: {recipient.organization}\n"
+        f"- State: {recipient.state}\n\n"
+        f"Reason for referral ({urgency}): {reason}\n\n"
+        f"Approve referral:\n{approve_url}\n\n"
+        f"Decline referral:\n{decline_url}\n\n"
+        f"Your medical history is shared with the specialist only if you approve.\n"
+    )
+    html_body = _consent_email_html(
+        patient_name=patient.name,
+        referring_name=referring.display_name,
+        specialist_name=recipient.display_name,
+        specialty=specialty,
+        organization=recipient.organization,
+        state=recipient.state,
+        reason=reason,
+        urgency=urgency,
+        approve_url=approve_url,
+        decline_url=decline_url,
+    )
+    delivery = _send_email(subject, plain, intended, html=html_body)
+    return {**delivery, "approve_url": approve_url, "decline_url": decline_url}
+
+
+def _send_specialist_handoff_email(
+    *,
+    referring: Doctor,
+    recipient: Doctor,
+    patient: Patient,
+    reason: str,
+    urgency: str,
+    handoff: dict,
+) -> dict:
+    intended = os.getenv("EMAIL_REDIRECT_TO", "").strip() or os.getenv("SMTP_FROM", "").strip()
+    if not intended:
+        return {"status": "skipped", "detail": "no destination"}
+    subject = f"Patient consent granted: {patient.name} → {recipient.display_name}"
+    body = (
+        f"Patient {patient.name} approved the referral from {referring.display_name}.\n\n"
+        f"Reason ({urgency}): {reason}\n\n"
+        f"Handoff summary\n"
+        f"Patient: {handoff.get('patient_display_label')} ({handoff.get('age_group')})\n"
+        f"Symptoms: {_plain(handoff.get('symptoms'))}\n"
+        f"Diagnoses: {_plain(handoff.get('diagnoses'))}\n"
+        f"Allergies: {_plain(handoff.get('allergies'))}\n"
+        f"Prescriptions: {_plain(handoff.get('active_prescriptions'))}\n"
+        f"Labs: {_plain(handoff.get('labs'))}\n"
+        f"Visits: {_plain(handoff.get('encounters'))}\n"
+    )
+    return _send_email(subject, body, intended)
+
+
+def _notify_referring_doctor(
+    db: Session,
+    *,
+    referral: ReferralRequest,
+    patient: Patient,
+    specialist: Doctor,
+    decision: str,
+) -> None:
+    approved = decision == "approve"
+    title = "Patient approved referral" if approved else "Patient declined referral"
+    preview = (
+        f"{patient.name} approved sharing with {specialist.display_name}."
+        if approved
+        else f"{patient.name} declined the referral to {specialist.display_name}."
+    )
+    row = notification_store.insert_notification(
+        db,
+        doctor_key=referral.from_doctor_key,
+        type="clinical_update",
+        title=title,
+        sender="Referral desk",
+        brand="Impiricus Referrals",
+        preview=preview,
+        body=preview,
+        opens_chat=False,
+        unread_count=1,
+        info_card={
+            "title": title,
+            "sections": [
+                {"label": "Patient", "value": patient.name},
+                {"label": "Specialist", "value": specialist.display_name},
+                {"label": "Referral", "value": referral.referral_key},
+                {"label": "Decision", "value": decision},
+            ],
+        },
+        commit=False,
+    )
+    events.publish(
+        {
+            "type": "referral_consent",
+            "doctor_key": referral.from_doctor_key,
+            "referral_key": referral.referral_key,
+            "decision": decision,
+            "status": referral.status,
+            "notification_id": row.notification_key,
+            "patient_key": referral.patient_key,
+            "to_doctor_key": referral.to_doctor_key,
+        }
+    )
+
+
+def _consent_result_page(*, title: str, body: str, ok: bool) -> HTMLResponse:
+    tone = "#2E8B7A" if ok else "#C45B7A"
+    content = f"""<!DOCTYPE html>
+<html><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>{html.escape(title)}</title></head>
+<body style="font-family:Arial,sans-serif;background:#f4f6f8;margin:0;padding:32px">
+  <div style="max-width:480px;margin:40px auto;background:#fff;border-radius:12px;padding:28px;box-shadow:0 8px 24px rgba(0,0,0,.08)">
+    <h1 style="margin:0 0 12px;color:{tone};font-size:22px">{html.escape(title)}</h1>
+    <p style="margin:0;color:#333;line-height:1.5">{html.escape(body)}</p>
+  </div>
+</body></html>"""
+    return HTMLResponse(content=content, status_code=200 if ok else 400)
+
+
 @router.post("", status_code=201)
 def create_referral(body: ReferralCreate, db: Session = Depends(get_db)) -> dict:
-    _require_doctor(db, body.from_doctor_key)
+    referring = _require_doctor(db, body.from_doctor_key)
     recipient = _require_doctor(db, body.to_doctor_key)
     patient = clinic._panel_patient(db, body.patient_key, body.from_doctor_key)
     if body.from_doctor_key == body.to_doctor_key:
@@ -285,7 +533,7 @@ def create_referral(body: ReferralCreate, db: Session = Depends(get_db)) -> dict
         from_doctor_key=body.from_doctor_key,
         to_doctor_key=body.to_doctor_key,
         patient_key=patient.patient_key,
-        status="sent",
+        status="pending_patient_consent",
         urgency=body.urgency,
         reason=body.reason.strip(),
         created_at=now,
@@ -293,15 +541,149 @@ def create_referral(body: ReferralCreate, db: Session = Depends(get_db)) -> dict
     )
     db.add(referral)
     db.flush()
-    _insert_message(db, referral.referral_key, body.from_doctor_key,
-                    f"Referral request ({body.urgency}): {body.reason.strip()}")
+    raw_token = _issue_consent_token(db, referral.referral_key)
+    approve_url, decline_url = _consent_links(raw_token)
+    _insert_message(
+        db,
+        referral.referral_key,
+        body.from_doctor_key,
+        f"Referral created ({body.urgency}). Waiting for patient consent: {body.reason.strip()}",
+    )
+    try:
+        email = _send_consent_email(
+            referring=referring,
+            recipient=recipient,
+            patient=patient,
+            reason=body.reason.strip(),
+            urgency=body.urgency,
+            raw_token=raw_token,
+        )
+    except HTTPException as exc:
+        email = {
+            "status": "failed",
+            "detail": str(exc.detail),
+            "approve_url": approve_url,
+            "decline_url": decline_url,
+        }
     db.commit()
     db.refresh(referral)
     return {
         "referral": _referral_summary(db, referral, body.from_doctor_key),
         "receiving_doctor": clinic.doctor_payload(recipient),
         "messages": _messages(db, referral.referral_key),
+        "email": email,
+        "consent_pending": True,
+        "consent": {"approve_url": approve_url, "decline_url": decline_url},
     }
+
+
+@router.get("/consent", response_class=HTMLResponse)
+def patient_consent(
+    token: str = Query(..., min_length=16, max_length=200),
+    decision: Literal["approve", "decline"] = Query(...),
+    db: Session = Depends(get_db),
+) -> HTMLResponse:
+    token_hash = _hash_token(token.strip())
+    row = db.scalar(select(ReferralConsentToken).where(ReferralConsentToken.token_hash == token_hash))
+    if row is None:
+        return _consent_result_page(
+            title="Link not valid",
+            body="This referral consent link is invalid or was typed incorrectly.",
+            ok=False,
+        )
+    if row.used_at is not None:
+        return _consent_result_page(
+            title="Already used",
+            body="This consent link was already used. Contact your clinic if you need a change.",
+            ok=False,
+        )
+    if row.expires_at < _utc_now():
+        return _consent_result_page(
+            title="Link expired",
+            body="This consent link has expired. Ask your clinician to send a new referral.",
+            ok=False,
+        )
+
+    referral = _get_referral(db, row.referral_key)
+    if referral.status != "pending_patient_consent":
+        return _consent_result_page(
+            title="Referral already decided",
+            body=f"This referral is already marked as {referral.status.replace('_', ' ')}.",
+            ok=False,
+        )
+
+    referring = _require_doctor(db, referral.from_doctor_key)
+    specialist = _require_doctor(db, referral.to_doctor_key)
+    patient = db.get(Patient, referral.patient_key)
+    if patient is None:
+        raise HTTPException(status_code=404, detail="Patient was not found.")
+
+    now = _utc_now()
+    row.used_at = now
+    row.decision = decision
+    referral.updated_at = now
+
+    if decision == "approve":
+        referral.status = "shared_with_specialist"
+        handoff = clinic.build_handoff_summary(db, patient, referral.from_doctor_key)
+        _insert_message(
+            db,
+            referral.referral_key,
+            referral.from_doctor_key,
+            "[status] Patient approved the referral. Handoff shared with the specialist.",
+        )
+        try:
+            _send_specialist_handoff_email(
+                referring=referring,
+                recipient=specialist,
+                patient=patient,
+                reason=referral.reason,
+                urgency=referral.urgency,
+                handoff=handoff,
+            )
+        except HTTPException:
+            pass
+        _notify_referring_doctor(
+            db,
+            referral=referral,
+            patient=patient,
+            specialist=specialist,
+            decision="approve",
+        )
+        db.commit()
+        return _consent_result_page(
+            title="Referral approved",
+            body=(
+                f"Thank you. Your referral to {specialist.display_name} is approved. "
+                "Your clinician has been notified and your care summary was shared with the specialist."
+            ),
+            ok=True,
+        )
+
+    referral.status = "patient_declined"
+    referral.outcome = "Patient declined referral consent"
+    _insert_message(
+        db,
+        referral.referral_key,
+        referral.from_doctor_key,
+        "[status] Patient declined the referral.",
+    )
+    _notify_referring_doctor(
+        db,
+        referral=referral,
+        patient=patient,
+        specialist=specialist,
+        decision="decline",
+    )
+    db.commit()
+    return _consent_result_page(
+        title="Referral declined",
+        body=(
+            f"You declined the referral to {specialist.display_name}. "
+            "Your clinician has been notified. No medical history was shared with the specialist."
+        ),
+        ok=True,
+    )
 
 
 @router.get("")

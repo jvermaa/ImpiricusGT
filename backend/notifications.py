@@ -140,18 +140,8 @@ def get_notification(
 
 @router.post("", status_code=201)
 def create_notification(body: NotificationCreate, db: Session = Depends(get_db)) -> dict:
-    _require_doctor(db, body.doctor_key)
-    key = next_key(db, DoctorNotification.notification_key, "N")
-    payload = {
-        "actions": body.actions,
-        "infoCard": body.info_card,
-        "messages": body.messages,
-        "patientLink": body.patient_link,
-        "campaignChips": body.campaign_chips,
-        "replyPrompt": body.reply_prompt,
-    }
-    row = DoctorNotification(
-        notification_key=key,
+    row = insert_notification(
+        db,
         doctor_key=body.doctor_key,
         type=body.type,
         title=body.title,
@@ -159,20 +149,80 @@ def create_notification(body: NotificationCreate, db: Session = Depends(get_db))
         brand=body.brand,
         preview=body.preview,
         body=body.body,
-        thread_id=f"thread-{key.lower()}",
         link_url=body.link_url,
         link_button_label=body.link_button_label,
         find_suitable_patients=body.find_suitable_patients,
-        opens_chat=False if body.find_suitable_patients else body.opens_chat,
-        unread_count=max(0, body.unread_count),
+        opens_chat=body.opens_chat,
+        unread_count=body.unread_count,
+        actions=body.actions,
+        info_card=body.info_card,
+        messages=body.messages,
+        patient_link=body.patient_link,
+        campaign_chips=body.campaign_chips,
+        reply_prompt=body.reply_prompt,
+    )
+    return notification_payload(row)
+
+
+def insert_notification(
+    db: Session,
+    *,
+    doctor_key: str,
+    type: str,
+    title: str,
+    sender: str,
+    brand: str,
+    preview: str,
+    body: str,
+    link_url: str | None = None,
+    link_button_label: str | None = None,
+    find_suitable_patients: bool = False,
+    opens_chat: bool = True,
+    unread_count: int = 1,
+    actions: list | None = None,
+    info_card: dict | None = None,
+    messages: list | None = None,
+    patient_link: dict | None = None,
+    campaign_chips: list | None = None,
+    reply_prompt: str | None = None,
+    commit: bool = True,
+) -> DoctorNotification:
+    _require_doctor(db, doctor_key)
+    key = next_key(db, DoctorNotification.notification_key, "N")
+    payload = {
+        "actions": actions or [],
+        "infoCard": info_card or {"title": title, "sections": []},
+        "messages": messages or [],
+        "patientLink": patient_link,
+        "campaignChips": campaign_chips or [],
+        "replyPrompt": reply_prompt,
+    }
+    row = DoctorNotification(
+        notification_key=key,
+        doctor_key=doctor_key,
+        type=type,
+        title=title,
+        sender=sender,
+        brand=brand,
+        preview=preview,
+        body=body,
+        thread_id=f"thread-{key.lower()}",
+        link_url=link_url,
+        link_button_label=link_button_label,
+        find_suitable_patients=find_suitable_patients,
+        opens_chat=False if find_suitable_patients else opens_chat,
+        unread_count=max(0, unread_count),
         payload_json=json.dumps(payload),
         created_at=datetime.utcnow(),
         read_at=None,
     )
     db.add(row)
-    db.commit()
-    db.refresh(row)
-    return notification_payload(row)
+    if commit:
+        db.commit()
+        db.refresh(row)
+    else:
+        db.flush()
+    return row
 
 
 @router.post("/{notification_key}/read")

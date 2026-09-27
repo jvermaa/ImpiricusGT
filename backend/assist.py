@@ -51,7 +51,7 @@ def _pdf(lines: list[str]) -> bytes:
     return b"".join(chunks)
 
 
-def _send_email(subject: str, body: str, intended: str) -> dict:
+def _send_email(subject: str, body: str, intended: str, *, html: str | None = None) -> dict:
     host = os.getenv("SMTP_HOST", "smtp.gmail.com")
     port = int(os.getenv("SMTP_PORT", "587"))
     username = os.getenv("SMTP_USERNAME", "")
@@ -63,9 +63,17 @@ def _send_email(subject: str, body: str, intended: str) -> dict:
     message["Subject"] = subject
     message["From"] = sender
     message["To"] = recipient
-    message.set_content(
+    plain = (
         f"Intended recipient: {intended}\n\n{body}" if redirect and redirect != intended else body
     )
+    message.set_content(plain)
+    if html:
+        html_body = (
+            f"<p><em>Intended recipient: {intended}</em></p>{html}"
+            if redirect and redirect != intended
+            else html
+        )
+        message.add_alternative(html_body, subtype="html")
     if os.getenv("EMAIL_SENDING_ENABLED", "").lower() != "true":
         return {"status": "sent", "detail": "simulated", "recipient": recipient}
     if not username or not password:
