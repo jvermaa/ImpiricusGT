@@ -3,7 +3,7 @@ from collections.abc import Generator
 from pathlib import Path
 
 from dotenv import load_dotenv
-from sqlalchemy import create_engine, event
+from sqlalchemy import create_engine, event, inspect
 from sqlalchemy.orm import DeclarativeBase, Session, sessionmaker
 
 load_dotenv(Path(__file__).resolve().parent / ".env")
@@ -39,3 +39,19 @@ def get_db() -> Generator[Session, None, None]:
         yield db
     finally:
         db.close()
+
+
+def ensure_runtime_schema() -> None:
+    """Add lightweight runtime columns for sqlite during local development."""
+    if engine.dialect.name != "sqlite":
+        return
+    with engine.begin() as connection:
+        table_names = set(inspect(connection).get_table_names())
+        if "patients" not in table_names:
+            return
+        patient_columns = {column["name"] for column in inspect(connection).get_columns("patients")}
+        if "email_address" not in patient_columns:
+            connection.exec_driver_sql(
+                "ALTER TABLE patients "
+                "ADD COLUMN email_address VARCHAR NOT NULL DEFAULT 'harisamser27@gmail.com'"
+            )

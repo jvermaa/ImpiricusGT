@@ -24,6 +24,7 @@ from models import (
 
 ROOT = Path(__file__).resolve().parent
 DATA_DIR = ROOT.parent / "data"
+DEFAULT_PATIENT_EMAIL = "harisamser27@gmail.com"
 
 
 def _load(name: str) -> list[dict]:
@@ -143,6 +144,7 @@ def seed() -> None:
                 Patient(
                     patient_key=row["patient_key"],
                     name=row["name"],
+                    email_address=row.get("email_address", DEFAULT_PATIENT_EMAIL),
                     age=row["age"],
                     state=row["state"],
                     sex_for_clinical_context=row["sex_for_clinical_context"],

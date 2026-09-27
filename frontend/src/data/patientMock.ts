@@ -26,6 +26,8 @@ export type PastVisit = {
 export type PatientProfile = {
   id: string;
   name: string;
+  email: string;
+  anonymizedEmail?: string;
   age: number;
   sex: 'Male' | 'Female';
   diagnosis: string;
@@ -49,6 +51,7 @@ export const PATIENTS: PatientProfile[] = [
   {
     id: 'pat-1',
     name: 'Arthur Pendelton',
+    email: 'harisamser27@gmail.com',
     age: 51,
     sex: 'Male',
     diagnosis: 'Chronic Heart Failure',
@@ -152,6 +155,7 @@ export const PATIENTS: PatientProfile[] = [
   {
     id: 'pat-2',
     name: 'Sonia Kowalski',
+    email: 'harisamser27@gmail.com',
     age: 68,
     sex: 'Female',
     diagnosis: "Parkinson's Disease",
@@ -227,6 +231,7 @@ export const PATIENTS: PatientProfile[] = [
   {
     id: 'pat-3',
     name: 'James Carter',
+    email: 'harisamser27@gmail.com',
     age: 49,
     sex: 'Male',
     diagnosis: 'Essential Hypertension',
@@ -303,6 +308,7 @@ export const PATIENTS: PatientProfile[] = [
   {
     id: 'pat-4',
     name: 'Meera Patel',
+    email: 'harisamser27@gmail.com',
     age: 34,
     sex: 'Female',
     diagnosis: 'Mild Asthma',

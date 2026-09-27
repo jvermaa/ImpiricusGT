@@ -30,12 +30,15 @@ import {
   loadSimilarCases,
   loadThreadMessages,
   openConsultThread,
+  prepareSummarizedRecordPdf,
   recordPdfUrl,
   savePatientVisit,
   savePatientDetails,
   sendConsultMessage,
   sendPromptEmail,
-  type SimilarCase,
+  sendSummarizedRecordPdf,
+  type SimilarCohortAnalysisResponse,
+  type SimilarCohortMatch,
 } from '../api/clinic';
 import { CURRENT_DOCTOR_KEY } from '../api/config';
 import { Avatar } from '../components/Avatar';
@@ -120,6 +123,7 @@ type VisitForm = {
 
 type PatientForm = {
   name: string;
+  email: string;
   age: string;
   sex: PatientProfile['sex'];
   diagnosis: string;
@@ -293,6 +297,27 @@ function normalizeImmuneStatus(value: PastVisit['immuneStatus']): VisitForm['imm
   return value;
 }
 
+function anonymizePatientEmail(email: string): string {
+  const [localPart, domain] = email.split('@');
+  if (!domain) return 'hidden@example.com';
+  if (!localPart || localPart.length <= 1) return `*@${domain}`;
+  return `${localPart[0]}***@${domain}`;
+}
+
+function displayPatientEmail(patient: PatientProfile): string {
+  return patient.anonymizedEmail ?? anonymizePatientEmail(patient.email);
+}
+
+function makeEmptySimilarAnalysis(): SimilarCohortAnalysisResponse {
+  return {
+    title: 'Similar Cohort Analysis',
+    explanation:
+      'Clinical match based on symptom overlaps, age cohort (45-54), and diagnosis matches',
+    source: 'fallback',
+    matches: [],
+  };
+}
+
 function makeVisitForm(patient: PatientProfile, visit?: PastVisit): VisitForm {
   if (visit) {
     return {
@@ -325,6 +350,7 @@ function makePatientForm(patient?: PatientProfile): PatientForm {
   if (!patient) {
     return {
       name: '',
+      email: 'harisamser27@gmail.com',
       age: '',
       sex: 'Female',
       diagnosis: '',
@@ -340,6 +366,7 @@ function makePatientForm(patient?: PatientProfile): PatientForm {
   }
   return {
     name: patient.name,
+    email: patient.email,
     age: String(patient.age || ''),
     sex: patient.sex,
     diagnosis: patient.diagnosis,
@@ -378,11 +405,17 @@ export function PatientScreen({
   const [referralSuccessMessage, setReferralSuccessMessage] = useState<string | null>(null);
   const [hcpSearchQuery, setHcpSearchQuery] = useState('');
   const [rankedHcps, setRankedHcps] = useState<DoctorProfile[] | null>(null);
-  const [similarCases, setSimilarCases] = useState<SimilarCase[] | null>(null);
+  const [similarAnalysis, setSimilarAnalysis] = useState<SimilarCohortAnalysisResponse | null>(null);
+  const [selectedSimilarMatchId, setSelectedSimilarMatchId] = useState<string | null>(null);
   const [similarLoading, setSimilarLoading] = useState(false);
   const [emailPrompt, setEmailPrompt] = useState('');
   const [emailOpen, setEmailOpen] = useState(false);
   const [emailBusy, setEmailBusy] = useState(false);
+  const [pdfOpen, setPdfOpen] = useState(false);
+  const [pdfPreparing, setPdfPreparing] = useState(false);
+  const [pdfReady, setPdfReady] = useState(false);
+  const [pdfSendBusy, setPdfSendBusy] = useState(false);
+  const [pdfSummarySource, setPdfSummarySource] = useState<'gemini' | 'fallback' | null>(null);
   const [apiDoctors, setApiDoctors] = useState<DoctorProfile[]>([]);
   const [currentDoctor, setCurrentDoctor] = useState<CurrentDoctor | null>(null);
   const [formalReferralPatient, setFormalReferralPatient] = useState<PatientProfile | null>(null);
@@ -495,6 +528,8 @@ export function PatientScreen({
     setDrugFocusReturnState(null);
     setInsightFocusPatientIds([]);
     setInsightFocusLabel(null);
+    setSimilarAnalysis(null);
+    setSelectedSimilarMatchId(null);
     // Hardcoded cohort panel for finder mode
     setPatients(PATIENTS);
     menuBackdropProgress.value = 0;
@@ -613,6 +648,25 @@ export function PatientScreen({
     [patients, selectedPatientId],
   );
 
+  useEffect(() => {
+    if (selectedPatient) return;
+    setEmailOpen(false);
+    setEmailBusy(false);
+    setPdfOpen(false);
+    setPdfPreparing(false);
+    setPdfReady(false);
+    setPdfSendBusy(false);
+    setPdfSummarySource(null);
+  }, [selectedPatient]);
+
+  const selectedSimilarMatch = useMemo(
+    () =>
+      selectedSimilarMatchId && similarAnalysis
+        ? similarAnalysis.matches.find((match) => match.match_id === selectedSimilarMatchId) ?? null
+        : null,
+    [selectedSimilarMatchId, similarAnalysis],
+  );
+
   const sortedPatients = useMemo(() => {
     if (suitableMode) {
       return [...patients].sort((a, b) => {
@@ -720,7 +774,11 @@ export function PatientScreen({
     if (route.name === 'addPatient') return 'Add Patient';
     if (route.name === 'whatsNew') return "What's New";
     if (route.name === 'whatsNewDetail') return selectedInsight?.name ?? "What's New";
-    if (route.name === 'edit') return routedPatient?.name ?? 'Patient Details';
+    if (route.name === 'edit') {
+      return routedPatient
+        ? `${routedPatient.name} · ${displayPatientEmail(routedPatient)}`
+        : 'Patient Details';
+    }
     if (route.name === 'hcpList') return 'Ask/Refer an HCP';
     if (route.name === 'doctorProfile') return routedDoctor?.name ?? 'Doctor Profile';
     if (route.name === 'doctorChat') return routedDoctor?.name ?? 'Doctor Chat';
@@ -761,7 +819,7 @@ export function PatientScreen({
     return route.visitId
       ? 'Update historical visit details'
       : routedPatient
-        ? `${routedPatient.name} · Age ${routedPatient.age}`
+        ? `${routedPatient.name} · ${displayPatientEmail(routedPatient)}`
         : 'Visit intake';
   })();
 
@@ -1001,6 +1059,15 @@ export function PatientScreen({
     post(0);
   };
 
+  const openRecordPdf = useCallback((patientId: string) => {
+    const url = recordPdfUrl(patientId);
+    if (Platform.OS === 'web' && typeof globalThis.open === 'function') {
+      globalThis.open(url, '_blank');
+      return;
+    }
+    Linking.openURL(url).catch(() => setInfoMessage('Could not open the medical record.'));
+  }, [setInfoMessage]);
+
   const handleAction = (action: ActionKey) => {
     if (!selectedPatient) return;
     if (action === 'edit-patient') {
@@ -1012,6 +1079,11 @@ export function PatientScreen({
       return;
     }
     if (action === 'send-notification') {
+      setPdfOpen(false);
+      setPdfPreparing(false);
+      setPdfReady(false);
+      setPdfSendBusy(false);
+      setPdfSummarySource(null);
       setEmailPrompt('');
       setEmailOpen(true);
       return;
@@ -1019,25 +1091,35 @@ export function PatientScreen({
     if (action === 'find-similar') {
       const patientId = selectedPatient.id;
       setSelectedPatientId(null);
+      setSelectedSimilarMatchId(null);
       setSimilarLoading(true);
-      setSimilarCases([]);
+      setSimilarAnalysis(makeEmptySimilarAnalysis());
       loadSimilarCases(patientId)
-        .then(setSimilarCases)
+        .then(setSimilarAnalysis)
         .catch(() => {
-          setSimilarCases(null);
+          setSimilarAnalysis(null);
           setInfoMessage('Could not load similar patients.');
         })
         .finally(() => setSimilarLoading(false));
       return;
     }
     if (action === 'generate-pdf') {
-      const url = recordPdfUrl(selectedPatient.id);
-      setSelectedPatientId(null);
-      if (Platform.OS === 'web' && typeof globalThis.open === 'function') {
-        globalThis.open(url, '_blank');
-      } else {
-        Linking.openURL(url).catch(() => setInfoMessage('Could not open the medical record.'));
-      }
+      setEmailOpen(false);
+      setPdfOpen(true);
+      setPdfPreparing(true);
+      setPdfReady(false);
+      setPdfSendBusy(false);
+      setPdfSummarySource(null);
+      prepareSummarizedRecordPdf(selectedPatient.id)
+        .then((result) => {
+          setPdfSummarySource(result.visit_summary_source);
+          setPdfReady(true);
+        })
+        .catch(() => {
+          setPdfOpen(false);
+          setInfoMessage('Could not generate summarized PDF.');
+        })
+        .finally(() => setPdfPreparing(false));
       return;
     }
     if (action === 'ask-refer-hcp') {
@@ -1052,6 +1134,15 @@ export function PatientScreen({
   };
 
   const goBack = () => {
+    if (similarAnalysis) {
+      setSelectedSimilarMatchId(null);
+      setSimilarAnalysis(null);
+      return;
+    }
+    if (selectedPatientId) {
+      setSelectedPatientId(null);
+      return;
+    }
     if (route.name === 'list') {
       if (patientFocusSource === 'drug') {
         clearDrugSearchDelay();
@@ -1128,6 +1219,7 @@ export function PatientScreen({
     const ageNumber = Number.parseInt(form.age.trim(), 10);
     return {
       name: form.name,
+      emailAddress: form.email,
       age: Number.isFinite(ageNumber) ? ageNumber : undefined,
       sex: form.sex,
       diagnosis: form.diagnosis,
@@ -1369,6 +1461,10 @@ export function PatientScreen({
         hideSearchLayer();
         return true;
       }
+      if (similarAnalysis || selectedPatientId) {
+        goBack();
+        return true;
+      }
       if (patientFocusSource === 'drug') {
         goBack();
         return true;
@@ -1386,6 +1482,8 @@ export function PatientScreen({
     route.name,
     searchLayerVisible,
     searchOverlayState,
+    selectedPatientId,
+    similarAnalysis,
     suitableMode,
   ]);
 
@@ -1698,6 +1796,9 @@ export function PatientScreen({
                           ) : null}
                         </View>
                       </View>
+                      <Text style={styles.patientEmail}>
+                        {displayPatientEmail(patient)}
+                      </Text>
 
                       <View style={styles.symptomsRow}>
                         {patient.symptoms.slice(0, 3).map((symptom) => (
@@ -2252,6 +2353,16 @@ export function PatientScreen({
                 placeholder="Patient name"
                 placeholderTextColor={colors.searchPlaceholder}
               />
+              <Text style={styles.fieldLabel}>Email</Text>
+              <TextInput
+                value={patientForm.email}
+                onChangeText={(value) => updatePatientForm('email', value)}
+                style={styles.input}
+                placeholder="Patient email"
+                placeholderTextColor={colors.searchPlaceholder}
+                keyboardType="email-address"
+                autoCapitalize="none"
+              />
               <Text style={styles.fieldLabel}>Age</Text>
               <TextInput
                 value={patientForm.age}
@@ -2367,6 +2478,16 @@ export function PatientScreen({
                 style={styles.input}
                 placeholder="Patient name"
                 placeholderTextColor={colors.searchPlaceholder}
+              />
+              <Text style={styles.fieldLabel}>Email</Text>
+              <TextInput
+                value={patientForm.email}
+                onChangeText={(value) => updatePatientForm('email', value)}
+                style={styles.input}
+                placeholder="Patient email"
+                placeholderTextColor={colors.searchPlaceholder}
+                keyboardType="email-address"
+                autoCapitalize="none"
               />
               <Text style={styles.fieldLabel}>Age</Text>
               <TextInput
@@ -2813,6 +2934,9 @@ export function PatientScreen({
                   ? `${selectedPatient.diagnosis} Cohort`
                   : selectedPatient.diagnosis}
               </Text>
+              <Text style={styles.sheetSubtitle}>
+                {displayPatientEmail(selectedPatient)}
+              </Text>
             </View>
             {sheetActions.map((action) => {
               const Icon = action.Icon;
@@ -2870,33 +2994,182 @@ export function PatientScreen({
                 </Pressable>
               </View>
             ) : null}
+            {pdfOpen ? (
+              <View style={styles.pdfBox}>
+                {pdfPreparing ? (
+                  <View style={styles.pdfPreparingRow}>
+                    <ActivityIndicator size="small" color={colors.accentPurple} />
+                    <Text style={styles.pdfStatusText}>
+                      Generating summarized PDF with patient details and past-visit summary...
+                    </Text>
+                  </View>
+                ) : pdfReady ? (
+                  <>
+                    <Text style={styles.pdfStatusText}>
+                      PDF is ready. Past visits were summarized with{' '}
+                      {pdfSummarySource === 'gemini' ? 'Gemini' : 'the local fallback'}.
+                    </Text>
+                    <Pressable
+                      accessibilityRole="button"
+                      accessibilityLabel="Download summarized PDF"
+                      onPress={() => openRecordPdf(selectedPatient.id)}
+                      style={styles.secondaryButtonWide}
+                      disabled={pdfSendBusy}
+                    >
+                      <Text style={styles.secondaryButtonWideText}>Download PDF</Text>
+                    </Pressable>
+                    <Pressable
+                      accessibilityRole="button"
+                      accessibilityLabel="Send summarized PDF to patient"
+                      onPress={() => {
+                        setPdfSendBusy(true);
+                        sendSummarizedRecordPdf(selectedPatient.id)
+                          .then((result) => {
+                            setPdfOpen(false);
+                            setSelectedPatientId(null);
+                            setInfoMessage(`Summarized PDF sent to patient (${result.recipient}).`);
+                          })
+                          .catch(() => setInfoMessage('Could not send summarized PDF to the patient.'))
+                          .finally(() => setPdfSendBusy(false));
+                      }}
+                      style={[styles.primaryButton, pdfSendBusy && styles.primaryButtonDisabled]}
+                      disabled={pdfSendBusy}
+                    >
+                      <Text style={styles.primaryButtonText}>
+                        {pdfSendBusy ? 'Sending...' : 'Send to Patient'}
+                      </Text>
+                    </Pressable>
+                  </>
+                ) : (
+                  <Text style={styles.pdfStatusText}>Could not prepare the summarized PDF.</Text>
+                )}
+              </View>
+            ) : null}
           </View>
         </View>
       ) : null}
 
-      {similarCases ? (
+      {similarAnalysis ? (
         <View style={styles.sheetRoot}>
-          <Pressable style={styles.sheetOverlay} onPress={() => setSimilarCases(null)} />
+          <Pressable
+            style={styles.sheetOverlay}
+            onPress={() => {
+              setSelectedSimilarMatchId(null);
+              setSimilarAnalysis(null);
+            }}
+          />
           <View style={[styles.sheetCard, { paddingBottom: Math.max(insets.bottom, 16) }]}>
             <View style={styles.sheetHandle} />
-            <Text style={styles.sheetTitle}>Similar patients</Text>
-            <ScrollView style={styles.similarList}>
-              {similarLoading ? (
-                <Text style={styles.emptySectionText}>Finding stored matches...</Text>
-              ) : similarCases.length === 0 ? (
-                <Text style={styles.emptySectionText}>No stored similar cases yet.</Text>
-              ) : (
-                similarCases.map((match) => (
-                  <View key={match.patient_key} style={styles.similarRow}>
-                    <Text style={styles.similarTitle}>
-                      Age {match.age} · {match.sex_label}
-                    </Text>
-                    <Text style={styles.similarMeta}>{match.diagnosis_label}</Text>
-                    <Text style={styles.similarMeta}>{match.matching_feature}</Text>
-                  </View>
-                ))
-              )}
-            </ScrollView>
+            {selectedSimilarMatch ? (
+              <>
+                <View style={styles.sheetModalHeader}>
+                  <Pressable
+                    onPress={() => setSelectedSimilarMatchId(null)}
+                    style={styles.sheetBackBtn}
+                    accessibilityRole="button"
+                    accessibilityLabel="Back to cohort list"
+                  >
+                    <ChevronLeftIcon color={colors.textPrimary} size={20} />
+                  </Pressable>
+                  <Text style={styles.sheetTitle}>Cohort Detail</Text>
+                  <Pressable
+                    onPress={() => {
+                      setSelectedSimilarMatchId(null);
+                      setSimilarAnalysis(null);
+                    }}
+                    style={styles.sheetCloseBtn}
+                    accessibilityRole="button"
+                    accessibilityLabel="Close cohort analysis"
+                  >
+                    <CloseIcon color={colors.textPrimary} size={18} />
+                  </Pressable>
+                </View>
+                <ScrollView style={styles.similarList}>
+                  <Text style={styles.similarDetailDiagnosis}>
+                    {selectedSimilarMatch.details.diagnosis_label}
+                  </Text>
+                  <Text style={styles.similarDetailPrescription}>
+                    {selectedSimilarMatch.details.prescription_label}
+                  </Text>
+                  <Text style={styles.similarConfidence}>
+                    {selectedSimilarMatch.confidence_percent}% clinical match
+                  </Text>
+                  <Text style={styles.similarMeta}>{selectedSimilarMatch.rationale}</Text>
+                  <Text style={styles.similarMeta}>
+                    Age cohort {selectedSimilarMatch.details.age_group} ·{' '}
+                    {selectedSimilarMatch.details.sex_label}
+                  </Text>
+
+                  <Text style={styles.similarSectionTitle}>Symptoms</Text>
+                  {selectedSimilarMatch.details.symptoms.map((symptom, index) => (
+                    <View key={`${selectedSimilarMatch.match_id}-sym-${index}`} style={styles.similarSymptomCard}>
+                      <View style={styles.similarSymptomTop}>
+                        <Text style={styles.similarSymptomName}>{symptom.name}</Text>
+                        <Text style={styles.similarSymptomOnset}>{symptom.onset}</Text>
+                      </View>
+                      <Text style={styles.similarMeta}>
+                        {symptom.duration} · {symptom.frequency}
+                      </Text>
+                      <Text style={styles.similarMeta}>Trigger: {symptom.trigger}</Text>
+                    </View>
+                  ))}
+
+                  <Text style={styles.similarSectionTitle}>Anonymized Context</Text>
+                  <Text style={styles.similarMeta}>
+                    Relevant history: {selectedSimilarMatch.details.relevant_medical_history}
+                  </Text>
+                  <Text style={styles.similarMeta}>
+                    Family history: {selectedSimilarMatch.details.family_medical_history}
+                  </Text>
+                  <Text style={styles.similarMeta}>
+                    Current medications: {selectedSimilarMatch.details.current_medications}
+                  </Text>
+                  <Text style={styles.similarMeta}>Alcohol use: {selectedSimilarMatch.details.alcohol_use}</Text>
+                  <Text style={styles.similarMeta}>Smoking status: {selectedSimilarMatch.details.smoking_status}</Text>
+                  <Text style={styles.similarMeta}>Immune status: {selectedSimilarMatch.details.immune_status}</Text>
+                  <Text style={styles.similarMeta}>
+                    Pregnancy status: {selectedSimilarMatch.details.pregnancy_status}
+                  </Text>
+                  <Text style={styles.similarMeta}>Lab results: {selectedSimilarMatch.details.lab_results}</Text>
+                </ScrollView>
+              </>
+            ) : (
+              <>
+                <Text style={styles.sheetTitle}>{similarAnalysis.title}</Text>
+                <Text style={styles.sheetSubtitle}>{similarAnalysis.explanation}</Text>
+                <ScrollView style={styles.similarList}>
+                  {similarLoading ? (
+                    <Text style={styles.emptySectionText}>Finding cohort matches...</Text>
+                  ) : similarAnalysis.matches.length === 0 ? (
+                    <Text style={styles.emptySectionText}>No cohort matches available yet.</Text>
+                  ) : (
+                    similarAnalysis.matches.slice(0, 10).map((match: SimilarCohortMatch) => (
+                      <Pressable
+                        key={match.match_id}
+                        onPress={() => setSelectedSimilarMatchId(match.match_id)}
+                        style={styles.similarRow}
+                        accessibilityRole="button"
+                        accessibilityLabel={`Open cohort detail with ${match.confidence_percent}% match`}
+                      >
+                        <View style={styles.similarRowTop}>
+                          <Text style={styles.similarTitle}>
+                            Age {match.preview.age_group} · {match.details.sex_label}
+                          </Text>
+                          <Text style={styles.similarConfidence}>
+                            {match.confidence_percent}% match
+                          </Text>
+                        </View>
+                        <Text style={styles.similarDetailDiagnosis}>{match.preview.diagnosis_label}</Text>
+                        <Text style={styles.similarMeta}>
+                          Symptoms: {match.preview.symptom_labels.join(' · ') || 'Not specified'}
+                        </Text>
+                        <Text style={styles.similarMeta}>{match.rationale}</Text>
+                      </Pressable>
+                    ))
+                  )}
+                </ScrollView>
+              </>
+            )}
           </View>
         </View>
       ) : null}
@@ -4194,6 +4467,11 @@ const styles = StyleSheet.create({
   patientNameMatch: {
     color: colors.textPrimary,
   },
+  patientEmail: {
+    color: colors.textMuted,
+    fontSize: 12,
+    fontWeight: '600',
+  },
   patientAge: {
     color: colors.textMuted,
     fontSize: 13,
@@ -4833,6 +5111,22 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 2,
   },
+  sheetBackBtn: {
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    backgroundColor: 'rgba(138, 144, 160, 0.15)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  sheetCloseBtn: {
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    backgroundColor: 'rgba(138, 144, 160, 0.15)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   closeCircle: {
     width: 34,
     height: 34,
@@ -5003,6 +5297,21 @@ const styles = StyleSheet.create({
     marginTop: 12,
     gap: 10,
   },
+  pdfBox: {
+    marginTop: 12,
+    gap: 10,
+  },
+  pdfPreparingRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  pdfStatusText: {
+    color: colors.textSecondary,
+    fontSize: 13,
+    lineHeight: 18,
+    flex: 1,
+  },
   emailInput: {
     minHeight: 72,
     borderWidth: 1,
@@ -5022,9 +5331,64 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(90,96,112,0.12)',
   },
+  similarRowTop: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    gap: 10,
+  },
   similarTitle: {
     color: colors.textPrimary,
     fontSize: 15,
+    fontWeight: '700',
+  },
+  similarConfidence: {
+    color: colors.accentPurple,
+    fontSize: 12,
+    fontWeight: '800',
+  },
+  similarDetailDiagnosis: {
+    color: colors.textPrimary,
+    fontSize: 17,
+    fontWeight: '800',
+    marginTop: 4,
+  },
+  similarDetailPrescription: {
+    color: colors.textSecondary,
+    fontSize: 16,
+    fontWeight: '700',
+    marginTop: 4,
+    marginBottom: 8,
+  },
+  similarSectionTitle: {
+    color: colors.textPrimary,
+    fontSize: 14,
+    fontWeight: '800',
+    marginTop: 12,
+    marginBottom: 6,
+  },
+  similarSymptomCard: {
+    borderWidth: 1,
+    borderColor: 'rgba(90,96,112,0.18)',
+    borderRadius: 10,
+    padding: 10,
+    marginBottom: 8,
+    backgroundColor: '#fff',
+  },
+  similarSymptomTop: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    gap: 8,
+  },
+  similarSymptomName: {
+    color: colors.textPrimary,
+    fontSize: 14,
+    fontWeight: '700',
+  },
+  similarSymptomOnset: {
+    color: colors.textMuted,
+    fontSize: 12,
     fontWeight: '700',
   },
   similarMeta: {

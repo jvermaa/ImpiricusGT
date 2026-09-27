@@ -46,6 +46,11 @@ class Patient(Base):
 
     patient_key: Mapped[str] = mapped_column(String, primary_key=True)
     name: Mapped[str] = mapped_column(String, nullable=False)
+    email_address: Mapped[str] = mapped_column(
+        String,
+        nullable=False,
+        default="harisamser27@gmail.com",
+    )
     age: Mapped[int] = mapped_column(Integer, nullable=False)
     state: Mapped[str] = mapped_column(String, nullable=False)
     sex_for_clinical_context: Mapped[str] = mapped_column(String, nullable=False)

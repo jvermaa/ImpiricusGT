@@ -54,6 +54,8 @@ type EncounterDTO = {
 type PatientDTO = {
   patient_key: string;
   display_label: string;
+  email_address: string;
+  anonymized_email?: string;
   age: number;
   sex_label: string;
   primary_diagnosis: string;
@@ -68,6 +70,13 @@ type PatientDTO = {
   latest_visit_symptoms: EncounterDTO['symptoms'];
   encounters: EncounterDTO[];
 };
+
+function anonymizeEmail(email: string): string {
+  const [localPart, domain] = email.split('@');
+  if (!domain) return 'hidden@example.com';
+  if (!localPart || localPart.length <= 1) return `*@${domain}`;
+  return `${localPart[0]}***@${domain}`;
+}
 
 const NGROK_HEADER = 'ngrok-skip-browser-warning';
 let activeApiBaseUrl = API_BASE_URL;
@@ -263,10 +272,13 @@ function toPatient(row: PatientDTO): PatientProfile {
     latestSymptomsRaw.length > 0 ? latestSymptomsRaw : row.encounters[0]?.symptoms ?? [];
   const symptoms = latestSymptoms.map((symptom, index) => toSymptom(row.patient_key, symptom, index));
   const sex: PatientProfile['sex'] = row.sex_label === 'Female' ? 'Female' : 'Male';
+  const email = row.email_address || 'harisamser27@gmail.com';
 
   return {
     id: row.patient_key,
     name: row.display_label,
+    email,
+    anonymizedEmail: row.anonymized_email ?? anonymizeEmail(email),
     age: row.age,
     sex,
     diagnosis: row.primary_diagnosis,
@@ -352,6 +364,7 @@ export async function loadMyPatients(): Promise<PatientProfile[]> {
 
 export type PatientWritePayload = {
   name?: string;
+  emailAddress?: string;
   age?: number;
   sex?: PatientProfile['sex'];
   diagnosis?: string;
@@ -374,6 +387,7 @@ function toPatientRequest(payload: PatientWritePayload): Record<string, unknown>
         : undefined;
   return {
     name: payload.name,
+    email_address: payload.emailAddress,
     age: payload.age,
     sex_for_clinical_context: sex,
     primary_diagnosis: payload.diagnosis,
@@ -420,23 +434,99 @@ export async function savePatientDetails(
   return toPatient(row);
 }
 
-export type SimilarCase = {
-  patient_key: string;
-  age: number;
-  sex_label: string;
-  diagnosis_label: string;
-  matching_feature: string;
-  score: number | null;
+export type SimilarCohortSymptom = {
+  name: string;
+  duration: string;
+  frequency: string;
+  trigger: string;
+  onset: string;
 };
 
-export async function loadSimilarCases(patientKey: string): Promise<SimilarCase[]> {
-  return getJson<SimilarCase[]>(
+export type SimilarCohortMatch = {
+  match_id: string;
+  confidence_percent: number;
+  rationale: string;
+  preview: {
+    age_group: string;
+    diagnosis_label: string;
+    symptom_labels: string[];
+  };
+  details: {
+    age_group: string;
+    sex_label: string;
+    diagnosis_label: string;
+    prescription_label: string;
+    symptom_labels: string[];
+    symptoms: SimilarCohortSymptom[];
+    relevant_medical_history: string;
+    family_medical_history: string;
+    current_medications: string;
+    alcohol_use: string;
+    smoking_status: string;
+    immune_status: string;
+    pregnancy_status: string;
+    lab_results: string;
+  };
+};
+
+export type SimilarCohortAnalysisResponse = {
+  title: string;
+  explanation: string;
+  source: 'gemini' | 'fallback';
+  matches: SimilarCohortMatch[];
+};
+
+export async function loadSimilarCases(patientKey: string): Promise<SimilarCohortAnalysisResponse> {
+  return getJson<SimilarCohortAnalysisResponse>(
     `/patients/${encodeURIComponent(patientKey)}/similar?doctor=${CURRENT_DOCTOR_KEY}`,
   );
 }
 
 export function recordPdfUrl(patientKey: string): string {
   return `${activeApiBaseUrl}/patients/${encodeURIComponent(patientKey)}/record.pdf?doctor=${CURRENT_DOCTOR_KEY}`;
+}
+
+export type PreparedRecordPdf = {
+  patient_key: string;
+  status: 'ready';
+  visit_summary_source: 'gemini' | 'fallback';
+  visit_count: number;
+};
+
+export async function prepareSummarizedRecordPdf(patientKey: string): Promise<PreparedRecordPdf> {
+  const response = await apiFetch(
+    `/patients/${encodeURIComponent(patientKey)}/record.pdf/prepare?doctor=${CURRENT_DOCTOR_KEY}`,
+    {
+      method: 'POST',
+      headers: { Accept: 'application/json', [NGROK_HEADER]: 'true' },
+    },
+  );
+  if (!response.ok) {
+    throw new Error(await readError(response));
+  }
+  return response.json() as Promise<PreparedRecordPdf>;
+}
+
+export async function sendSummarizedRecordPdf(patientKey: string): Promise<{
+  patient_key: string;
+  source: 'gemini' | 'fallback';
+  subject: string;
+  filename: string;
+  status: string;
+  detail: string;
+  recipient: string;
+}> {
+  const response = await apiFetch(
+    `/patients/${encodeURIComponent(patientKey)}/record.pdf/send?doctor=${CURRENT_DOCTOR_KEY}`,
+    {
+      method: 'POST',
+      headers: { Accept: 'application/json', [NGROK_HEADER]: 'true' },
+    },
+  );
+  if (!response.ok) {
+    throw new Error(await readError(response));
+  }
+  return response.json();
 }
 
 export async function sendPromptEmail(

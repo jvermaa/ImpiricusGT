@@ -15,7 +15,7 @@ import assist
 import clinic
 import notifications
 import referrals
-from database import Base, SessionLocal, engine, get_db
+from database import Base, SessionLocal, engine, ensure_runtime_schema, get_db
 from models import Doctor
 
 load_dotenv(Path(__file__).resolve().parent / ".env")
@@ -32,6 +32,7 @@ app.include_router(referrals.router)
 app.include_router(assist.router)
 app.include_router(notifications.router)
 Base.metadata.create_all(bind=engine)
+ensure_runtime_schema()
 
 WATCH_TOKENS = {
     "demo-hcp-1": "D002",

@@ -1,5 +1,7 @@
 import json
+import re
 from datetime import datetime
+from typing import Literal
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Response
 from pydantic import BaseModel, ConfigDict, Field, field_validator
@@ -7,6 +9,7 @@ from sqlalchemy import func, or_, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
+from cohort_matcher import rank_cohort_matches
 from database import get_db
 from keys import next_key
 from models import (
@@ -43,6 +46,9 @@ SEX_LABELS = {
     "other": "Other",
     "unknown": "Unknown",
 }
+
+DEFAULT_PATIENT_EMAIL = "harisamser27@gmail.com"
+EMAIL_PATTERN = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 
 
 class DoctorCreate(BaseModel):
@@ -82,6 +88,7 @@ class SymptomIn(BaseModel):
 
 class PatientCreate(BaseModel):
     name: str | None = None
+    email_address: str | None = None
     age: int | None = None
     state: str | None = None
     sex_for_clinical_context: str | None = None
@@ -122,6 +129,7 @@ class VisitWrite(BaseModel):
 
 class PatientUpdate(BaseModel):
     name: str | None = None
+    email_address: str | None = None
     age: int | None = None
     state: str | None = None
     sex_for_clinical_context: str | None = None
@@ -137,6 +145,52 @@ class PatientUpdate(BaseModel):
     immune_status: str | None = None
     latest_visit_symptoms: list[SymptomIn] | None = None
     primary_diagnosis: str | None = None
+
+
+class CohortSymptom(BaseModel):
+    name: str
+    duration: str
+    frequency: str
+    trigger: str
+    onset: str
+
+
+class CohortMatchPreview(BaseModel):
+    age_group: str
+    diagnosis_label: str
+    symptom_labels: list[str]
+
+
+class CohortMatchDetails(BaseModel):
+    age_group: str
+    sex_label: str
+    diagnosis_label: str
+    prescription_label: str
+    symptom_labels: list[str]
+    symptoms: list[CohortSymptom]
+    relevant_medical_history: str
+    family_medical_history: str
+    current_medications: str
+    alcohol_use: str
+    smoking_status: str
+    immune_status: str
+    pregnancy_status: str
+    lab_results: str
+
+
+class CohortMatch(BaseModel):
+    match_id: str
+    confidence_percent: int = Field(ge=0, le=100)
+    rationale: str
+    preview: CohortMatchPreview
+    details: CohortMatchDetails
+
+
+class SimilarCohortAnalysisResponse(BaseModel):
+    title: str
+    explanation: str
+    source: Literal["gemini", "fallback"]
+    matches: list[CohortMatch]
 
 
 class ConsultOpen(BaseModel):
@@ -216,6 +270,20 @@ def _clean_text(value: str | None, fallback: str) -> str:
     return cleaned or fallback
 
 
+def _clean_email(value: str | None) -> str:
+    cleaned = (value or "").strip().lower()
+    return cleaned if EMAIL_PATTERN.match(cleaned) else DEFAULT_PATIENT_EMAIL
+
+
+def _anonymize_email(value: str) -> str:
+    local_part, _, domain = value.partition("@")
+    if not domain:
+        return "hidden@example.com"
+    if len(local_part) <= 1:
+        return f"*@" + domain
+    return f"{local_part[0]}***@{domain}"
+
+
 def _clean_age(value: int | None) -> int:
     if isinstance(value, int) and value >= 0:
         return value
@@ -227,6 +295,83 @@ def _clean_sex(value: str | None) -> str:
     if lowered in {"female", "male", "other", "unknown"}:
         return lowered
     return "unknown"
+
+
+def _age_group(age: int) -> str:
+    if age < 0:
+        return "Unknown"
+    if age < 5:
+        return "0-4"
+    lower = ((age - 5) // 10) * 10 + 5
+    upper = lower + 9
+    if lower >= 95:
+        return "95+"
+    return f"{lower}-{upper}"
+
+
+def _clean_symptom_entry(raw: dict) -> dict:
+    source = raw if isinstance(raw, dict) else {}
+    return {
+        "name": _clean_text(source.get("name"), "Symptom"),
+        "duration": _clean_text(source.get("duration"), "Not specified"),
+        "frequency": _clean_text(source.get("frequency"), "Not specified"),
+        "trigger": _clean_text(source.get("trigger"), "Not specified"),
+        "onset": _clean_text(source.get("onset"), "Not specified"),
+    }
+
+
+def _patient_diagnosis(db: Session, patient_key: str) -> Diagnosis | None:
+    return db.scalar(select(Diagnosis).where(Diagnosis.patient_key == patient_key).order_by(Diagnosis.id))
+
+
+def _prescription_label(db: Session, patient_key: str, fallback: str) -> str:
+    active = db.scalar(
+        select(Prescription)
+        .where(Prescription.patient_key == patient_key, Prescription.status == "active")
+        .order_by(Prescription.start_year.desc(), Prescription.prescription_key.desc())
+    )
+    if active is None:
+        return _clean_text(fallback, "Medication list reconciled.")
+    return " ".join(
+        part
+        for part in (
+            active.generic_medication.strip(),
+            active.strength.strip(),
+            active.frequency.strip(),
+        )
+        if part
+    ) or _clean_text(fallback, "Medication list reconciled.")
+
+
+def _cohort_snapshot(db: Session, patient: Patient, match_id: str) -> dict:
+    diagnosis = _patient_diagnosis(db, patient.patient_key)
+    symptoms = [_clean_symptom_entry(row) for row in _read_symptoms(patient.latest_visit_symptoms_json)[:3]]
+    symptom_labels = [entry["name"] for entry in symptoms if entry["name"]]
+    diagnosis_label = diagnosis.label if diagnosis else "Undifferentiated condition"
+    return {
+        "match_id": match_id,
+        "age_group": _age_group(patient.age),
+        "sex_label": SEX_LABELS.get(patient.sex_for_clinical_context, "Unknown"),
+        "diagnosis_label": diagnosis_label,
+        "prescription_label": _prescription_label(db, patient.patient_key, patient.current_medications),
+        "symptom_labels": symptom_labels,
+        "symptoms": symptoms,
+        "relevant_medical_history": _clean_text(patient.relevant_medical_history, "General history reviewed."),
+        "family_medical_history": _clean_text(patient.family_medical_history, "Family history reviewed."),
+        "current_medications": _clean_text(patient.current_medications, "Medication list reconciled."),
+        "alcohol_use": _clean_text(patient.alcohol_use, "None"),
+        "smoking_status": _clean_text(patient.smoking_status, "Never smoker"),
+        "immune_status": _clean_text(patient.immune_status, "Immunocompetent"),
+        "pregnancy_status": _clean_text(patient.pregnancy_status, "N/A"),
+        "lab_results": _clean_text(patient.lab_results, "Baseline labs reviewed."),
+    }
+
+
+def _cohort_explanation(query_age_group: str) -> str:
+    return (
+        "Clinical match based on symptom overlaps, age cohort "
+        f"({query_age_group}), and diagnosis matches"
+    )
 
 
 def doctor_payload(doctor: Doctor) -> dict:
@@ -284,6 +429,8 @@ def patient_card(db: Session, patient: Patient) -> dict:
     return {
         "patient_key": patient.patient_key,
         "display_label": patient.name,
+        "email_address": patient.email_address,
+        "anonymized_email": _anonymize_email(patient.email_address),
         "age": patient.age,
         "sex_label": SEX_LABELS.get(patient.sex_for_clinical_context, "Unknown"),
         "primary_diagnosis": diagnoses[0].label if diagnoses else "Undifferentiated condition",
@@ -569,6 +716,7 @@ def create_patient(
     patient = Patient(
         patient_key=next_key(db, Patient.patient_key, "P"),
         name=_clean_text(body.name, "New patient"),
+        email_address=_clean_email(body.email_address),
         age=_clean_age(body.age),
         state=_clean_text(body.state, "GA"),
         sex_for_clinical_context=_clean_sex(body.sex_for_clinical_context),
@@ -637,6 +785,8 @@ def update_patient(
     patient = _panel_patient(db, patient_key, doctor)
     if body.name is not None:
         patient.name = _clean_text(body.name, "New patient")
+    if body.email_address is not None:
+        patient.email_address = _clean_email(body.email_address)
     if body.age is not None:
         patient.age = _clean_age(body.age)
     if body.state is not None:
@@ -962,12 +1112,12 @@ def _remember_similar_cases(db: Session, patient: Patient, doctor: Doctor) -> No
     _commit(db)
 
 
-@router.get("/patients/{patient_key}/similar")
+@router.get("/patients/{patient_key}/similar", response_model=SimilarCohortAnalysisResponse)
 def similar_cases(
     patient_key: str,
     doctor: str = Query(...),
     db: Session = Depends(get_db),
-) -> list[dict]:
+) -> SimilarCohortAnalysisResponse:
     patient = _panel_patient(db, patient_key, doctor)
     doctor_row = _require_doctor(db, doctor)
     rows = db.scalars(
@@ -988,40 +1138,77 @@ def similar_cases(
                 )
             )
         ).all()
-    payload = []
-    for row in rows:
-        if row.query_patient_key == patient_key:
-            other_patient_key = row.candidate_patient_key
-            other_doctor_key = row.candidate_doctor_key
-        else:
-            other_patient_key = row.query_patient_key
-            other_doctor_key = row.query_doctor_key
-        other_patient = db.get(Patient, other_patient_key)
-        other_doctor = db.get(Doctor, other_doctor_key)
-        if other_patient is None or other_doctor is None:
+    query_snapshot = _cohort_snapshot(db, patient, "query")
+    peer_patients = db.scalars(
+        select(Patient).where(
+            Patient.patient_key != patient.patient_key,
+            Patient.primary_doctor_key != patient.primary_doctor_key,
+        )
+    ).all()
+
+    candidates: list[dict] = []
+    for index, other_patient in enumerate(peer_patients, start=1):
+        other_doctor = db.get(Doctor, other_patient.primary_doctor_key)
+        if other_doctor is None:
             continue
         if other_patient.sharing_preference_for_peer_cases != "de-identified case only":
             continue
         if not other_doctor.case_exchange_opt_in:
             continue
-        diagnosis = db.scalar(
-            select(Diagnosis).where(Diagnosis.patient_key == other_patient.patient_key)
+        candidates.append(_cohort_snapshot(db, other_patient, f"match-{index:03d}"))
+
+    if not candidates:
+        return SimilarCohortAnalysisResponse(
+            title="Similar Cohort Analysis",
+            explanation=_cohort_explanation(query_snapshot["age_group"]),
+            source="fallback",
+            matches=[],
         )
-        payload.append(
-            {
-                "patient_key": other_patient.patient_key,
-                "age": other_patient.age,
-                "sex_label": SEX_LABELS.get(other_patient.sex_for_clinical_context, "Unknown"),
-                "diagnosis_label": diagnosis.label if diagnosis else "Undifferentiated condition",
-                "diagnosis_code": diagnosis.code if diagnosis else None,
-                "matching_feature": row.matching_feature,
-                "score": row.score,
-                "review_status": row.review_status,
-                "candidate_doctor_key": other_doctor.doctor_key,
-                "candidate_accepts_peer_consults": other_doctor.accepts_peer_consults,
-            }
+
+    source, summary, ranked = rank_cohort_matches(query_snapshot, candidates, limit=10)
+    by_id = {row["match_id"]: row for row in candidates}
+    matches: list[CohortMatch] = []
+    for row in ranked[:10]:
+        candidate = by_id.get(row.get("match_id"))
+        if candidate is None:
+            continue
+        matches.append(
+            CohortMatch(
+                match_id=candidate["match_id"],
+                confidence_percent=int(row["confidence_percent"]),
+                rationale=str(row.get("rationale") or "Cohort-level similarity match."),
+                preview=CohortMatchPreview(
+                    age_group=candidate["age_group"],
+                    diagnosis_label=candidate["diagnosis_label"],
+                    symptom_labels=candidate["symptom_labels"][:3],
+                ),
+                details=CohortMatchDetails(
+                    age_group=candidate["age_group"],
+                    sex_label=candidate["sex_label"],
+                    diagnosis_label=candidate["diagnosis_label"],
+                    prescription_label=candidate["prescription_label"],
+                    symptom_labels=candidate["symptom_labels"][:3],
+                    symptoms=[CohortSymptom(**symptom) for symptom in candidate["symptoms"][:3]],
+                    relevant_medical_history=candidate["relevant_medical_history"],
+                    family_medical_history=candidate["family_medical_history"],
+                    current_medications=candidate["current_medications"],
+                    alcohol_use=candidate["alcohol_use"],
+                    smoking_status=candidate["smoking_status"],
+                    immune_status=candidate["immune_status"],
+                    pregnancy_status=candidate["pregnancy_status"],
+                    lab_results=candidate["lab_results"],
+                ),
+            )
         )
-    return payload
+
+    base_explanation = _cohort_explanation(query_snapshot["age_group"])
+    explanation = base_explanation if not summary else f"{base_explanation}. {summary}"
+    return SimilarCohortAnalysisResponse(
+        title="Similar Cohort Analysis",
+        explanation=explanation,
+        source=source,
+        matches=matches[:10],
+    )
 
 
 @router.get("/patients/{patient_key}/handoff")

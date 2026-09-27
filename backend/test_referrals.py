@@ -52,6 +52,7 @@ def client():
         db.add(Patient(
             patient_key="P001",
             name="Synthetic Patient",
+            email_address="harisamser27@gmail.com",
             age=49,
             state="GA",
             sex_for_clinical_context="female",
