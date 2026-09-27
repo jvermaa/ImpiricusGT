@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import {
+  Keyboard,
   Platform,
   Pressable,
   ScrollView,
@@ -10,8 +11,22 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { loadMyPatients } from '../api/clinic';
+import { Avatar } from '../components/Avatar';
+import { ChatThread } from '../components/ChatThread';
 import { ChevronLeftIcon, CloseIcon, NotificationIcon, SearchIcon } from '../components/NavIcons';
 import type { AppNotification } from '../data/notificationsMock';
+import {
+  DOCTOR_DIRECTORY,
+  DOCTOR_THREADS,
+  type ChatMessage,
+  type DoctorProfile,
+  type DoctorThread,
+} from '../data/chatMock';
+import {
+  formatDistance,
+  inferSpecializationsFromSymptoms,
+  searchDoctorsByNameOrSpecialization,
+} from '../data/doctorDiscovery';
 import {
   HIGH_MATCH_PATIENT_IDS,
   PATIENTS,
@@ -26,14 +41,18 @@ type RouteState =
   | { name: 'list' }
   | { name: 'edit'; patientId: string }
   | { name: 'addVisit'; patientId: string }
-  | { name: 'visitDetails'; patientId: string; visitId: string };
+  | { name: 'visitDetails'; patientId: string; visitId: string }
+  | { name: 'hcpList'; patientId: string }
+  | { name: 'doctorProfile'; patientId: string; doctorId: string }
+  | { name: 'doctorChat'; patientId: string; doctorId: string };
 
 type ActionKey =
   | 'find-similar'
   | 'generate-pdf'
   | 'send-notification'
   | 'edit-patient'
-  | 'add-visit';
+  | 'add-visit'
+  | 'ask-refer-hcp';
 
 type VisitForm = {
   symptoms: SymptomEntry[];
@@ -60,6 +79,7 @@ const ACTIONS: Array<{ key: ActionKey; label: string }> = [
   { key: 'send-notification', label: 'Send Notification' },
   { key: 'edit-patient', label: 'Edit Patient Details' },
   { key: 'add-visit', label: 'Add Visit' },
+  { key: 'ask-refer-hcp', label: 'Ask/Refer an HCP' },
 ];
 
 const HIGH_MATCH_SET = new Set<string>(HIGH_MATCH_PATIENT_IDS);
@@ -100,6 +120,10 @@ export function PatientScreen({
   const [query, setQuery] = useState('');
   const [selectedPatientId, setSelectedPatientId] = useState<string | null>(null);
   const [infoMessage, setInfoMessage] = useState<string | null>(null);
+  const [consultThreads, setConsultThreads] = useState<DoctorThread[]>(DOCTOR_THREADS);
+  const [confirmReferralOpen, setConfirmReferralOpen] = useState(false);
+  const [referralSuccessMessage, setReferralSuccessMessage] = useState<string | null>(null);
+  const [hcpSearchQuery, setHcpSearchQuery] = useState('');
 
   const [visitForm, setVisitForm] = useState<VisitForm | null>(null);
   const [addSymptomOpen, setAddSymptomOpen] = useState(false);
@@ -150,6 +174,35 @@ export function PatientScreen({
     [patients, routedPatientId],
   );
 
+  const routedDoctorId =
+    route.name === 'doctorProfile' || route.name === 'doctorChat' ? route.doctorId : null;
+  const routedDoctor = useMemo(
+    () =>
+      routedDoctorId
+        ? DOCTOR_DIRECTORY.find((doctor) => doctor.id === routedDoctorId) ?? null
+        : null,
+    [routedDoctorId],
+  );
+
+  const routedDoctorThread = useMemo(
+    () =>
+      routedDoctorId
+        ? consultThreads.find((thread) => thread.id === routedDoctorId) ?? null
+        : null,
+    [consultThreads, routedDoctorId],
+  );
+
+  const inferredSpecializations = useMemo(() => {
+    if (!routedPatient) return [];
+    const sourceSymptoms = routedPatient.pastVisits[0]?.symptoms ?? routedPatient.symptoms;
+    return inferSpecializationsFromSymptoms(sourceSymptoms);
+  }, [routedPatient]);
+  const defaultSpecializationQuery = inferredSpecializations[0] ?? '';
+  const hcpSearchResults = useMemo(() => {
+    const seedQuery = hcpSearchQuery.trim() || defaultSpecializationQuery;
+    return searchDoctorsByNameOrSpecialization(DOCTOR_DIRECTORY, seedQuery).slice(0, 10);
+  }, [hcpSearchQuery, defaultSpecializationQuery]);
+
   const activeVisit = useMemo(() => {
     if (route.name !== 'visitDetails' || !routedPatient) return null;
     return routedPatient.pastVisits.find((visit) => visit.id === route.visitId) ?? null;
@@ -192,15 +245,21 @@ export function PatientScreen({
   );
 
   const headerTitle =
-    suitableMode && route.name === 'list'
-      ? 'Patient Cohort'
-      : route.name === 'list'
-        ? 'Patients'
-        : route.name === 'edit'
-          ? routedPatient?.name ?? 'Patient Details'
-          : route.name === 'visitDetails'
-            ? 'Visit Details'
-            : 'Add Visit';
+    route.name === 'list'
+      ? suitableMode
+        ? 'Patient Cohort'
+        : 'Patients'
+      : route.name === 'edit'
+        ? routedPatient?.name ?? 'Patient Details'
+        : route.name === 'hcpList'
+          ? 'Ask/Refer an HCP'
+          : route.name === 'doctorProfile'
+            ? routedDoctor?.name ?? 'Doctor Profile'
+            : route.name === 'doctorChat'
+              ? routedDoctor?.name ?? 'Doctor Chat'
+        : route.name === 'visitDetails'
+          ? 'Visit Details'
+          : 'Add Visit';
 
   const headerSubtitle =
     suitableMode && route.name === 'list'
@@ -209,15 +268,23 @@ export function PatientScreen({
         : `${highMatchPatients.length} high matches`
       : route.name === 'list'
         ? `${patients.length} patients`
-        : route.name === 'edit'
-          ? 'Patient details and visit history'
-          : route.name === 'visitDetails'
-            ? activeVisit
-              ? `${activeVisit.date} · ${activeVisit.diagnosis}`
-              : 'Past visit snapshot'
-            : routedPatient
-              ? `${routedPatient.name} · Age ${routedPatient.age}`
-              : 'Visit intake';
+      : route.name === 'edit'
+        ? 'Patient details and visit history'
+        : route.name === 'hcpList'
+          ? 'Search by doctor name or specialization'
+          : route.name === 'doctorProfile'
+            ? routedDoctor
+              ? `${routedDoctor.specializations.slice(0, 2).join(' · ')}`
+              : 'Doctor details'
+            : route.name === 'doctorChat'
+              ? routedDoctor?.designation ?? 'Consult thread'
+        : route.name === 'visitDetails'
+          ? activeVisit
+            ? `${activeVisit.date} · ${activeVisit.diagnosis}`
+            : 'Past visit snapshot'
+          : routedPatient
+            ? `${routedPatient.name} · Age ${routedPatient.age}`
+            : 'Visit intake';
 
   const notifyPatients = (targets: PatientProfile[], label: string) => {
     if (targets.length === 0) {
@@ -252,6 +319,57 @@ export function PatientScreen({
     setRoute({ name: 'visitDetails', patientId, visitId });
   };
 
+  const openHcpReferral = (patientId: string) => {
+    const patient = patients.find((entry) => entry.id === patientId) ?? null;
+    const sourceSymptoms = patient?.pastVisits[0]?.symptoms ?? patient?.symptoms ?? [];
+    const inferred = inferSpecializationsFromSymptoms(sourceSymptoms);
+    setHcpSearchQuery(inferred[0] ?? '');
+    setInfoMessage(null);
+    setReferralSuccessMessage(null);
+    setConfirmReferralOpen(false);
+    setRoute({ name: 'hcpList', patientId });
+  };
+
+  const openDoctorProfile = (patientId: string, doctorId: string) => {
+    setInfoMessage(null);
+    setReferralSuccessMessage(null);
+    setConfirmReferralOpen(false);
+    setRoute({ name: 'doctorProfile', patientId, doctorId });
+  };
+
+  const openDoctorChat = (patientId: string, doctorId: string) => {
+    const doctor = DOCTOR_DIRECTORY.find((entry) => entry.id === doctorId);
+    if (!doctor) return;
+    setConsultThreads((current) => {
+      const existing = current.find((thread) => thread.id === doctorId);
+      if (existing) return current;
+      const fresh: DoctorThread = {
+        ...doctor,
+        lastMessage: 'New consult',
+        messages: [],
+      };
+      return [fresh, ...current];
+    });
+    setRoute({ name: 'doctorChat', patientId, doctorId });
+  };
+
+  const sendDoctorMessage = (text: string) => {
+    if (route.name !== 'doctorChat') return;
+    const msg: ChatMessage = {
+      id: `pchat-${Date.now()}`,
+      senderId: 'me',
+      text,
+      timestamp: 'Now',
+    };
+    setConsultThreads((current) =>
+      current.map((thread) =>
+        thread.id === route.doctorId
+          ? { ...thread, messages: [...thread.messages, msg], lastMessage: text }
+          : thread,
+      ),
+    );
+  };
+
   const handleAction = (action: ActionKey) => {
     if (!selectedPatient) return;
     if (action === 'edit-patient') {
@@ -273,6 +391,11 @@ export function PatientScreen({
       setSelectedPatientId(null);
       return;
     }
+    if (action === 'ask-refer-hcp') {
+      openHcpReferral(selectedPatient.id);
+      setSelectedPatientId(null);
+      return;
+    }
 
     const label = ACTIONS.find((entry) => entry.key === action)?.label ?? 'Action';
     setInfoMessage(`${label} is ready for backend wiring.`);
@@ -287,6 +410,19 @@ export function PatientScreen({
     if (route.name === 'addVisit' || route.name === 'visitDetails') {
       setAddSymptomOpen(false);
       setRoute({ name: 'edit', patientId: route.patientId });
+      return;
+    }
+    if (route.name === 'hcpList') {
+      setRoute({ name: 'edit', patientId: route.patientId });
+      return;
+    }
+    if (route.name === 'doctorProfile') {
+      setConfirmReferralOpen(false);
+      setRoute({ name: 'hcpList', patientId: route.patientId });
+      return;
+    }
+    if (route.name === 'doctorChat') {
+      setRoute({ name: 'doctorProfile', patientId: route.patientId, doctorId: route.doctorId });
       return;
     }
     setRoute({ name: 'list' });
@@ -376,6 +512,13 @@ export function PatientScreen({
     setRoute({ name: 'edit', patientId: route.patientId });
   };
 
+  const confirmDoctorReferral = () => {
+    if (route.name !== 'doctorProfile' || !routedDoctor || !routedPatient) return;
+    setConfirmReferralOpen(false);
+    setReferralSuccessMessage(
+      `Referral sent to ${routedPatient.name}. Email delivered with ${routedDoctor.name}'s details and medical history shared immediately.`,
+    );
+  };
   const showBack = route.name !== 'list' || suitableMode;
 
   return (
@@ -452,6 +595,7 @@ export function PatientScreen({
                   placeholder="Search patients, diagnosis, or symptoms"
                   placeholderTextColor={colors.searchPlaceholder}
                   style={styles.searchInput}
+                  onSubmitEditing={Keyboard.dismiss}
                 />
               </View>
             ) : null}
@@ -461,6 +605,7 @@ export function PatientScreen({
               contentContainerStyle={styles.listContent}
               showsVerticalScrollIndicator={false}
               keyboardShouldPersistTaps="handled"
+              onScrollBeginDrag={Keyboard.dismiss}
             >
               {suitableMode && suitableSource ? (
                 <View style={styles.trialBlock}>
@@ -500,7 +645,10 @@ export function PatientScreen({
                     key={patient.id}
                     accessibilityRole="button"
                     accessibilityLabel={`Open actions for ${patient.name}`}
-                    onPress={() => setSelectedPatientId(patient.id)}
+                    onPress={() => {
+                      Keyboard.dismiss();
+                      setSelectedPatientId(patient.id);
+                    }}
                     style={[
                       styles.patientCard,
                       isHighMatch && styles.patientCardMatch,
@@ -623,6 +771,15 @@ export function PatientScreen({
             >
               <Text style={styles.primaryButtonText}>Add Visit</Text>
             </Pressable>
+
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Ask or refer a healthcare professional"
+              onPress={() => openHcpReferral(routedPatient.id)}
+              style={styles.secondaryButtonWide}
+            >
+              <Text style={styles.secondaryButtonWideText}>Ask/Refer an HCP</Text>
+            </Pressable>
           </ScrollView>
         ) : route.name === 'visitDetails' && routedPatient && activeVisit ? (
           <ScrollView
@@ -689,6 +846,137 @@ export function PatientScreen({
               <Text style={styles.primaryButtonText}>Add New Visit</Text>
             </Pressable>
           </ScrollView>
+        ) : route.name === 'hcpList' && routedPatient ? (
+          <ScrollView
+            style={styles.flex}
+            contentContainerStyle={styles.detailsContent}
+            showsVerticalScrollIndicator={false}
+            keyboardShouldPersistTaps="handled"
+            onScrollBeginDrag={Keyboard.dismiss}
+          >
+            {referralSuccessMessage ? (
+              <View style={styles.infoBanner}>
+                <Text style={styles.infoBannerText}>{referralSuccessMessage}</Text>
+              </View>
+            ) : null}
+
+            <View style={styles.sectionCard}>
+              <Text style={styles.sectionTitle}>Recommended HCPs</Text>
+              <View style={styles.inlineSearchBar}>
+                <SearchIcon color={colors.searchPlaceholder} size={18} />
+                <TextInput
+                  value={hcpSearchQuery}
+                  onChangeText={setHcpSearchQuery}
+                  style={styles.inlineSearchInput}
+                  placeholder={defaultSpecializationQuery || 'Search doctor name or specialization'}
+                  placeholderTextColor={colors.searchPlaceholder}
+                  onSubmitEditing={Keyboard.dismiss}
+                />
+              </View>
+              <Text style={styles.sectionHint}>Top 10 matching doctors</Text>
+
+              {hcpSearchResults.map((doctor) => (
+                <Pressable
+                  key={doctor.id}
+                  accessibilityRole="button"
+                  accessibilityLabel={`Open profile for ${doctor.name}`}
+                  onPress={() => {
+                    Keyboard.dismiss();
+                    openDoctorProfile(routedPatient.id, doctor.id);
+                  }}
+                  style={styles.doctorCard}
+                >
+                  <View style={styles.doctorCardHead}>
+                    <Text style={styles.doctorName}>{doctor.name}</Text>
+                    <Text style={styles.doctorDistance}>{formatDistance(doctor.distanceKm)}</Text>
+                  </View>
+                  <Text style={styles.doctorMeta}>{doctor.designation}</Text>
+                  <Text style={styles.doctorMeta}>{doctor.specializations.join(' · ')}</Text>
+                </Pressable>
+              ))}
+
+              {hcpSearchResults.length === 0 ? (
+                <Text style={styles.emptySectionText}>No doctors match this search.</Text>
+              ) : null}
+            </View>
+          </ScrollView>
+        ) : route.name === 'doctorProfile' && routedPatient && routedDoctor ? (
+          <ScrollView
+            style={styles.flex}
+            contentContainerStyle={styles.detailsContent}
+            showsVerticalScrollIndicator={false}
+          >
+            {referralSuccessMessage ? (
+              <View style={styles.infoBanner}>
+                <Text style={styles.infoBannerText}>{referralSuccessMessage}</Text>
+              </View>
+            ) : null}
+            <View style={styles.profileHeroCard}>
+              <View style={styles.profileAvatarWrap}>
+                <Avatar
+                  initials={routedDoctor.initials}
+                  color={routedDoctor.avatarColor}
+                  size={144}
+                />
+              </View>
+
+              <Text style={styles.profileHeroName}>{routedDoctor.name}</Text>
+              <Text style={styles.profileHeroMeta}>
+                {routedDoctor.specialty} | {routedDoctor.degrees.join(', ')}
+              </Text>
+
+              <View style={styles.profileDivider} />
+
+              <Text style={styles.profileSectionTitle}>Medical Profile</Text>
+              <Text style={styles.profileDescription}>
+                {routedDoctor.name} specializes in comprehensive {routedDoctor.specialty.toLowerCase()} care with
+                a focus on long-term outcomes and peer collaboration.
+              </Text>
+              <Text style={styles.profileDescription}>
+                {routedDoctor.name} is board certified and available for rapid consults and referrals.
+              </Text>
+
+              <Text style={styles.profileAddressLabel}>Address</Text>
+              <Text style={styles.profileAddressValue}>{routedDoctor.address}</Text>
+              <Text style={styles.profileDistanceNote}>
+                {formatDistance(routedDoctor.distanceKm)}
+              </Text>
+            </View>
+
+            <View style={styles.profileActionRow}>
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel={`Open chat with ${routedDoctor.name}`}
+                onPress={() => openDoctorChat(routedPatient.id, routedDoctor.id)}
+                style={styles.profileActionPrimary}
+              >
+                <Text style={styles.profileActionPrimaryText}>Chat</Text>
+              </Pressable>
+
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel={`Refer ${routedPatient.name} to ${routedDoctor.name}`}
+                onPress={() => setConfirmReferralOpen(true)}
+                style={styles.profileActionSecondary}
+              >
+                <Text style={styles.profileActionSecondaryText}>Refer</Text>
+              </Pressable>
+            </View>
+          </ScrollView>
+        ) : route.name === 'doctorChat' && routedPatient && routedDoctor ? (
+          <View style={styles.flex}>
+            {referralSuccessMessage ? (
+              <View style={[styles.infoBanner, styles.chatInfoBanner]}>
+                <Text style={styles.infoBannerText}>{referralSuccessMessage}</Text>
+              </View>
+            ) : null}
+            <ChatThread
+              messages={routedDoctorThread?.messages ?? []}
+              onSend={sendDoctorMessage}
+              peerNameForTheirs={() => routedDoctor.name}
+              placeholder={`Message ${routedDoctor.name.split(' ')[1] ?? 'doctor'}…`}
+            />
+          </View>
         ) : route.name === 'addVisit' && routedPatient && visitForm ? (
           <ScrollView
             style={styles.flex}
@@ -854,6 +1142,33 @@ export function PatientScreen({
                 </Pressable>
               );
             })}
+          </View>
+        </View>
+      ) : null}
+
+      {confirmReferralOpen &&
+      route.name === 'doctorProfile' &&
+      routedDoctor &&
+      routedPatient ? (
+        <View style={styles.confirmRoot} pointerEvents="box-none">
+          <Pressable
+            style={styles.confirmOverlay}
+            onPress={() => setConfirmReferralOpen(false)}
+          />
+          <View style={styles.confirmCard}>
+            <Text style={styles.confirmTitle}>Confirm Referral</Text>
+            <Text style={styles.confirmText}>
+              Refer {routedPatient.name} to {routedDoctor.name}? This sends the referral email to
+              the patient and immediately shares medical history with the doctor.
+            </Text>
+            <View style={styles.confirmActions}>
+              <Pressable onPress={() => setConfirmReferralOpen(false)} style={styles.cancelBtn}>
+                <Text style={styles.cancelBtnText}>Cancel</Text>
+              </Pressable>
+              <Pressable onPress={confirmDoctorReferral} style={styles.referBtn}>
+                <Text style={styles.referBtnText}>Refer</Text>
+              </Pressable>
+            </View>
           </View>
         </View>
       ) : null}
@@ -1255,6 +1570,101 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     padding: 14,
   },
+  profileHeroCard: {
+    backgroundColor: colors.cardBg,
+    borderRadius: 18,
+    paddingHorizontal: 16,
+    paddingTop: 88,
+    paddingBottom: 16,
+    position: 'relative',
+  },
+  profileAvatarWrap: {
+    position: 'absolute',
+    top: -64,
+    left: 0,
+    right: 0,
+    alignItems: 'center',
+  },
+  profileHeroName: {
+    color: colors.textPrimary,
+    fontSize: 40 / 2,
+    fontWeight: '800',
+    textAlign: 'center',
+  },
+  profileHeroMeta: {
+    color: colors.accentPurple,
+    fontSize: 16,
+    fontWeight: '600',
+    textAlign: 'center',
+    marginTop: 4,
+  },
+  profileDivider: {
+    height: StyleSheet.hairlineWidth,
+    backgroundColor: 'rgba(90,96,112,0.22)',
+    marginTop: 14,
+    marginBottom: 12,
+  },
+  profileSectionTitle: {
+    color: colors.textPrimary,
+    fontSize: 18,
+    fontWeight: '800',
+  },
+  profileDescription: {
+    color: colors.textSecondary,
+    fontSize: 14,
+    lineHeight: 22,
+    marginTop: 6,
+  },
+  profileAddressLabel: {
+    color: colors.textMuted,
+    fontSize: 12,
+    fontWeight: '700',
+    textTransform: 'uppercase',
+    letterSpacing: 0.4,
+    marginTop: 10,
+  },
+  profileAddressValue: {
+    color: colors.textPrimary,
+    fontSize: 14,
+    fontWeight: '600',
+    marginTop: 4,
+  },
+  profileDistanceNote: {
+    color: colors.textMuted,
+    fontSize: 12,
+    marginTop: 4,
+  },
+  profileActionRow: {
+    flexDirection: 'row',
+    gap: 10,
+    marginTop: 2,
+  },
+  profileActionPrimary: {
+    flex: 1,
+    minHeight: 50,
+    borderRadius: 14,
+    backgroundColor: '#4A36A8',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  profileActionPrimaryText: {
+    color: colors.white,
+    fontSize: 18 / 1.25,
+    fontWeight: '700',
+  },
+  profileActionSecondary: {
+    flex: 1,
+    minHeight: 50,
+    borderRadius: 14,
+    backgroundColor: '#5C8A90',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  profileActionSecondaryText: {
+    color: colors.white,
+    fontSize: 18 / 1.25,
+    fontWeight: '700',
+  },
   sectionTitle: {
     color: colors.textPrimary,
     fontSize: 16,
@@ -1264,6 +1674,25 @@ const styles = StyleSheet.create({
     marginTop: 6,
     color: colors.textMuted,
     fontSize: 13,
+  },
+  inlineSearchBar: {
+    marginTop: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    backgroundColor: '#F2F3F7',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(90,96,112,0.18)',
+    paddingHorizontal: 12,
+    paddingVertical: Platform.OS === 'web' ? 10 : 8,
+  },
+  inlineSearchInput: {
+    flex: 1,
+    fontSize: 14,
+    color: colors.textPrimary,
+    padding: 0,
+    ...(Platform.OS === 'web' ? ({ outlineStyle: 'none' } as object) : null),
   },
   detailRow: {
     marginTop: 12,
@@ -1358,6 +1787,58 @@ const styles = StyleSheet.create({
     color: colors.accentPurple,
     fontSize: 14,
     fontWeight: '700',
+  },
+  secondaryButtonWide: {
+    marginTop: 10,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(123,97,255,0.35)',
+    backgroundColor: 'rgba(123,97,255,0.08)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: 46,
+    paddingHorizontal: 16,
+  },
+  secondaryButtonWideText: {
+    color: colors.accentPurple,
+    fontSize: 15,
+    fontWeight: '700',
+  },
+  doctorCard: {
+    marginTop: 10,
+    borderRadius: 12,
+    backgroundColor: '#F6F7FA',
+    borderWidth: 1,
+    borderColor: 'rgba(90,96,112,0.2)',
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    gap: 4,
+  },
+  doctorCardHead: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 10,
+  },
+  doctorName: {
+    color: colors.textPrimary,
+    fontSize: 14,
+    fontWeight: '700',
+    flex: 1,
+  },
+  doctorDistance: {
+    color: colors.textMuted,
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  doctorMeta: {
+    color: colors.textSecondary,
+    fontSize: 13,
+  },
+  chatInfoBanner: {
+    marginHorizontal: 16,
+    marginTop: 12,
+    marginBottom: 4,
   },
   symptomCard: {
     marginTop: 10,
@@ -1533,5 +2014,66 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(138, 144, 160, 0.15)',
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  confirmRoot: {
+    ...StyleSheet.absoluteFill,
+    justifyContent: 'flex-end',
+    zIndex: 90,
+  },
+  confirmOverlay: {
+    ...StyleSheet.absoluteFill,
+    backgroundColor: 'rgba(0,0,0,0.45)',
+  },
+  confirmCard: {
+    backgroundColor: colors.cardBg,
+    borderTopLeftRadius: 18,
+    borderTopRightRadius: 18,
+    paddingHorizontal: 16,
+    paddingTop: 14,
+    paddingBottom: 18,
+  },
+  confirmTitle: {
+    color: colors.textPrimary,
+    fontSize: 19,
+    fontWeight: '700',
+  },
+  confirmText: {
+    color: colors.textSecondary,
+    fontSize: 14,
+    lineHeight: 20,
+    marginTop: 8,
+  },
+  confirmActions: {
+    marginTop: 14,
+    flexDirection: 'row',
+    gap: 10,
+  },
+  cancelBtn: {
+    flex: 1,
+    minHeight: 44,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: 'rgba(90,96,112,0.22)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#fff',
+  },
+  cancelBtnText: {
+    color: colors.textPrimary,
+    fontSize: 14,
+    fontWeight: '700',
+  },
+  referBtn: {
+    flex: 1,
+    minHeight: 44,
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: colors.accentPurple,
+  },
+  referBtnText: {
+    color: colors.white,
+    fontSize: 14,
+    fontWeight: '700',
   },
 });

@@ -43,22 +43,19 @@ UI side: a button to find all relevant patient diagnosis from other HCPs. Once y
 
 2. Every Pulse or Spark notification leads to a chat box where HCP can communicate on its impacts and give their feedback
 
-3. Doctors automatic follow up messages to patient. For example when doctors need to give steroids, they don’t give them all together. They have to check in routinely for any allergies, if the steroids need to be switched or the dosages changed.
-
 4. An easy way to summarize the entire data so that it can be given to another doctor if we need to go to a new specialist or switch doctors it would be very easy to get the data
    Need to handle both other doctor has impiricus and doesn’t have impiricus
    Prescription, how much time for each symptom, frequency for each symptom, a factor that increases these symptom (cough is increased by lying down), gradual symptoms came up or sudden, and all the history of the background can be either summarized or turned into pictorial representations via an LLM
 
 Application: went to a specialist or went to a different department and they need to know all medications you take currently
 
-5. Clinical trials sent directly as push notifications to patients through doctors
+5. Clinical trials sent directly as emails to patients through doctors
 
 6. A particular new development, which patients does it affect, if the patients need to be sent a follow up/notification. How the diagnosis may be affected etc.
 
 7. Also connects the healthcare professionals. A doctor is not specialized in something and doesn’t have a lot of experience with it or just has a question, because of Impericus’s data, they would be able to connect HCP with each other.
 
-8. Doctors can refer other doctors who are on the impiricus network using the app to the patients. They can then use number 4 to send all the data easily. 
-Doctor chat page - plus button to search for speciization. The doctors are ordered by who is closest to you. Clicking on a doctor sends you to a doctor profile page which information about the doctors like degrees, specializations, and address. This also has the button to chat or refer. Chat sends you to the chat with the doctor. You can click the refer doctor to patient button. This would show you a popup of all patients to select the patient to refer (with the relevant patients having a red border). Clicking on a patient shows a popup for cancel or refer just for confirmation. When we again click refer, it sends the patient an email for referal to the doctor and the doctor’s details. It would also send the medical history immediately to the other doctor.
-
+8. Doctors can refer other doctors who are on the impiricus network using the app to the patients. They can then use number 4 to send all the data easily.
+   Doctor chat page - plus button to search for speciization. The doctors are ordered by who is closest to you. Clicking on a doctor sends you to a doctor profile page which information about the doctors like degrees, specializations, and address. This also has the button to chat or refer. Chat sends you to the chat with the doctor. You can click the refer doctor to patient button. This would show you a popup of all patients to select the patient to refer (with the relevant patients having a red border). Clicking on a patient shows a popup for cancel or refer just for confirmation. When we again click refer, it sends the patient an email for referal to the doctor and the doctor’s details. It would also send the medical history immediately to the other doctor.
 
 9. What's new page to show new drugs on the market, their benefits, research for evidence, side effects, relevant patients button.
