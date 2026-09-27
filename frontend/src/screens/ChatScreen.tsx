@@ -24,7 +24,7 @@ import type { ChatMessage, CurrentDoctor, DoctorProfile, DoctorThread } from '..
 import { DEMO_CURRENT_DOCTOR, DEMO_THREADS, DOCTOR_DIRECTORY, SPECIALTIES } from '../data/chatMock';
 import { searchDoctorsByNameOrSpecialization } from '../data/doctorDiscovery';
 import type { DirectoryFilter } from '../api/directory';
-import { loadConsultDirectory, loadCurrentDoctor } from '../api/clinic';
+import { loadConsultDirectory, loadCurrentDoctor, loadThreadMessages, openConsultThread, sendConsultMessage } from '../api/clinic';
 import { colors } from '../theme/colors';
 import { ReferralWorkspace } from './ReferralWorkspace';
 
@@ -32,6 +32,14 @@ type ChatLaunch = {
   peerKey: string | null;
   readOnlyReason?: string;
 } | null;
+
+function isApiThread(threadId: string | undefined): boolean {
+  return !!threadId && /^T\d+/i.test(threadId);
+}
+
+function isApiDoctor(doctorId: string): boolean {
+  return /^D\d+/i.test(doctorId);
+}
 
 export function ChatScreen({
   launch = null,
@@ -121,6 +129,32 @@ export function ChatScreen({
 
   const startOrOpenChat = (doctor: DoctorProfile) => {
     setThreadReadOnly(undefined);
+    setProfileDoctorId(null);
+    setNewChatOpen(false);
+    setFilterOpen(false);
+    setReferralSuccessMessage(null);
+
+    const existing = threads.find((entry) => entry.id === doctor.id);
+    if (existing) {
+      setActiveDoctorId(doctor.id);
+      return;
+    }
+
+    if (isApiDoctor(doctor.id)) {
+      setActiveDoctorId(doctor.id);
+      void openConsultThread(doctor.id)
+        .then((thread) => {
+          setThreads((prev) => {
+            if (prev.some((entry) => entry.id === thread.id)) return prev;
+            return [thread, ...prev];
+          });
+        })
+        .catch((reason: unknown) => {
+          setLoadError(reason instanceof Error ? reason.message : 'Could not open that consult.');
+        });
+      return;
+    }
+
     setThreads((prev) => {
       if (prev.some((entry) => entry.id === doctor.id)) return prev;
       const fresh: DoctorThread = {
@@ -132,10 +166,6 @@ export function ChatScreen({
       return [fresh, ...prev];
     });
     setActiveDoctorId(doctor.id);
-    setProfileDoctorId(null);
-    setNewChatOpen(false);
-    setFilterOpen(false);
-    setReferralSuccessMessage(null);
   };
 
   useEffect(() => {
@@ -160,6 +190,33 @@ export function ChatScreen({
     onLaunchHandled?.();
   }, [launch, directoryReady]);
 
+  const activeThreadId = threads.find((entry) => entry.id === activeDoctorId)?.threadId;
+
+  useEffect(() => {
+    if (!activeDoctorId || !isApiThread(activeThreadId)) return;
+    let cancelled = false;
+    loadThreadMessages(activeThreadId)
+      .then((messages) => {
+        if (cancelled) return;
+        setThreads((prev) =>
+          prev.map((entry) => {
+            if (entry.threadId !== activeThreadId) return entry;
+            const pending = entry.messages.filter((message) => message.id.startsWith('local-'));
+            const merged = pending.length > 0 ? [...messages, ...pending] : messages;
+            return {
+              ...entry,
+              messages: merged,
+              lastMessage: merged.at(-1)?.text ?? entry.lastMessage,
+            };
+          }),
+        );
+      })
+      .catch(() => undefined);
+    return () => {
+      cancelled = true;
+    };
+  }, [activeDoctorId, activeThreadId]);
+
   const openDoctorProfile = (doctor: DoctorProfile) => {
     setProfileDoctorId(doctor.id);
     setActiveDoctorId(null);
@@ -171,7 +228,7 @@ export function ChatScreen({
   const sendDoctor = (text: string) => {
     if (!activeDoctor?.threadId || threadReadOnly) return;
     const threadId = activeDoctor.threadId;
-    const message: ChatMessage = {
+    const optimistic: ChatMessage = {
       id: `local-${Date.now()}`,
       senderId: currentDoctor.id,
       text,
@@ -180,10 +237,49 @@ export function ChatScreen({
     setThreads((prev) =>
       prev.map((entry) =>
         entry.threadId === threadId
-          ? { ...entry, messages: [...entry.messages, message], lastMessage: text }
+          ? { ...entry, messages: [...entry.messages, optimistic], lastMessage: text }
           : entry,
       ),
     );
+    if (!isApiThread(threadId)) return;
+    void sendConsultMessage(threadId, text)
+      .then((saved) => {
+        setThreads((prev) =>
+          prev.map((entry) => {
+            if (entry.threadId !== threadId) return entry;
+            const replaced = entry.messages.map((message) =>
+              message.id === optimistic.id ? saved : message,
+            );
+            const hasSaved = replaced.some((message) => message.id === saved.id);
+            return {
+              ...entry,
+              messages: hasSaved ? replaced : [...entry.messages.filter((m) => m.id !== optimistic.id), saved],
+              lastMessage: saved.text,
+            };
+          }),
+        );
+      })
+      .catch((reason: unknown) => {
+        const message =
+          reason instanceof Error ? reason.message : 'Could not send that message.';
+        setThreads((prev) =>
+          prev.map((entry) =>
+            entry.threadId === threadId
+              ? {
+                  ...entry,
+                  messages: entry.messages.filter((item) => item.id !== optimistic.id),
+                  lastMessage:
+                    entry.messages.filter((item) => item.id !== optimistic.id).at(-1)?.text ??
+                    entry.lastMessage,
+                }
+              : entry,
+          ),
+        );
+        if (/read-only|peer consult/i.test(message)) {
+          setThreadReadOnly(message);
+        }
+        setLoadError(message);
+      });
   };
 
   const goBackToList = () => {

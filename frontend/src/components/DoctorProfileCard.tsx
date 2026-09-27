@@ -304,11 +304,6 @@ export function DoctorProfileCard({
                   {profile.organization} · {profile.state}
                 </Text>
               </View>
-              <View style={styles.badgeRow}>
-                <View style={[styles.textButton, styles.demoBadge]}>
-                  <Text style={[styles.textButtonLabel, { color: colors.white }]}>{profileCopy.demoBadge}</Text>
-                </View>
-              </View>
               <View style={styles.actions}>
                 {profile.isSelf ? (
                   <>
@@ -429,16 +424,15 @@ export function DoctorProfileCard({
               <Text style={styles.plain}>Focus: {profile.subspecialtyFocus}</Text>
               <Text style={styles.plain}>{profile.yearsInPractice} years in practice</Text>
               <View style={styles.chips}>
-                <Chip label={profile.specialty} onPress={() => onOpenDirectory?.({ specialty: profile.specialty })} />
-                <Chip label={profile.subspecialtyFocus} onPress={() => onOpenDirectory?.({ focus: profile.subspecialtyFocus })} />
-                <Chip label={readableLabel(profile.practiceType)} onPress={() => onOpenDirectory?.({ practiceType: profile.practiceType })} />
+                <Chip label={profile.specialty} />
+                <Chip label={profile.subspecialtyFocus} />
+                <Chip label={readableLabel(profile.practiceType)} />
                 {profile.languages.map((language) => (
-                  <Chip key={language} label={language} onPress={() => onOpenDirectory?.({ language })} />
+                  <Chip key={language} label={language} />
                 ))}
-                <Chip label={profile.organization} onPress={() => onOpenDirectory?.({ organization: profile.organization })} />
-                <Chip label={profile.state} onPress={() => onOpenDirectory?.({ state: profile.state })} />
+                <Chip label={profile.organization} />
+                <Chip label={profile.state} />
               </View>
-              {!onOpenDirectory ? <Text style={styles.hint}>Directory filters are not available on this screen.</Text> : null}
             </View>
 
             {profile.isSelf ? (
@@ -612,12 +606,12 @@ function Stat({
 function Chip({ label, onPress }: { label: string; onPress?: () => void }) {
   return (
     <Pressable
-      accessibilityRole="button"
+      accessibilityRole={onPress ? 'button' : 'text'}
       accessibilityState={{ disabled: !onPress }}
-      accessibilityLabel={`Filter directory by ${label}`}
+      accessibilityLabel={onPress ? `Filter directory by ${label}` : label}
       disabled={!onPress}
       onPress={onPress}
-      style={({ pressed }) => [styles.chip, pointer, pressed && styles.pressed]}
+      style={({ pressed }) => [styles.chip, pointer, pressed && onPress ? styles.pressed : null]}
     >
       <Text style={styles.chipText}>{label}</Text>
     </Pressable>
@@ -796,8 +790,6 @@ const styles = StyleSheet.create({
   specialtyRow: { flexDirection: 'row', alignItems: 'center', gap: space.xs },
   specialty: { color: colors.white, fontSize: 14, fontWeight: '600' },
   orgLine: { color: 'rgba(255,255,255,0.82)', fontSize: 13, textAlign: 'center' },
-  badgeRow: { alignItems: 'center', marginTop: space.sm },
-  demoBadge: { backgroundColor: 'transparent', borderColor: colors.white },
   actions: { flexDirection: 'row', justifyContent: 'center', gap: space.lg, marginTop: space.md },
   action: { alignItems: 'center', width: 76 },
   actionCircle: {
