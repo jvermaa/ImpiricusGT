@@ -33,7 +33,7 @@ export function ReferralListScreen({ direction, withDoctor, title }: Props) {
   return (
     <View style={styles.root}>
       <Text style={styles.title}>{title}</Text>
-      {status === 'loading' ? <ActivityIndicator color={colors.white} /> : null}
+      {status === 'loading' ? <ActivityIndicator color={colors.navy} /> : null}
       {status === 'error' ? (
         <Pressable accessibilityRole="button" accessibilityLabel="Retry loading referrals" onPress={load}>
           <Text style={styles.retry}>Could not load referrals. Retry</Text>
@@ -63,12 +63,12 @@ export function ReferralListScreen({ direction, withDoctor, title }: Props) {
 
 const styles = StyleSheet.create({
   root: { flex: 1, width: '100%', maxWidth: 480, alignSelf: 'center', paddingHorizontal: space.lg, paddingTop: space.sm },
-  title: { color: colors.white, fontSize: 20, fontWeight: '800', marginBottom: space.md },
+  title: { color: colors.navy, fontSize: 20, fontWeight: '800', marginBottom: space.md },
   list: { gap: space.md, paddingBottom: space.xl },
   card: { backgroundColor: colors.cardBg, borderRadius: space.md, padding: space.lg, gap: space.xs },
   cardTitle: { color: colors.textPrimary, fontWeight: '800' },
   meta: { color: colors.textSecondary, fontSize: 13 },
   reason: { color: colors.textPrimary, fontSize: 14 },
-  empty: { color: colors.white, fontSize: 15 },
-  retry: { color: colors.white, fontWeight: '700' },
+  empty: { color: colors.navy, fontSize: 15 },
+  retry: { color: colors.navy, fontWeight: '700' },
 });

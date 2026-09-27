@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Keyboard, Platform, StyleSheet, View, useWindowDimensions } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { BottomNavBar, TabKey } from './src/components/BottomNavBar';
+import { BottomNavBar, type TabKey } from './src/components/BottomNavBar';
 import { DottedGradientBackground } from './src/components/DottedGradientBackground';
 import type { AppNotification } from './src/data/notificationsMock';
 import { ChatScreen } from './src/screens/ChatScreen';
@@ -68,8 +68,8 @@ function AppShell() {
   };
 
   return (
-    <DottedGradientBackground>
-      <StatusBar style="light" />
+    <DottedGradientBackground variant={activeTab}>
+      <StatusBar style={activeTab === 'profile' ? 'dark' : 'light'} />
       <View style={[styles.shell, isWide && styles.shellCentered]}>
         <View style={[styles.phoneFrame, isWide && styles.phoneFrameWide]}>
           <View style={[styles.content, keyboardVisible && styles.contentWithKeyboard]}>

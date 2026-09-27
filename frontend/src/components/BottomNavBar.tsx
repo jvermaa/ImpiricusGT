@@ -50,7 +50,7 @@ export function BottomNavBar({ activeTab, onTabPress }: Props) {
             accessibilityState={{ selected: active }}
             accessibilityLabel={label}
             onPress={() => onTabPress(key)}
-            style={styles.item}
+            style={({ pressed }) => [styles.item, pressed && styles.itemPressed]}
           >
             <View style={styles.iconSlot}>
               {active ? (
@@ -91,6 +91,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingVertical: 4,
     gap: 3,
+  },
+  itemPressed: {
+    opacity: 0.72,
+    transform: [{ scale: 0.96 }],
   },
   iconSlot: {
     height: 34,
