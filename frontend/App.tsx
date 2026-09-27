@@ -8,8 +8,14 @@ import type { AppNotification } from './src/data/notificationsMock';
 import { ChatScreen } from './src/screens/ChatScreen';
 import { NotificationsScreen } from './src/screens/NotificationsScreen';
 import { PatientScreen } from './src/screens/PatientScreen';
-import { CURRENT_DOCTOR_KEY } from './src/api/config';
+import { API_BASE_URL, CURRENT_DOCTOR_KEY } from './src/api/config';
+import { registerPushToken } from './src/api/push';
 import type { DirectoryFilter } from './src/api/directory';
+import {
+  bootstrapPushNotifications,
+  presentLocalNotification,
+  scheduleStartupNudge,
+} from './src/notifications/push';
 import { ProfileScreen, type ProfileRoute } from './src/screens/ProfileScreen';
 
 function AppShell() {
@@ -34,6 +40,64 @@ function AppShell() {
     return () => {
       showSubscription.remove();
       hideSubscription.remove();
+    };
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    const seen = new Set<string>();
+
+    bootstrapPushNotifications()
+      .then(async (boot) => {
+        if (cancelled) return;
+        if (boot.expoPushToken) {
+          try {
+            await registerPushToken(boot.expoPushToken);
+          } catch {
+            // Best-effort for the demo.
+          }
+        }
+        // Auto nudge for judges — fires ~30s after launch (lock the phone to see lock-screen).
+        if (boot.permission === 'granted') {
+          await scheduleStartupNudge(30);
+        }
+      })
+      .catch(() => undefined);
+
+    if (typeof EventSource === 'undefined') {
+      return () => {
+        cancelled = true;
+      };
+    }
+
+    const source = new EventSource(`${API_BASE_URL}/events`);
+    source.onmessage = (message) => {
+      try {
+        const event = JSON.parse(message.data) as {
+          type?: string;
+          doctor_key?: string;
+          notification_id?: string;
+          title?: string;
+          body?: string;
+        };
+        if (event.doctor_key && event.doctor_key !== CURRENT_DOCTOR_KEY) return;
+        if (event.type !== 'doctor_notification' && event.type !== 'referral_consent') return;
+        const key = event.notification_id ?? `${event.type}-${event.title}-${event.body}`;
+        if (seen.has(key)) return;
+        seen.add(key);
+        void presentLocalNotification({
+          title: event.title ?? 'Impiricus',
+          body: event.body ?? 'You have a new update.',
+          data: { notification_id: event.notification_id, type: event.type },
+        });
+      } catch {
+        // Ignore malformed SSE payloads.
+      }
+    };
+
+    return () => {
+      cancelled = true;
+      source.close();
     };
   }, []);
 

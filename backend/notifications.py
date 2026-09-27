@@ -1,4 +1,4 @@
-"""In-app doctor notification inbox (DB-backed)."""
+"""In-app doctor notification inbox (DB-backed) + Expo push registration."""
 from __future__ import annotations
 
 import json
@@ -9,6 +9,8 @@ from pydantic import BaseModel, Field
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+import events as event_bus
+import push as push_service
 from database import get_db
 from keys import next_key
 from models import Doctor, DoctorNotification
@@ -42,6 +44,17 @@ class NotificationMessageCreate(BaseModel):
     sender_id: str = Field(default="me", pattern="^(me|desk)$")
     sender_name: str | None = None
     sender_role: str | None = None
+
+
+class PushTokenRegister(BaseModel):
+    doctor_key: str
+    token: str = Field(min_length=10, max_length=256)
+
+
+class DemoPushRequest(BaseModel):
+    doctor_key: str
+    title: str | None = None
+    body: str | None = None
 
 
 def _require_doctor(db: Session, doctor_key: str) -> Doctor:
@@ -118,6 +131,29 @@ def _get_owned(db: Session, notification_key: str, doctor_key: str) -> DoctorNot
     return row
 
 
+def _emit_push_and_event(db: Session, row: DoctorNotification) -> None:
+    push_service.notify_doctor_devices(
+        db,
+        doctor_key=row.doctor_key,
+        title=row.title,
+        body=row.preview or row.body,
+        data={
+            "notification_id": row.notification_key,
+            "type": row.type,
+            "doctor_key": row.doctor_key,
+        },
+    )
+    event_bus.publish(
+        {
+            "type": "doctor_notification",
+            "doctor_key": row.doctor_key,
+            "notification_id": row.notification_key,
+            "title": row.title,
+            "body": row.preview or row.body,
+        }
+    )
+
+
 @router.get("")
 def list_notifications(doctor: str = Query(...), db: Session = Depends(get_db)) -> list[dict]:
     _require_doctor(db, doctor)
@@ -127,6 +163,71 @@ def list_notifications(doctor: str = Query(...), db: Session = Depends(get_db)) 
         .order_by(DoctorNotification.created_at.desc(), DoctorNotification.notification_key.desc())
     ).all()
     return [notification_payload(row) for row in rows]
+
+
+@router.post("/push-token")
+def register_push_token(body: PushTokenRegister, db: Session = Depends(get_db)) -> dict:
+    _require_doctor(db, body.doctor_key)
+    if not body.token.startswith("ExponentPushToken"):
+        raise HTTPException(
+            status_code=422,
+            detail="Expected an Expo push token (ExponentPushToken[...]).",
+        )
+    row = push_service.upsert_push_token(db, doctor_key=body.doctor_key, token=body.token)
+    return {
+        "doctor_key": row.doctor_key,
+        "token": row.token,
+        "updated_at": row.updated_at.isoformat(),
+    }
+
+
+@router.post("/demo-push")
+def demo_push(body: DemoPushRequest, db: Session = Depends(get_db)) -> dict:
+    _require_doctor(db, body.doctor_key)
+    title = body.title or "Impiricus Pulse"
+    preview = body.body or "New clinical update is ready for your review."
+    row = insert_notification(
+        db,
+        doctor_key=body.doctor_key,
+        type="clinical_update",
+        title=title,
+        sender="Impiricus Demo",
+        brand="Impiricus",
+        preview=preview,
+        body=preview,
+        opens_chat=False,
+        unread_count=1,
+        find_suitable_patients=True,
+        info_card={
+            "title": title,
+            "sections": [{"label": "Source", "value": "Demo push from Impiricus"}],
+        },
+        # App already fires a local alert; avoid a second SSE-triggered banner.
+        push=False,
+    )
+    remote = push_service.notify_doctor_devices(
+        db,
+        doctor_key=body.doctor_key,
+        title=title,
+        body=preview,
+        data={"notification_id": row.notification_key, "demo": True},
+    )
+    if remote.get("delivered"):
+        return {
+            "delivered": True,
+            "mode": "remote",
+            "detail": remote.get("detail", "Remote Expo push sent."),
+            "notification": notification_payload(row),
+        }
+    return {
+        "delivered": False,
+        "mode": "local_fallback",
+        "detail": (
+            remote.get("detail")
+            or "No Expo push token on file. The phone app should show a local notification instead."
+        ),
+        "notification": notification_payload(row),
+    }
 
 
 @router.get("/{notification_key}")
@@ -186,6 +287,7 @@ def insert_notification(
     campaign_chips: list | None = None,
     reply_prompt: str | None = None,
     commit: bool = True,
+    push: bool = True,
 ) -> DoctorNotification:
     _require_doctor(db, doctor_key)
     key = next_key(db, DoctorNotification.notification_key, "N")
@@ -220,6 +322,8 @@ def insert_notification(
     if commit:
         db.commit()
         db.refresh(row)
+        if push:
+            _emit_push_and_event(db, row)
     else:
         db.flush()
     return row

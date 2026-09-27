@@ -16,12 +16,14 @@ from sqlalchemy.orm import Session
 import clinic
 import events
 import notifications as notification_store
+import push as push_service
 from assist import _plain, _send_email
 from database import get_db
 from keys import next_key
 from models import (
     CaseMatch,
     Doctor,
+    DoctorNotification,
     Patient,
     ReferralConsentToken,
     ReferralMessage,
@@ -461,7 +463,7 @@ def _notify_referring_doctor(
     patient: Patient,
     specialist: Doctor,
     decision: str,
-) -> None:
+) -> DoctorNotification:
     approved = decision == "approve"
     title = "Patient approved referral" if approved else "Patient declined referral"
     preview = (
@@ -490,6 +492,7 @@ def _notify_referring_doctor(
             ],
         },
         commit=False,
+        push=False,
     )
     events.publish(
         {
@@ -501,7 +504,24 @@ def _notify_referring_doctor(
             "notification_id": row.notification_key,
             "patient_key": referral.patient_key,
             "to_doctor_key": referral.to_doctor_key,
+            "title": title,
+            "body": preview,
         }
+    )
+    return row
+
+
+def _alert_after_commit(db: Session, row: DoctorNotification) -> None:
+    push_service.notify_doctor_devices(
+        db,
+        doctor_key=row.doctor_key,
+        title=row.title,
+        body=row.preview or row.body,
+        data={
+            "notification_id": row.notification_key,
+            "type": row.type,
+            "doctor_key": row.doctor_key,
+        },
     )
 
 
@@ -643,7 +663,7 @@ def patient_consent(
             )
         except HTTPException:
             pass
-        _notify_referring_doctor(
+        alert = _notify_referring_doctor(
             db,
             referral=referral,
             patient=patient,
@@ -651,6 +671,7 @@ def patient_consent(
             decision="approve",
         )
         db.commit()
+        _alert_after_commit(db, alert)
         return _consent_result_page(
             title="Referral approved",
             body=(
@@ -668,7 +689,7 @@ def patient_consent(
         referral.from_doctor_key,
         "[status] Patient declined the referral.",
     )
-    _notify_referring_doctor(
+    alert = _notify_referring_doctor(
         db,
         referral=referral,
         patient=patient,
@@ -676,6 +697,7 @@ def patient_consent(
         decision="decline",
     )
     db.commit()
+    _alert_after_commit(db, alert)
     return _consent_result_page(
         title="Referral declined",
         body=(

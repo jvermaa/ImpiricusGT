@@ -4,6 +4,16 @@ function trimTrailingSlash(url: string): string {
   return url.replace(/\/+$/, '');
 }
 
+function isTunnelHost(host: string): boolean {
+  const lower = host.toLowerCase();
+  return (
+    lower.includes('exp.direct') ||
+    lower.includes('expo.dev') ||
+    lower.includes('ngrok') ||
+    lower.endsWith('.exp.host')
+  );
+}
+
 function inferApiBaseUrl(): string {
   const explicitUrl = process.env.EXPO_PUBLIC_API_URL?.trim();
   if (explicitUrl) {
@@ -17,8 +27,10 @@ function inferApiBaseUrl(): string {
   const scriptUrl = NativeModules?.SourceCode?.scriptURL as string | undefined;
   if (scriptUrl) {
     const hostMatch = scriptUrl.match(/^[a-z]+:\/\/([^/:]+)/i);
-    if (hostMatch?.[1]) {
-      return `http://${hostMatch[1]}:8000`;
+    const host = hostMatch?.[1];
+    // Expo --tunnel uses exp.direct for Metro JS, not your FastAPI server.
+    if (host && !isTunnelHost(host)) {
+      return `http://${host}:8000`;
     }
   }
 

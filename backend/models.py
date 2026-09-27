@@ -302,7 +302,7 @@ class ReferralMessage(Base):
 
 
 class DoctorNotification(Base):
-    """In-app HCP inbox items (Pulse/Spark-style). Push tokens are out of scope."""
+    """In-app HCP inbox items (Pulse/Spark-style)."""
 
     __tablename__ = "doctor_notifications"
 
@@ -323,3 +323,14 @@ class DoctorNotification(Base):
     payload_json: Mapped[str] = mapped_column(Text, nullable=False, default="{}")
     created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
     read_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+
+
+class DoctorPushToken(Base):
+    """Expo push tokens registered by doctor devices for demo / production alerts."""
+
+    __tablename__ = "doctor_push_tokens"
+
+    token: Mapped[str] = mapped_column(String, primary_key=True)
+    doctor_key: Mapped[str] = mapped_column(ForeignKey("doctors.doctor_key"), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
